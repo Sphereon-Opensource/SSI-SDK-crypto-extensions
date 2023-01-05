@@ -1981,7 +1981,7 @@
     tweetnacl "^1.0.3"
     tweetnacl-util "^0.15.1"
 
-"@microsoft/api-documenter@^7.14.1", "@microsoft/api-documenter@^7.19.26":
+"@microsoft/api-documenter@^7.19.26", "@microsoft/api-documenter@^7.19.27":
   version "7.19.27"
   resolved "https://registry.yarnpkg.com/@microsoft/api-documenter/-/api-documenter-7.19.27.tgz#6ada041425f3772fe8befb14ecd85640544632dd"
   integrity sha512-KKNUnDlhRx+tYZsDt3Bn8OqdpCS8V9pce+ZvCjkL+nGHN4G2w1lqAtm82VdzGYgG8HgrwqZ72/Z2bsxKvPho7g==
@@ -1994,7 +1994,7 @@
     js-yaml "~3.13.1"
     resolve "~1.22.1"
 
-"@microsoft/api-extractor-model@7.25.3", "@microsoft/api-extractor-model@^7.15.3", "@microsoft/api-extractor-model@^7.25.2", "@microsoft/api-extractor-model@^7.25.3":
+"@microsoft/api-extractor-model@7.25.3", "@microsoft/api-extractor-model@^7.25.2", "@microsoft/api-extractor-model@^7.25.3":
   version "7.25.3"
   resolved "https://registry.yarnpkg.com/@microsoft/api-extractor-model/-/api-extractor-model-7.25.3.tgz#1ad0fe161623564e5b36b73d5889066e36097389"
   integrity sha512-WWxBUq77p2iZ+5VF7Nmrm3y/UtqCh5bYV8ii3khwq3w99+fXWpvfsAhgSLsC7k8XDQc6De4ssMxH6He/qe1pzg==
@@ -2003,7 +2003,7 @@
     "@microsoft/tsdoc-config" "~0.16.1"
     "@rushstack/node-core-library" "3.53.3"
 
-"@microsoft/api-extractor@^7.19.4", "@microsoft/api-extractor@^7.33.6", "@microsoft/api-extractor@^7.33.7":
+"@microsoft/api-extractor@^7.33.6", "@microsoft/api-extractor@^7.33.7":
   version "7.33.7"
   resolved "https://registry.yarnpkg.com/@microsoft/api-extractor/-/api-extractor-7.33.7.tgz#3579f23469a9e02deb4e7aee705ddd2a221c7b8d"
   integrity sha512-fQT2v/j/55DhvMFiopLtth66E7xTFNhnumMKgKY14SaG6qU/V1W0e4nOAgbA+SmLakQjAd1Evu06ofaVaxBPbA==
@@ -3476,7 +3476,7 @@
     expo-modules-autolinking "^0.0.3"
     invariant "^2.2.4"
 
-"@veramo-community/lds-ecdsa-secp256k1-recovery2020@github:uport-project/EcdsaSecp256k1RecoverySignature2020":
+"@veramo-community/lds-ecdsa-secp256k1-recovery2020@uport-project/EcdsaSecp256k1RecoverySignature2020":
   version "0.0.8"
   resolved "https://codeload.github.com/uport-project/EcdsaSecp256k1RecoverySignature2020/tar.gz/ab0db52de6f4e6663ef271a48009ba26e688ef9b"
   dependencies:
@@ -12380,14 +12380,7 @@ uid-number@0.0.6:
   resolved "https://registry.yarnpkg.com/uid-number/-/uid-number-0.0.6.tgz#0ea10e8035e8eb5b8e4449f06da1c730663baa81"
   integrity sha512-c461FXIljswCuscZn67xq9PpszkPT6RjheWFQTgCyabJrTUozElanb0YEqv2UGgk247YpcJkFBuSGNvBlpXM9w==
 
-uint8arrays@^2.0.5:
-  version "2.1.10"
-  resolved "https://registry.yarnpkg.com/uint8arrays/-/uint8arrays-2.1.10.tgz#34d023c843a327c676e48576295ca373c56e286a"
-  integrity sha512-Q9/hhJa2836nQfEJSZTmr+pg9+cDJS9XEAp7N2Vg5MzL3bK/mkMVfjscRGYruP9jNda6MAdf4QD/y78gSzkp6A==
-  dependencies:
-    multiformats "^9.4.2"
-
-uint8arrays@^3.0.0:
+uint8arrays@^3.0.0, uint8arrays@^3.1.1:
   version "3.1.1"
   resolved "https://registry.yarnpkg.com/uint8arrays/-/uint8arrays-3.1.1.tgz#2d8762acce159ccd9936057572dade9459f65ae0"
   integrity sha512-+QJa8QRnbdXVpHYjLoTpJIdCTiw9Ir62nocClWuXIq2JIh4Uta0cQsTSpFL678p2CN8B+XSApwcU+pQEqVpKWg==
