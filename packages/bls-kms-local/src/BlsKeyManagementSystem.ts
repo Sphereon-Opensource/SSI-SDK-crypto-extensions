@@ -19,7 +19,7 @@ export class BlsKeyManagementSystem extends KeyManagementSystem {
     this.privateKeyStore = keyStore
   }
 
-  async importKey(args: Exclude<MinimalImportableKey, 'kms'>): Promise<ManagedKeyInfo> {
+  async importKey(args: Omit<MinimalImportableKey, 'kms'>): Promise<ManagedKeyInfo> {
     switch (args.type) {
       case KeyType.Bls12381G2.toString():
         if (!args.privateKeyHex || !args.publicKeyHex) {
@@ -40,6 +40,7 @@ export class BlsKeyManagementSystem extends KeyManagementSystem {
         }
         const managedKey = this.asBlsManagedKeyInfo({ alias: args.kid, ...args })
         await this.privateKeyStore.import({ alias: managedKey.kid, ...args })
+        debug('imported key', managedKey.type, managedKey.publicKeyHex)
         return managedKey
       }
       default:
@@ -53,7 +54,6 @@ export class BlsKeyManagementSystem extends KeyManagementSystem {
       case KeyType.Bls12381G2: {
         const keyPairBls12381G2 = await generateBls12381G2KeyPair()
         key = await this.importKey({
-          kms: 'local',
           type,
           privateKeyHex: Buffer.from(keyPairBls12381G2.secretKey).toString('hex'),
           publicKeyHex: Buffer.from(keyPairBls12381G2.publicKey).toString('hex'),
@@ -65,7 +65,6 @@ export class BlsKeyManagementSystem extends KeyManagementSystem {
         key = await this.importKey({
           type,
           privateKeyHex: privateKeyHexFromPEM(new JSEncrypt().getPrivateKey()),
-          kms: '',
         })
         break
       }
@@ -156,7 +155,7 @@ export class BlsKeyManagementSystem extends KeyManagementSystem {
 
         key = {
           type: args.type,
-          kid: meta?.x509?.cn || args.alias || publicKeyHex,
+          kid: args.alias || meta?.x509?.cn || publicKeyHex,
           publicKeyHex,
           meta: {
             ...meta,
