@@ -1,6 +1,6 @@
 import JSEncrypt from '@sphereon/jsencrypt'
+import { JWK, jwkToPEM } from '@sphereon/ssi-sdk-did-utils'
 import * as u8a from 'uint8arrays'
-import { jwkToPEM } from './x509-utils'
 import { DigestMethodName, digestMethodParams } from './digest-methods'
 
 export class RSASigner {
@@ -12,7 +12,7 @@ export class RSASigner {
    * @param key Either in PEM or JWK format (no raw hex keys here!)
    * @param digestMethodName
    */
-  constructor(key: string | JsonWebKey, digestMethodName?: DigestMethodName) {
+  constructor(key: string | JWK, digestMethodName?: DigestMethodName) {
     this.jsEncrypt = new JSEncrypt()
     if (typeof key === 'string') {
       this.jsEncrypt.setKey(key)

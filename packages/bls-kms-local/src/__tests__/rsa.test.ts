@@ -1,10 +1,10 @@
-import { pemCertChainTox5c, privateKeyHexFromPEM, publicKeyHexFromPEM, toKeyObject, X509Opts, x5cToPemCertChain } from '../x509/x509-utils'
 import JSEncrypt from '@sphereon/jsencrypt'
 import { PEM_CERT, PEM_CHAIN, PEM_FULL_CHAIN, PEM_PRIV_KEY } from './certs'
 import { digestMethodParams } from '../x509/digest-methods'
 import { BlsKeyManagementSystem } from '../BlsKeyManagementSystem'
 import { MemoryPrivateKeyStore } from '@veramo/key-manager'
 import * as u8a from 'uint8arrays'
+import { pemCertChainTox5c, privateKeyHexFromPEM, publicKeyHexFromPEM, toKeyObject, X509Opts, x5cToPemCertChain } from '@sphereon/ssi-sdk-did-utils'
 
 describe('X509 PEMs', () => {
   it('should get public key from private key', () => {

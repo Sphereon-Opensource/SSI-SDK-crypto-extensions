@@ -5,9 +5,9 @@ import { AbstractPrivateKeyStore, ManagedPrivateKey } from '@veramo/key-manager'
 import { KeyManagementSystem } from '@veramo/kms-local'
 import { BlsManagedKeyInfoArgs, KeyType } from './index'
 import { blsSign, generateBls12381G2KeyPair } from '@mattrglobal/bbs-signatures'
-import { hexToPEM, jwkToPEM, pemCertChainTox5c, PEMToHex, PEMToJwk, privateKeyHexFromPEM } from './x509/x509-utils'
 import JSEncrypt from '@sphereon/jsencrypt'
 import { RSASigner } from './x509/rsa-signer'
+import { hexToPEM, jwkToPEM, pemCertChainTox5c, PEMToHex, PEMToJwk, privateKeyHexFromPEM } from '@sphereon/ssi-sdk-did-utils'
 
 const debug = Debug('veramo:kms:bls:local')
 

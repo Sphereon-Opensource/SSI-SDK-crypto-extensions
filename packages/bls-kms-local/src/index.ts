@@ -4,4 +4,3 @@ export type BlsManagedKeyInfoArgs = { alias?: string; type: TKeyType; privateKey
 export enum KeyType {
   Bls12381G2 = 'Bls12381G2',
 }
-export { privateKeyHexFromPEM } from './x509/x509-utils'
