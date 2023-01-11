@@ -2799,7 +2799,7 @@
     nanoid "^3.3.4"
     string.prototype.matchall "^4.0.8"
 
-"@sphereon/ssi-sdk-core@^0.8.1-next.121+d98b358":
+"@sphereon/ssi-sdk-core@^0.8.1-next.123+0204094":
   version "0.8.1-unstable.135"
   resolved "https://registry.yarnpkg.com/@sphereon/ssi-sdk-core/-/ssi-sdk-core-0.8.1-unstable.135.tgz#11bdc07b7726c7c7cf03110a7b79e9ab93975e3f"
   integrity sha512-BSQWltCvb+Cpi7AZ0OqDvYzOx/xtxoCTFRR2bEc5OyoOBq73ySJfSW0DywKylgba+gTP+wdeLOZfigWU/pxOOg==
@@ -2810,14 +2810,14 @@
     "@veramo/core" "4.2.0"
     typeorm "^0.3.10"
 
-"@sphereon/ssi-sdk-did-utils@^0.8.1-next.121":
-  version "0.8.1-next.121"
-  resolved "https://registry.yarnpkg.com/@sphereon/ssi-sdk-did-utils/-/ssi-sdk-did-utils-0.8.1-next.121.tgz#b0b161bb064a90ca4ebc919c66487401e313414a"
-  integrity sha512-prm4naHno1tScXsbS3myVXcfIkaNp97INr7TbbV07Rp6eLXfx7QQ3kbH+rAThjdxbgiEhCfc02EvfXoZJF2PEw==
+"@sphereon/ssi-sdk-did-utils@^0.8.1-next.123":
+  version "0.8.1-next.123"
+  resolved "https://registry.yarnpkg.com/@sphereon/ssi-sdk-did-utils/-/ssi-sdk-did-utils-0.8.1-next.123.tgz#4fe5f2d0993bfb39474d9d13cf5bc788714ce496"
+  integrity sha512-hF1/AST/tYtSp04/j8pFHWwZKQsCnfY9bG/TMXaSTZh1HwKYFcW6XUsmRDE+z23YrJHDUUbpKVxsoPo3SO38ng==
   dependencies:
     "@sphereon/jsencrypt" "3.3.2-unstable.0"
-    "@sphereon/ssi-sdk-core" "^0.8.1-next.121+d98b358"
-    "@sphereon/ssi-types" "^0.8.1-next.121+d98b358"
+    "@sphereon/ssi-sdk-core" "^0.8.1-next.123+0204094"
+    "@sphereon/ssi-types" "^0.8.1-next.123+0204094"
     "@trust/keyto" "^2.0.0-alpha1"
     "@veramo/core" "^4.2.0"
     "@veramo/utils" "^4.2.0"
@@ -2838,7 +2838,7 @@
   dependencies:
     jwt-decode "^3.1.2"
 
-"@sphereon/ssi-types@^0.8.1-next.121+d98b358", "@sphereon/ssi-types@^0.8.1-next.3", "@sphereon/ssi-types@^0.8.1-unstable.135+680e974":
+"@sphereon/ssi-types@^0.8.1-next.123+0204094", "@sphereon/ssi-types@^0.8.1-next.3", "@sphereon/ssi-types@^0.8.1-unstable.135+680e974":
   version "0.8.1-unstable.135"
   resolved "https://registry.yarnpkg.com/@sphereon/ssi-types/-/ssi-types-0.8.1-unstable.135.tgz#89ba0299c750d779edf18aabddae9c955f692a67"
   integrity sha512-pISAFCRqjQPlOfRMAKf0tIir2DVqoZSDm6sJOkgb9q8GW9P7I5vlRFOVim+hiyAulSa6WtnttjBgrY8sZVQNRw==
