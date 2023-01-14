@@ -40,7 +40,7 @@ export class RSASigner {
 
   private bufferToString(buf: ArrayBuffer) {
     const uint8Array = new Uint8Array(buf)
-    return u8a.toString(uint8Array, 'base64pad')
+    return u8a.toString(uint8Array, 'base64urlpad')
   }
 
   public async sign(data: string | Uint8Array): Promise<string> {
@@ -61,7 +61,7 @@ export class RSASigner {
     const verificationResult = await crypto.subtle.verify(
       this.getImportParams(),
       await this.getKey(),
-      typeof signature === 'string' ? u8a.fromString(signature, 'base64') : signature,
+      typeof signature === 'string' ? u8a.fromString(signature, 'base64urlpad') : signature,
       input
     )
 

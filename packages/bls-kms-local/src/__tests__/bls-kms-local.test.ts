@@ -64,7 +64,7 @@ describe('@veramo/kms-local x509 support', () => {
     const key = await kms.importKey({ kid: 'test', privateKeyHex, type: 'RSA' })
     const signature = await kms.sign({ keyRef: key, data, algorithm: 'RS256' })
     expect(signature).toEqual(
-      'RJfBIpGscKKrWNNVau5zNWwQHOKCOWnh5f1VH7H7rwJcwrroHBpqNnf1EqA51nzpSlzynsQ69BLQkcUX3Yq2VeRPUVazOWAJ/xa9EIRcbpIjxi33zH/DjDdOQnre8WB1KNCg/Nkql5KjCmwGRTjCqBDRkNXPmfRoUoG3XKTSSW4='
+      'RJfBIpGscKKrWNNVau5zNWwQHOKCOWnh5f1VH7H7rwJcwrroHBpqNnf1EqA51nzpSlzynsQ69BLQkcUX3Yq2VeRPUVazOWAJ_xa9EIRcbpIjxi33zH_DjDdOQnre8WB1KNCg_Nkql5KjCmwGRTjCqBDRkNXPmfRoUoG3XKTSSW4='
     )
   })
 })
