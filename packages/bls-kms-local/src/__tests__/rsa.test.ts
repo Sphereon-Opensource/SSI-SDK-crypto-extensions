@@ -137,7 +137,7 @@ describe('@veramo/kms-local x509 import', () => {
     const key = await kms.importKey({ kid: 'test', privateKeyHex, type: 'RSA', meta })
     const signature = await kms.sign({ keyRef: key, data, algorithm: 'RS256' })
     expect(signature).toEqual(
-      'PAgf2uRWJa-pmlUL80NVnxkExJkcpfLPB8udX1WoFGtAnIuFCfq8r1C43NL0xr9Qtn8TBK5pVHmAPPd7XlTkXU_LQ_JoBYxjzjtaRzGOo4-S-TAtKaW-evGI5rpXFWCeta0gwzTCVfDjbouRUg3_krK0B1cLLK1Kiih83n-6hadTxPLiQqNpbWxbnoHbZXw-V-5maCE1erY9cvO9LZeO2S_PXiqb19gk4mOEG3ZRQm12eHAlOVTnqRYiLmwWfSnT231jkJnF99RuLUjxlQNO5K6B-vYIhfVoqDliqaW6IEOamJJHUWG6RlqZfU7TzanZzR0YmDf5HIJEiDG4D_lF6g=='
+      'PAgf2uRWJa-pmlUL80NVnxkExJkcpfLPB8udX1WoFGtAnIuFCfq8r1C43NL0xr9Qtn8TBK5pVHmAPPd7XlTkXU_LQ_JoBYxjzjtaRzGOo4-S-TAtKaW-evGI5rpXFWCeta0gwzTCVfDjbouRUg3_krK0B1cLLK1Kiih83n-6hadTxPLiQqNpbWxbnoHbZXw-V-5maCE1erY9cvO9LZeO2S_PXiqb19gk4mOEG3ZRQm12eHAlOVTnqRYiLmwWfSnT231jkJnF99RuLUjxlQNO5K6B-vYIhfVoqDliqaW6IEOamJJHUWG6RlqZfU7TzanZzR0YmDf5HIJEiDG4D_lF6g'
     )
   })
 })
