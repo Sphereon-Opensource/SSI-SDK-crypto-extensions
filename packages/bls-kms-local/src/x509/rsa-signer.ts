@@ -1,40 +1,72 @@
-import JSEncrypt from '@sphereon/jsencrypt'
-import { JWK, jwkToPEM } from '@sphereon/ssi-sdk-did-utils'
+import { JWK, PEMToJwk } from '@sphereon/ssi-sdk-did-utils'
 import * as u8a from 'uint8arrays'
-import { DigestMethodName, digestMethodParams } from './digest-methods'
+import { HashAlgorithm } from './digest-methods'
+import crypto from 'isomorphic-webcrypto'
+import { importRSAKey, RSAEncryptionSchemes, RSASignatureSchemes } from './rsa-key'
 
 export class RSASigner {
-  private readonly jsEncrypt: JSEncrypt
-  private readonly digestMethodName
+  private readonly hashAlgorithm: HashAlgorithm
+  private readonly jwk: JWK
+
+  private key: CryptoKey | undefined
+  private readonly scheme: RSAEncryptionSchemes | RSASignatureSchemes
 
   /**
    *
    * @param key Either in PEM or JWK format (no raw hex keys here!)
-   * @param digestMethodName
+   * @param hashAlgorithm
    */
-  constructor(key: string | JWK, digestMethodName?: DigestMethodName) {
-    this.jsEncrypt = new JSEncrypt()
+  constructor(key: string | JWK, opts?: { hashAlgorithm?: HashAlgorithm; scheme?: RSAEncryptionSchemes | RSASignatureSchemes }) {
     if (typeof key === 'string') {
-      this.jsEncrypt.setKey(key)
+      this.jwk = PEMToJwk(key)
     } else {
-      this.jsEncrypt.setKey(jwkToPEM(key, key.d ? 'private' : 'public'))
+      this.jwk = key
     }
-    this.digestMethodName = digestMethodName ?? 'sha256'
+
+    this.hashAlgorithm = opts?.hashAlgorithm ?? 'sha-256'
+    this.scheme = opts?.scheme ?? 'RSA-PSS'
+  }
+
+  private getImportParams(): RsaHashedImportParams {
+    return { name: this.scheme, hash: this.hashAlgorithm }
+  }
+
+  private async getKey(): Promise<CryptoKey> {
+    if (!this.key) {
+      this.key = await importRSAKey(this.jwk, this.scheme, this.hashAlgorithm)
+    }
+    return this.key
+  }
+
+  private bufferToString(buf: ArrayBuffer) {
+    const uint8Array = new Uint8Array(buf)
+    return u8a.toString(uint8Array, 'base64pad')
   }
 
   public async sign(data: string | Uint8Array): Promise<string> {
-    const input = typeof data === 'string' ? data : u8a.toString(data)
-    const dmParams = digestMethodParams(this.digestMethodName)
-    const result = this.jsEncrypt.sign(input, dmParams.digestMethod, dmParams.digestName)
-    if (!result) {
+    const input = typeof data !== 'string' ? data : u8a.fromString(data)
+    const key = await this.getKey()
+    const signature = this.bufferToString(await crypto.subtle.sign(this.getImportParams(), key, input))
+    if (!signature) {
       throw Error('Could not sign input data')
     }
-    return result
+    // console.log(`Signature: ${signature}`)
+
+    return signature
   }
 
   public async verify(data: string | Uint8Array, signature: string | Uint8Array): Promise<boolean> {
-    const input = typeof data === 'string' ? data : u8a.toString(data)
-    const dmParams = digestMethodParams(this.digestMethodName)
-    return this.jsEncrypt.verify(input, typeof signature === 'string' ? signature : u8a.toString(signature), dmParams.digestMethod)
+    const input = typeof data !== 'string' ? data : u8a.fromString(data)
+
+    const verificationResult = await crypto.subtle.verify(
+      this.getImportParams(),
+      await this.getKey(),
+      typeof signature === 'string' ? u8a.fromString(signature, 'base64') : signature,
+      input
+    )
+
+    // console.log(`Verification result: ${verificationResult}`)
+
+    return verificationResult
   }
 }

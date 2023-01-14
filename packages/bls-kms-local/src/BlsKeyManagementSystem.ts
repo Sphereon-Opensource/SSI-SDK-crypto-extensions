@@ -5,9 +5,9 @@ import { AbstractPrivateKeyStore, ManagedPrivateKey } from '@veramo/key-manager'
 import { KeyManagementSystem } from '@veramo/kms-local'
 import { BlsManagedKeyInfoArgs, KeyType } from './index'
 import { blsSign, generateBls12381G2KeyPair } from '@mattrglobal/bbs-signatures'
-import JSEncrypt from '@sphereon/jsencrypt'
 import { RSASigner } from './x509/rsa-signer'
 import { hexToPEM, jwkToPEM, pemCertChainTox5c, PEMToHex, PEMToJwk, privateKeyHexFromPEM } from '@sphereon/ssi-sdk-did-utils'
+import { generateRSAKeyAsPEM, signAlgorithmToSchemeAndHashAlg } from './x509/rsa-key'
 
 const debug = Debug('veramo:kms:bls:local')
 
@@ -34,6 +34,8 @@ export class BlsKeyManagementSystem extends KeyManagementSystem {
         await this.privateKeyStore.import({ alias: managedKey.kid, ...args })
         debug('imported key', managedKey.type, managedKey.publicKeyHex)
         return managedKey
+
+      // @ts-ignore
       case 'RSA': {
         if (!args.privateKeyHex) {
           throw new Error('invalid_argument: type and privateKeyHex are required to import a key')
@@ -50,6 +52,7 @@ export class BlsKeyManagementSystem extends KeyManagementSystem {
 
   async createKey({ type }: { type: TKeyType }): Promise<ManagedKeyInfo> {
     let key: ManagedKeyInfo
+
     switch (type) {
       case KeyType.Bls12381G2: {
         const keyPairBls12381G2 = await generateBls12381G2KeyPair()
@@ -60,11 +63,13 @@ export class BlsKeyManagementSystem extends KeyManagementSystem {
         })
         break
       }
+
       // @ts-ignore
       case 'RSA': {
+        const pem = await generateRSAKeyAsPEM('RSA-PSS', 'sha-256', 2048)
         key = await this.importKey({
           type,
-          privateKeyHex: privateKeyHexFromPEM(new JSEncrypt().getPrivateKey()),
+          privateKeyHex: privateKeyHexFromPEM(pem),
         })
         break
       }
@@ -97,8 +102,12 @@ export class BlsKeyManagementSystem extends KeyManagementSystem {
         messages: [data],
       }
       return Buffer.from(await blsSign(keyPair)).toString('hex')
-    } else if (privateKey.type === 'RSA' && (typeof algorithm === 'undefined' || algorithm === 'RS256' || algorithm === 'RS512')) {
-      return await this.signRSA(privateKey.privateKeyHex, data, algorithm)
+    } else if (
+      // @ts-ignore
+      privateKey.type === 'RSA' &&
+      (typeof algorithm === 'undefined' || algorithm === 'RS256' || algorithm === 'RS512' || algorithm === 'PS256' || algorithm === 'PS512')
+    ) {
+      return await this.signRSA(privateKey.privateKeyHex, data, algorithm ? algorithm : 'PS256')
     } else {
       return await super.sign({ keyRef, algorithm, data })
     }
@@ -118,6 +127,7 @@ export class BlsKeyManagementSystem extends KeyManagementSystem {
           },
         }
         break
+      // @ts-ignore
       case 'RSA': {
         // @ts-ignore // We need this as the interface on the args, does not allow for any metadata on managed key imports
         const x509 = args.meta?.x509 as X509Opts
@@ -160,7 +170,7 @@ export class BlsKeyManagementSystem extends KeyManagementSystem {
           meta: {
             ...meta,
             // todo: could als be DSA etc
-            algorithms: ['RS256', 'RS512'],
+            algorithms: ['RS256', 'RS512', 'PS256', 'PS512'],
             publicKeyJwk,
             publicKeyPEM,
           },
@@ -177,9 +187,9 @@ export class BlsKeyManagementSystem extends KeyManagementSystem {
   /**
    * @returns a base64url encoded signature for the `RS256` alg
    */
-  private async signRSA(privateKeyHex: string, data: Uint8Array, alg?: string): Promise<string> {
-    const dm = alg && alg.endsWith('512') ? 'sha512' : 'sha256'
-    const signer = new RSASigner(hexToPEM(privateKeyHex, 'private'), dm)
+  private async signRSA(privateKeyHex: string, data: Uint8Array, signingAlgorithm: string): Promise<string> {
+    const { hashAlgorithm, scheme } = signAlgorithmToSchemeAndHashAlg(signingAlgorithm)
+    const signer = new RSASigner(PEMToJwk(hexToPEM(privateKeyHex, 'private'), 'private'), { hashAlgorithm, scheme })
     const signature = await signer.sign(data)
     return signature as string
   }

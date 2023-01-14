@@ -4,7 +4,16 @@ import { digestMethodParams } from '../x509/digest-methods'
 import { BlsKeyManagementSystem } from '../BlsKeyManagementSystem'
 import { MemoryPrivateKeyStore } from '@veramo/key-manager'
 import * as u8a from 'uint8arrays'
-import { pemCertChainTox5c, privateKeyHexFromPEM, publicKeyHexFromPEM, toKeyObject, X509Opts, x5cToPemCertChain } from '@sphereon/ssi-sdk-did-utils'
+import {
+  pemCertChainTox5c,
+  PEMToJwk,
+  privateKeyHexFromPEM,
+  publicKeyHexFromPEM,
+  toKeyObject,
+  X509Opts,
+  x5cToPemCertChain,
+} from '@sphereon/ssi-sdk-did-utils'
+import { RSASigner } from '../x509/rsa-signer'
 
 describe('X509 PEMs', () => {
   it('should get public key from private key', () => {
@@ -35,8 +44,8 @@ describe('x509 keys', () => {
     const jsEncryptPubOnly = new JSEncrypt()
     jsEncryptPubOnly.setKey(pubPEM)
 
-    const sha256 = digestMethodParams('sha256')
-    const signed = jsEncryptImported.sign('test', sha256.digestMethod, sha256.digestName)
+    const sha256 = digestMethodParams('sha-256')
+    const signed = jsEncryptImported.sign('test', sha256.digestMethod, sha256.hashAlgorithm)
     expect(signed).toHaveLength(172)
 
     expect(jsEncryptPubOnly.verify('test', signed as string, sha256.digestMethod)).toBeTruthy()
@@ -109,7 +118,7 @@ describe('@veramo/kms-local x509 import', () => {
       '30820122300d06092a864886f70d01010105000382010f003082010a0282010100d5eb1f8708914a91581b7945b2f620963859b5279bcd9db3830cc6ac1cf8e9f26ecf8f6cc1a9d914b099fad9c4c4360008d1be9507f893b6ac32a5d6144314da8c4867526ffd15e41ff2f8fc0b7e0e23cf343de8607af88242b0a55ab2f38c371c12fa105522adcfc0356337374aabb0f2e41f14a56a3c20cacba9d58e14de0c78fdb710494dfa261fe5981e90f7b2e9915eedc6079c59406c02e87db772b689a55d51c370ffcfb9c596a960f40419c129e3bc8f8b1389d92997a68476893a6f64ae19372177271a8a420da9189a956d5a2fb614b07714243aa176d686d077a22225cbc39a71d2c4ba3a0e21c1198118c493bcdcf4a44d8dd7ca1ef264c024530203010001'
     )
     expect(key.kid).toEqual('test')
-    expect(key.meta?.algorithms).toEqual(['RS256', 'RS512'])
+    expect(key.meta?.algorithms).toEqual(['RS256', 'RS512', 'PS256', 'PS512'])
 
     expect(key.meta?.publicKeyPEM).toBeDefined()
     await expect(key.meta?.publicKeyJwk).toMatchObject({
@@ -130,5 +139,18 @@ describe('@veramo/kms-local x509 import', () => {
     expect(signature).toEqual(
       'PAgf2uRWJa+pmlUL80NVnxkExJkcpfLPB8udX1WoFGtAnIuFCfq8r1C43NL0xr9Qtn8TBK5pVHmAPPd7XlTkXU/LQ/JoBYxjzjtaRzGOo4+S+TAtKaW+evGI5rpXFWCeta0gwzTCVfDjbouRUg3/krK0B1cLLK1Kiih83n+6hadTxPLiQqNpbWxbnoHbZXw+V+5maCE1erY9cvO9LZeO2S/PXiqb19gk4mOEG3ZRQm12eHAlOVTnqRYiLmwWfSnT231jkJnF99RuLUjxlQNO5K6B+vYIhfVoqDliqaW6IEOamJJHUWG6RlqZfU7TzanZzR0YmDf5HIJEiDG4D/lF6g=='
     )
+  })
+})
+
+describe('RSA Signer', () => {
+  it('should sign and verify', async () => {
+    const signer = new RSASigner(PEMToJwk(PEM_PRIV_KEY, 'private'), {
+      hashAlgorithm: 'sha-256',
+      scheme: 'RSASSA-PKCS1-V1_5',
+    })
+    const signature = await signer.sign('test123')
+    expect(signature).toBeDefined()
+    const result = await signer.verify('test123', signature)
+    expect(result).toBeTruthy()
   })
 })
