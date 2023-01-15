@@ -2,14 +2,14 @@ import { hash as sha256 } from '@stablelib/sha256'
 import { hash as sha512 } from '@stablelib/sha512'
 import * as u8a from 'uint8arrays'
 
-export type HashAlgorithm = 'sha-256' | 'sha-512'
+export type HashAlgorithm = 'SHA-256' | 'SHA-512'
 export type TDigestMethod = (input: string) => string
 
 export const digestMethodParams = (hashAlgorithm: HashAlgorithm): { hashAlgorithm: HashAlgorithm; digestMethod: TDigestMethod } => {
-  if (hashAlgorithm === 'sha-256') {
-    return { hashAlgorithm: 'sha-256', digestMethod: sha256DigestMethod }
+  if (hashAlgorithm === 'SHA-256') {
+    return { hashAlgorithm: 'SHA-256', digestMethod: sha256DigestMethod }
   } else {
-    return { hashAlgorithm: 'sha-512', digestMethod: sha512DigestMethod }
+    return { hashAlgorithm: 'SHA-512', digestMethod: sha512DigestMethod }
   }
 }
 

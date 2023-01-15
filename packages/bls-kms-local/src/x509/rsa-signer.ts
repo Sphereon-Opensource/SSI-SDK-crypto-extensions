@@ -23,12 +23,13 @@ export class RSASigner {
       this.jwk = key
     }
 
-    this.hashAlgorithm = opts?.hashAlgorithm ?? 'sha-256'
+    this.hashAlgorithm = opts?.hashAlgorithm ?? 'SHA-256'
     this.scheme = opts?.scheme ?? 'RSA-PSS'
   }
 
-  private getImportParams(): RsaHashedImportParams {
-    return { name: this.scheme, hash: this.hashAlgorithm }
+  private getImportParams(): AlgorithmIdentifier {
+    console.log({ name: this.scheme /*, hash: this.hashAlgorithm*/ })
+    return { name: this.scheme /*, hash: this.hashAlgorithm*/ }
   }
 
   private async getKey(): Promise<CryptoKey> {
@@ -66,12 +67,7 @@ export class RSASigner {
     console.log(`INPUT RSA-VERIFIER: ${u8a.toString(input, 'base64url')}`)
     console.log(`SIGNATURE RSA-VERIFIER: ${sig}`)
     console.log(`JWS RSA-VERIFIER: ${jws}`)
-    const verificationResult = await crypto.subtle.verify(
-      this.getImportParams(),
-      await this.getKey(),
-      u8a.fromString(jws, 'base64url'),
-      input
-    )
+    const verificationResult = await crypto.subtle.verify(this.getImportParams(), await this.getKey(), u8a.fromString(jws, 'base64url'), input)
 
     // console.log(`Verification result: ${verificationResult}`)
 

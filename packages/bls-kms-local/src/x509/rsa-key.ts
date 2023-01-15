@@ -23,7 +23,7 @@ export const signAlgorithmToSchemeAndHashAlg = (signingAlg: string) => {
     throw Error(`Invalid signing algorithm supplied ${signingAlg}`)
   }
 
-  const hashAlgorithm = `sha-${alg.substring(2)}` as HashAlgorithm
+  const hashAlgorithm = `SHA-${alg.substring(2)}` as HashAlgorithm
   return { scheme, hashAlgorithm }
 }
 
@@ -32,9 +32,10 @@ export const importRSAKey = async (
   scheme: RSAEncryptionSchemes | RSASignatureSchemes,
   hashAlgorithm?: HashAlgorithm
 ): Promise<CryptoKey> => {
-  const hashName = hashAlgorithm ? hashAlgorithm : jwk.alg ? `sha-${jwk.alg.substring(2)}` : 'sha-256'
+  const hashName = hashAlgorithm ? hashAlgorithm : jwk.alg ? `SHA-${jwk.alg.substring(2)}` : 'SHA-256'
 
   const importParams: RsaHashedImportParams = { name: scheme, hash: hashName }
+  console.log(`KEY import params: ${JSON.stringify(importParams)}`)
   return await crypto.subtle.importKey('jwk', jwk as JsonWebKey, importParams, false, usage(jwk))
 }
 
@@ -43,7 +44,7 @@ export const generateRSAKeyAsPEM = async (
   hashAlgorithm?: HashAlgorithm,
   modulusLength?: number
 ): Promise<string> => {
-  const hashName = hashAlgorithm ? hashAlgorithm : 'sha-256'
+  const hashName = hashAlgorithm ? hashAlgorithm : 'SHA-256'
 
   const params: RsaHashedKeyGenParams = {
     name: scheme,

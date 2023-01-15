@@ -66,7 +66,7 @@ export class BlsKeyManagementSystem extends KeyManagementSystem {
 
       // @ts-ignore
       case 'RSA': {
-        const pem = await generateRSAKeyAsPEM('RSA-PSS', 'sha-256', 2048)
+        const pem = await generateRSAKeyAsPEM('RSA-PSS', 'SHA-256', 2048)
         key = await this.importKey({
           type,
           privateKeyHex: privateKeyHexFromPEM(pem),

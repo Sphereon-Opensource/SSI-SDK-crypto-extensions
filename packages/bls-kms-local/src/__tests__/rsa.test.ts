@@ -44,7 +44,7 @@ describe('x509 keys', () => {
     const jsEncryptPubOnly = new JSEncrypt()
     jsEncryptPubOnly.setKey(pubPEM)
 
-    const sha256 = digestMethodParams('sha-256')
+    const sha256 = digestMethodParams('SHA-256')
     const signed = jsEncryptImported.sign('test', sha256.digestMethod, sha256.hashAlgorithm)
     expect(signed).toHaveLength(172)
 
@@ -145,7 +145,7 @@ describe('@veramo/kms-local x509 import', () => {
 describe('RSA Signer', () => {
   it('should sign and verify', async () => {
     const signer = new RSASigner(PEMToJwk(PEM_PRIV_KEY, 'private'), {
-      hashAlgorithm: 'sha-256',
+      hashAlgorithm: 'SHA-256',
       scheme: 'RSASSA-PKCS1-V1_5',
     })
     const signature = await signer.sign('test123')
