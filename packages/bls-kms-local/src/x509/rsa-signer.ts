@@ -45,24 +45,31 @@ export class RSASigner {
 
   public async sign(data: string | Uint8Array): Promise<string> {
     const input = typeof data === 'string' ? u8a.fromString(data, 'utf-8') : data
+    console.log(`INPUT RSA-SIGNER: ${u8a.toString(input, 'base64url')}`)
     const key = await this.getKey()
     const signature = this.bufferToString(await crypto.subtle.sign(this.getImportParams(), key, input))
     if (!signature) {
       throw Error('Could not sign input data')
     }
-    // console.log(`Signature: ${signature}`)
+    console.log(`JWS RSA-SIGNER: ${signature}`)
 
     //  base64url signature
     return signature
   }
 
   public async verify(data: string | Uint8Array, signature: string | Uint8Array): Promise<boolean> {
+    const sig = typeof signature === 'string' ? signature : u8a.toString(signature, 'base64url')
+    const jws = sig.includes('.') ? sig.split('.')[2] : sig
+
     const input = typeof data == 'string' ? u8a.fromString(data, 'utf-8') : data
 
+    console.log(`INPUT RSA-VERIFIER: ${u8a.toString(input, 'base64url')}`)
+    console.log(`SIGNATURE RSA-VERIFIER: ${sig}`)
+    console.log(`JWS RSA-VERIFIER: ${jws}`)
     const verificationResult = await crypto.subtle.verify(
       this.getImportParams(),
       await this.getKey(),
-      typeof signature === 'string' ? u8a.fromString(signature, 'base64url') : signature,
+      u8a.fromString(jws, 'base64url'),
       input
     )
 
