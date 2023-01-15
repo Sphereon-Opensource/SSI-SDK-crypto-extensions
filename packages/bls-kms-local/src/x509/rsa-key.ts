@@ -35,7 +35,6 @@ export const importRSAKey = async (
   const hashName = hashAlgorithm ? hashAlgorithm : jwk.alg ? `SHA-${jwk.alg.substring(2)}` : 'SHA-256'
 
   const importParams: RsaHashedImportParams = { name: scheme, hash: hashName }
-  console.log(`KEY import params: ${JSON.stringify(importParams)}`)
   return await crypto.subtle.importKey('jwk', jwk as JsonWebKey, importParams, false, usage(jwk))
 }
 
