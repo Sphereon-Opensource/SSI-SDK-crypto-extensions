@@ -40,11 +40,11 @@ export class RSASigner {
 
   private bufferToString(buf: ArrayBuffer) {
     const uint8Array = new Uint8Array(buf)
-    return u8a.toString(uint8Array, 'base64url')
+    return u8a.toString(uint8Array, 'base64url') // Needs to be base64url for JsonWebSignature2020. Don't change!
   }
 
   public async sign(data: string | Uint8Array): Promise<string> {
-    const input = typeof data !== 'string' ? data : u8a.fromString(data)
+    const input = typeof data === 'string' ? u8a.fromString(data, 'utf-8') : data
     const key = await this.getKey()
     const signature = this.bufferToString(await crypto.subtle.sign(this.getImportParams(), key, input))
     if (!signature) {
@@ -52,11 +52,12 @@ export class RSASigner {
     }
     // console.log(`Signature: ${signature}`)
 
+    //  base64url signature
     return signature
   }
 
   public async verify(data: string | Uint8Array, signature: string | Uint8Array): Promise<boolean> {
-    const input = typeof data !== 'string' ? data : u8a.fromString(data)
+    const input = typeof data == 'string' ? u8a.fromString(data, 'utf-8') : data
 
     const verificationResult = await crypto.subtle.verify(
       this.getImportParams(),
