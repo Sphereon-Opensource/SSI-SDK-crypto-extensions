@@ -148,6 +148,7 @@ export class BlsKeyManagementSystem extends KeyManagementSystem {
             }
           }
           if (certChain.length > 0) {
+            meta.x509.certificateChainPEM = certChain
             const x5c = pemCertChainTox5c(certChain)
             if (!x509.certificateChainURL) {
               // Do not put the chain in the JWK when the chain is hosted. We do put it in the x509 metadata
