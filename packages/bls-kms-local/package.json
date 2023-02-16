@@ -11,7 +11,10 @@
   },
   "dependencies": {
     "@mattrglobal/bbs-signatures": "^1.1.0",
-    "@veramo/core": "^4.2.0"
+    "@sphereon/ssi-sdk-did-utils": "^0.8.1-next.169",
+    "@veramo/core": "^4.2.0",
+    "@trust/keyto": "^2.0.0-alpha1",
+    "isomorphic-webcrypto": "^2.3.8"
   },
   "devDependencies": {
     "@microsoft/api-documenter": "^7.19.26",
