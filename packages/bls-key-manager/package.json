@@ -32,8 +32,7 @@
     "ts-jest": "^29.0.3"
   },
   "resolutions": {
-    "jsonld": "npm:@digitalcredentials/jsonld@^5.2.1",
-    "jsonld-signatures": "npm:@digitalcredentials/jsonld-signatures@^9.3.1"
+    "jsonld": "npm:@digitalcredentials/jsonld@^5.2.1"
   },
   "files": [
     "dist/**/*",
