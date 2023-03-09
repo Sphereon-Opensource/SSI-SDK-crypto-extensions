@@ -2153,7 +2153,7 @@
     cross-fetch "^3.1.5"
     did-resolver "^4.1.0"
 
-"@sphereon/isomorphic-webcrypto@^2.4.0-unstable.1", isomorphic-webcrypto@^2.3.8, "isomorphic-webcrypto@npm:@sphereon/isomorphic-webcrypto@^2.4.0-unstable.1":
+"@sphereon/isomorphic-webcrypto@^2.4.0-unstable.1":
   version "2.4.0-unstable.1"
   resolved "https://registry.yarnpkg.com/@sphereon/isomorphic-webcrypto/-/isomorphic-webcrypto-2.4.0-unstable.1.tgz#2be84abe1f21cb8e467845bbeaf7854b7cfbfcb3"
   integrity sha512-aR+9q+35HhMS+ubZEasidTeQx1kvzLV2NVkp8pX0St2T13IQealTiWSyy1H2f1dF+aZZwZigy764Ps2ZEskUyw==
@@ -6938,6 +6938,14 @@ isobject@^3.0.1:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/isobject/-/isobject-3.0.1.tgz#4e431e92b11a9731636aa1f9c8d1ccbcfdab78df"
   integrity sha512-WhB9zCku7EGTj/HQQRz5aUQEUeoQZH2bWcltRErOpymJ4boYE6wL9Tbr23krRPSZ+C5zqNSrSw+Cc7sZZ4b7vg==
+
+isomorphic-webcrypto@^2.3.8:
+  version "0.0.0"
+  uid ""
+
+"isomorphic-webcrypto@link:./@sphereon/isomorphic-webcrypto":
+  version "0.0.0"
+  uid ""
 
 issue-parser@^6.0.0:
   version "6.0.0"

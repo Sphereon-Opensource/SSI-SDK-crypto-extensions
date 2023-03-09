@@ -94,8 +94,8 @@
     "@veramo/remote-server": "4.2.0",
     "@veramo/selective-disclosure": "4.2.0",
     "@veramo/url-handler": "4.2.0",
-    "isomorphic-webcrypto": "npm:@sphereon/isomorphic-webcrypto@^2.4.0-unstable.1",
-    "**/@digitalcredentials/ed25519-verification-key-2020": "3.2.2"
+    "**/@digitalcredentials/ed25519-verification-key-2020": "3.2.2",
+    "@veramo/credential-ld/**/isomorphic-webcrypto": "link:./@sphereon/isomorphic-webcrypto"
   },
   "engines": {
     "node": ">= 16.0.0"

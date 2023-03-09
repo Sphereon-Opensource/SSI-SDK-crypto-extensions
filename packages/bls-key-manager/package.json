@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@mattrglobal/bbs-signatures": "^1.1.0",
-    "@sphereon/ssi-sdk-bls-kms-local": "^0.9",
+    "@sphereon/ssi-sdk-bls-kms-local": "^0.9.1",
     "@veramo/core": "4.2.0",
     "@veramo/key-manager": "4.2.0"
   },
@@ -33,8 +33,7 @@
   },
   "resolutions": {
     "jsonld": "npm:@digitalcredentials/jsonld@^5.2.1",
-    "jsonld-signatures": "npm:@digitalcredentials/jsonld-signatures@^9.3.1",
-    "isomorphic-webcrypto": "npm:@sphereon/isomorphic-webcrypto@^2.4.0-unstable.1"
+    "jsonld-signatures": "npm:@digitalcredentials/jsonld-signatures@^9.3.1"
   },
   "files": [
     "dist/**/*",
