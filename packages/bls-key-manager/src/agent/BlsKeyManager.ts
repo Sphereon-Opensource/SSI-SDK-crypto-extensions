@@ -5,7 +5,7 @@ import { KeyType } from '@sphereon/ssi-sdk-bls-kms-local'
 
 export class BlsKeyManager extends KeyManager {
   private localStore: AbstractKeyStore
-  private localKms: Record<string, AbstractKeyManagementSystem>
+  private readonly localKms: Record<string, AbstractKeyManagementSystem>
 
   constructor(options: { store: AbstractKeyStore; kms: Record<string, AbstractKeyManagementSystem> }) {
     super({ store: options.store, kms: options.kms })

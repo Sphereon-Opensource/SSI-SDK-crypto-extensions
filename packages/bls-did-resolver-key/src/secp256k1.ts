@@ -1,4 +1,4 @@
-import u8a from 'uint8arrays'
+import * as u8a from 'uint8arrays'
 import { DIDDocument } from 'did-resolver'
 
 export const keyToDidDoc = (pubKeyBytes: Uint8Array, fingerprint: string): DIDDocument => {

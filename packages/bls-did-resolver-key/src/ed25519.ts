@@ -1,4 +1,4 @@
-import u8a from 'uint8arrays'
+import * as u8a from 'uint8arrays'
 import * as ed25519 from '@stablelib/ed25519'
 import { DIDDocument } from 'did-resolver'
 
