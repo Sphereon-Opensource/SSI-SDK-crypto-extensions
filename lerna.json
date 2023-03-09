@@ -16,5 +16,8 @@
     }
   },
   "useWorkspaces": true,
+  "forceLocal": true,
+  "sort": true,
+  "stream": true,
   "$schema": "node_modules/lerna/schemas/lerna-schema.json"
 }
