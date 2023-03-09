@@ -23,6 +23,11 @@
     "@types/debug": "^4.1.7",
     "@veramo/cli": "4.2.0"
   },
+  "resolutions": {
+    "**/isomorphic-webcrypto": "npm:@sphereon/isomorphic-webcrypto@^2.4.0-unstable.1",
+    "jsonld": "npm:@digitalcredentials/jsonld@^5.2.1",
+    "jsonld-signatures": "npm:@digitalcredentials/jsonld-signatures@^9.3.1"
+  },
   "files": [
     "dist/**/*",
     "src/**/*",

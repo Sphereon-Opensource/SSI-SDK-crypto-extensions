@@ -28,7 +28,7 @@ export class RSASigner {
   }
 
   private getImportParams(): AlgorithmIdentifier {
-    console.log({ name: this.scheme /*, hash: this.hashAlgorithm*/ })
+    // console.log({ name: this.scheme /*, hash: this.hashAlgorithm*/ })
     return { name: this.scheme /*, hash: this.hashAlgorithm*/ }
   }
 
