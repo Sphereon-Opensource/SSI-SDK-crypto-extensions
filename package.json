@@ -72,6 +72,11 @@
     "patch-package": "^6.5.1",
     "postinstall-postinstall": "^2.1.0"
   },
+  "resolutions": {
+    "jsonld": "npm:@digitalcredentials/jsonld@^5.2.1",
+    "jsonld-signatures": "npm:@digitalcredentials/jsonld-signatures@^9.3.1",
+    "isomorphic-webcrypto": "npm:@sphereon/isomorphic-webcrypto@^2.4.0-unstable.1"
+  },
   "engines": {
     "node": ">= 16.0.0"
   },

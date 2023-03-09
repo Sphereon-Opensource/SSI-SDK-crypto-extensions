@@ -1,7 +1,7 @@
 import { JWK, PEMToJwk } from '@sphereon/ssi-sdk-did-utils'
 import * as u8a from 'uint8arrays'
 import { HashAlgorithm } from './digest-methods'
-import crypto from 'isomorphic-webcrypto'
+import crypto from '@sphereon/isomorphic-webcrypto'
 import { importRSAKey, RSAEncryptionSchemes, RSASignatureSchemes } from './rsa-key'
 
 export class RSASigner {
