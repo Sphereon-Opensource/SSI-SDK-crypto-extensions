@@ -1,5 +1,5 @@
 import { base64ToPEM, JWK } from '@sphereon/ssi-sdk-did-utils'
-import crypto from 'isomorphic-webcrypto'
+import crypto from '@sphereon/isomorphic-webcrypto'
 import { HashAlgorithm } from './digest-methods'
 import * as u8a from 'uint8arrays'
 
