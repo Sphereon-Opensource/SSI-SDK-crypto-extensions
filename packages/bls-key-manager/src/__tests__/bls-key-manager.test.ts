@@ -2,10 +2,10 @@ import { BlsKeyManager } from '../agent/BlsKeyManager'
 import { MemoryKeyStore, MemoryPrivateKeyStore } from '@veramo/key-manager'
 import { IKey } from '@veramo/core'
 import { BlsKeyManagementSystem } from '../../../bls-kms-local/src'
-import { generateBls12381G2KeyPair } from '@mattrglobal/bbs-signatures'
+import { generateBls12381G2KeyPair } from '../../../bls-kms-local/src/BlsKeyManagementSystem'
 
 describe('@sphereon/bls-kms-local', () => {
-  let bls: { publicKey: Uint8Array; secretKey: Uint8Array }
+  let bls: { publicKey: Uint8Array; privateKey?: Uint8Array }
   let kms: BlsKeyManager
 
   beforeAll(async () => {
@@ -21,7 +21,7 @@ describe('@sphereon/bls-kms-local', () => {
   it('should import a BLS key', async () => {
     const myKey = {
       type: 'Bls12381G2',
-      privateKeyHex: Buffer.from(bls.secretKey).toString('hex'),
+      privateKeyHex: Buffer.from(bls.privateKey!).toString('hex'),
       publicKeyHex: Buffer.from(bls.publicKey).toString('hex'),
     }
     const key = await kms.keyManagerImport({
@@ -35,7 +35,7 @@ describe('@sphereon/bls-kms-local', () => {
       kid: myKey.publicKeyHex,
       kms: 'local',
       meta: {
-        algorithms: ['BLS'],
+        algorithms: ['BLS', 'Bls12381G2', 'Bls12381G2Key2020'],
       },
       publicKeyHex: myKey.publicKeyHex,
       type: 'Bls12381G2',
@@ -61,19 +61,18 @@ describe('@sphereon/bls-kms-local', () => {
         kms: 'local',
         type: 'Bls12381G2',
         meta: {
-          algorithms: ['BLS'],
+          algorithms: ['BLS', 'Bls12381G2', 'Bls12381G2Key2020'],
         },
       })
     )
   })
 
-  //TODO need to update Veramo core to add the data array allowed by bls signer
   it('should sign with a BLS key', async () => {
     const key: IKey = (await kms.keyManagerGet({ kid: Buffer.from(bls.publicKey).toString('hex') })) as IKey
     await expect(
       kms.keyManagerSign({
         keyRef: key.kid,
-        data: ['test data'] as any,
+        data: 'test data',
       })
     ).resolves.toBeDefined()
   })

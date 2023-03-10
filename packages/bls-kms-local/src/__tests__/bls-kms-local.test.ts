@@ -1,6 +1,5 @@
-import { BlsKeyManagementSystem } from '../BlsKeyManagementSystem'
+import { BlsKeyManagementSystem, generateBls12381G2KeyPair } from '../BlsKeyManagementSystem'
 import { MemoryPrivateKeyStore } from '@veramo/key-manager'
-import { generateBls12381G2KeyPair } from '@mattrglobal/bbs-signatures'
 import { MinimalImportableKey, TKeyType } from '@veramo/core'
 import * as u8a from 'uint8arrays'
 describe('@sphereon/bls-kms-local', () => {
@@ -10,8 +9,8 @@ describe('@sphereon/bls-kms-local', () => {
     const myKey: MinimalImportableKey = {
       kms: 'local',
       type: <TKeyType>'Bls12381G2',
-      privateKeyHex: Buffer.from(bls.secretKey).toString('hex'),
-      publicKeyHex: Buffer.from(bls.publicKey).toString('hex'),
+      privateKeyHex: u8a.toString(bls.privateKey!, 'hex'),
+      publicKeyHex: u8a.toString(bls.publicKey!, 'hex'),
     }
     const key = await kms.importKey(myKey)
     expect(key.publicKeyHex).toEqual(myKey.publicKeyHex)

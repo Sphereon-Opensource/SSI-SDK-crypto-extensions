@@ -4,19 +4,38 @@ import { IKey, ManagedKeyInfo, MinimalImportableKey, TKeyType } from '@veramo/co
 import { AbstractPrivateKeyStore, ManagedPrivateKey } from '@veramo/key-manager'
 import { KeyManagementSystem } from '@veramo/kms-local'
 import { BlsManagedKeyInfoArgs, KeyType } from './index'
-import { blsSign, generateBls12381G2KeyPair } from '@mattrglobal/bbs-signatures'
+
 import { RSASigner } from './x509/rsa-signer'
 import { hexToPEM, jwkToPEM, pemCertChainTox5c, PEMToHex, PEMToJwk, privateKeyHexFromPEM } from '@sphereon/ssi-sdk-did-utils'
 import { generateRSAKeyAsPEM, signAlgorithmToSchemeAndHashAlg } from './x509/rsa-key'
+import { Bls12381G2KeyPair } from '@transmute/bls12381-key-pair'
+import crypto from '@sphereon/isomorphic-webcrypto'
+
+import * as u8a from 'uint8arrays'
 
 const debug = Debug('veramo:kms:bls:local')
 
+export async function generateBls12381G2KeyPair(): Promise<Bls12381G2KeyPair> {
+  // await crypto.ensureSecure()
+  const array = new Uint8Array(1)
+  crypto.getRandomValues(array)
+  const random = new Uint8Array(64)
+  const keyPairBls12381G2 = await Bls12381G2KeyPair.generate({
+    secureRandom: () => {
+      return crypto.getRandomValues(random)
+    },
+  })
+  return keyPairBls12381G2
+}
+
 export class BlsKeyManagementSystem extends KeyManagementSystem {
   private readonly privateKeyStore: AbstractPrivateKeyStore
+  // private readonly publicKeyStore: AbstractKeyStore
 
-  constructor(keyStore: AbstractPrivateKeyStore) {
-    super(keyStore)
-    this.privateKeyStore = keyStore
+  constructor(privateKeyStore: AbstractPrivateKeyStore /*, publicKeyStore: AbstractKeyStore*/) {
+    super(privateKeyStore)
+    this.privateKeyStore = privateKeyStore
+    // this.publicKeyStore = publicKeyStore
   }
 
   async importKey(args: Omit<MinimalImportableKey, 'kms'>): Promise<ManagedKeyInfo> {
@@ -25,6 +44,12 @@ export class BlsKeyManagementSystem extends KeyManagementSystem {
         if (!args.privateKeyHex || !args.publicKeyHex) {
           throw new Error('invalid_argument: type, publicKeyHex and privateKeyHex are required to import a key')
         }
+        if (!args.kid) {
+          args.kid = args.publicKeyHex
+        }
+        if (args.kid !== args.publicKeyHex) {
+          throw Error('For now Bls1238G2 keys need to be imported with a kid that is the same as the public key!')
+        }
         const managedKey = this.asBlsManagedKeyInfo({
           alias: args.kid,
           privateKeyHex: args.privateKeyHex,
@@ -32,6 +57,8 @@ export class BlsKeyManagementSystem extends KeyManagementSystem {
           type: args.type,
         })
         await this.privateKeyStore.import({ alias: managedKey.kid, ...args })
+        // We use the public keystore here as it will use the private key store. We only need the private key store when we are signing
+        // await this.publicKeyStore.import({ alias: managedKey.kid, kms: this., ...args})
         debug('imported key', managedKey.type, managedKey.publicKeyHex)
         return managedKey
 
@@ -46,7 +73,7 @@ export class BlsKeyManagementSystem extends KeyManagementSystem {
         return managedKey
       }
       default:
-        return super.importKey(args) as Promise<ManagedKeyInfo>
+        return await super.importKey(args)
     }
   }
 
@@ -56,10 +83,15 @@ export class BlsKeyManagementSystem extends KeyManagementSystem {
     switch (type) {
       case KeyType.Bls12381G2: {
         const keyPairBls12381G2 = await generateBls12381G2KeyPair()
+        if (!keyPairBls12381G2.privateKey || !keyPairBls12381G2.publicKey) {
+          throw Error('No private/public keys create for Bls12381G2 key')
+        }
+        const publicKeyHex = u8a.toString(keyPairBls12381G2.publicKey, 'hex')
         key = await this.importKey({
           type,
-          privateKeyHex: Buffer.from(keyPairBls12381G2.secretKey).toString('hex'),
-          publicKeyHex: Buffer.from(keyPairBls12381G2.publicKey).toString('hex'),
+          kid: publicKeyHex, // BLS uses the public key as kid for now
+          privateKeyHex: u8a.toString(keyPairBls12381G2.privateKey, 'hex'),
+          publicKeyHex,
         })
         break
       }
@@ -83,35 +115,36 @@ export class BlsKeyManagementSystem extends KeyManagementSystem {
   }
 
   async sign({ keyRef, algorithm, data }: { keyRef: Pick<IKey, 'kid'>; algorithm?: string; data: Uint8Array }): Promise<string> {
-    let privateKey: ManagedPrivateKey
+    let managedPrivateKey: ManagedPrivateKey
     try {
-      privateKey = await this.privateKeyStore.get({ alias: keyRef.kid })
+      managedPrivateKey = await this.privateKeyStore.get({ alias: keyRef.kid })
     } catch (e) {
       throw new Error(`key_not_found: No key entry found for kid=${keyRef.kid}`)
     }
+    // const publicKey = await this.publicKeyStore.get({kid: keyRef.kid})
 
-    if (privateKey.type === KeyType.Bls12381G2) {
+    if (managedPrivateKey.type === KeyType.Bls12381G2) {
       if (!data || Array.isArray(data)) {
         throw new Error('Data must be defined and cannot be an array')
       }
-      const keyPair = {
-        keyPair: {
-          secretKey: Uint8Array.from(Buffer.from(privateKey.privateKeyHex, 'hex')),
-          publicKey: Uint8Array.from(Buffer.from(keyRef.kid, 'hex')),
-        },
-        messages: [data],
-      }
-      return Buffer.from(await blsSign(keyPair)).toString('hex')
+      const privateKey = u8a.fromString(managedPrivateKey.privateKeyHex, 'hex')
+      const publicKey = u8a.fromString(keyRef.kid, 'hex') // BLS uses the publickey as kid for now
+      const publicKeyBase58 = u8a.toString(publicKey, 'base58btc')
+      // const privateKeyBase58 = u8a.toString(privateKey, 'base58btc')
+      // @ts-ignore
+      const fingerPrint = await Bls12381G2KeyPair.fingerprintFromPublicKey({ publicKeyBase58, type: 'Bls12381G2Key2020' })
+      const keypair = new Bls12381G2KeyPair({ publicKey, privateKey, id: keyRef.kid, controller: fingerPrint, type: 'Bls12381G2Key2020' })
+      return u8a.toString(await keypair.signer().sign({ data }), 'hex')
     } else if (
       // @ts-ignore
-      privateKey.type === 'RSA' &&
+      managedPrivateKey.type === 'RSA' &&
       (typeof algorithm === 'undefined' || algorithm === 'RS256' || algorithm === 'RS512' || algorithm === 'PS256' || algorithm === 'PS512')
     ) {
-      return await this.signRSA(privateKey.privateKeyHex, data, algorithm ? algorithm : 'PS256')
+      return await this.signRSA(managedPrivateKey.privateKeyHex, data, algorithm ? algorithm : 'PS256')
     } else {
       return await super.sign({ keyRef, algorithm, data })
     }
-    throw Error(`not_supported: Cannot sign using key of type ${privateKey.type}`)
+    throw Error(`not_supported: Cannot sign using key of type ${managedPrivateKey.type}`)
   }
 
   private asBlsManagedKeyInfo(args: BlsManagedKeyInfoArgs): ManagedKeyInfo {
@@ -123,7 +156,7 @@ export class BlsKeyManagementSystem extends KeyManagementSystem {
           kid: args.alias || args.publicKeyHex,
           publicKeyHex: args.publicKeyHex,
           meta: {
-            algorithms: ['BLS'],
+            algorithms: ['BLS', 'Bls12381G2', 'Bls12381G2Key2020'],
           },
         }
         break
