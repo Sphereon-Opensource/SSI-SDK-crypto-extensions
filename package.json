@@ -95,7 +95,8 @@
     "@veramo/selective-disclosure": "4.2.0",
     "@veramo/url-handler": "4.2.0",
     "**/@digitalcredentials/ed25519-verification-key-2020": "3.2.2",
-    "@veramo/credential-ld/**/isomorphic-webcrypto": "link:./@sphereon/isomorphic-webcrypto"
+    "**/jsonld" : "npm:@digitalcredentials/jsonld@^5.2.1",
+    "**/isomorphic-webcrypto": "link:./node_modules/@sphereon/isomorphic-webcrypto"
   },
   "engines": {
     "node": ">= 16.0.0"
