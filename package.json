@@ -97,6 +97,7 @@
     "@veramo/url-handler": "4.2.0",
     "**/@mattrglobal/bbs-signatures": "^1.1.0",
     "**/@digitalcredentials/ed25519-verification-key-2020": "3.2.2",
+    "**/@transmute/jsonld/jsonld": "5.2.0",
     "**/jsonld" : "npm:@digitalcredentials/jsonld@^5.2.1",
     "**/isomorphic-webcrypto": "link:./node_modules/@sphereon/isomorphic-webcrypto"
   },
