@@ -4,7 +4,7 @@ import { IKey } from '@veramo/core'
 import { BlsKeyManagementSystem } from '../../../bls-kms-local/src'
 import { generateBls12381G2KeyPair } from '@mattrglobal/bbs-signatures'
 
-describe('@sphereon/ssi-sdk-bls-kms-local', () => {
+describe('@sphereon/bls-kms-local', () => {
   let bls: { publicKey: Uint8Array; secretKey: Uint8Array }
   let kms: BlsKeyManager
 

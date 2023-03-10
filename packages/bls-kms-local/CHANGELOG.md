@@ -22,16 +22,16 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ## 0.9.1 (2022-12-16)
 
-**Note:** Version bump only for package @sphereon/ssi-sdk-bls-kms-local
+**Note:** Version bump only for package @sphereon/bls-kms-local
 
 # [0.8.0](https://github.com/Sphereon-Opensource/SSI-SDK/compare/v0.7.0...v0.8.0) (2022-09-03)
 
-**Note:** Version bump only for package @sphereon/ssi-sdk-bls-kms-local
+**Note:** Version bump only for package @sphereon/bls-kms-local
 
 # [0.7.0](https://github.com/Sphereon-Opensource/SSI-SDK/compare/v0.6.0...v0.7.0) (2022-08-05)
 
-**Note:** Version bump only for package @sphereon/ssi-sdk-bls-kms-local
+**Note:** Version bump only for package @sphereon/bls-kms-local
 
 # [0.6.0](https://github.com/Sphereon-Opensource/SSI-SDK/compare/v0.5.1...v0.6.0) (2022-07-01)
 
-**Note:** Version bump only for package @sphereon/ssi-sdk-bls-kms-local
+**Note:** Version bump only for package @sphereon/bls-kms-local
