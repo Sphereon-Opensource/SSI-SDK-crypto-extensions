@@ -28,6 +28,30 @@ export async function generateBls12381G2KeyPair(): Promise<Bls12381G2KeyPair> {
   return keyPairBls12381G2
 }
 
+export async function hexToBls12381G2KeyPair({
+  privateKeyHex,
+  publicKeyHex,
+  kid,
+}: {
+  privateKeyHex: string
+  publicKeyHex?: string
+  kid: string
+}): Promise<Bls12381G2KeyPair> {
+  const privateKey = u8a.fromString(privateKeyHex, 'hex')
+  const publicKey = u8a.fromString(publicKeyHex ?? kid, 'hex') // BLS uses the publickey as kid for now
+  const publicKeyBase58 = u8a.toString(publicKey, 'base58btc')
+  // @ts-ignore
+  const fingerPrint = await Bls12381G2KeyPair.fingerprintFromPublicKey({ publicKeyBase58, type: 'Bls12381G2Key2020' })
+  const keypair = new Bls12381G2KeyPair({
+    publicKey,
+    privateKey,
+    id: kid,
+    controller: fingerPrint,
+    type: 'Bls12381G2Key2020',
+  })
+  return keypair
+}
+
 export class BlsKeyManagementSystem extends KeyManagementSystem {
   private readonly privateKeyStore: AbstractPrivateKeyStore
   // private readonly publicKeyStore: AbstractKeyStore
@@ -127,13 +151,7 @@ export class BlsKeyManagementSystem extends KeyManagementSystem {
       if (!data || Array.isArray(data)) {
         throw new Error('Data must be defined and cannot be an array')
       }
-      const privateKey = u8a.fromString(managedPrivateKey.privateKeyHex, 'hex')
-      const publicKey = u8a.fromString(keyRef.kid, 'hex') // BLS uses the publickey as kid for now
-      const publicKeyBase58 = u8a.toString(publicKey, 'base58btc')
-      // const privateKeyBase58 = u8a.toString(privateKey, 'base58btc')
-      // @ts-ignore
-      const fingerPrint = await Bls12381G2KeyPair.fingerprintFromPublicKey({ publicKeyBase58, type: 'Bls12381G2Key2020' })
-      const keypair = new Bls12381G2KeyPair({ publicKey, privateKey, id: keyRef.kid, controller: fingerPrint, type: 'Bls12381G2Key2020' })
+      const keypair = await hexToBls12381G2KeyPair({ privateKeyHex: managedPrivateKey.privateKeyHex, kid: keyRef.kid })
       return u8a.toString(await keypair.signer().sign({ data }), 'hex')
     } else if (
       // @ts-ignore
