@@ -1,5 +1,5 @@
 {
-  "name": "@sphereon/ssi-sdk-bls-did-resolver-key",
+  "name": "@sphereon/bls-did-resolver-key",
   "description": "Sphereon plugin that can resolve bls did:key identifiers.",
   "version": "0.10.0",
   "main": "dist/index.js",

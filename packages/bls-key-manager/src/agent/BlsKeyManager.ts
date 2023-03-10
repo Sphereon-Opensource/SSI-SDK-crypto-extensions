@@ -1,7 +1,7 @@
 import { KeyManager, AbstractKeyManagementSystem, AbstractKeyStore } from '@veramo/key-manager'
 
 import { IKey, IKeyManagerSignArgs, TKeyType } from '@veramo/core'
-import { KeyType } from '@sphereon/ssi-sdk-bls-kms-local'
+import { KeyType } from '@sphereon/bls-kms-local'
 
 export class BlsKeyManager extends KeyManager {
   private localStore: AbstractKeyStore

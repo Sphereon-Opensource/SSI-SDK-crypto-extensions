@@ -1,5 +1,5 @@
 {
-  "name": "@sphereon/ssi-sdk-bls-kms-local",
+  "name": "@sphereon/bls-kms-local",
   "description": "Sphereon KMS BLS local to support bls keys",
   "version": "0.10.0",
   "source": "src/index.ts",
