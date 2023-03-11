@@ -20,7 +20,6 @@
     "multicodec": "^3.2.1"
   },
   "devDependencies": {
-    "@types/debug": "^4.1.7",
     "@veramo/cli": "4.2.0"
   },
   "resolutions": {
