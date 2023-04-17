@@ -1,4 +1,4 @@
 {
   "files": [],
-  "references": [{ "path": "bls-kms-local" }, { "path": "bls-did-provider-key" }, { "path": "bls-did-resolver-key" }, { "path": "bls-key-manager" }]
+  "references": [{ "path": "kms-local" }, { "path": "did-provider-key" }, { "path": "did-resolver-key" }, { "path": "key-manager" }]
 }
