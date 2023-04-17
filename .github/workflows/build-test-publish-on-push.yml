@@ -36,7 +36,7 @@ jobs:
         with:
           node-version: '16.x'
           cache: 'pnpm'
-      - run: pnpm add -g pnpm
+      - run: npm add -g pnpm
       - run: pnpm install
       - run: pnpm build
       - name: run CI tests
