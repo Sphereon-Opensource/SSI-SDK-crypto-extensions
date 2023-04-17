@@ -1,7 +1,7 @@
 import JSEncrypt from '@sphereon/jsencrypt'
 import { PEM_CERT, PEM_CHAIN, PEM_FULL_CHAIN, PEM_PRIV_KEY } from './certs'
 import { digestMethodParams } from '../x509/digest-methods'
-import { BlsKeyManagementSystem } from '../BlsKeyManagementSystem'
+import { SphereonKeyManagementSystem } from '../SphereonKeyManagementSystem'
 import { MemoryPrivateKeyStore } from '@veramo/key-manager'
 import * as u8a from 'uint8arrays'
 import {
@@ -109,7 +109,7 @@ describe('@veramo/kms-local x509 import', () => {
   }
 
   it('should import a cert with chain', async () => {
-    const kms = new BlsKeyManagementSystem(new MemoryPrivateKeyStore())
+    const kms = new SphereonKeyManagementSystem(new MemoryPrivateKeyStore())
 
     // @ts-ignore
     const key = await kms.importKey({ kid: 'test', privateKeyHex, type: 'RSA', meta })
@@ -130,7 +130,7 @@ describe('@veramo/kms-local x509 import', () => {
   })
 
   it('should sign input data', async () => {
-    const kms = new BlsKeyManagementSystem(new MemoryPrivateKeyStore())
+    const kms = new SphereonKeyManagementSystem(new MemoryPrivateKeyStore())
     const data = u8a.fromString('test', 'utf-8')
 
     // @ts-ignore

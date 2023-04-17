@@ -11,7 +11,7 @@ import { generateRSAKeyAsPEM, signAlgorithmToSchemeAndHashAlg } from './x509/rsa
 
 const debug = Debug('veramo:kms:bls:local')
 
-export class BlsKeyManagementSystem extends KeyManagementSystem {
+export class SphereonKeyManagementSystem extends KeyManagementSystem {
   private readonly privateKeyStore: AbstractPrivateKeyStore
 
   constructor(keyStore: AbstractPrivateKeyStore) {

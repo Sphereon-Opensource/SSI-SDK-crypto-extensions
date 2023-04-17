@@ -1,6 +1,6 @@
 {
-  "name": "@sphereon/ssi-sdk-ext-did-provider-key",
-  "description": "Sphereon plugin that can enable creation and control of did:key identifiers.",
+  "name": "@sphereon/ssi-sdk-ext.did-provider-key",
+  "description": "Sphereon SSI-SDK plugin for management of did:key identifiers.",
   "version": "0.10.1",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

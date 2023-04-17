@@ -1,7 +1,7 @@
 import { SphereonKeyManager } from '../agent/SphereonKeyManager'
 import { MemoryKeyStore, MemoryPrivateKeyStore } from '@veramo/key-manager'
 import { IKey } from '@veramo/core'
-import { BlsKeyManagementSystem } from '../../../kms-local/src'
+import { SphereonKeyManagementSystem } from '../../../kms-local/src'
 import { generateBls12381G2KeyPair } from '@mattrglobal/bbs-signatures'
 
 describe('@sphereon/kms-local', () => {
@@ -13,7 +13,7 @@ describe('@sphereon/kms-local', () => {
     kms = new SphereonKeyManager({
       store: new MemoryKeyStore(),
       kms: {
-        local: new BlsKeyManagementSystem(new MemoryPrivateKeyStore()),
+        local: new SphereonKeyManagementSystem(new MemoryPrivateKeyStore()),
       },
     })
   })

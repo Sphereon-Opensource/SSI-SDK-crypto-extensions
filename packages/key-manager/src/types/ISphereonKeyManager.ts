@@ -1,6 +1,6 @@
 import { IPluginMethodMap, IKey, KeyMetadata, MinimalImportableKey, TKeyType } from '@veramo/core'
 
-export interface IBlsKeyManager extends IPluginMethodMap {
+export interface ISphereonKeyManager extends IPluginMethodMap {
   keyManagerCreate(args: IKeyManagerCreateArgs): Promise<BBSKey>
   keyManagerGetKeyManagementSystems(): Promise<Array<string>>
   keyManagerGet({ kid }: IKeyManagerGetArgs): Promise<IKey>
@@ -11,7 +11,7 @@ export interface IBlsKeyManager extends IPluginMethodMap {
 }
 
 /**
- * Input arguments for {@link IBlsKeyManager.keyManagerCreate | keyManagerCreate}
+ * Input arguments for {@link ISphereonKeyManager.keyManagerCreate | keyManagerCreate}
  * @public
  */
 export interface IKeyManagerCreateArgs {
@@ -32,7 +32,7 @@ export interface IKeyManagerCreateArgs {
 }
 
 /**
- * Input arguments for {@link IBlsKeyManager.keyManagerGet | keyManagerGet}
+ * Input arguments for {@link ISphereonKeyManager.keyManagerGet | keyManagerGet}
  * @public
  */
 export interface IKeyManagerGetArgs {
@@ -43,7 +43,7 @@ export interface IKeyManagerGetArgs {
 }
 
 /**
- * Input arguments for {@link IBlsKeyManager.keyManagerDelete | keyManagerDelete}
+ * Input arguments for {@link ISphereonKeyManager.keyManagerDelete | keyManagerDelete}
  * @public
  */
 export interface IKeyManagerDeleteArgs {
@@ -54,7 +54,7 @@ export interface IKeyManagerDeleteArgs {
 }
 
 /**
- * Input arguments for {@link IBlsKeyManager.keyManagerSign | keyManagerSign}
+ * Input arguments for {@link ISphereonKeyManager.keyManagerSign | keyManagerSign}
  * @public
  */
 export interface IKeyManagerSignArgs {

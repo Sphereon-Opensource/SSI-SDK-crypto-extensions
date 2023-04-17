@@ -1,4 +1,23 @@
 {
   "files": [],
-  "references": [{ "path": "kms-local" }, { "path": "did-provider-key" }, { "path": "did-resolver-key" }, { "path": "key-manager" }]
+  "references": [
+    {
+      "path": "kms-local"
+    },
+    {
+      "path": "did-provider-key"
+    },
+    {
+      "path": "did-resolver-key"
+    },
+    {
+      "path": "key-manager"
+    },
+    {
+      "path": "did-resolver-jwk"
+    },
+    {
+      "path": "did-provider-jwk"
+    }
+  ]
 }
