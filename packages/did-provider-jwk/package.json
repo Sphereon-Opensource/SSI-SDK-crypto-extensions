@@ -16,6 +16,7 @@
     "@veramo/did-manager": "4.2.0",
     "debug": "^4.3.4",
     "did-resolver": "^4.1.0",
+    "base64url": "^3.0.1",
     "elliptic": "^6.5.4"
   },
   "devDependencies": {
