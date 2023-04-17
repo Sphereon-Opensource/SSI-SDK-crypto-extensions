@@ -1,0 +1,42 @@
+{
+  "name": "@sphereon/did-resolver-jwk",
+  "description": "DIF resolver for resolution of did:jwk identifiers.",
+  "version": "0.10.1",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc --build",
+    "build:clean": "tsc --build --clean && tsc --build"
+  },
+  "dependencies": {
+    "@sphereon/ssi-types": "^0.9.0",
+    "debug": "^4.3.4",
+    "base64url": "^3.0.1",
+    "uint8arrays": "^3.1.1",
+    "did-resolver": "^4.1.0"
+  },
+  "devDependencies": {
+    "@or13/did-jwk": "^0.0.4",
+    "@veramo/core": "4.2.0",
+    "@veramo/did-resolver": "4.2.0",
+    "jose": "^4.10.3"
+  },
+  "files": [
+    "dist/**/*",
+    "src/**/*",
+    "README.md",
+    "LICENSE"
+  ],
+  "private": false,
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": "git@github.com:Sphereon-OpenSource/ssi-sdk-crypto-extensions.git",
+  "author": "Sphereon <dev@sphereon.com>",
+  "license": "Apache-2.0",
+  "keywords": [
+    "JWK",
+    "DID",
+    "Veramo"
+  ]
+}
