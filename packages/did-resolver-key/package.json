@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@stablelib/ed25519": "^1.0.3",
+    "did-resolver": "^4.1.0",
     "multiformats": "^9.9.0",
     "uint8arrays": "^3.1.1",
     "lodash.isplainobject": "^4.0.6",
