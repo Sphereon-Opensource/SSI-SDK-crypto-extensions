@@ -14,13 +14,16 @@ const didURI = (did: string, options: DIDResolutionOptions) => {
   if (registry.endsWith('/')) {
     registry = registry.substring(0, registry.length - 1)
   }
-  return `${registry}/identifiers/${did}`
+  if (!registry.includes('identifiers')) {
+    registry += '/identifiers'
+  }
+  return `${registry}/${did}`
 }
 
 const determineRegistry = (options: DIDResolutionOptions): string => {
   if (options.registry && typeof options.registry === 'string') {
     return options.registry
   }
-  return 'https://api-pilot.ebsi.eu/did-registry/v4'
+  return process.env.EBSI_DEFAULT_REGISTRY ?? 'https://api-pilot.ebsi.eu/did-registry/v4'
 }
 export default { keyToDidDoc }

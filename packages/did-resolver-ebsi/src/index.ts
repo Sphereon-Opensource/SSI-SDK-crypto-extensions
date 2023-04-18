@@ -1,11 +1,15 @@
 import * as ebsiV1 from './drivers/ebsi-v1'
 import { DIDResolutionOptions, DIDResolutionResult, ParsedDID, Resolvable, ResolverRegistry } from 'did-resolver'
 
+import { config } from 'dotenv'
+
+config()
 export const DID_LD_JSON = 'application/did+ld+json'
 export const DID_JSON = 'application/did+json'
 const methodToDriverMap: any = {
-  ebsi: ebsiV1,
+  ebsi: ebsiV1
 }
+
 
 export const getResolver = (): ResolverRegistry => {
   return {
@@ -13,7 +17,7 @@ export const getResolver = (): ResolverRegistry => {
       const response: DIDResolutionResult = {
         didResolutionMetadata: {},
         didDocument: null,
-        didDocumentMetadata: {},
+        didDocumentMetadata: {}
       }
 
       try {
@@ -46,7 +50,7 @@ export const getResolver = (): ResolverRegistry => {
         response.didResolutionMetadata.message = e.toString()
       }
       return response
-    },
+    }
   }
 }
 

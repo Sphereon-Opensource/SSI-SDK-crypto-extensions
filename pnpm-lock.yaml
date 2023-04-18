@@ -228,7 +228,7 @@ importers:
         version: 1.1.1
       '@lto-network/lto-transactions':
         specifier: 1.2.12
-        version: 1.2.12(debug@4.3.4)(typescript@3.9.10)
+        version: 1.2.12(debug@4.3.4)(typescript@4.9.5)
       '@lto-network/signature-generator':
         specifier: ~1.0.0
         version: 1.0.0
@@ -237,7 +237,7 @@ importers:
         version: 0.6.0
       '@sphereon/lto-did-ts':
         specifier: 0.1.8-unstable.0
-        version: 0.1.8-unstable.0(debug@4.3.4)(typescript@3.9.10)
+        version: 0.1.8-unstable.0(debug@4.3.4)(typescript@4.9.5)
       '@veramo/core':
         specifier: 4.2.0
         version: 4.2.0(patch_hash=c5oempznsz4br5w3tcuk2i2mau)
@@ -257,42 +257,21 @@ importers:
       did-resolver:
         specifier: ^4.1.0
         version: 4.1.0
+      typescript:
+        specifier: 4.9.5
+        version: 4.9.5
 
   packages/did-resolver-ebsi:
     dependencies:
-      '@stablelib/ed25519':
-        specifier: ^1.0.3
-        version: 1.0.3
-      bigint-mod-arith:
-        specifier: ^3.2.1
-        version: 3.2.1
       cross-fetch:
         specifier: ^3.1.5
         version: 3.1.5
       did-resolver:
         specifier: ^4.1.0
         version: 4.1.0
-      enhanced-resolve:
-        specifier: ^5.12.0
-        version: 5.12.0
-      lodash.isplainobject:
-        specifier: ^4.0.6
-        version: 4.0.6
-      multiformats:
-        specifier: ^9.9.0
-        version: 9.9.0
-      nist-weierstrauss:
-        specifier: ^1.6.1
-        version: 1.6.1
-      uint8arrays:
-        specifier: ^3.1.1
-        version: 3.1.1
-      varint:
-        specifier: ^6.0.0
-        version: 6.0.0
-      web-encoding:
-        specifier: ^1.1.5
-        version: 1.1.5
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.0.3
     devDependencies:
       '@types/lodash.isplainobject':
         specifier: ^4.0.7
@@ -2980,7 +2959,7 @@ packages:
       tweetnacl: 1.0.3
     dev: false
 
-  /@lto-network/lto-transactions@1.2.12(debug@4.3.4)(typescript@3.9.10):
+  /@lto-network/lto-transactions@1.2.12(debug@4.3.4)(typescript@4.9.5):
     resolution: {integrity: sha512-bUCwN1xFMr8HFg+rdpxfj5vyCM/2aBSq8kyXyhFw2t8Ovl6BL4rI9zK+4UnOHl5e5z72UWsHgdT3taicxPQiug==}
     deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
     peerDependencies:
@@ -2992,7 +2971,7 @@ packages:
       base64-js: 1.5.1
       long: 4.0.0
       parse-json-bignumber: 0.1.3
-      typescript: 3.9.10
+      typescript: 4.9.5
     transitivePeerDependencies:
       - debug
     dev: false
@@ -4215,11 +4194,11 @@ packages:
   /@sphereon/jsencrypt@3.3.2-unstable.0:
     resolution: {integrity: sha512-HurQBvkjAW8t4oZ629sAKTAEi7B/rjYfmSJOquGdyJZeMPT+5R/9DW6i2eQv6kWHWLBa1Iji14zMUvM/NmF8Ew==}
 
-  /@sphereon/lto-did-ts@0.1.8-unstable.0(debug@4.3.4)(typescript@3.9.10):
+  /@sphereon/lto-did-ts@0.1.8-unstable.0(debug@4.3.4)(typescript@4.9.5):
     resolution: {integrity: sha512-3jzwwuYX/VYuze+T9/yg4PcsJ5iNNwAfTp4WfS4aSfPFBErDAfKXqn6kOb0wFYGkhejr3Jz+rljPC2iKZiHiGA==}
     dependencies:
       '@lto-network/lto-crypto': 1.1.1
-      '@lto-network/lto-transactions': 1.2.12(debug@4.3.4)(typescript@3.9.10)
+      '@lto-network/lto-transactions': 1.2.12(debug@4.3.4)(typescript@4.9.5)
       '@lto-network/signature-generator': 1.0.0
       '@sphereon/did-uni-client': 0.4.0
       '@waves/ts-lib-crypto': 1.4.4-beta.1
@@ -7607,7 +7586,6 @@ packages:
   /dotenv@16.0.3:
     resolution: {integrity: sha512-7GO6HghkA5fYG9TYnNxi14/7K9f5occMlp3zXAuSxn7CKCxt9xbNWG7yF8hTCSUchlfWSe3uLmlPfigevRItzQ==}
     engines: {node: '>=12'}
-    dev: true
 
   /duplexer2@0.1.4:
     resolution: {integrity: sha512-asLFVfWWtJ90ZyOUHMqk7/S2w2guQKxUI2itj3d92ADHhxUSbCMGi1f1cBcJ7xM1To+pE/Khbwo1yuNbMEPKeA==}
@@ -15929,12 +15907,6 @@ packages:
       - supports-color
     dev: true
 
-  /typescript@3.9.10:
-    resolution: {integrity: sha512-w6fIxVE/H1PkLKcCPsFqKE7Kv7QUwhU8qQY2MueZXWx5cPZdwFupLgKK3vntcK98BtNHZtAF4LA/yl2a7k8R6Q==}
-    engines: {node: '>=4.2.0'}
-    hasBin: true
-    dev: false
-
   /typescript@4.8.4:
     resolution: {integrity: sha512-QCh+85mCy+h0IGff8r5XWzOVSbBO+KfeYrMQh7NJ58QujwcE22u+NUSmUxqF+un70P9GXKxa2HCNiTTMJknyjQ==}
     engines: {node: '>=4.2.0'}
@@ -15945,7 +15917,6 @@ packages:
     resolution: {integrity: sha512-1FXk9E2Hm+QzZQ7z+McJiHL4NW1F2EzMu9Nq9i3zAaGqibafqYwCVU6WyWAuyQRRzOlxou8xZSyXLEN8oKj24g==}
     engines: {node: '>=4.2.0'}
     hasBin: true
-    dev: true
 
   /typical@4.0.0:
     resolution: {integrity: sha512-VAH4IvQ7BDFYglMd7BPRDfLgxZZX4O4TFcRDA6EN5X7erNJJq+McIEp8np9aVtxrCJ6qx4GTYVfOWNjcqwZgRw==}
