@@ -38,14 +38,14 @@ and [Veramo](https://veramo.io/). The below packages extend did:key and support 
 ### Lerna
 
 This package makes use of Lerna for managing multiple packages. Lerna is a tool that optimizes the workflow around
-managing multi-package repositories with git and npm / yarn.
+managing multi-package repositories with git and npm / pnpm.
 
 ### Build
 
-The below command builds all packages for you using lerna
+The below command builds all packages for you
 
 ```shell
-yarn build
+pnpm build
 ```
 
 ### Test
@@ -55,17 +55,17 @@ The test command runs:
 * `jest`
 * `coverage`
 
-You can also run only a single section of these tests, using for example `yarn test:watch`.
+You can also run only a single section of these tests, using for example `pnpm test:watch`.
 
 ```shell
-yarn test
+pnpm test
 ```
 
 ### Utility scripts
 
 There are other utility scripts that help with development.
 
-* `yarn prettier` - runs `prettier` to fix code style.
+* `pnpm prettier` - runs `prettier` to fix code style.
 
 ### Publish
 
@@ -76,5 +76,5 @@ There are scripts that can publish the following versions:
 * `unstable`
 
 ```shell
-yarn publish:[version]
+pnpm publish:[version]
 ```

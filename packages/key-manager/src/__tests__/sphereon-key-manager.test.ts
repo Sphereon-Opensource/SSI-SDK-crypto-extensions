@@ -1,8 +1,8 @@
 import { SphereonKeyManager } from '../agent/SphereonKeyManager'
 import { MemoryKeyStore, MemoryPrivateKeyStore } from '@veramo/key-manager'
 import { IKey } from '@veramo/core'
-import { SphereonKeyManagementSystem } from '../../../kms-local/src'
 import { generateBls12381G2KeyPair } from '@mattrglobal/bbs-signatures'
+import { SphereonKeyManagementSystem } from '@sphereon/ssi-sdk-ext.kms-local'
 
 describe('@sphereon/kms-local', () => {
   let bls: { publicKey: Uint8Array; secretKey: Uint8Array }

@@ -11,6 +11,9 @@
       "path": "did-resolver-key"
     },
     {
+      "path": "did-resolver-ebsi"
+    },
+    {
       "path": "key-manager"
     },
     {
@@ -18,6 +21,9 @@
     },
     {
       "path": "did-provider-jwk"
+    },
+    {
+      "path": "did-provider-lto"
     }
   ]
 }
