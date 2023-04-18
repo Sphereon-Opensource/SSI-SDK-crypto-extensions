@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@mattrglobal/bbs-signatures": "^1.1.0",
-    "@sphereon/ssi-sdk-ext.kms-local": "^0.10.1",
+    "@sphereon/ssi-sdk-ext.kms-local": "workspace:*",
     "@veramo/core": "4.2.0",
     "@veramo/key-manager": "4.2.0"
   },
