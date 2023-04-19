@@ -11,6 +11,9 @@
       "path": "did-resolver-key"
     },
     {
+      "path": "did-provider-ebsi"
+    },
+    {
       "path": "did-resolver-ebsi"
     },
     {

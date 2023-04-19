@@ -8,8 +8,8 @@ const debug = Debug('did-provider-key')
 
 type IContext = IAgentContext<IKeyManager>
 
-export class BlsKeyDidProvider extends KeyDIDProvider {
-  private kms: string
+export class SphereonKeyDidProvider extends KeyDIDProvider {
+  private readonly kms: string
 
   constructor(options: { defaultKms: string }) {
     super(options)
