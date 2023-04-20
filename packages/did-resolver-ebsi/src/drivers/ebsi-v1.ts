@@ -3,9 +3,7 @@ import { fetch } from 'cross-fetch'
 
 export const keyToDidDoc = async (did: string, contentType: string, options: DIDResolutionOptions): Promise<DIDDocument> => {
   const uri = didURI(did, options)
-  console.log(uri)
   const doc = (await fetch(uri).then((res) => res.json())) as DIDDocument
-  console.log(JSON.stringify(doc))
   return doc
 }
 

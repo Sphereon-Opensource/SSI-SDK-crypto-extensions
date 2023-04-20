@@ -6,11 +6,12 @@ import secp256k1 from './drivers/secp256k1'
 import secp256r1 from './drivers/secp256r1'
 import secp384r1 from './drivers/secp384r1'
 import secp521r1 from './drivers/secp521r1'
-import { ParsedDID, Resolvable, DIDResolutionOptions, DIDResolutionResult, ResolverRegistry } from 'did-resolver'
-import jwkJcs from './drivers/jwk.jcs' // JWK with JCS (used by EBSI)
+import { DIDResolutionResult, ParsedDID, Resolvable, ResolverRegistry } from 'did-resolver'
+import jwkJcs from './drivers/jwk.jcs'
+import { DID_JSON, DID_LD_JSON, DIDKeyResolutionOptions, KeyToDidDocArgs } from './types' // JWK with JCS (used by EBSI)
 
-export const DID_LD_JSON = 'application/did+ld+json'
-export const DID_JSON = 'application/did+json'
+export * from './types'
+
 const prefixToDriverMap: any = {
   0xe7: secp256k1,
   0xed: ed25519,
@@ -23,8 +24,8 @@ const prefixToDriverMap: any = {
 
 export const getResolver = (): ResolverRegistry => {
   return {
-    key: async (did: string, parsed: ParsedDID, r: Resolvable, options: DIDResolutionOptions) => {
-      const contentType = options.accept || DID_JSON
+    key: async (did: string, parsed: ParsedDID, r: Resolvable, options: DIDKeyResolutionOptions) => {
+      const contentType = options.accept || DID_LD_JSON
       const response: DIDResolutionResult = {
         didResolutionMetadata: { contentType },
         didDocument: null,
@@ -34,7 +35,8 @@ export const getResolver = (): ResolverRegistry => {
         const multicodecPubKey = base58btc.decode(parsed.id)
         const keyType = varint.decode(multicodecPubKey)
         const pubKeyBytes = multicodecPubKey.slice(varint.decode.bytes)
-        const doc = await prefixToDriverMap[keyType].keyToDidDoc(pubKeyBytes, parsed.id, contentType)
+        const args: KeyToDidDocArgs = { pubKeyBytes, fingerprint: parsed.id, contentType, options }
+        const doc = await prefixToDriverMap[keyType].keyToDidDoc(args)
         if (contentType === DID_LD_JSON) {
           if (!doc['@context']) {
             doc['@context'] = 'https://w3id.org/did/v1'

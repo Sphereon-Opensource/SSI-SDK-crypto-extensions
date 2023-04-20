@@ -14,7 +14,7 @@ describe('Secp256r1 mapper', () => {
     const multiformatPubKey = base58btc.decode(id)
     varint.decode(multiformatPubKey) // decode is changing param multiformatPubKey as well
     const pubKeyBytes = multiformatPubKey.slice(varint.decode.bytes)
-    const doc = await mapper.keyToDidDoc(pubKeyBytes, id)
+    const doc = await mapper.keyToDidDoc({ pubKeyBytes, fingerprint: id })
     expect(doc).toMatchSnapshot()
   })
 
@@ -24,7 +24,7 @@ describe('Secp256r1 mapper', () => {
     const multiformatPubKey = base58btc.decode(id)
     varint.decode(multiformatPubKey) // decode is changing param multiformatPubKey as well
     const pubKeyBytes = multiformatPubKey.slice(varint.decode.bytes)
-    const doc = await mapper.keyToDidDoc(pubKeyBytes, id)
+    const doc = await mapper.keyToDidDoc({ pubKeyBytes, fingerprint: id })
     expect(doc).toMatchSnapshot()
   })
 
@@ -34,7 +34,7 @@ describe('Secp256r1 mapper', () => {
     const multiformatPubKey = base58btc.decode(id)
     varint.decode(multiformatPubKey) // decode is changing param multiformatPubKey as well
     const pubKeyBytes = multiformatPubKey.slice(varint.decode.bytes)
-    const doc = await mapper.keyToDidDoc(pubKeyBytes, id)
+    const doc = await mapper.keyToDidDoc({ pubKeyBytes, fingerprint: id })
     expect(doc).toMatchSnapshot()
   })
 
@@ -44,7 +44,7 @@ describe('Secp256r1 mapper', () => {
     const multiformatPubKey = base58btc.decode(id)
     varint.decode(multiformatPubKey) // decode is changing param multiformatPubKey as well
     const pubKeyBytes = multiformatPubKey.slice(varint.decode.bytes)
-    const doc = await mapper.keyToDidDoc(pubKeyBytes, id)
+    const doc = await mapper.keyToDidDoc({ pubKeyBytes, fingerprint: id })
     expect(doc).toMatchSnapshot()
   })
 
@@ -54,7 +54,7 @@ describe('Secp256r1 mapper', () => {
     const multiformatPubKey = base58btc.decode(id)
     varint.decode(multiformatPubKey) // decode is changing param multiformatPubKey as well
     const pubKeyBytes = multiformatPubKey.slice(varint.decode.bytes)
-    const doc = await mapper.keyToDidDoc(pubKeyBytes, id)
+    const doc = await mapper.keyToDidDoc({ pubKeyBytes, fingerprint: id })
     expect(doc).toMatchSnapshot()
   })
 
@@ -64,7 +64,7 @@ describe('Secp256r1 mapper', () => {
     const multiformatPubKey = base58btc.decode(id)
     varint.decode(multiformatPubKey) // decode is changing param multiformatPubKey as well
     const pubKeyBytes = multiformatPubKey.slice(varint.decode.bytes)
-    const doc = await mapper.keyToDidDoc(pubKeyBytes, id)
+    const doc = await mapper.keyToDidDoc({ pubKeyBytes, fingerprint: id })
     expect(doc).toMatchSnapshot()
   })
 
@@ -74,7 +74,7 @@ describe('Secp256r1 mapper', () => {
     const multiformatPubKey = base58btc.decode(id)
     varint.decode(multiformatPubKey) // decode is changing param multiformatPubKey as well
     const pubKeyBytes = multiformatPubKey.slice(varint.decode.bytes)
-    const doc = await mapper.keyToDidDoc(pubKeyBytes, id)
+    const doc = await mapper.keyToDidDoc({ pubKeyBytes, fingerprint: id })
     expect(doc).toMatchSnapshot()
   })
 })

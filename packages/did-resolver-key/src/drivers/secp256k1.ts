@@ -1,7 +1,8 @@
 import * as u8a from 'uint8arrays'
 import { DIDDocument } from 'did-resolver'
+import { KeyToDidDocArgs } from '../types'
 
-export const keyToDidDoc = (pubKeyBytes: Uint8Array, fingerprint: string): DIDDocument => {
+export const keyToDidDoc = ({ pubKeyBytes, fingerprint }: KeyToDidDocArgs): DIDDocument => {
   const did = `did:key:${fingerprint}`
   const keyId = `${did}#${fingerprint}`
   return {
