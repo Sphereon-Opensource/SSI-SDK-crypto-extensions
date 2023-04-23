@@ -1,6 +1,9 @@
 import * as ebsiV1 from './drivers/ebsi-v1'
 import { DIDResolutionOptions, DIDResolutionResult, ParsedDID, Resolvable, ResolverRegistry } from 'did-resolver'
 
+import { config } from 'dotenv'
+
+config()
 export const DID_LD_JSON = 'application/did+ld+json'
 export const DID_JSON = 'application/did+json'
 const methodToDriverMap: any = {

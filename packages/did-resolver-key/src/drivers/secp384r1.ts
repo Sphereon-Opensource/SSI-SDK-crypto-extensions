@@ -4,11 +4,12 @@ import * as u8a from 'uint8arrays'
 
 import * as nist_weierstrauss from 'nist-weierstrauss'
 import { base64urlPoint } from 'nist-weierstrauss'
+import { KeyToDidDocArgs } from '../types'
 
 /**
  * Constructs the document based on the method key
  */
-export function keyToDidDoc(pubKeyBytes: Uint8Array, fingerprint: string): any {
+export function keyToDidDoc({ pubKeyBytes, fingerprint }: KeyToDidDocArgs): any {
   const did = `did:key:${fingerprint}`
   const keyId = `${did}#${fingerprint}`
   const key = pubKeyBytesToXY(pubKeyBytes)

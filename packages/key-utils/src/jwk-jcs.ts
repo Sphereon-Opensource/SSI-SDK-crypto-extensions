@@ -3,11 +3,9 @@ import isPlainObject from 'lodash.isplainobject'
 import type { ByteView } from 'multiformats/codecs/interface'
 import type { JsonWebKey } from 'did-resolver'
 
-export declare const name = 'jwk_jcs-pub'
-export declare const code = 0xeb51
-
 const textEncoder = new TextEncoder()
 const textDecoder = new TextDecoder()
+
 /**
  * Checks if the value is a non-empty string.
  *
@@ -19,6 +17,7 @@ function check(value: unknown, description: string) {
     throw new Error(`${description} missing or invalid`)
   }
 }
+
 /**
  * Checks if the value is a valid JSON object.
  *
@@ -29,6 +28,7 @@ function validatePlainObject(value: unknown) {
     throw new Error('JWK must be an object')
   }
 }
+
 /**
  * Checks if the JWK is valid. It must contain all the required members.
  *
@@ -67,30 +67,27 @@ function validateJwk(jwk: any) {
       throw new Error('"kty" (Key Type) Parameter missing or unsupported')
   }
 }
+
 /**
- * Extracts the required members of the JWK and canonicalises it.
- * This method is not part of the BlockCodec interface.
+ * Extracts the required members of the JWK and canonicalizes it.
  *
- * @param jwk - The JWK to canonicalise.
+ * @param jwk - The JWK to canonicalize.
  * @returns The JWK with only the required members, ordered lexicographically.
  */
-function canonicaliseJwk(jwk: any) {
-  let components
+function minimalJwk(jwk: any) {
   // "default" case is not needed
   // eslint-disable-next-line default-case
   switch (jwk.kty) {
     case 'EC':
-      components = { crv: jwk.crv, kty: jwk.kty, x: jwk.x, y: jwk.y }
-      break
+      return { crv: jwk.crv, kty: jwk.kty, x: jwk.x, y: jwk.y }
     case 'OKP':
-      components = { crv: jwk.crv, kty: jwk.kty, x: jwk.x }
-      break
+      return { crv: jwk.crv, kty: jwk.kty, x: jwk.x }
     case 'RSA':
-      components = { e: jwk.e, kty: jwk.kty, n: jwk.n }
-      break
+      return { e: jwk.e, kty: jwk.kty, n: jwk.n }
   }
-  return components
+  throw Error(`Unsupported key type (kty) provided: ${jwk.kty}`)
 }
+
 /**
  * Encodes a JWK into a Uint8Array. Only the required JWK members are encoded.
  *
@@ -101,11 +98,10 @@ function canonicaliseJwk(jwk: any) {
  * @param jwk - JSON Web Key.
  * @returns Uint8Array-encoded JWK.
  */
-export function encode(jwk: unknown): Uint8Array {
+export function jwkJcsEncode(jwk: unknown): Uint8Array {
   validateJwk(jwk)
-  // Keep only the JWK required members
-  const components = canonicaliseJwk(jwk)
-  return textEncoder.encode(JSON.stringify(components))
+  const strippedJwk = minimalJwk(jwk)
+  return textEncoder.encode(jcsCanonicalize(strippedJwk))
 }
 
 /**
@@ -114,11 +110,68 @@ export function encode(jwk: unknown): Uint8Array {
  * @param bytes - The array of bytes to decode.
  * @returns The corresponding JSON Web Key.
  */
-export function decode(bytes: ByteView<JsonWebKey>): JsonWebKey {
+export function jwkJcsDecode(bytes: ByteView<JsonWebKey>): JsonWebKey {
   const jwk = JSON.parse(textDecoder.decode(bytes))
   validateJwk(jwk)
-  if (JSON.stringify(jwk) !== JSON.stringify(canonicaliseJwk(jwk))) {
+  if (JSON.stringify(jwk) !== jcsCanonicalize(minimalJwk(jwk))) {
     throw new Error('The JWK embedded in the DID is not correctly formatted')
   }
   return jwk
+}
+
+// From: https://github.com/cyberphone/json-canonicalization
+export function jcsCanonicalize(object: any) {
+  let buffer = ''
+  serialize(object)
+  return buffer
+
+  function serialize(object: any) {
+    if (object === null || typeof object !== 'object' || object.toJSON != null) {
+      /////////////////////////////////////////////////
+      // Primitive type or toJSON - Use ES6/JSON     //
+      /////////////////////////////////////////////////
+      buffer += JSON.stringify(object)
+    } else if (Array.isArray(object)) {
+      /////////////////////////////////////////////////
+      // Array - Maintain element order              //
+      /////////////////////////////////////////////////
+      buffer += '['
+      let next = false
+      object.forEach((element) => {
+        if (next) {
+          buffer += ','
+        }
+        next = true
+        /////////////////////////////////////////
+        // Array element - Recursive expansion //
+        /////////////////////////////////////////
+        serialize(element)
+      })
+      buffer += ']'
+    } else {
+      /////////////////////////////////////////////////
+      // Object - Sort properties before serializing //
+      /////////////////////////////////////////////////
+      buffer += '{'
+      let next = false
+      Object.keys(object)
+        .sort()
+        .forEach((property) => {
+          if (next) {
+            buffer += ','
+          }
+          next = true
+          ///////////////////////////////////////////////
+          // Property names are strings - Use ES6/JSON //
+          ///////////////////////////////////////////////
+          buffer += JSON.stringify(property)
+          buffer += ':'
+          //////////////////////////////////////////
+          // Property value - Recursive expansion //
+          //////////////////////////////////////////
+          serialize(object[property])
+        })
+      buffer += '}'
+    }
+  }
 }

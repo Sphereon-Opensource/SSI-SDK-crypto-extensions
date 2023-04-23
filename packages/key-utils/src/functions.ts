@@ -1,9 +1,9 @@
 import { randomBytes } from '@ethersproject/random'
 import { generateKeyPair as generateSigningKeyPair } from '@stablelib/ed25519'
-import { TKeyType } from '@veramo/core'
+
 import { JsonWebKey } from 'did-resolver'
 import * as u8a from 'uint8arrays'
-import { ENC_KEY_ALGS, Key, KeyCurve, KeyType, KeyUse, SIG_KEY_ALGS } from './types/jwk-provider-types'
+import { ENC_KEY_ALGS, Key, KeyCurve, KeyType, JwkKeyUse, SIG_KEY_ALGS, TKeyType } from './types'
 import elliptic from 'elliptic'
 
 /**
@@ -48,7 +48,7 @@ export const hex2base64url = (value: string) => {
  * @param use The optional use for the key (sig/enc)
  * @return The JWK
  */
-export const toJwk = (publicKeyHex: string, type: TKeyType, use?: KeyUse): JsonWebKey => {
+export const toJwk = (publicKeyHex: string, type: TKeyType, use?: JwkKeyUse): JsonWebKey => {
   switch (type) {
     case Key.Ed25519:
       return toEd25519Jwk(publicKeyHex, use)
@@ -67,8 +67,14 @@ export const toJwk = (publicKeyHex: string, type: TKeyType, use?: KeyUse): JsonW
  * @param type The key type
  * @param suppliedUse A supplied use. Will be used in case it is present
  */
-export const determineUse = (type: TKeyType, suppliedUse?: KeyUse): KeyUse | undefined => {
-  return suppliedUse ? suppliedUse : SIG_KEY_ALGS.includes(type) ? KeyUse.Signature : ENC_KEY_ALGS.includes(type) ? KeyUse.Encryption : undefined
+export const jwkDetermineUse = (type: TKeyType, suppliedUse?: JwkKeyUse): JwkKeyUse | undefined => {
+  return suppliedUse
+    ? suppliedUse
+    : SIG_KEY_ALGS.includes(type)
+    ? JwkKeyUse.Signature
+    : ENC_KEY_ALGS.includes(type)
+    ? JwkKeyUse.Encryption
+    : undefined
 }
 
 /**
@@ -89,7 +95,7 @@ const assertProperKeyLength = (keyHex: string, expectedKeyLength: number) => {
  * @param use The use for the key
  * @return The JWK
  */
-const toSecp256k1Jwk = (publicKeyHex: string, use?: KeyUse): JsonWebKey => {
+const toSecp256k1Jwk = (publicKeyHex: string, use?: JwkKeyUse): JsonWebKey => {
   assertProperKeyLength(publicKeyHex, 130)
   return {
     alg: 'ES256K',
@@ -107,7 +113,7 @@ const toSecp256k1Jwk = (publicKeyHex: string, use?: KeyUse): JsonWebKey => {
  * @param use The use for the key
  * @return The JWK
  */
-const toSecp256r1Jwk = (publicKeyHex: string, use?: KeyUse): JsonWebKey => {
+const toSecp256r1Jwk = (publicKeyHex: string, use?: JwkKeyUse): JsonWebKey => {
   assertProperKeyLength(publicKeyHex, 64)
   const secp256r1 = new elliptic.ec('p256')
   const publicKey = `03${publicKeyHex}` // We add the 'compressed' type 03 prefix
@@ -129,7 +135,7 @@ const toSecp256r1Jwk = (publicKeyHex: string, use?: KeyUse): JsonWebKey => {
  * @param use The use for the key
  * @return The JWK
  */
-const toEd25519Jwk = (publicKeyHex: string, use?: KeyUse): JsonWebKey => {
+const toEd25519Jwk = (publicKeyHex: string, use?: JwkKeyUse): JsonWebKey => {
   assertProperKeyLength(publicKeyHex, 64)
   return {
     alg: 'EdDSA',

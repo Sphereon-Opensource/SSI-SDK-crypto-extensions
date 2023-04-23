@@ -2,8 +2,7 @@
 <h1 align="center">
   <br>
   <a href="https://www.sphereon.com"><img src="https://sphereon.com/content/themes/sphereon/assets/img/logo.svg" alt="Sphereon" width="400"></a>
-  <br>Ssi-sdk-jwk-did-provider 
-  <br>(Typescript) 
+  <br>DID JWK Provider
   <br>
 </h1>
 
@@ -20,7 +19,7 @@ Enabling creating and resolving of `did:jwk` entities, conforming to the [spec f
 
 ### Creating an identifier
 
-When creating a new Veramo Identifier you can choose to import your own keys or have them generated for you. You can
+When creating a new Identifier you can choose to import your own keys or have them generated for you. You can
 also choose to use specific Key IDs for your key, regardless of generation or import.
 The options object when creating an identifier is as follows:
 
@@ -71,7 +70,7 @@ const didResolutionResult: DIDResolutionResult = await agent.resolveDid({ didUrl
 ## Installation
 
 ```shell
-yarn add @sphereon/ssi-sdk-did-provider-jwk
+yarn add @sphereon/ssi-sdk-ext.did-provider-jwk
 ```
 
 ## Build

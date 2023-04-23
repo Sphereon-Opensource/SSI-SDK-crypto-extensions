@@ -2,6 +2,12 @@
   "files": [],
   "references": [
     {
+      "path": "key-utils"
+    },
+    {
+      "path": "did-utils"
+    },
+    {
       "path": "kms-local"
     },
     {
@@ -9,6 +15,9 @@
     },
     {
       "path": "did-resolver-key"
+    },
+    {
+      "path": "did-provider-ebsi"
     },
     {
       "path": "did-resolver-ebsi"

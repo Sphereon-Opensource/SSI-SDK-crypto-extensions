@@ -1,11 +1,11 @@
 import { DIDDocument } from 'did-resolver'
-import { decode } from '../JwkJcsBlockCodec'
-import { DID_LD_JSON } from '../index'
+import { DID_LD_JSON, KeyToDidDocArgs } from '../index'
+import { jwkJcsDecode } from '@sphereon/ssi-sdk-ext.key-utils'
 
-export const keyToDidDoc = (pubKeyBytes: Uint8Array, fingerprint: string, contentType: string): DIDDocument => {
+export const keyToDidDoc = ({ pubKeyBytes, fingerprint, contentType }: KeyToDidDocArgs): DIDDocument => {
   const did = `did:key:${fingerprint}`
   const keyId = `${did}#${fingerprint}`
-  const publicKeyJwk = decode(pubKeyBytes)
+  const publicKeyJwk = jwkJcsDecode(pubKeyBytes)
   return {
     ...(contentType === DID_LD_JSON && {
       '@context': ['https://www.w3.org/ns/did/v1', 'https://w3id.org/security/suites/jws-2020/v1'],

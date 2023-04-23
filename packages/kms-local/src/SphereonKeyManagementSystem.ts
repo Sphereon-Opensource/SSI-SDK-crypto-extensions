@@ -3,11 +3,11 @@ import Debug from 'debug'
 import { IKey, ManagedKeyInfo, MinimalImportableKey, TKeyType } from '@veramo/core'
 import { AbstractPrivateKeyStore, ManagedPrivateKey } from '@veramo/key-manager'
 import { KeyManagementSystem } from '@veramo/kms-local'
-import { BlsManagedKeyInfoArgs, KeyType } from './index'
+import { ManagedKeyInfoArgs, KeyType } from './index'
 import { blsSign, generateBls12381G2KeyPair } from '@mattrglobal/bbs-signatures'
 import { RSASigner } from './x509/rsa-signer'
-import { hexToPEM, jwkToPEM, pemCertChainTox5c, PEMToHex, PEMToJwk, privateKeyHexFromPEM } from '@sphereon/ssi-sdk-did-utils'
 import { generateRSAKeyAsPEM, signAlgorithmToSchemeAndHashAlg } from './x509/rsa-key'
+import { hexToPEM, jwkToPEM, pemCertChainTox5c, PEMToHex, PEMToJwk, privateKeyHexFromPEM } from '@sphereon/ssi-sdk-ext.key-utils'
 
 const debug = Debug('veramo:kms:bls:local')
 
@@ -25,7 +25,7 @@ export class SphereonKeyManagementSystem extends KeyManagementSystem {
         if (!args.privateKeyHex || !args.publicKeyHex) {
           throw new Error('invalid_argument: type, publicKeyHex and privateKeyHex are required to import a key')
         }
-        const managedKey = this.asBlsManagedKeyInfo({
+        const managedKey = this.asSphereonManagedKeyInfo({
           alias: args.kid,
           privateKeyHex: args.privateKeyHex,
           publicKeyHex: args.publicKeyHex,
@@ -40,7 +40,7 @@ export class SphereonKeyManagementSystem extends KeyManagementSystem {
         if (!args.privateKeyHex) {
           throw new Error('invalid_argument: type and privateKeyHex are required to import a key')
         }
-        const managedKey = this.asBlsManagedKeyInfo({ alias: args.kid, ...args })
+        const managedKey = this.asSphereonManagedKeyInfo({ alias: args.kid, ...args })
         await this.privateKeyStore.import({ alias: managedKey.kid, ...args })
         debug('imported key', managedKey.type, managedKey.publicKeyHex)
         return managedKey
@@ -114,7 +114,7 @@ export class SphereonKeyManagementSystem extends KeyManagementSystem {
     throw Error(`not_supported: Cannot sign using key of type ${privateKey.type}`)
   }
 
-  private asBlsManagedKeyInfo(args: BlsManagedKeyInfoArgs): ManagedKeyInfo {
+  private asSphereonManagedKeyInfo(args: ManagedKeyInfoArgs): ManagedKeyInfo {
     let key: Partial<ManagedKeyInfo>
     switch (args.type) {
       case KeyType.Bls12381G2:

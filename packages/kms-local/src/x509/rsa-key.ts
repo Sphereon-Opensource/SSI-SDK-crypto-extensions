@@ -1,7 +1,6 @@
-import { base64ToPEM, JWK } from '@sphereon/ssi-sdk-did-utils'
 import crypto from '@sphereon/isomorphic-webcrypto'
-import { HashAlgorithm } from './digest-methods'
 import * as u8a from 'uint8arrays'
+import { base64ToPEM, HashAlgorithm, JWK } from '@sphereon/ssi-sdk-ext.key-utils'
 
 export type RSASignatureSchemes = 'RSASSA-PKCS1-V1_5' | 'RSA-PSS'
 

@@ -1,2 +1,2 @@
-export { BlsKeyDidProvider } from './BlsKeyDidProvider'
+export { SphereonKeyDidProvider } from './SphereonKeyDidProvider'
 export { getDidKeyResolver } from './KeyDidResolver'

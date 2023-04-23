@@ -1,7 +1,6 @@
 import { DIDDocument, IAgentContext, IIdentifier, IKey, IKeyManager } from '@veramo/core'
 import { AbstractIdentifierProvider } from '@veramo/did-manager'
 import base64url from 'base64url'
-import { determineUse, toJwk, generatePrivateKeyHex } from './functions'
 import {
   IAddKeyArgs,
   IAddServiceArgs,
@@ -10,9 +9,9 @@ import {
   IRemoveKeyArgs,
   IRequiredContext,
   Key,
-  KeyUse,
 } from './types/jwk-provider-types'
 import Debug from 'debug'
+import { jwkDetermineUse, generatePrivateKeyHex, JwkKeyUse, toJwk } from '@sphereon/ssi-sdk-ext.key-utils'
 
 const debug = Debug('sphereon:did-provider-jwk')
 
@@ -38,7 +37,7 @@ export class JwkDIDProvider extends AbstractIdentifierProvider {
       context
     )
 
-    const use = determineUse(key.type, args?.options?.use)
+    const use = jwkDetermineUse(key.type, args?.options?.use)
     const jwk: JsonWebKey = toJwk(key.publicKeyHex, key.type, use)
     const identifier: Omit<IIdentifier, 'provider'> = {
       did: `did:jwk:${base64url(JSON.stringify(jwk))}`,
@@ -95,7 +94,7 @@ export class JwkDIDProvider extends AbstractIdentifierProvider {
   private async importProvidedOrGeneratedKey(args: IImportProvidedOrGeneratedKeyArgs, context: IRequiredContext): Promise<IKey> {
     const type = args.options?.type ? args.options.type : args.options?.key?.type ? (args.options.key.type as Key) : Key.Secp256k1
 
-    if (args.options && args.options?.use === KeyUse.Encryption && type === Key.Ed25519) {
+    if (args.options && args.options?.use === JwkKeyUse.Encryption && type === Key.Ed25519) {
       throw new Error('Ed25519 keys are only valid for signatures')
     }
 

@@ -3,7 +3,7 @@ import { MemoryPrivateKeyStore } from '@veramo/key-manager'
 import { generateBls12381G2KeyPair } from '@mattrglobal/bbs-signatures'
 import { MinimalImportableKey, TKeyType } from '@veramo/core'
 import * as u8a from 'uint8arrays'
-describe('@sphereon/kms-local', () => {
+describe('@sphereon/ssi-sdk-ext.kms-local', () => {
   it('should import a BLS key', async () => {
     const bls = await generateBls12381G2KeyPair()
     const kms = new SphereonKeyManagementSystem(new MemoryPrivateKeyStore())

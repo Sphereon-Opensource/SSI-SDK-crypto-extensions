@@ -1,4 +1,4 @@
-import { generatePrivateKeyHex } from '../src/functions'
+import { generatePrivateKeyHex } from '../src'
 import { Key } from '../src'
 
 describe('functions: key generator', () => {

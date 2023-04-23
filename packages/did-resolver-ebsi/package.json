@@ -1,7 +1,8 @@
 {
-  "name": "@sphereon/did-resolver-ebsi",
+  "name": "@sphereon/ssi-sdk-ext.did-resolver-ebsi",
   "description": "Sphereon did:ebsi resolver for Legal Entities.",
   "version": "0.10.1",
+  "source": "src/index.ts",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -9,16 +10,8 @@
   },
   "dependencies": {
     "cross-fetch": "^3.1.5",
-    "@stablelib/ed25519": "^1.0.3",
     "did-resolver": "^4.1.0",
-    "multiformats": "^9.9.0",
-    "uint8arrays": "^3.1.1",
-    "lodash.isplainobject": "^4.0.6",
-    "web-encoding": "^1.1.5",
-    "varint": "^6.0.0",
-    "nist-weierstrauss": "^1.6.1",
-    "bigint-mod-arith": "^3.2.1",
-    "enhanced-resolve": "^5.12.0"
+    "dotenv": "^16.0.3"
   },
   "devDependencies": {
     "@types/varint": "^6.0.1",
