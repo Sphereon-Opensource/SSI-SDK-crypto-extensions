@@ -2,6 +2,12 @@
   "files": [],
   "references": [
     {
+      "path": "key-utils"
+    },
+    {
+      "path": "did-utils"
+    },
+    {
       "path": "kms-local"
     },
     {

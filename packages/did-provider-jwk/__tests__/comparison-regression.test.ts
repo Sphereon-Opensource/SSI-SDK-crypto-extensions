@@ -2,11 +2,12 @@ import { createAgent, DIDResolutionResult, IIdentifier, IKeyManager } from '@ver
 import { DIDManager, MemoryDIDStore } from '@veramo/did-manager'
 import { KeyManager, MemoryKeyStore, MemoryPrivateKeyStore } from '@veramo/key-manager'
 import { KeyManagementSystem } from '@veramo/kms-local'
-import { getDidJwkResolver, Key, KeyUse } from '../../did-resolver-jwk/src'
+import { getDidJwkResolver, Key } from '../../did-resolver-jwk/src'
 import { DIDResolverPlugin } from '@veramo/did-resolver'
 import { Resolver } from 'did-resolver'
 import base64url from 'base64url'
 import { IKeyOpts, JwkDIDProvider } from '../src'
+import { JwkKeyUse } from '@sphereon/ssi-sdk-ext.key-utils'
 
 const method = require('@or13/did-jwk')
 
@@ -73,7 +74,7 @@ describe('@sphereon/did-provider-jwk comparison ES256k', () => {
       key: {
         privateKeyHex,
       },
-      use: KeyUse.Signature,
+      use: JwkKeyUse.Signature,
     }
     const identifier: IIdentifier = await agent.didManagerCreate({ options })
 
@@ -146,7 +147,7 @@ describe('@sphereon/did-provider-jwk comparison ES256', () => {
       key: {
         privateKeyHex,
       },
-      use: KeyUse.Signature,
+      use: JwkKeyUse.Signature,
       type: Key.Secp256r1,
     }
     const identifier: IIdentifier = await agent.didManagerCreate({ options })

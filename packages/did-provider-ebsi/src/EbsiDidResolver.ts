@@ -1,5 +1,5 @@
 import { DIDResolutionOptions, DIDResolutionResult, DIDResolver, ParsedDID, Resolvable, Resolver } from 'did-resolver'
-import { getResolver } from '@sphereon/did-resolver-ebsi'
+import { getResolver } from '@sphereon/ssi-sdk-ext.did-resolver-ebsi'
 
 const resolveDidEbsi: DIDResolver = async (
   didUrl: string,

@@ -1,8 +1,7 @@
-import { JWK, PEMToJwk } from '@sphereon/ssi-sdk-did-utils'
 import * as u8a from 'uint8arrays'
-import { HashAlgorithm } from './digest-methods'
 import crypto from '@sphereon/isomorphic-webcrypto'
 import { importRSAKey, RSAEncryptionSchemes, RSASignatureSchemes } from './rsa-key'
+import { HashAlgorithm, JWK, PEMToJwk } from '@sphereon/ssi-sdk-ext.key-utils'
 
 export class RSASigner {
   private readonly hashAlgorithm: HashAlgorithm
@@ -14,7 +13,7 @@ export class RSASigner {
   /**
    *
    * @param key Either in PEM or JWK format (no raw hex keys here!)
-   * @param hashAlgorithm
+   * @param opts The algorithm and signature/encryption schemes
    */
   constructor(key: string | JWK, opts?: { hashAlgorithm?: HashAlgorithm; scheme?: RSAEncryptionSchemes | RSASignatureSchemes }) {
     if (typeof key === 'string') {

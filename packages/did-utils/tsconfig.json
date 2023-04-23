@@ -2,15 +2,11 @@
   "extends": "../tsconfig-base.json",
   "compilerOptions": {
     "rootDir": "src",
-    "outDir": "dist",
-    "declarationDir": "dist"
+    "outDir": "dist"
   },
   "references": [
     {
       "path": "../key-utils"
-    },
-    {
-      "path": "../did-utils"
     }
   ]
 }

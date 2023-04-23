@@ -1,6 +1,6 @@
 {
-  "name": "@sphereon/ssi-sdk-ext.did-provider-lto",
-  "description": "LTO Network DID provider",
+  "name": "@sphereon/ssi-sdk-ext.key-utils",
+  "description": "Sphereon SSI-SDK plugin for key creation.",
   "version": "0.10.1",
   "source": "src/index.ts",
   "main": "dist/index.js",
@@ -10,25 +10,26 @@
     "build:clean": "tsc --build --clean && tsc --build"
   },
   "dependencies": {
-    "@lto-network/lto-crypto": "~1.1.1",
-    "@lto-network/lto-transactions": "1.2.12",
-    "@lto-network/signature-generator": "~1.0.0",
-    "@sphereon/did-uni-client": "^0.6.0",
-    "@sphereon/lto-did-ts": "0.1.8-unstable.0",
-    "@veramo/core": "4.2.0",
-    "@veramo/did-manager": "4.2.0",
+    "@ethersproject/random": "^5.6.1",
+    "@stablelib/ed25519": "^1.0.2",
     "debug": "^4.3.4",
-    "lto-api": "^0.5.14"
+    "did-resolver": "^4.1.0",
+    "base64url": "^3.0.1",
+    "elliptic": "^6.5.4",
+    "uint8arrays": "^3.1.1",
+    "multiformats": "^9.9.0",
+    "lodash.isplainobject": "^4.0.6",
+    "web-encoding": "^1.1.5",
+    "@stablelib/sha256": "^1.0.1",
+    "@stablelib/sha512": "^1.0.1",
+    "varint": "^6.0.0"
   },
   "devDependencies": {
-    "@types/uuid": "^8.3.3",
-    "did-resolver": "^4.1.0",
-    "typescript": "4.9.5"
+    "@types/lodash.isplainobject": "^4.0.7"
   },
   "files": [
     "dist/**/*",
     "src/**/*",
-    "plugin.schema.json",
     "README.md",
     "LICENSE"
   ],
@@ -40,8 +41,7 @@
   "author": "Sphereon <dev@sphereon.com>",
   "license": "Apache-2.0",
   "keywords": [
-    "SSI",
-    "LTO Network",
+    "JWK",
     "DID",
     "Veramo"
   ]

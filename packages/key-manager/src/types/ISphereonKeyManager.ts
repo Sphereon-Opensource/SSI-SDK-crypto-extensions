@@ -1,11 +1,13 @@
 import { IPluginMethodMap, IKey, KeyMetadata, MinimalImportableKey, TKeyType } from '@veramo/core'
 
+export type PartialKey = Partial<IKey>
+
 export interface ISphereonKeyManager extends IPluginMethodMap {
-  keyManagerCreate(args: IKeyManagerCreateArgs): Promise<Partial<IKey>>
+  keyManagerCreate(args: IKeyManagerCreateArgs): Promise<PartialKey>
   keyManagerGetKeyManagementSystems(): Promise<Array<string>>
   keyManagerGet({ kid }: IKeyManagerGetArgs): Promise<IKey>
   keyManagerDelete({ kid }: IKeyManagerDeleteArgs): Promise<boolean>
-  keyManagerImport(key: MinimalImportableKey): Promise<Partial<IKey>>
+  keyManagerImport(key: MinimalImportableKey): Promise<PartialKey>
   keyManagerSign(args: IKeyManagerSignArgs): Promise<string>
   keyManagerVerify(args: IKeyManagerVerifyArgs): Promise<boolean>
 }

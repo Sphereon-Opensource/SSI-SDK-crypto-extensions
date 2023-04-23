@@ -8,7 +8,7 @@ import secp384r1 from './drivers/secp384r1'
 import secp521r1 from './drivers/secp521r1'
 import { DIDResolutionResult, ParsedDID, Resolvable, ResolverRegistry } from 'did-resolver'
 import jwkJcs from './drivers/jwk.jcs'
-import { DID_JSON, DID_LD_JSON, DIDKeyResolutionOptions, KeyToDidDocArgs } from './types' // JWK with JCS (used by EBSI)
+import { DID_JSON, DID_LD_JSON, DIDKeyResolutionOptions, KeyToDidDocArgs } from './types'
 
 export * from './types'
 

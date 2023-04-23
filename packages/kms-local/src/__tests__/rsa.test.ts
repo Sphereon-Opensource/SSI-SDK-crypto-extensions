@@ -1,10 +1,11 @@
 import JSEncrypt from '@sphereon/jsencrypt'
 import { PEM_CERT, PEM_CHAIN, PEM_FULL_CHAIN, PEM_PRIV_KEY } from './certs'
-import { digestMethodParams } from '../x509/digest-methods'
 import { SphereonKeyManagementSystem } from '../SphereonKeyManagementSystem'
 import { MemoryPrivateKeyStore } from '@veramo/key-manager'
 import * as u8a from 'uint8arrays'
+import { RSASigner } from '../x509/rsa-signer'
 import {
+  digestMethodParams,
   pemCertChainTox5c,
   PEMToJwk,
   privateKeyHexFromPEM,
@@ -12,8 +13,7 @@ import {
   toKeyObject,
   X509Opts,
   x5cToPemCertChain,
-} from '@sphereon/ssi-sdk-did-utils'
-import { RSASigner } from '../x509/rsa-signer'
+} from '@sphereon/ssi-sdk-ext.key-utils'
 
 describe('X509 PEMs', () => {
   it('should get public key from private key', () => {
