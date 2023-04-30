@@ -1,0 +1,48 @@
+{
+  "name": "@sphereon/ssi-sdk-ext.kms-local",
+  "description": "Sphereon Local Key Management System with support for BLS/BBS+, RSA keys",
+  "version": "0.10.2",
+  "source": "src/index.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc --build",
+    "generate-plugin-schema": "pnpm veramo dev extract-api"
+  },
+  "dependencies": {
+    "@mattrglobal/bbs-signatures": "^1.1.0",
+    "@sphereon/isomorphic-webcrypto": "^2.4.0-unstable.4",
+    "@sphereon/ssi-sdk-ext.key-utils": "workspace:*",
+    "@sphereon/ssi-sdk-ext.did-utils": "workspace:*",
+    "uint8arrays": "3.1.1",
+    "@trust/keyto": "^2.0.0-alpha1",
+    "@veramo/core": "4.2.0",
+    "@veramo/key-manager": "4.2.0",
+    "@veramo/kms-local": "4.2.0"
+  },
+  "devDependencies": {
+    "@veramo/cli": "4.2.0",
+    "@sphereon/jsencrypt": "^3.3.2-unstable.0"
+  },
+  "resolutions": {
+    "**/@digitalcredentials/ed25519-verification-key-2020": "3.2.2"
+  },
+  "files": [
+    "dist/**/*",
+    "src/**/*",
+    "plugin.schema.json",
+    "README.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": "git@github.com:Sphereon-Opensource/SSI-SDK.git",
+  "author": "Sphereon <dev@sphereon.com>",
+  "license": "Apache-2.0",
+  "keywords": [
+    "SSI",
+    "kms",
+    "Veramo"
+  ]
+}

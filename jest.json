@@ -30,8 +30,12 @@
       "tsconfig": "./packages/tsconfig-base.json"
     }]
   },
+  "transformIgnorePatterns": [
+    "node_modules/(?!(?:.pnpm/)?(nist-weierstrauss|multiformatsgggggg))"
+  ],
   "testMatch": [
-    "**/__tests__/**/*.test.*"
+    "**/__tests__/**/*.test.*",
+    "!**/__tests__/**/*.test.*.snap"
   ],
   "testEnvironment": "node",
   "automock": false,

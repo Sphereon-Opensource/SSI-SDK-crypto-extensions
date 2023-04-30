@@ -1,4 +1,38 @@
 {
   "files": [],
-  "references": [{ "path": "bls-kms-local" }, { "path": "bls-did-provider-key" }, { "path": "bls-did-resolver-key" }, { "path": "bls-key-manager" }]
+  "references": [
+    {
+      "path": "key-utils"
+    },
+    {
+      "path": "did-utils"
+    },
+    {
+      "path": "kms-local"
+    },
+    {
+      "path": "did-provider-key"
+    },
+    {
+      "path": "did-resolver-key"
+    },
+    {
+      "path": "did-provider-ebsi"
+    },
+    {
+      "path": "did-resolver-ebsi"
+    },
+    {
+      "path": "key-manager"
+    },
+    {
+      "path": "did-resolver-jwk"
+    },
+    {
+      "path": "did-provider-jwk"
+    },
+    {
+      "path": "did-provider-lto"
+    }
+  ]
 }
