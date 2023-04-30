@@ -1,7 +1,7 @@
 {
   "name": "@sphereon/ssi-sdk-ext.key-utils",
   "description": "Sphereon SSI-SDK plugin for key creation.",
-  "version": "0.10.1",
+  "version": "0.11.0",
   "source": "src/index.ts",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -12,17 +12,17 @@
   "dependencies": {
     "@ethersproject/random": "^5.6.1",
     "@stablelib/ed25519": "^1.0.2",
-    "debug": "^4.3.4",
-    "did-resolver": "^4.1.0",
-    "base64url": "^3.0.1",
-    "elliptic": "^6.5.4",
-    "uint8arrays": "^3.1.1",
-    "multiformats": "^9.9.0",
-    "lodash.isplainobject": "^4.0.6",
-    "web-encoding": "^1.1.5",
     "@stablelib/sha256": "^1.0.1",
     "@stablelib/sha512": "^1.0.1",
-    "varint": "^6.0.0"
+    "base64url": "^3.0.1",
+    "debug": "^4.3.4",
+    "did-resolver": "^4.1.0",
+    "elliptic": "^6.5.4",
+    "lodash.isplainobject": "^4.0.6",
+    "multiformats": "^9.9.0",
+    "uint8arrays": "^3.1.1",
+    "varint": "^6.0.0",
+    "web-encoding": "^1.1.5"
   },
   "devDependencies": {
     "@types/lodash.isplainobject": "^4.0.7"

@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.11.0](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/compare/v0.10.2...v0.11.0) (2023-04-30)
+
+
+### Features
+
+* Add 2020 ed25519 support. ([50cc65e](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/50cc65e249001809c18d1ef0e2e751c8428ccc70))
+* Add EBSI LE DID Provider (does not persist into the registry yet) ([7a8cf56](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/7a8cf5687152ba0a7449d93eeb40289d6af07acf))
+* add ebsi v1 did driver ([8869643](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/88696430b671d46127d3dcff41936cbcb1a66d4c))
+* add key utils package for common key functions ([0543254](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/0543254d14b4ba54adeeab944315db5ba6221d47))
+* allow default registry from environment for ebsi v1 did driver ([217dfc0](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/217dfc0d89a72229591be3313cb1e7f3eebb25ad))
+
+
+
+
+
 ## [0.10.2](https://github.com/Sphereon-Opensource/SSI-SDK/compare/v0.10.1...v0.10.2) (2023-03-11)
 
 **Note:** Version bump only for package @sphereon/bls-did-resolver-key

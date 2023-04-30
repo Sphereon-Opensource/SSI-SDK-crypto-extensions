@@ -1,7 +1,7 @@
 {
   "name": "@sphereon/ssi-sdk-ext.did-resolver-key",
   "description": "Sphereon did:key resolver with BBS+/BLS and EBSI support.",
-  "version": "0.10.1",
+  "version": "0.11.0",
   "source": "src/index.ts",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -11,19 +11,19 @@
   "dependencies": {
     "@sphereon/ssi-sdk-ext.key-utils": "workspace:*",
     "@stablelib/ed25519": "^1.0.3",
-    "did-resolver": "^4.1.0",
-    "multiformats": "^9.9.0",
-    "uint8arrays": "^3.1.1",
-    "lodash.isplainobject": "^4.0.6",
-    "web-encoding": "^1.1.5",
-    "varint": "^6.0.0",
-    "nist-weierstrauss": "^1.6.1",
     "bigint-mod-arith": "^3.2.1",
-    "enhanced-resolve": "^5.12.0"
+    "did-resolver": "^4.1.0",
+    "enhanced-resolve": "^5.12.0",
+    "lodash.isplainobject": "^4.0.6",
+    "multiformats": "^9.9.0",
+    "nist-weierstrauss": "^1.6.1",
+    "uint8arrays": "^3.1.1",
+    "varint": "^6.0.0",
+    "web-encoding": "^1.1.5"
   },
   "devDependencies": {
-    "@types/varint": "^6.0.1",
-    "@types/lodash.isplainobject": "^4.0.7"
+    "@types/lodash.isplainobject": "^4.0.7",
+    "@types/varint": "^6.0.1"
   },
   "files": [
     "dist/**/*",

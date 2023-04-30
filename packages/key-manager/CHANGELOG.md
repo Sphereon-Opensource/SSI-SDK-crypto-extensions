@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.11.0](https://github.com/Sphereon-Opensource/SSI-SDK/compare/v0.10.2...v0.11.0) (2023-04-30)
+
+
+### Features
+
+* Add 2020 ed25519 support. ([50cc65e](https://github.com/Sphereon-Opensource/SSI-SDK/commit/50cc65e249001809c18d1ef0e2e751c8428ccc70))
+* add ebsi v1 did driver ([8869643](https://github.com/Sphereon-Opensource/SSI-SDK/commit/88696430b671d46127d3dcff41936cbcb1a66d4c))
+* add key utils package for common key functions ([0543254](https://github.com/Sphereon-Opensource/SSI-SDK/commit/0543254d14b4ba54adeeab944315db5ba6221d47))
+* Move to pnpm from yarn ([6ed9bd5](https://github.com/Sphereon-Opensource/SSI-SDK/commit/6ed9bd5fe72645364e631be1628710f57d5deb19))
+* Reorganize SSI-SDK crypto extensions and DIDs ([5578914](https://github.com/Sphereon-Opensource/SSI-SDK/commit/55789146f48b31e8efdd64afa464a42779a2137b))
+
+
+
+
+
 ## [0.10.2](https://github.com/Sphereon-Opensource/SSI-SDK/compare/v0.10.1...v0.10.2) (2023-03-11)
 
 **Note:** Version bump only for package @sphereon/bls-key-manager
