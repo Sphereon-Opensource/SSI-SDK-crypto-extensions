@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.11.0](https://github.com/Sphereon-Opensource/SSI-SDK/compare/v0.10.2...v0.11.0) (2023-04-30)
+
+
+### Features
+
+* Add EBSI LE DID Provider (does not persist into the registry yet) ([7a8cf56](https://github.com/Sphereon-Opensource/SSI-SDK/commit/7a8cf5687152ba0a7449d93eeb40289d6af07acf))
+* add key utils package for common key functions ([0543254](https://github.com/Sphereon-Opensource/SSI-SDK/commit/0543254d14b4ba54adeeab944315db5ba6221d47))
+
+
+
+
+
 ## [0.10.2](https://github.com/Sphereon-Opensource/SSI-SDK/compare/v0.10.1...v0.10.2) (2023-03-11)
 
 **Note:** Version bump only for package @sphereon/bls-did-provider-key

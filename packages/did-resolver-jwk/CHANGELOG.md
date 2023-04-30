@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.11.0](https://github.com/Sphereon-OpenSource/ssi-sdk-crypto-extensions/compare/v0.10.2...v0.11.0) (2023-04-30)
+
+
+### Features
+
+* add key utils package for common key functions ([0543254](https://github.com/Sphereon-OpenSource/ssi-sdk-crypto-extensions/commit/0543254d14b4ba54adeeab944315db5ba6221d47))
+* Reorganize SSI-SDK crypto extensions and DIDs ([5578914](https://github.com/Sphereon-OpenSource/ssi-sdk-crypto-extensions/commit/55789146f48b31e8efdd64afa464a42779a2137b))
+
+
+
+
+
 # [0.9.0](https://github.com/Sphereon-OpenSource/ssi-sdk/compare/v0.8.0...v0.9.0) (2023-03-09)
 
 ### Features
