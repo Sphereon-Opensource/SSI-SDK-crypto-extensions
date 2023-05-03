@@ -21,6 +21,7 @@ import {
 import { IMnemonicSeedManager } from '../types/IMnemonicSeedManager'
 
 import { MnemonicEntity } from '../entities/MnemonicEntity'
+import { OrPromise } from '@veramo/utils'
 
 /**
  * @public
@@ -39,7 +40,7 @@ export class MnemonicSeedManager implements IAgentPlugin {
     generateKeysFromMnemonic: this.generateKeysFromMnemonic.bind(this),
   }
 
-  constructor(private dbConnection: Promise<DataSource>, private secretBox?: AbstractSecretBox) {
+  constructor(private dbConnection: OrPromise<DataSource>, private secretBox?: AbstractSecretBox) {
     if (!secretBox) {
       console.warn('Please provide SecretBox to the KeyStore')
     }

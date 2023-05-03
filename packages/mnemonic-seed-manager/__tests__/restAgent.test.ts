@@ -1,8 +1,6 @@
-import 'cross-fetch/polyfill'
-import * as fs from 'fs'
 import { Server } from 'http'
 
-import { createAgent, IAgent, IAgentOptions, IDataStore, IDataStoreORM, IKeyManager } from '@veramo/core'
+import { createAgent, IAgent, IAgentOptions, IDataStore, IKeyManager, TAgent } from '@veramo/core'
 import { AgentRestClient } from '@veramo/remote-client'
 import { AgentRouter, RequestWithAgentRouter } from '@veramo/remote-server'
 
@@ -16,39 +14,52 @@ import mnemonicGenerator from './shared/generateMnemonic'
 import seedGenerator from './shared/generateSeed'
 import storeSeed from './shared/storeMnemonicInfo'
 import { KeyManager } from '@veramo/key-manager'
-import { DataStore, DataStoreORM, Entities, KeyStore, migrations, PrivateKeyStore } from '@veramo/data-store'
+import { Entities, KeyStore, migrations, PrivateKeyStore } from '@veramo/data-store'
 import { KeyManagementSystem, SecretBox } from '@veramo/kms-local'
+import { OrPromise } from '@veramo/utils'
 
 jest.setTimeout(30000)
 
-const databaseFile = 'rest-database.sqlite'
-const port = 3002
+const databaseFile = ':memory:'
+const port = 13002
 const basePath = '/agent'
 
 let serverAgent: IAgent
+let clientAgent: TAgent<IKeyManager & IDataStore & IMnemonicSeedManager>
 let restServer: Server
-let dbConnection: Promise<DataSource>
+let dbConnection: OrPromise<DataSource>
 
 const KMS_SECRET_KEY = 'd17c8674f5db9396f8eecccde25e882bb0336316bc411ae38dc1f3dcd7ed100f'
 
-const getAgent = (options?: IAgentOptions) =>
-  createAgent<IMnemonicSeedManager & IKeyManager & IDataStore>({
-    ...options,
-    plugins: [
-      new AgentRestClient({
-        url: 'http://localhost:' + port + basePath,
-        enabledMethods: serverAgent.availableMethods(),
-        schema: serverAgent.getSchema(),
-      }),
-    ],
-  })
+const getAgent = (options?: IAgentOptions) => {
+  if (!serverAgent) {
+    throw Error('Server agent not available yet (missed await?)')
+  }
+  if (!clientAgent) {
+    clientAgent = createAgent<IMnemonicSeedManager & IKeyManager & IDataStore>({
+      ...options,
+      plugins: [
+        new AgentRestClient({
+          url: 'http://localhost:' + port + basePath,
+          enabledMethods: serverAgent.availableMethods(),
+          schema: serverAgent.getSchema(),
+        }),
+      ],
+    })
+  }
+
+  return clientAgent
+}
 
 const setup = async (): Promise<boolean> => {
-  const db = new DataSource({
+  if (serverAgent) {
+    return true
+  }
+  const db: OrPromise<DataSource> = new DataSource({
     type: 'sqlite',
     database: databaseFile,
     synchronize: false,
-    logging: false,
+    logging: true,
     entities: [...MnemonicSeedManagerEntities, ...Entities],
     migrations: [...MnemonicSeedManagerMigrations, ...migrations],
     migrationsRun: true,
@@ -56,7 +67,7 @@ const setup = async (): Promise<boolean> => {
 
   const secretBox = new SecretBox(KMS_SECRET_KEY)
 
-  const agent = createAgent<IKeyManager & IDataStore & IDataStoreORM & IMnemonicSeedManager>({
+  const agent = createAgent<IKeyManager & IDataStore & IMnemonicSeedManager>({
     plugins: [
       new KeyManager({
         store: new KeyStore(db),
@@ -65,8 +76,6 @@ const setup = async (): Promise<boolean> => {
         },
       }),
       new MnemonicSeedManager(db, secretBox),
-      new DataStore(db),
-      new DataStoreORM(db),
     ],
   })
 
@@ -93,9 +102,6 @@ const setup = async (): Promise<boolean> => {
 const tearDown = async (): Promise<boolean> => {
   restServer.close()
   await (await dbConnection).dropDatabase()
-  await (await dbConnection).destroy()
-  fs.unlinkSync(databaseFile)
-  await new Promise((resolve) => setTimeout((v: void) => resolve(v), 500))
   return true
 }
 

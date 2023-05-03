@@ -8,9 +8,8 @@ export default (testContext: { getAgent: () => ConfiguredAgent; setup: () => Pro
     let agent: ConfiguredAgent
     let mnemonicObj: IMnemonicInfoResult
 
-    beforeAll(() => {
-      testContext.setup()
-      agent = testContext.getAgent()
+    beforeAll(async () => {
+      await testContext.setup().then(() => (agent = testContext.getAgent()))
     })
 
     afterAll(testContext.tearDown)
@@ -171,7 +170,13 @@ export default (testContext: { getAgent: () => ConfiguredAgent; setup: () => Pro
     })
 
     it('should generate the private and public keys', async () => {
-      await expect(agent.generateKeysFromMnemonic({ hash: mnemonicObj.hash, path: "m/0'", kms: 'local' })).resolves.toEqual(
+      await expect(
+        agent.generateKeysFromMnemonic({
+          hash: mnemonicObj.hash,
+          path: "m/0'",
+          kms: 'local',
+        })
+      ).resolves.toEqual(
         expect.objectContaining({
           kms: 'local',
           meta: {

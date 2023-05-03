@@ -1,18 +1,21 @@
-import { TAgent } from '@veramo/core'
+import { IDataStore, IKeyManager, TAgent } from '@veramo/core'
 
 import { IMnemonicSeedManager } from '../../src'
 
 type ConfiguredAgent = TAgent<IMnemonicSeedManager>
 
-export default (testContext: { getAgent: () => ConfiguredAgent; setup: () => Promise<boolean>; tearDown: () => Promise<boolean> }) => {
+export default (testContext: {
+  getAgent: () => TAgent<IKeyManager & IDataStore & IMnemonicSeedManager>
+  setup: () => Promise<boolean>
+  tearDown: () => Promise<boolean>
+}) => {
   describe('mnemonic generator', () => {
     let agent: ConfiguredAgent
 
-    beforeAll(() => {
-      testContext.setup()
-      agent = testContext.getAgent()
+    beforeAll(async () => {
+      await testContext.setup().then(() => (agent = testContext.getAgent()))
     })
-    afterAll(testContext.tearDown)
+    // afterAll(testContext.tearDown)
 
     it('should generate a 12 words mnemonic', async () => {
       const mnemonicInfo = await agent.generateMnemonic({ bits: 128 })

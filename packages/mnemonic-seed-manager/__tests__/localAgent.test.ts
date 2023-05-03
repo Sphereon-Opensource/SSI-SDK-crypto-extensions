@@ -1,11 +1,9 @@
-import * as fs from 'fs'
-
 import { DataSource } from 'typeorm'
 
 import mnemonicGenerator from './shared/generateMnemonic'
 import seedGenerator from './shared/generateSeed'
 import storeSeed from './shared/storeMnemonicInfo'
-import { createAgent, IDataStore, IKeyManager } from '@veramo/core'
+import { createAgent, IDataStore, IKeyManager, TAgent } from '@veramo/core'
 import { KeyManager } from '@veramo/key-manager'
 import { IMnemonicSeedManager, MnemonicSeedManager, MnemonicSeedManagerEntities, MnemonicSeedManagerMigrations } from '../src'
 import { Entities, KeyStore, migrations, PrivateKeyStore } from '@veramo/data-store'
@@ -15,9 +13,9 @@ import { OrPromise } from '@veramo/utils'
 jest.setTimeout(30000)
 
 const KMS_SECRET_KEY = 'd17c8674f5db9396f8eecccde25e882bb0336316bc411ae38dc1f3dcd7ed100f'
-let databaseFile = 'database.sqlite'
+let databaseFile = ':memory:'
 let dbConnection: OrPromise<DataSource>
-let agent: any
+let agent: TAgent<IKeyManager & IDataStore & IMnemonicSeedManager>
 
 const setup = async (): Promise<boolean> => {
   const db: OrPromise<DataSource> = new DataSource({
@@ -49,7 +47,6 @@ const setup = async (): Promise<boolean> => {
 
 const tearDown = async (): Promise<boolean> => {
   await (await dbConnection).destroy()
-  fs.unlinkSync(databaseFile)
   return true
 }
 
