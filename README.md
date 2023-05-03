@@ -19,6 +19,7 @@ with [Veramo](https://veramo.io).
 |-----------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | [Key Manager](./packages/key-manager)               | The Key Manager orchestrates the various implementations of Key Management Systems, using a KeyStore to remember the link between a key reference, its metadata, and the respective key management system that provides the actual cryptographic capabilities. The methods of this plugin are used automatically by other plugins, such as DIDManager, CredentialPlugin, or DIDComm to perform their required cryptographic operations using the managed keys. You will need this version if you want to use BLS/BBS+ keys |
 | [Local Key Management System](./packages/kms-local) | [SSI-SDK](https://github.com/Sphereon-Opensource/ssi-sdk) and [Veramo](https://veramo.io/) compatible Key Management System that stores keys in a local key store. It has support for RSA, BLS/BBS+ signatures, next to ed25519, es256k1, es256r1                                                                                                                                                                                                                                                                          |
+| [Mnemonic Seed Manager](./packages/kms-local)       | [SSI-SDK](https://github.com/Sphereon-Opensource/ssi-sdk) and [Veramo](https://veramo.io/) compatible Mnemonic Seed manager. Allows to create and persist Mnemonic Seeds, which you can use to derive keys                                                                                                                                                                                                                                                                                                                 |
 | [Key Utils](./packages/key-utils)                   | [SSI-SDK](https://github.com/Sphereon-Opensource/ssi-sdk) and [Veramo](https://veramo.io/) compatible Key Utility and generation functions                                                                                                                                                                                                                                                                                                                                                                                 |
 | [DID Utils](./packages/did-utils)                   | [SSI-SDK](https://github.com/Sphereon-Opensource/ssi-sdk) and [Veramo](https://veramo.io/) compatible DID functions                                                                                                                                                                                                                                                                                                                                                                                                        |
 
@@ -36,14 +37,54 @@ and [Veramo](https://veramo.io/). The below packages extend did:key and support 
 | [DIF did:ebsi resolver](./packages/did-resolver-ebsi) | [DIF DID resolver](https://github.com/decentralized-identity/did-resolver) compatible [did:ebsi](https://ec.europa.eu/digital-building-blocks/wikis/display/EBSIDOC/EBSI+DID+Method) v1 Legal Entity resolver                                                                                              |
 | [did:ebsi provider](./packages/did-provider-ebsi)     | [SSI-SDK](https://github.com/Sphereon-Opensource/ssi-sdk) and [Veramo](https://veramo.io/) compatible [did:ebsi](https://ec.europa.eu/digital-building-blocks/wikis/display/EBSIDOC/EBSI+DID+Method) v1 Legal Entity provider, allows you to manage ebsi v1 keys and DIDs                                  |
 
-## Building and testing
 
-### Lerna
+
+## DID resolution
+
+---
+**Note:**
+DID resolution is not part of this SDK. We do provide a Universal DID client you can use in Veramo, simply by using the
+below code when setting up the Agent:
+
+Using the Universal resolver for all DID methods:
+
+````typescript
+export const agent = createAgent<IDIDManager & CredentialIssuerLD & IKeyManager & IDataStore & IDataStoreORM & IResolver>({
+  plugins: [
+    // Other plugins
+    new DIDResolverPlugin({
+      resolver: new UniResolver({ resolveURL: 'https://dev.uniresolver.io/1.0/identifiers' })
+    })
+  ]
+})
+````
+
+Using the Universal resolver for specific DID methods and DID-key:
+
+````typescript
+export const agent = createAgent<IDIDManager & CredentialIssuerLD & IKeyManager & IDataStore & IDataStoreORM & IResolver>({
+  plugins: [
+    // Other plugins
+    new DIDResolverPlugin({
+      resolver: new Resolver({
+        ...getDidKeyResolver(),
+        ...getUniResolver('lto', { resolveUrl: 'https://uniresolver.test.sphereon.io/1.0/identifiers' }),
+        ...getUniResolver('factom', { resolveUrl: 'https://dev.uniresolver.io/1.0/identifiers' }),
+      }),
+    }),
+  ]
+})
+````
+
+
+# Building and testing
+
+## Lerna
 
 This package makes use of Lerna for managing multiple packages. Lerna is a tool that optimizes the workflow around
 managing multi-package repositories with git and npm / pnpm.
 
-### Build
+## Build
 
 The below command builds all packages for you
 
@@ -51,7 +92,7 @@ The below command builds all packages for you
 pnpm build
 ```
 
-### Test
+## Test
 
 The test command runs:
 
@@ -64,7 +105,7 @@ You can also run only a single section of these tests, using for example `pnpm t
 pnpm test
 ```
 
-### Utility scripts
+## Utility scripts
 
 There are other utility scripts that help with development.
 
