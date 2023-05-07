@@ -33,6 +33,9 @@
     },
     {
       "path": "did-provider-lto"
+    },
+    {
+      "path": "mnemonic-seed-manager"
     }
   ]
 }
