@@ -151,7 +151,10 @@ describe('@sphereon/did-provider-jwk comparison ES256', () => {
       type: Key.Secp256r1,
     }
     const identifier: IIdentifier = await agent.didManagerCreate({ options })
-
+    console.log("=============================================================")
+    console.log('test against: did:jwk:eyJhbGciOiJFUzI1NiIsInVzZSI6InNpZyIsImt0eSI6IkVDIiwiY3J2IjoiUC0yNTYiLCJ4IjoiS1BqVDFjQjBhTVdyUHNUandyZ20wSHBJU3BQdnpoanJUbF9qRUtBWGtRIiwieSI6Iml5WUZmdHBleXl2T0VNS2NHTWk4Wm9PcGNXLVQtTjJzazNSX0VpVlhCZ3MifQ')
+    console.log(JSON.stringify(identifier, null, 2))
+    console.log("=============================================================")
     const did =
       'did:jwk:eyJhbGciOiJFUzI1NiIsInVzZSI6InNpZyIsImt0eSI6IkVDIiwiY3J2IjoiUC0yNTYiLCJ4IjoiS1BqVDFjQjBhTVdyUHNUandyZ20wSHBJU3BQdnpoanJUbF9qRUtBWGtRIiwieSI6Iml5WUZmdHBleXl2T0VNS2NHTWk4Wm9PcGNXLVQtTjJzazNSX0VpVlhCZ3MifQ'
     expect(identifier.did).toBe(did)
