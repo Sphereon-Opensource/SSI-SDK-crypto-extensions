@@ -116,7 +116,7 @@ const toSecp256k1Jwk = (publicKeyHex: string, use?: JwkKeyUse): JsonWebKey => {
 const toSecp256r1Jwk = (publicKeyHex: string, use?: JwkKeyUse): JsonWebKey => {
   assertProperKeyLength(publicKeyHex, 64)
   const secp256r1 = new elliptic.ec('p256')
-  const publicKey = `03${publicKeyHex}` // We add the 'compressed' type 03 prefix
+  const publicKey = `04${publicKeyHex}` // We add the 'uncompressed' type 04 prefix
   const key = secp256r1.keyFromPublic(publicKey, 'hex')
   const pubPoint = key.getPublic()
   return {
