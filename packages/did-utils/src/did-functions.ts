@@ -97,10 +97,22 @@ export function extractPublicKeyHexWithJwkSupport(pk: _ExtendedVerificationMetho
   if (pk.publicKeyJwk) {
     if (pk.publicKeyJwk.kty === 'EC') {
       const secp256 = new elliptic.ec(pk.publicKeyJwk.crv === 'secp256k1' ? 'secp256k1' : 'p256')
-      const prefix = pk.publicKeyJwk.crv === 'secp256k1' ? '04' : '03'
+
+      // const prefix = pk.publicKeyJwk.crv === 'secp256k1' ? '04' : '03'
       const x = u8a.fromString(pk.publicKeyJwk.x!, 'base64url')
       const y = u8a.fromString(pk.publicKeyJwk.y!, 'base64url')
-      const hex = `${prefix}${u8a.toString(x, 'base16')}${u8a.toString(y, 'base16')}`
+
+      const xHex = u8a.toString(x, 'base16')
+      const yHex = u8a.toString(y, 'base16')
+      const length = x.length + y.length
+      let prefix = '04'
+      if (length === 64 || length === 65) {
+        // raw key
+        prefix = '04'
+      } else {
+        prefix = length % 2 === 1 ? '03' : '02'
+      }
+      const hex = `${prefix}${xHex}${yHex}`
       // We return directly as we don't want to convert the result back into Uint8Array and then convert again to hex as the elliptic lib already returns hex strings
       return secp256.keyFromPublic(hex, 'hex').getPublic(true, 'hex')
     } else if (pk.publicKeyJwk.crv === 'Ed25519') {
