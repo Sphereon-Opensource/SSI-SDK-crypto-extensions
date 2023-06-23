@@ -1,7 +1,8 @@
 import { createAgent, IIdentifier, IKeyManager } from '@veramo/core'
 import { DIDManager, MemoryDIDStore } from '@veramo/did-manager'
-import { KeyManager, MemoryKeyStore, MemoryPrivateKeyStore } from '@veramo/key-manager'
-import { KeyManagementSystem } from '@veramo/kms-local'
+import { SphereonKeyManager } from '@sphereon/ssi-sdk-ext.key-manager'
+import { SphereonKeyManagementSystem } from '@sphereon/ssi-sdk-ext.kms-local'
+import { MemoryKeyStore, MemoryPrivateKeyStore } from '@veramo/key-manager'
 import { JwkDIDProvider } from '../src'
 import { Key } from '../src'
 import { JwkKeyUse } from '@sphereon/ssi-sdk-ext.key-utils'
@@ -15,10 +16,10 @@ const jwkDIDProvider = new JwkDIDProvider({
 
 const agent = createAgent<IKeyManager, DIDManager>({
   plugins: [
-    new KeyManager({
+    new SphereonKeyManager({
       store: new MemoryKeyStore(),
       kms: {
-        mem: new KeyManagementSystem(new MemoryPrivateKeyStore()),
+        mem: new SphereonKeyManagementSystem(new MemoryPrivateKeyStore()),
       },
     }),
     new DIDManager({
