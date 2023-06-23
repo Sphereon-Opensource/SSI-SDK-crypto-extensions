@@ -92,7 +92,8 @@ export class JwkDIDProvider extends AbstractIdentifierProvider {
    * @private
    */
   private async importProvidedOrGeneratedKey(args: IImportProvidedOrGeneratedKeyArgs, context: IRequiredContext): Promise<IKey> {
-    const type = args.options?.type ? args.options.type : args.options?.key?.type ? (args.options.key.type as Key) : Key.Secp256k1
+    // @ts-ignore
+    const type = args.options?.type ?? args.options?.key?.type ?? args.options?.keyType ?? Key.Secp256k1
 
     if (args.options && args.options?.use === JwkKeyUse.Encryption && type === Key.Ed25519) {
       throw new Error('Ed25519 keys are only valid for signatures')
