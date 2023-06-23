@@ -106,15 +106,17 @@ export function extractPublicKeyHexWithJwkSupport(pk: _ExtendedVerificationMetho
       const yHex = u8a.toString(y, 'base16')
       const length = x.length + y.length
       let prefix = '04'
+      let compressed = true
       if (length === 64 || length === 65) {
         // raw key
+        compressed = false
         prefix = '04'
       } else {
         prefix = length % 2 === 1 ? '03' : '02'
       }
       const hex = `${prefix}${xHex}${yHex}`
       // We return directly as we don't want to convert the result back into Uint8Array and then convert again to hex as the elliptic lib already returns hex strings
-      return secp256.keyFromPublic(hex, 'hex').getPublic(true, 'hex').substring(2) // remove the prefix
+      return secp256.keyFromPublic(hex, 'hex').getPublic(compressed, 'hex').substring(2) // remove the prefix
     } else if (pk.publicKeyJwk.crv === 'Ed25519') {
       return u8a.toString(u8a.fromString(pk.publicKeyJwk.x!, 'base64url'), 'base16')
     } else if (pk.publicKeyJwk.kty === 'RSA') {
