@@ -12,6 +12,7 @@
   "dependencies": {
     "@ethersproject/random": "^5.6.1",
     "@sphereon/ssi-sdk-ext.key-utils": "workspace:*",
+    "@sphereon/ssi-sdk-ext.did-utils": "workspace:*",
     "@sphereon/ssi-types": "^0.9.0",
     "@stablelib/ed25519": "^1.0.2",
     "@veramo/core": "4.2.0",
@@ -24,8 +25,9 @@
   "devDependencies": {
     "@or13/did-jwk": "^0.0.4",
     "@veramo/did-resolver": "4.2.0",
+    "@sphereon/ssi-sdk-ext.key-manager": "workspace:*",
+    "@sphereon/ssi-sdk-ext.kms-local": "workspace:*",
     "@veramo/key-manager": "4.2.0",
-    "@veramo/kms-local": "4.2.0",
     "jose": "^4.10.3",
     "uint8arrays": "^3.1.1"
   },

@@ -55,7 +55,7 @@ jobs:
 
       - name: setup git coordinates
         run: |
-          git remote set-url origin https://Sphereon-Opensource:$GH_TOKEN@github.com/Sphereon-Opensource/veramo-BBS.git
+          git remote set-url origin https://Sphereon-Opensource:$GH_TOKEN@github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions.git
           git config user.name $GH_USER
           git config user.email $GH_EMAIL
 
@@ -66,7 +66,7 @@ jobs:
           echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> .npmrc
 #          npm whoami
 
-      - run: git diff -u pnpm-lock.yaml
+      - run: git diff -u
 
       - name: publish @latest when on main
         if: github.ref == 'refs/heads/main'

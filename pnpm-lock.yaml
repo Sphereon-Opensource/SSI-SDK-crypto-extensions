@@ -192,6 +192,9 @@ importers:
       '@ethersproject/random':
         specifier: ^5.6.1
         version: 5.6.1
+      '@sphereon/ssi-sdk-ext.did-utils':
+        specifier: workspace:*
+        version: link:../did-utils
       '@sphereon/ssi-sdk-ext.key-utils':
         specifier: workspace:*
         version: link:../key-utils
@@ -223,13 +226,16 @@ importers:
       '@or13/did-jwk':
         specifier: ^0.0.4
         version: 0.0.4
+      '@sphereon/ssi-sdk-ext.key-manager':
+        specifier: workspace:*
+        version: link:../key-manager
+      '@sphereon/ssi-sdk-ext.kms-local':
+        specifier: workspace:*
+        version: link:../kms-local
       '@veramo/did-resolver':
         specifier: 4.2.0
         version: 4.2.0
       '@veramo/key-manager':
-        specifier: 4.2.0
-        version: 4.2.0
-      '@veramo/kms-local':
         specifier: 4.2.0
         version: 4.2.0
       jose:
@@ -527,6 +533,9 @@ importers:
       '@veramo/kms-local':
         specifier: 4.2.0
         version: 4.2.0
+      elliptic:
+        specifier: ^6.5.4
+        version: 6.5.4
       uint8arrays:
         specifier: 3.1.1
         version: 3.1.1
@@ -534,6 +543,9 @@ importers:
       '@sphereon/jsencrypt':
         specifier: ^3.3.2-unstable.0
         version: 3.3.2-unstable.0
+      '@types/elliptic':
+        specifier: 6.4.14
+        version: 6.4.14
       '@veramo/cli':
         specifier: 4.2.0
         version: 4.2.0(@types/node@18.15.11)(ts-node@10.9.1)
@@ -4864,6 +4876,12 @@ packages:
       '@types/node': 18.15.11
     dev: true
 
+  /@types/bn.js@5.1.1:
+    resolution: {integrity: sha512-qNrYbZqMx0uJAfKnKclPh+dTwK33KfLHYqtyODwd5HnXOjnkhc4qgn3BrK6RWyGZm5+sIFE7Q7Vz6QQtJB7w7g==}
+    dependencies:
+      '@types/node': 18.15.11
+    dev: true
+
   /@types/body-parser@1.19.2:
     resolution: {integrity: sha512-ALYone6pm6QmwZoAgeyNksccT9Q4AWZQ6PvfwR37GT6r6FWUPguq6sUmNGSMV2Wr761oQoBxwGGa6DR5o1DC9g==}
     dependencies:
@@ -4885,6 +4903,12 @@ packages:
     resolution: {integrity: sha512-9AonUzyTjXXhEOa0DnqpzZi6VHlqKMswga9EXjpXnnqxwLtdvPPtlO8evrI5D9S6asFRCQ6v+wpiUKbw+vKqyg==}
     dependencies:
       '@types/ms': 0.7.31
+    dev: true
+
+  /@types/elliptic@6.4.14:
+    resolution: {integrity: sha512-z4OBcDAU0GVwDTuwJzQCiL6188QvZMkvoERgcVjq0/mPM8jCfdwZ3x5zQEVoL9WCAru3aG5wl3Z5Ww5wBWn7ZQ==}
+    dependencies:
+      '@types/bn.js': 5.1.1
     dev: true
 
   /@types/express-serve-static-core@4.17.33:

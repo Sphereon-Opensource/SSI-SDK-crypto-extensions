@@ -1,6 +1,8 @@
+import { generatePrivateKeyHex, jwkDetermineUse, JwkKeyUse, toJwk } from '@sphereon/ssi-sdk-ext.key-utils'
 import { DIDDocument, IAgentContext, IIdentifier, IKey, IKeyManager } from '@veramo/core'
 import { AbstractIdentifierProvider } from '@veramo/did-manager'
 import base64url from 'base64url'
+import Debug from 'debug'
 import {
   IAddKeyArgs,
   IAddServiceArgs,
@@ -10,8 +12,7 @@ import {
   IRequiredContext,
   Key,
 } from './types/jwk-provider-types'
-import Debug from 'debug'
-import { jwkDetermineUse, generatePrivateKeyHex, JwkKeyUse, toJwk } from '@sphereon/ssi-sdk-ext.key-utils'
+// import * as u8a from 'uint8arrays'
 
 const debug = Debug('sphereon:did-provider-jwk')
 
@@ -39,6 +40,8 @@ export class JwkDIDProvider extends AbstractIdentifierProvider {
 
     const use = jwkDetermineUse(key.type, args?.options?.use)
     const jwk: JsonWebKey = toJwk(key.publicKeyHex, key.type, use)
+
+    debug(JSON.stringify(jwk, null, 2))
     const identifier: Omit<IIdentifier, 'provider'> = {
       did: `did:jwk:${base64url(JSON.stringify(jwk))}`,
       controllerKeyId: '#0',
@@ -92,7 +95,8 @@ export class JwkDIDProvider extends AbstractIdentifierProvider {
    * @private
    */
   private async importProvidedOrGeneratedKey(args: IImportProvidedOrGeneratedKeyArgs, context: IRequiredContext): Promise<IKey> {
-    const type = args.options?.type ? args.options.type : args.options?.key?.type ? (args.options.key.type as Key) : Key.Secp256k1
+    // @ts-ignore
+    const type = args.options?.type ?? args.options?.key?.type ?? args.options?.keyType ?? Key.Secp256k1
 
     if (args.options && args.options?.use === JwkKeyUse.Encryption && type === Key.Ed25519) {
       throw new Error('Ed25519 keys are only valid for signatures')
@@ -104,6 +108,9 @@ export class JwkDIDProvider extends AbstractIdentifierProvider {
         throw new Error(`We need to have a private key when importing a key`)
       }
       privateKeyHex = args.options.key.privateKeyHex
+      /*if (type === Key.Secp256r1 && privateKeyHex.length === 64) {
+        privateKeyHex = `04${privateKeyHex}`
+      }*/
     } else {
       privateKeyHex = generatePrivateKeyHex(type)
     }

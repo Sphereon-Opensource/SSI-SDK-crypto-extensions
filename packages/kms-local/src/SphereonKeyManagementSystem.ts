@@ -8,8 +8,9 @@ import { blsSign, generateBls12381G2KeyPair } from '@mattrglobal/bbs-signatures'
 import { RSASigner } from './x509/rsa-signer'
 import { generateRSAKeyAsPEM, signAlgorithmToSchemeAndHashAlg } from './x509/rsa-key'
 import { hexToPEM, jwkToPEM, pemCertChainTox5c, PEMToHex, PEMToJwk, privateKeyHexFromPEM } from '@sphereon/ssi-sdk-ext.key-utils'
-
-const debug = Debug('veramo:kms:bls:local')
+import * as u8a from 'uint8arrays'
+import elliptic from 'elliptic'
+const debug = Debug('sphereon:kms:bls:local')
 
 export class SphereonKeyManagementSystem extends KeyManagementSystem {
   private readonly privateKeyStore: AbstractPrivateKeyStore
@@ -35,6 +36,7 @@ export class SphereonKeyManagementSystem extends KeyManagementSystem {
         debug('imported key', managedKey.type, managedKey.publicKeyHex)
         return managedKey
 
+      case 'Secp256r1':
       // @ts-ignore
       case 'RSA': {
         if (!args.privateKeyHex) {
@@ -46,7 +48,7 @@ export class SphereonKeyManagementSystem extends KeyManagementSystem {
         return managedKey
       }
       default:
-        return super.importKey(args) as Promise<ManagedKeyInfo>
+        return await super.importKey(args)
     }
   }
 
@@ -127,6 +129,21 @@ export class SphereonKeyManagementSystem extends KeyManagementSystem {
           },
         }
         break
+      case 'Secp256r1': {
+        const privateBytes = u8a.fromString(args.privateKeyHex.toLowerCase(), 'base16')
+        const secp256r1 = new elliptic.ec('p256')
+        const keyPair = secp256r1.keyFromPrivate(privateBytes)
+        const publicKeyHex = keyPair.getPublic(true, 'hex')
+        key = {
+          type: args.type,
+          kid: args.alias || publicKeyHex,
+          publicKeyHex,
+          meta: {
+            algorithms: ['ES256'],
+          },
+        }
+        break
+      }
       // @ts-ignore
       case 'RSA': {
         // @ts-ignore // We need this as the interface on the args, does not allow for any metadata on managed key imports

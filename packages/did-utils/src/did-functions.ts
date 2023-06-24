@@ -97,12 +97,21 @@ export function extractPublicKeyHexWithJwkSupport(pk: _ExtendedVerificationMetho
   if (pk.publicKeyJwk) {
     if (pk.publicKeyJwk.kty === 'EC') {
       const secp256 = new elliptic.ec(pk.publicKeyJwk.crv === 'secp256k1' ? 'secp256k1' : 'p256')
-      const prefix = pk.publicKeyJwk.crv === 'secp256k1' ? '04' : '03'
+
+      // const prefix = pk.publicKeyJwk.crv === 'secp256k1' ? '04' : '03'
       const x = u8a.fromString(pk.publicKeyJwk.x!, 'base64url')
       const y = u8a.fromString(pk.publicKeyJwk.y!, 'base64url')
-      const hex = `${prefix}${u8a.toString(x, 'base16')}${u8a.toString(y, 'base16')}`
+
+      const xHex = u8a.toString(x, 'base16')
+      const yHex = u8a.toString(y, 'base16')
+      const prefix = '04'
+      // Uncompressed Hex format: 04<x><y>
+      // Compressed Hex format: 02<x> (for even y) or 03<x> (for uneven y)
+      const hex = `${prefix}${xHex}${yHex}`
       // We return directly as we don't want to convert the result back into Uint8Array and then convert again to hex as the elliptic lib already returns hex strings
-      return secp256.keyFromPublic(hex, 'hex').getPublic(true, 'hex')
+      const publicKeyHex = secp256.keyFromPublic(hex, 'hex').getPublic(true, 'hex')
+      // This returns a short form (x) with 02 or 03 prefix
+      return publicKeyHex
     } else if (pk.publicKeyJwk.crv === 'Ed25519') {
       return u8a.toString(u8a.fromString(pk.publicKeyJwk.x!, 'base64url'), 'base16')
     } else if (pk.publicKeyJwk.kty === 'RSA') {
@@ -149,7 +158,9 @@ export async function mapIdentifierKeysToDocWithJwkSupport(
       /*if (verificationMethod.type !== 'JsonWebKey2020') {
         return null
       }*/
-      const localKey = localKeys.find((localKey) => localKey.publicKeyHex === verificationMethod.publicKeyHex)
+      const localKey = localKeys.find(
+        (localKey) => localKey.publicKeyHex === verificationMethod.publicKeyHex || verificationMethod.publicKeyHex?.startsWith(localKey.publicKeyHex)
+      )
       if (localKey) {
         const { meta, ...localProps } = localKey
         return { ...localProps, meta: { ...meta, verificationMethod } }

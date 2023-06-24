@@ -5,14 +5,9 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 # [0.12.0](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/compare/v0.11.0...v0.12.0) (2023-05-07)
 
-
 ### Features
 
-* Move mnemonic seed generator to crypto extensions ([748a7f9](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/748a7f962d563c60aa543c0c6900aa0c0daea42d))
-
-
-
-
+- Move mnemonic seed generator to crypto extensions ([748a7f9](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/748a7f962d563c60aa543c0c6900aa0c0daea42d))
 
 # [0.11.0](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/compare/v0.10.2...v0.11.0) (2023-04-30)
 
