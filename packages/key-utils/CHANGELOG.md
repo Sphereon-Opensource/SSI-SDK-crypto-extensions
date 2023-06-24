@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.1](https://github.com/Sphereon-OpenSource/ssi-sdk/compare/v0.12.0...v0.12.1) (2023-06-24)
+
+
+### Bug Fixes
+
+* Fix EC handling for JWKs ([9061e29](https://github.com/Sphereon-OpenSource/ssi-sdk/commit/9061e2968005931127c52febbb3326fddcd62fb2))
+* Fix EC handling for JWKs ([dd423f2](https://github.com/Sphereon-OpenSource/ssi-sdk/commit/dd423f24eff5fcc41a3b72c15d62d7e478fbe9b9))
+* Fixes in JWK handling ([f5cd4dd](https://github.com/Sphereon-OpenSource/ssi-sdk/commit/f5cd4ddd4f0cd0f155dcbf3a7e8b43c89b97cacb))
+* Make sure we set the saltLength for RSA PSS ([e19ed6c](https://github.com/Sphereon-OpenSource/ssi-sdk/commit/e19ed6c3a7b8454e8074111d33fc59a9c6bcc611))
+
+
+
+
+
 # [0.12.0](https://github.com/Sphereon-OpenSource/ssi-sdk/compare/v0.11.0...v0.12.0) (2023-05-07)
 
 ### Features

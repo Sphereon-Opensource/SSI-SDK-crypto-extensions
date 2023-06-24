@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.1](https://github.com/Sphereon-Opensource/veramo-BBS/compare/v0.12.0...v0.12.1) (2023-06-24)
+
+
+### Bug Fixes
+
+* Fix EC handling for DID resolution ([5f3d708](https://github.com/Sphereon-Opensource/veramo-BBS/commit/5f3d70898783d56f5aa7a36e4fd56faf5907dbeb))
+* Fix EC handling for JWKs ([9061e29](https://github.com/Sphereon-Opensource/veramo-BBS/commit/9061e2968005931127c52febbb3326fddcd62fb2))
+* Fix EC handling for JWKs ([b60825b](https://github.com/Sphereon-Opensource/veramo-BBS/commit/b60825b155971dc8b01d2b4779faf71cecbacfa6))
+* Fix EC handling for JWKs ([7be20f5](https://github.com/Sphereon-Opensource/veramo-BBS/commit/7be20f57d6b7d4b7ebf5a2e9b432da34f8f98436))
+* Fix EC handling for JWKs ([dd423f2](https://github.com/Sphereon-Opensource/veramo-BBS/commit/dd423f24eff5fcc41a3b72c15d62d7e478fbe9b9))
+* fix GH action ([2d8d6aa](https://github.com/Sphereon-Opensource/veramo-BBS/commit/2d8d6aaa376a1533ad2bcc3a7b886b65f8eaa293))
+* Fixes in JWK handling ([f5cd4dd](https://github.com/Sphereon-Opensource/veramo-BBS/commit/f5cd4ddd4f0cd0f155dcbf3a7e8b43c89b97cacb))
+* Make sure we set the saltLength for RSA PSS ([51ae676](https://github.com/Sphereon-Opensource/veramo-BBS/commit/51ae6769386866771c68c7b7806a75b62a9d5ec1))
+* Make sure we set the saltLength for RSA PSS ([e19ed6c](https://github.com/Sphereon-Opensource/veramo-BBS/commit/e19ed6c3a7b8454e8074111d33fc59a9c6bcc611))
+
+
+
+
+
 # [0.12.0](https://github.com/Sphereon-Opensource/veramo-BBS/compare/v0.11.0...v0.12.0) (2023-05-07)
 
 
