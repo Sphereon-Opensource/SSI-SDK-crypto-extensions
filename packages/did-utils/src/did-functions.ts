@@ -156,8 +156,8 @@ export async function mapIdentifierKeysToDocWithJwkSupport(
   const extendedKeys: _ExtendedIKey[] = documentKeys
     .map((verificationMethod) => {
       /*if (verificationMethod.type !== 'JsonWebKey2020') {
-        return null
-      }*/
+              return null
+            }*/
       const localKey = localKeys.find(
         (localKey) => localKey.publicKeyHex === verificationMethod.publicKeyHex || verificationMethod.publicKeyHex?.startsWith(localKey.publicKeyHex)
       )
@@ -237,6 +237,15 @@ export function determineKid(key: IKey, idOpts: IIdentifierOpts): string {
 
 export async function getSupportedDIDMethods(didOpts: IDIDOptions, context: IAgentContext<IDIDManager>) {
   return didOpts.supportedDIDMethods ?? (await getAgentDIDMethods(context))
+}
+
+export function getAgentResolver(
+  context: IAgentContext<IResolver>,
+  opts?: {
+    uniresolverFallback: boolean
+  }
+): Resolvable {
+  return new AgentDIDResolver(context, opts?.uniresolverFallback ?? true)
 }
 
 export class AgentDIDResolver implements Resolvable {
