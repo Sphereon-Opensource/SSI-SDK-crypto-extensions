@@ -259,10 +259,10 @@ export class AgentDIDResolver implements Resolvable {
 
   async resolve(didUrl: string, options?: DIDResolutionOptions): Promise<DIDResolutionResult> {
     try {
-      return this.context.agent.resolveDid({ didUrl, options })
+      return await this.context.agent.resolveDid({ didUrl, options })
     } catch (error: unknown) {
       if (this.uniresolverFallback) {
-        return new UniResolver().resolve(didUrl, options)
+        return await (new UniResolver()).resolve(didUrl, options)
       }
       throw error
     }
