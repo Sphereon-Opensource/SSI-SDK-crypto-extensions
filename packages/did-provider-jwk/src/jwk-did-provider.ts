@@ -12,7 +12,6 @@ import {
   IRequiredContext,
   Key,
 } from './types/jwk-provider-types'
-// import * as u8a from 'uint8arrays'
 
 const debug = Debug('sphereon:did-provider-jwk')
 
@@ -40,11 +39,11 @@ export class JwkDIDProvider extends AbstractIdentifierProvider {
 
     const use = jwkDetermineUse(key.type, args?.options?.use)
     const jwk: JsonWebKey = toJwk(key.publicKeyHex, key.type, use)
-
     debug(JSON.stringify(jwk, null, 2))
+    const did = `did:jwk:${base64url(JSON.stringify(jwk))}`
     const identifier: Omit<IIdentifier, 'provider'> = {
-      did: `did:jwk:${base64url(JSON.stringify(jwk))}`,
-      controllerKeyId: '#0',
+      did,
+      controllerKeyId: `${did}#0`,
       keys: [key],
       services: [],
     }

@@ -262,7 +262,7 @@ export class AgentDIDResolver implements Resolvable {
       return await this.context.agent.resolveDid({ didUrl, options })
     } catch (error: unknown) {
       if (this.uniresolverFallback) {
-        return await (new UniResolver()).resolve(didUrl, options)
+        return await new UniResolver().resolve(didUrl, options)
       }
       throw error
     }

@@ -40,6 +40,9 @@ const agent = createAgent<IKeyManager & DIDManager & IResolver>({
   ],
 })
 
+function toAbsolute(didDoc: any, did: string) {
+  return JSON.parse(JSON.stringify(didDoc).replace(/#0/g, `${did}#0`))
+}
 describe('@sphereon/did-provider-jwk comparison ES256k', () => {
   it('external JWK should result in equal DID Document', async () => {
     const { publicKeyJwk } = await method.generateKeyPair('ES256K')
@@ -48,7 +51,8 @@ describe('@sphereon/did-provider-jwk comparison ES256k', () => {
     const didResolutionResult: DIDResolutionResult = await agent.resolveDid({ didUrl: did })
 
     const comparisonDidDoc = await method.toDidDocument(publicKeyJwk)
-    expect(didResolutionResult.didDocument).toEqual(comparisonDidDoc)
+
+    expect(didResolutionResult.didDocument).toEqual(toAbsolute(comparisonDidDoc, did))
   })
 
   it('test resolution', async () => {
@@ -67,7 +71,7 @@ describe('@sphereon/did-provider-jwk comparison ES256k', () => {
     // Resolution
     const comparisonDidDoc = await method.toDidDocument(jwk)
     const didResolutionResult: DIDResolutionResult = await agent.resolveDid({ didUrl: did })
-    expect(didResolutionResult.didDocument).toEqual(comparisonDidDoc)
+    expect(didResolutionResult.didDocument).toEqual(toAbsolute(comparisonDidDoc, did))
   })
 
   it('Creation from privateKeyHex', async () => {
@@ -97,7 +101,7 @@ describe('@sphereon/did-provider-jwk comparison ES256k', () => {
     const verificationMethod = {
       controller:
         'did:jwk:eyJhbGciOiJFUzI1NksiLCJ1c2UiOiJzaWciLCJrdHkiOiJFQyIsImNydiI6InNlY3AyNTZrMSIsIngiOiJmYjY5SEE2M244ZENKd0RmaVJONGxacUtVVU1odHYyZE5BemdjUjJNY0ZBIiwieSI6Ikd3amFWNHpuSm1EZDBOdFlSWGdJeW5aOFlyWDRqN0lzLXFselFuekppclEifQ',
-      id: '#0',
+      id: 'did:jwk:eyJhbGciOiJFUzI1NksiLCJ1c2UiOiJzaWciLCJrdHkiOiJFQyIsImNydiI6InNlY3AyNTZrMSIsIngiOiJmYjY5SEE2M244ZENKd0RmaVJONGxacUtVVU1odHYyZE5BemdjUjJNY0ZBIiwieSI6Ikd3amFWNHpuSm1EZDBOdFlSWGdJeW5aOFlyWDRqN0lzLXFselFuekppclEifQ#0',
       publicKeyJwk: jwk,
       type: 'JsonWebKey2020',
     }
@@ -105,11 +109,22 @@ describe('@sphereon/did-provider-jwk comparison ES256k', () => {
     expect(didResolutionResult!.didDocument!.verificationMethod).toEqual([verificationMethod])
     // We correctly resolve the use property. The other lib does not, so let's add it to their response
     expect(didResolutionResult!.didDocument).toEqual({
-      assertionMethod: ['#0'],
-      authentication: ['#0'],
-      capabilityDelegation: ['#0'],
-      capabilityInvocation: ['#0'],
-      ...(await method.resolve(did)),
+      assertionMethod: [
+        'did:jwk:eyJhbGciOiJFUzI1NksiLCJ1c2UiOiJzaWciLCJrdHkiOiJFQyIsImNydiI6InNlY3AyNTZrMSIsIngiOiJmYjY5SEE2M244ZENKd0RmaVJONGxacUtVVU1odHYyZE5BemdjUjJNY0ZBIiwieSI6Ikd3amFWNHpuSm1EZDBOdFlSWGdJeW5aOFlyWDRqN0lzLXFselFuekppclEifQ#0',
+      ],
+      authentication: [
+        'did:jwk:eyJhbGciOiJFUzI1NksiLCJ1c2UiOiJzaWciLCJrdHkiOiJFQyIsImNydiI6InNlY3AyNTZrMSIsIngiOiJmYjY5SEE2M244ZENKd0RmaVJONGxacUtVVU1odHYyZE5BemdjUjJNY0ZBIiwieSI6Ikd3amFWNHpuSm1EZDBOdFlSWGdJeW5aOFlyWDRqN0lzLXFselFuekppclEifQ#0',
+      ],
+      capabilityDelegation: [
+        'did:jwk:eyJhbGciOiJFUzI1NksiLCJ1c2UiOiJzaWciLCJrdHkiOiJFQyIsImNydiI6InNlY3AyNTZrMSIsIngiOiJmYjY5SEE2M244ZENKd0RmaVJONGxacUtVVU1odHYyZE5BemdjUjJNY0ZBIiwieSI6Ikd3amFWNHpuSm1EZDBOdFlSWGdJeW5aOFlyWDRqN0lzLXFselFuekppclEifQ#0',
+      ],
+      capabilityInvocation: [
+        'did:jwk:eyJhbGciOiJFUzI1NksiLCJ1c2UiOiJzaWciLCJrdHkiOiJFQyIsImNydiI6InNlY3AyNTZrMSIsIngiOiJmYjY5SEE2M244ZENKd0RmaVJONGxacUtVVU1odHYyZE5BemdjUjJNY0ZBIiwieSI6Ikd3amFWNHpuSm1EZDBOdFlSWGdJeW5aOFlyWDRqN0lzLXFselFuekppclEifQ#0',
+      ],
+      ...toAbsolute(
+        await method.resolve(did),
+        'did:jwk:eyJhbGciOiJFUzI1NksiLCJ1c2UiOiJzaWciLCJrdHkiOiJFQyIsImNydiI6InNlY3AyNTZrMSIsIngiOiJmYjY5SEE2M244ZENKd0RmaVJONGxacUtVVU1odHYyZE5BemdjUjJNY0ZBIiwieSI6Ikd3amFWNHpuSm1EZDBOdFlSWGdJeW5aOFlyWDRqN0lzLXFselFuekppclEifQ'
+      ),
     })
   })
 })
@@ -121,7 +136,7 @@ describe('@sphereon/did-provider-jwk comparison ES256', () => {
 
     const didResolutionResult: DIDResolutionResult = await agent.resolveDid({ didUrl: did })
     const comparisonDidDoc = await method.toDidDocument(publicKeyJwk)
-    expect(didResolutionResult.didDocument).toEqual(comparisonDidDoc)
+    expect(didResolutionResult.didDocument).toEqual(toAbsolute(comparisonDidDoc, did))
   })
 
   it('test resolution', async () => {
@@ -140,7 +155,7 @@ describe('@sphereon/did-provider-jwk comparison ES256', () => {
     // Resolution
     const comparisonDidDoc = await method.toDidDocument(jwk)
     const didResolutionResult: DIDResolutionResult = await agent.resolveDid({ didUrl: did })
-    expect(didResolutionResult.didDocument).toEqual(comparisonDidDoc)
+    expect(didResolutionResult.didDocument).toEqual(toAbsolute(comparisonDidDoc, did))
   })
 
   it('Should decode test vector from spec', async () => {
@@ -211,7 +226,7 @@ describe('@sphereon/did-provider-jwk comparison ES256', () => {
       id: 'did:jwk:eyJraWQiOiJ1cm46aWV0ZjpwYXJhbXM6b2F1dGg6andrLXRodW1icHJpbnQ6c2hhLTI1NjpUOVh4eFZVUHR2TDd0Z0dMOVk4alR4WENPVDFMRjduU2VzWnl0d3FpNVM4Iiwia3R5IjoiRUMiLCJjcnYiOiJQLTI1NiIsImFsZyI6IkVTMjU2IiwieCI6InAwMUFBQ2FkNWFXYVpmVzAwbXhqU0dIVG41R3VpN3Z6cGZqQm1DX2ZhR0EiLCJ5IjoiczR4Y0FYUnVoQ1Z0YTZiaF9Vc3M3eE52NGd5UkRVQW5SS2NzRlJCMzJvWSJ9',
       verificationMethod: [
         {
-          id: '#0',
+          id: 'did:jwk:eyJraWQiOiJ1cm46aWV0ZjpwYXJhbXM6b2F1dGg6andrLXRodW1icHJpbnQ6c2hhLTI1NjpUOVh4eFZVUHR2TDd0Z0dMOVk4alR4WENPVDFMRjduU2VzWnl0d3FpNVM4Iiwia3R5IjoiRUMiLCJjcnYiOiJQLTI1NiIsImFsZyI6IkVTMjU2IiwieCI6InAwMUFBQ2FkNWFXYVpmVzAwbXhqU0dIVG41R3VpN3Z6cGZqQm1DX2ZhR0EiLCJ5IjoiczR4Y0FYUnVoQ1Z0YTZiaF9Vc3M3eE52NGd5UkRVQW5SS2NzRlJCMzJvWSJ9#0',
           type: 'JsonWebKey2020',
           controller:
             'did:jwk:eyJraWQiOiJ1cm46aWV0ZjpwYXJhbXM6b2F1dGg6andrLXRodW1icHJpbnQ6c2hhLTI1NjpUOVh4eFZVUHR2TDd0Z0dMOVk4alR4WENPVDFMRjduU2VzWnl0d3FpNVM4Iiwia3R5IjoiRUMiLCJjcnYiOiJQLTI1NiIsImFsZyI6IkVTMjU2IiwieCI6InAwMUFBQ2FkNWFXYVpmVzAwbXhqU0dIVG41R3VpN3Z6cGZqQm1DX2ZhR0EiLCJ5IjoiczR4Y0FYUnVoQ1Z0YTZiaF9Vc3M3eE52NGd5UkRVQW5SS2NzRlJCMzJvWSJ9',
@@ -295,7 +310,7 @@ describe('@sphereon/did-provider-jwk comparison ES256', () => {
     const verificationMethod = {
       controller:
         'did:jwk:eyJhbGciOiJFUzI1NiIsInVzZSI6InNpZyIsImt0eSI6IkVDIiwiY3J2IjoiUC0yNTYiLCJ4IjoiOWdnczRDbTRWWGNLT2VQcGprTDlpU3lNQ2EyMnlPamJvLW9VWHB5LWF3MCIsInkiOiJsRVhXN2JfSjdsY2VpVkV0cmZwdHZ1UGVFTnNPSmwtZmh6bXU2NTRHUFI4In0',
-      id: '#0',
+      id: 'did:jwk:eyJhbGciOiJFUzI1NiIsInVzZSI6InNpZyIsImt0eSI6IkVDIiwiY3J2IjoiUC0yNTYiLCJ4IjoiOWdnczRDbTRWWGNLT2VQcGprTDlpU3lNQ2EyMnlPamJvLW9VWHB5LWF3MCIsInkiOiJsRVhXN2JfSjdsY2VpVkV0cmZwdHZ1UGVFTnNPSmwtZmh6bXU2NTRHUFI4In0#0',
       publicKeyJwk: jwk,
       type: 'JsonWebKey2020',
     }
@@ -303,11 +318,22 @@ describe('@sphereon/did-provider-jwk comparison ES256', () => {
     expect(didResolutionResult!.didDocument!.verificationMethod).toEqual([verificationMethod])
     // We correctly resolve the use property. The other lib does not, so let's add it to their response
     expect(didResolutionResult!.didDocument).toEqual({
-      assertionMethod: ['#0'],
-      authentication: ['#0'],
-      capabilityDelegation: ['#0'],
-      capabilityInvocation: ['#0'],
-      ...(await method.resolve(did)),
+      assertionMethod: [
+        'did:jwk:eyJhbGciOiJFUzI1NiIsInVzZSI6InNpZyIsImt0eSI6IkVDIiwiY3J2IjoiUC0yNTYiLCJ4IjoiOWdnczRDbTRWWGNLT2VQcGprTDlpU3lNQ2EyMnlPamJvLW9VWHB5LWF3MCIsInkiOiJsRVhXN2JfSjdsY2VpVkV0cmZwdHZ1UGVFTnNPSmwtZmh6bXU2NTRHUFI4In0#0',
+      ],
+      authentication: [
+        'did:jwk:eyJhbGciOiJFUzI1NiIsInVzZSI6InNpZyIsImt0eSI6IkVDIiwiY3J2IjoiUC0yNTYiLCJ4IjoiOWdnczRDbTRWWGNLT2VQcGprTDlpU3lNQ2EyMnlPamJvLW9VWHB5LWF3MCIsInkiOiJsRVhXN2JfSjdsY2VpVkV0cmZwdHZ1UGVFTnNPSmwtZmh6bXU2NTRHUFI4In0#0',
+      ],
+      capabilityDelegation: [
+        'did:jwk:eyJhbGciOiJFUzI1NiIsInVzZSI6InNpZyIsImt0eSI6IkVDIiwiY3J2IjoiUC0yNTYiLCJ4IjoiOWdnczRDbTRWWGNLT2VQcGprTDlpU3lNQ2EyMnlPamJvLW9VWHB5LWF3MCIsInkiOiJsRVhXN2JfSjdsY2VpVkV0cmZwdHZ1UGVFTnNPSmwtZmh6bXU2NTRHUFI4In0#0',
+      ],
+      capabilityInvocation: [
+        'did:jwk:eyJhbGciOiJFUzI1NiIsInVzZSI6InNpZyIsImt0eSI6IkVDIiwiY3J2IjoiUC0yNTYiLCJ4IjoiOWdnczRDbTRWWGNLT2VQcGprTDlpU3lNQ2EyMnlPamJvLW9VWHB5LWF3MCIsInkiOiJsRVhXN2JfSjdsY2VpVkV0cmZwdHZ1UGVFTnNPSmwtZmh6bXU2NTRHUFI4In0#0',
+      ],
+      ...toAbsolute(
+        await method.resolve(did),
+        'did:jwk:eyJhbGciOiJFUzI1NiIsInVzZSI6InNpZyIsImt0eSI6IkVDIiwiY3J2IjoiUC0yNTYiLCJ4IjoiOWdnczRDbTRWWGNLT2VQcGprTDlpU3lNQ2EyMnlPamJvLW9VWHB5LWF3MCIsInkiOiJsRVhXN2JfSjdsY2VpVkV0cmZwdHZ1UGVFTnNPSmwtZmh6bXU2NTRHUFI4In0'
+      ),
     })
   })
 })
