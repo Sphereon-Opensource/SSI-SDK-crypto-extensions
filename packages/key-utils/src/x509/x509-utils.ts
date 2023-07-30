@@ -1,7 +1,7 @@
 import * as u8a from 'uint8arrays'
 // @ts-ignore
 import keyto from '@trust/keyto'
-import { JWK, KeyVisibility } from './types'
+import { JWK, KeyVisibility } from '../types'
 
 // Based on (MIT licensed):
 // https://github.com/hildjj/node-posh/blob/master/lib/index.js

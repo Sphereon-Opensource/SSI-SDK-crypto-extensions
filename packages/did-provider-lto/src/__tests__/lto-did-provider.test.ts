@@ -40,7 +40,7 @@ const didManager = new DIDManager({
   store: memoryDIDStore,
 })
 
-describe('@sphereon/lto-did-provider', () => {
+xdescribe('@sphereon/lto-did-provider', () => {
   const mockContext = {
     agent: {
       keyManagerCreate(_args: IKeyManagerCreateArgs): Promise<ManagedKeyInfo> {

@@ -1,15 +1,24 @@
-import Debug from 'debug'
+import { blsSign, generateBls12381G2KeyPair } from '@mattrglobal/bbs-signatures'
+import {
+  generatePrivateKeyHex,
+  hexToPEM,
+  jwkToPEM,
+  pemCertChainTox5c,
+  PEMToHex,
+  PEMToJwk,
+  RSASigner,
+  signAlgorithmToSchemeAndHashAlg,
+  X509Opts,
+} from '@sphereon/ssi-sdk-ext.key-utils'
 
 import { IKey, ManagedKeyInfo, MinimalImportableKey, TKeyType } from '@veramo/core'
 import { AbstractPrivateKeyStore, ManagedPrivateKey } from '@veramo/key-manager'
 import { KeyManagementSystem } from '@veramo/kms-local'
-import { ManagedKeyInfoArgs, KeyType } from './index'
-import { blsSign, generateBls12381G2KeyPair } from '@mattrglobal/bbs-signatures'
-import { RSASigner } from './x509/rsa-signer'
-import { generateRSAKeyAsPEM, signAlgorithmToSchemeAndHashAlg } from './x509/rsa-key'
-import { hexToPEM, jwkToPEM, pemCertChainTox5c, PEMToHex, PEMToJwk, privateKeyHexFromPEM } from '@sphereon/ssi-sdk-ext.key-utils'
-import * as u8a from 'uint8arrays'
+import Debug from 'debug'
 import elliptic from 'elliptic'
+import * as u8a from 'uint8arrays'
+import { KeyType, ManagedKeyInfoArgs } from './index'
+
 const debug = Debug('sphereon:kms:bls:local')
 
 export class SphereonKeyManagementSystem extends KeyManagementSystem {
@@ -20,13 +29,14 @@ export class SphereonKeyManagementSystem extends KeyManagementSystem {
     this.privateKeyStore = keyStore
   }
 
-  async importKey(args: Omit<MinimalImportableKey, 'kms'>): Promise<ManagedKeyInfo> {
+  async importKey(args: Omit<MinimalImportableKey, 'kms'> & { privateKeyPEM?: string }): Promise<ManagedKeyInfo> {
     switch (args.type) {
       case KeyType.Bls12381G2.toString():
         if (!args.privateKeyHex || !args.publicKeyHex) {
           throw new Error('invalid_argument: type, publicKeyHex and privateKeyHex are required to import a key')
         }
         const managedKey = this.asSphereonManagedKeyInfo({
+          ...args,
           alias: args.kid,
           privateKeyHex: args.privateKeyHex,
           publicKeyHex: args.publicKeyHex,
@@ -39,8 +49,8 @@ export class SphereonKeyManagementSystem extends KeyManagementSystem {
       case 'Secp256r1':
       // @ts-ignore
       case 'RSA': {
-        if (!args.privateKeyHex) {
-          throw new Error('invalid_argument: type and privateKeyHex are required to import a key')
+        if (!args.privateKeyHex && !args.privateKeyPEM) {
+          throw new Error('invalid_argument: type and privateKeyHex (or privateKeyPEM for RSA) are required to import a key')
         }
         const managedKey = this.asSphereonManagedKeyInfo({ alias: args.kid, ...args })
         await this.privateKeyStore.import({ alias: managedKey.kid, ...args })
@@ -68,10 +78,10 @@ export class SphereonKeyManagementSystem extends KeyManagementSystem {
 
       // @ts-ignore
       case 'RSA': {
-        const pem = await generateRSAKeyAsPEM('RSA-PSS', 'SHA-256', 2048)
+        const privateKeyHex = await generatePrivateKeyHex(type)
         key = await this.importKey({
           type,
-          privateKeyHex: privateKeyHexFromPEM(pem),
+          privateKeyHex,
         })
         break
       }
@@ -109,7 +119,7 @@ export class SphereonKeyManagementSystem extends KeyManagementSystem {
       privateKey.type === 'RSA' &&
       (typeof algorithm === 'undefined' || algorithm === 'RS256' || algorithm === 'RS512' || algorithm === 'PS256' || algorithm === 'PS512')
     ) {
-      return await this.signRSA(privateKey.privateKeyHex, data, algorithm ? algorithm : 'PS256')
+      return await this.signRSA(privateKey.privateKeyHex, data, algorithm ?? 'PS256')
     } else {
       return await super.sign({ keyRef, algorithm, data })
     }
@@ -146,9 +156,9 @@ export class SphereonKeyManagementSystem extends KeyManagementSystem {
       }
       // @ts-ignore
       case 'RSA': {
-        // @ts-ignore // We need this as the interface on the args, does not allow for any metadata on managed key imports
         const x509 = args.meta?.x509 as X509Opts
-        const privateKeyPEM = args.privateKeyHex.includes('---') ? args.privateKeyHex : hexToPEM(args.privateKeyHex, 'private') // In case we have x509 opts, the private key hex really was a PEM already (yuck)
+        const privateKeyPEM =
+          x509?.privateKeyPEM ?? (args.privateKeyHex.includes('---') ? args.privateKeyHex : hexToPEM(args.privateKeyHex, 'private')) // In case we have x509 opts, the private key hex really was a PEM already (yuck)
         const publicKeyJwk = PEMToJwk(privateKeyPEM, 'public')
         const publicKeyPEM = jwkToPEM(publicKeyJwk, 'public')
         const publicKeyHex = PEMToHex(publicKeyPEM)
@@ -156,9 +166,9 @@ export class SphereonKeyManagementSystem extends KeyManagementSystem {
         const meta = {} as any
         if (x509) {
           meta.x509 = {
-            cn: x509.cn || args.alias || publicKeyHex,
+            cn: x509.cn ?? args.alias ?? publicKeyHex,
           }
-          let certChain: string = x509.certificateChainPEM || ''
+          let certChain: string = x509.certificateChainPEM ?? ''
           if (x509.certificatePEM) {
             if (!certChain.includes(x509.certificatePEM)) {
               certChain = `${x509.certificatePEM}\n${certChain}`
@@ -183,7 +193,7 @@ export class SphereonKeyManagementSystem extends KeyManagementSystem {
 
         key = {
           type: args.type,
-          kid: args.alias || meta?.x509?.cn || publicKeyHex,
+          kid: args.alias ?? meta?.x509?.cn ?? publicKeyHex,
           publicKeyHex,
           meta: {
             ...meta,

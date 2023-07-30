@@ -52,17 +52,17 @@ const resolve = async (didUrl: string, _options?: DIDResolutionOptions): Promise
       id: parsedDid.did,
       verificationMethod: [
         {
-          id: '#0',
+          id: `${parsedDid.did}#0`,
           type: VerificationType.JsonWebKey2020,
           controller: parsedDid.did,
           publicKeyJwk: jwk,
         },
       ],
-      ...(sig && { assertionMethod: ['#0'] }),
-      ...(sig && { authentication: ['#0'] }),
-      ...(sig && { capabilityInvocation: ['#0'] }),
-      ...(sig && { capabilityDelegation: ['#0'] }),
-      ...(enc && { keyAgreement: ['#0'] }),
+      ...(sig && { assertionMethod: [`${parsedDid.did}#0`] }),
+      ...(sig && { authentication: [`${parsedDid.did}#0`] }),
+      ...(sig && { capabilityInvocation: [`${parsedDid.did}#0`] }),
+      ...(sig && { capabilityDelegation: [`${parsedDid.did}#0`] }),
+      ...(enc && { keyAgreement: [`${parsedDid.did}#0`] }),
     },
     didDocumentMetadata: {},
   }

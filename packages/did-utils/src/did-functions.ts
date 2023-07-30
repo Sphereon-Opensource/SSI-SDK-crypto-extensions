@@ -14,7 +14,7 @@ import { DIDResolutionOptions, Resolvable, VerificationMethod } from 'did-resolv
 import elliptic from 'elliptic'
 import * as u8a from 'uint8arrays'
 import { IDIDOptions, IIdentifierOpts } from './types'
-import { hexKeyFromPEMBasedJwk } from '@sphereon/ssi-sdk-ext.key-utils'
+import { ENC_KEY_ALGS, hexKeyFromPEMBasedJwk, JwkKeyUse, toJwk } from '@sphereon/ssi-sdk-ext.key-utils'
 
 export const getFirstKeyWithRelation = async (
   identifier: IIdentifier,
@@ -22,7 +22,7 @@ export const getFirstKeyWithRelation = async (
   vmRelationship?: DIDDocumentSection,
   errorOnNotFound?: boolean
 ): Promise<_ExtendedIKey | undefined> => {
-  const section = vmRelationship || 'verificationMethod' // search all VMs in case no relationship is provided
+  const section = vmRelationship ?? 'verificationMethod' // search all VMs in case no relationship is provided
   const matchedKeys = await mapIdentifierKeysToDocWithJwkSupport(identifier, section, context)
   if (Array.isArray(matchedKeys) && matchedKeys.length > 0) {
     return matchedKeys[0]
@@ -156,8 +156,8 @@ export async function mapIdentifierKeysToDocWithJwkSupport(
   const extendedKeys: _ExtendedIKey[] = documentKeys
     .map((verificationMethod) => {
       /*if (verificationMethod.type !== 'JsonWebKey2020') {
-        return null
-      }*/
+                          return null
+                        }*/
       const localKey = localKeys.find(
         (localKey) => localKey.publicKeyHex === verificationMethod.publicKeyHex || verificationMethod.publicKeyHex?.startsWith(localKey.publicKeyHex)
       )
@@ -239,6 +239,15 @@ export async function getSupportedDIDMethods(didOpts: IDIDOptions, context: IAge
   return didOpts.supportedDIDMethods ?? (await getAgentDIDMethods(context))
 }
 
+export function getAgentResolver(
+  context: IAgentContext<IResolver>,
+  opts?: {
+    uniresolverFallback: boolean
+  }
+): Resolvable {
+  return new AgentDIDResolver(context, opts?.uniresolverFallback ?? true)
+}
+
 export class AgentDIDResolver implements Resolvable {
   private readonly context: IAgentContext<IResolver>
   private readonly uniresolverFallback: boolean
@@ -250,12 +259,100 @@ export class AgentDIDResolver implements Resolvable {
 
   async resolve(didUrl: string, options?: DIDResolutionOptions): Promise<DIDResolutionResult> {
     try {
-      return this.context.agent.resolveDid({ didUrl, options })
+      return await this.context.agent.resolveDid({ didUrl, options })
     } catch (error: unknown) {
       if (this.uniresolverFallback) {
-        return new UniResolver().resolve(didUrl, options)
+        return await new UniResolver().resolve(didUrl, options)
       }
       throw error
     }
   }
+}
+
+export function toDidDocument(
+  identifier?: IIdentifier,
+  opts?: {
+    did?: string
+    use?: JwkKeyUse[]
+  }
+): DIDDocument | undefined {
+  let didDocument: DIDDocument | undefined = undefined
+  if (identifier) {
+    const did = identifier.did ?? opts?.did
+    didDocument = {
+      '@context': 'https://www.w3.org/ns/did/v1',
+      id: did,
+      verificationMethod: identifier.keys.map((key) => {
+        const vm: VerificationMethod = {
+          controller: did,
+          id: key.kid.startsWith(did) && key.kid.includes('#') ? key.kid : `${did}#${key.kid}`,
+          publicKeyJwk: toJwk(key.publicKeyHex, key.type, {
+            use: ENC_KEY_ALGS.includes(key.type) ? JwkKeyUse.Encryption : JwkKeyUse.Signature,
+            key,
+          }),
+          type: 'JsonWebKey2020',
+        }
+        return vm
+      }),
+      ...((!opts?.use || opts?.use?.includes(JwkKeyUse.Signature)) &&
+        identifier.keys && {
+          assertionMethod: identifier.keys.map((key) => {
+            return `${did}#${key.kid}`
+          }),
+          authentication: identifier.keys.map((key) => {
+            return `${did}#${key.kid}`
+          }),
+        }),
+      ...((!opts?.use || opts?.use?.includes(JwkKeyUse.Encryption)) &&
+        identifier.keys &&
+        identifier.keys.filter((key) => key.type === 'X25519').length > 0 && {
+          keyAgreement: identifier.keys
+            .filter((key) => key.type === 'X25519')
+            .map((key) => {
+              if (key.kid.startsWith(did) && key.kid.includes('#')) {
+                return key.kid
+              }
+              return `${did}#${key.kid}`
+            }),
+        }),
+      ...(identifier.services && identifier.services.length > 0 && { service: identifier.services }),
+    }
+  }
+  return didDocument
+}
+
+export function toDidResolutionResult(
+  identifier?: IIdentifier,
+  opts?: {
+    did?: string
+    supportedMethods?: string[]
+  }
+): DIDResolutionResult {
+  const didDocument = toDidDocument(identifier, opts) ?? null // null is used in case of errors and required by the did resolution spec
+
+  const resolutionResult: DIDResolutionResult = {
+    '@context': 'https://w3id.org/did-resolution/v1',
+    didDocument,
+    didResolutionMetadata: {
+      ...(!didDocument && { error: 'notFound' }),
+      ...(Array.isArray(opts?.supportedMethods) &&
+        identifier &&
+        !opts?.supportedMethods.includes(identifier.provider.replace('did:', '')) && { error: 'unsupportedDidMethod' }),
+    },
+    didDocumentMetadata: {
+      ...(identifier?.alias && { equivalentId: identifier?.alias }),
+    },
+  }
+  return resolutionResult
+}
+
+export async function asDidWeb(hostnameOrDID: string): Promise<string> {
+  let did = hostnameOrDID
+  if (!did) {
+    throw Error('Domain or DID expected, but received nothing.')
+  }
+  if (did.startsWith('did:web:')) {
+    return did
+  }
+  return `did:web:${did.replace(/https?:\/\/([^/?#]+).*/i, '$1').toLowerCase()}`
 }

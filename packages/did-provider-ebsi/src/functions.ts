@@ -21,7 +21,7 @@ export function toMethodSpecificId(specInfo?: EbsiDidSpecInfo, methodSpecificId?
   return base58btc.encode(result)
 }
 
-export function generatePrivateKeyHex(specInfo?: EbsiDidSpecInfo, privateKeyBytes?: Uint8Array): string {
+export function generateEbsiPrivateKeyHex(specInfo?: EbsiDidSpecInfo, privateKeyBytes?: Uint8Array): string {
   const spec = specInfo ?? ebsiDIDSpecInfo.V1
   const length = spec.didLength ? 2 * spec.didLength : 32
 
