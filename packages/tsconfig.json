@@ -23,6 +23,9 @@
       "path": "did-resolver-ebsi"
     },
     {
+      "path": "did-provider-web"
+    },
+    {
       "path": "key-manager"
     },
     {

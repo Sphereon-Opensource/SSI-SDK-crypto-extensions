@@ -1,6 +1,6 @@
 import { dereferenceDidKeysWithJwkSupport } from '@sphereon/ssi-sdk-ext.did-utils'
 import { SphereonKeyManager } from '@sphereon/ssi-sdk-ext.key-manager'
-import { JwkKeyUse, toJwk } from '@sphereon/ssi-sdk-ext.key-utils'
+import { IKeyOpts, JwkKeyUse, toJwk } from '@sphereon/ssi-sdk-ext.key-utils'
 import { SphereonKeyManagementSystem } from '@sphereon/ssi-sdk-ext.kms-local'
 import { createAgent, DIDDocument, DIDResolutionResult, IAgentContext, IIdentifier, IKeyManager, IResolver } from '@veramo/core'
 import { DIDManager, MemoryDIDStore } from '@veramo/did-manager'
@@ -9,7 +9,7 @@ import { MemoryKeyStore, MemoryPrivateKeyStore } from '@veramo/key-manager'
 import base64url from 'base64url'
 import { Resolver } from 'did-resolver'
 import { getDidJwkResolver, Key } from '../../did-resolver-jwk/src'
-import { IKeyOpts, JwkDIDProvider } from '../src'
+import { JwkDIDProvider } from '../src'
 
 const method = require('@or13/did-jwk')
 
@@ -79,6 +79,7 @@ describe('@sphereon/did-provider-jwk comparison ES256k', () => {
     const options: IKeyOpts = {
       key: {
         privateKeyHex,
+        type: 'Secp256k1',
       },
       use: JwkKeyUse.Signature,
     }
@@ -277,7 +278,7 @@ describe('@sphereon/did-provider-jwk comparison ES256', () => {
   })
 
   it('Creation from privateKeyHex', async () => {
-    /*const privateKeyHex = generatePrivateKeyHex('Secp256r1')
+    /*const privateKeyHex = await generatePrivateKeyHex('Secp256r1')
         console.log(privateKeyHex)*/
     const privateKeyHex = '47dc6ae067aa011f8574d2da7cf8c326538af08b85e6779d192a9893291c9a0a'
     const options: IKeyOpts = {

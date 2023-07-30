@@ -5,7 +5,7 @@ import { DIDDocument } from 'did-resolver'
 import { IKey, IService } from '@veramo/core/build/types/IIdentifier'
 import * as u8a from 'uint8arrays'
 import { ebsiDIDSpecInfo, IContext, ICreateIdentifierArgs } from './types'
-import { generatePrivateKeyHex, toMethodSpecificId } from './functions'
+import { generateEbsiPrivateKeyHex, toMethodSpecificId } from './functions'
 
 const debug = Debug('sphereon:did-provider-ebsi')
 
@@ -28,7 +28,7 @@ export class EbsiDidProvider extends AbstractIdentifierProvider {
     context: IContext
   ): Promise<Omit<IIdentifier, 'provider'>> {
     if (!options?.type || options.type === ebsiDIDSpecInfo.V1) {
-      const privateKeyHex = generatePrivateKeyHex(
+      const privateKeyHex = await generateEbsiPrivateKeyHex(
         ebsiDIDSpecInfo.V1,
         options?.options?.key?.privateKeyHex ? u8a.fromString(options.options.key.privateKeyHex, 'base16') : undefined
       )

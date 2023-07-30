@@ -3,13 +3,13 @@ import { PEM_CERT, PEM_CHAIN, PEM_FULL_CHAIN, PEM_PRIV_KEY } from './certs'
 import { SphereonKeyManagementSystem } from '../SphereonKeyManagementSystem'
 import { MemoryPrivateKeyStore } from '@veramo/key-manager'
 import * as u8a from 'uint8arrays'
-import { RSASigner } from '../x509/rsa-signer'
 import {
   digestMethodParams,
   pemCertChainTox5c,
   PEMToJwk,
   privateKeyHexFromPEM,
   publicKeyHexFromPEM,
+  RSASigner,
   toKeyObject,
   X509Opts,
   x5cToPemCertChain,

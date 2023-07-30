@@ -1,7 +1,9 @@
 import * as u8a from 'uint8arrays'
 import crypto from '@sphereon/isomorphic-webcrypto'
-import { importRSAKey, RSAEncryptionSchemes, RSASignatureSchemes } from './rsa-key'
-import { HashAlgorithm, JWK, PEMToJwk } from '@sphereon/ssi-sdk-ext.key-utils'
+import { HashAlgorithm } from '../digest-methods'
+import { JWK } from '../types'
+import { cryptoSubtleImportRSAKey, RSAEncryptionSchemes, RSASignatureSchemes } from './rsa-key'
+import { PEMToJwk } from './x509-utils'
 
 export class RSASigner {
   private readonly hashAlgorithm: HashAlgorithm
@@ -36,7 +38,7 @@ export class RSASigner {
 
   private async getKey(): Promise<CryptoKey> {
     if (!this.key) {
-      this.key = await importRSAKey(this.jwk, this.scheme, this.hashAlgorithm)
+      this.key = await cryptoSubtleImportRSAKey(this.jwk, this.scheme, this.hashAlgorithm)
     }
     return this.key
   }
