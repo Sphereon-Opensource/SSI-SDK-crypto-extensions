@@ -3,6 +3,7 @@ import { IAgentContext, IDIDManager, IKeyManager, IService, MinimalImportableKey
 export interface IKeyOpts {
   keys?: WithRequiredProperty<Partial<MinimalImportableKey>, 'privateKeyHex'>[] // Optional key to import with only privateKeyHex mandatory. If not specified a key with random kid will be created
   type?: TKeyType | 'RSA' // The key type. Defaults to Secp256k1
+  isController?: boolean // Whether this is a controller key for a DID document. Please note that only one key can be a controller key. If multiple are supplied, the first one will be used!
 }
 
 // Needed to make a single property required

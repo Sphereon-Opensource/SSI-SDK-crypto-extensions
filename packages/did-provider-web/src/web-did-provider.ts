@@ -1,10 +1,10 @@
 import { asDidWeb } from '@sphereon/ssi-sdk-ext.did-utils'
-import { IKeyOpts, importProvidedOrGeneratedKey } from '@sphereon/ssi-sdk-ext.key-utils'
+import { importProvidedOrGeneratedKey } from '@sphereon/ssi-sdk-ext.key-utils'
 import { IAgentContext, IIdentifier, IKey, IKeyManager, IService } from '@veramo/core'
 import { AbstractIdentifierProvider } from '@veramo/did-manager'
 
 import Debug from 'debug'
-import { ICreateIdentifierArgs } from './types'
+import { ICreateIdentifierArgs, IKeyOpts } from './types'
 
 const debug = Debug('sphereon:web-did:identifier-provider')
 
@@ -27,16 +27,19 @@ export class WebDIDProvider extends AbstractIdentifierProvider {
     const opts = Array.isArray(args.options) ? args.options : args.options ? [args.options] : ([] as IKeyOpts[])
     if (opts.length === 0) {
       // Let's generate a key as no import keys or types are provided
-      opts.push({ type: 'Secp256r1' })
+      opts.push({ type: 'Secp256r1', isController: true })
     }
     const keys = await Promise.all(
       opts.map((options) => {
         return importProvidedOrGeneratedKey({ kms: kms ?? this.defaultKms, options }, context)
       })
     )
+
+    const controllerIdx = opts.findIndex((opt) => opt.isController)
+    const controllerKeyId = controllerIdx < 0 ? keys[0].kid : keys[controllerIdx].kid
     const identifier: Omit<IIdentifier, 'provider'> = {
       did: await asDidWeb(alias),
-      controllerKeyId: keys[0].kid,
+      controllerKeyId,
       keys,
       services: args.services ?? [],
     }
@@ -63,11 +66,33 @@ export class WebDIDProvider extends AbstractIdentifierProvider {
     return true
   }
 
-  async addKey({ identifier, key, options }: { identifier: IIdentifier; key: IKey; options?: any }, context: IContext): Promise<any> {
+  async addKey(
+    {
+      identifier,
+      key,
+      options,
+    }: {
+      identifier: IIdentifier
+      key: IKey
+      options?: any
+    },
+    context: IContext
+  ): Promise<any> {
     return { success: true }
   }
 
-  async addService({ identifier, service, options }: { identifier: IIdentifier; service: IService; options?: any }, context: IContext): Promise<any> {
+  async addService(
+    {
+      identifier,
+      service,
+      options,
+    }: {
+      identifier: IIdentifier
+      service: IService
+      options?: any
+    },
+    context: IContext
+  ): Promise<any> {
     return { success: true }
   }
 
