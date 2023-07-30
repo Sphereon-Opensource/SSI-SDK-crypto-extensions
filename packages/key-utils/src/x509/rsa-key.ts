@@ -1,6 +1,8 @@
 import crypto from '@sphereon/isomorphic-webcrypto'
 import * as u8a from 'uint8arrays'
-import { base64ToPEM, HashAlgorithm, JWK } from '@sphereon/ssi-sdk-ext.key-utils'
+import { HashAlgorithm } from '../digest-methods'
+import { JWK } from '../types'
+import { base64ToPEM } from './x509-utils'
 
 export type RSASignatureSchemes = 'RSASSA-PKCS1-V1_5' | 'RSA-PSS'
 
@@ -26,7 +28,7 @@ export const signAlgorithmToSchemeAndHashAlg = (signingAlg: string) => {
   return { scheme, hashAlgorithm }
 }
 
-export const importRSAKey = async (
+export const cryptoSubtleImportRSAKey = async (
   jwk: JWK,
   scheme: RSAEncryptionSchemes | RSASignatureSchemes,
   hashAlgorithm?: HashAlgorithm
