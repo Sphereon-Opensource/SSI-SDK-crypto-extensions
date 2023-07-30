@@ -45,7 +45,7 @@ export class SphereonKeyDidProvider extends KeyDIDProvider {
       return identifier
     } else if (options?.type?.toLowerCase()?.includes('ebsi') || options?.type?.toLowerCase() === JWK_JCS_PUB_NAME.toLowerCase()) {
       const key = await context.agent.keyManagerCreate({ kms: kms || this.kms, type: 'Secp256k1' })
-      const jwk = toJwk(key.publicKeyHex, 'Secp256k1', JwkKeyUse.Signature)
+      const jwk = toJwk(key.publicKeyHex, 'Secp256k1', { use: JwkKeyUse.Signature, key })
 
       // todo: Remove buffers, and remove redundant code
       const methodSpecificId = Buffer.from(
