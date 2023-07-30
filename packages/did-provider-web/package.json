@@ -1,10 +1,10 @@
 {
   "name": "@sphereon/ssi-sdk-ext.did-provider-web",
-  "description": "Veramo plugin that can enable creation and control of did:web identifiers.",
+  "description": "plugin that can enable creation and control of did:web identifiers.",
   "version": "0.12.1",
-  "main": "build/index.js",
-  "exports": "./build/index.js",
-  "types": "build/index.d.ts",
+  "main": "dist/index.js",
+  "exports": "./dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc"
   },
