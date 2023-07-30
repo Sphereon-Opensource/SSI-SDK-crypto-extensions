@@ -1,16 +1,5 @@
-import { IAgentContext, IIdentifier, IKey, IKeyManager, IService, MinimalImportableKey } from '@veramo/core'
-import { JwkKeyUse } from '@sphereon/ssi-sdk-ext.key-utils'
-
-export interface IKeyOpts {
-  key?: WithRequiredProperty<Partial<MinimalImportableKey>, 'privateKeyHex'> // Optional key to import with only privateKeyHex mandatory. If not specified a key with random kid will be created
-  type?: Key // The key type. Defaults to Secp256k1
-  use?: JwkKeyUse // The key use
-}
-
-// Needed to make a single property required
-type WithRequiredProperty<Type, Key extends keyof Type> = Type & {
-  [Property in Key]-?: Type[Property]
-}
+import { IKeyOpts } from '@sphereon/ssi-sdk-ext.key-utils'
+import { IAgentContext, IIdentifier, IKey, IKeyManager, IService } from '@veramo/core'
 
 export interface ICreateIdentifierArgs {
   kms?: string
@@ -40,11 +29,6 @@ export interface IAddServiceArgs {
   identifier: IIdentifier
   service: IService
   options?: any
-}
-
-export interface IImportProvidedOrGeneratedKeyArgs {
-  kms?: string
-  options?: IKeyOpts
 }
 
 export enum Key {

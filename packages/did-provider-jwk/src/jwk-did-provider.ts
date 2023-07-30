@@ -1,17 +1,9 @@
-import { generatePrivateKeyHex, jwkDetermineUse, JwkKeyUse, toJwk } from '@sphereon/ssi-sdk-ext.key-utils'
-import { DIDDocument, IAgentContext, IIdentifier, IKey, IKeyManager } from '@veramo/core'
+import { importProvidedOrGeneratedKey, jwkDetermineUse, toJwk } from '@sphereon/ssi-sdk-ext.key-utils'
+import { DIDDocument, IAgentContext, IIdentifier, IKeyManager } from '@veramo/core'
 import { AbstractIdentifierProvider } from '@veramo/did-manager'
 import base64url from 'base64url'
 import Debug from 'debug'
-import {
-  IAddKeyArgs,
-  IAddServiceArgs,
-  ICreateIdentifierArgs,
-  IImportProvidedOrGeneratedKeyArgs,
-  IRemoveKeyArgs,
-  IRequiredContext,
-  Key,
-} from './types/jwk-provider-types'
+import { IAddKeyArgs, IAddServiceArgs, ICreateIdentifierArgs, IRemoveKeyArgs, IRequiredContext } from './types/jwk-provider-types'
 
 const debug = Debug('sphereon:did-provider-jwk')
 
@@ -29,16 +21,16 @@ export class JwkDIDProvider extends AbstractIdentifierProvider {
 
   /** {@inheritDoc @veramo/veramo-core#IDIDManager.didManagerCreate} */
   async createIdentifier(args: ICreateIdentifierArgs, context: IRequiredContext): Promise<Omit<IIdentifier, 'provider'>> {
-    const key = await this.importProvidedOrGeneratedKey(
+    const key = await importProvidedOrGeneratedKey(
       {
-        kms: args.kms,
+        kms: args.kms ?? this.defaultKms,
         options: args.options,
       },
       context
     )
 
     const use = jwkDetermineUse(key.type, args?.options?.use)
-    const jwk: JsonWebKey = toJwk(key.publicKeyHex, key.type, use)
+    const jwk: JsonWebKey = toJwk(key.publicKeyHex, key.type, { use, key })
     debug(JSON.stringify(jwk, null, 2))
     const did = `did:jwk:${base64url(JSON.stringify(jwk))}`
     const identifier: Omit<IIdentifier, 'provider'> = {
@@ -84,40 +76,5 @@ export class JwkDIDProvider extends AbstractIdentifierProvider {
   /** {@inheritDoc @veramo/veramo-core#IDIDManager.didManagerRemoveService} */
   async removeService(args: IRemoveKeyArgs, context: IRequiredContext): Promise<any> {
     return Promise.reject(Error('Not supported for DID JWKs'))
-  }
-
-  /**
-   * We optionally generate and then import our own keys.
-   *
-   * @param args The key arguments
-   * @param context The Veramo agent context
-   * @private
-   */
-  private async importProvidedOrGeneratedKey(args: IImportProvidedOrGeneratedKeyArgs, context: IRequiredContext): Promise<IKey> {
-    // @ts-ignore
-    const type = args.options?.type ?? args.options?.key?.type ?? args.options?.keyType ?? Key.Secp256k1
-
-    if (args.options && args.options?.use === JwkKeyUse.Encryption && type === Key.Ed25519) {
-      throw new Error('Ed25519 keys are only valid for signatures')
-    }
-
-    let privateKeyHex: string
-    if (args.options?.key) {
-      if (!args.options.key.privateKeyHex) {
-        throw new Error(`We need to have a private key when importing a key`)
-      }
-      privateKeyHex = args.options.key.privateKeyHex
-      /*if (type === Key.Secp256r1 && privateKeyHex.length === 64) {
-        privateKeyHex = `04${privateKeyHex}`
-      }*/
-    } else {
-      privateKeyHex = generatePrivateKeyHex(type)
-    }
-
-    return context.agent.keyManagerImport({
-      kms: args.kms || this.defaultKms,
-      type,
-      privateKeyHex,
-    })
   }
 }
