@@ -42,7 +42,7 @@ export class SphereonKeyManagementSystem extends KeyManagementSystem {
           publicKeyHex: args.publicKeyHex,
           type: args.type,
         })
-        await this.privateKeyStore.import({ alias: managedKey.kid, ...args })
+        await this.privateKeyStore.importKey({ alias: managedKey.kid, ...args })
         debug('imported key', managedKey.type, managedKey.publicKeyHex)
         return managedKey
 
@@ -53,7 +53,7 @@ export class SphereonKeyManagementSystem extends KeyManagementSystem {
           throw new Error('invalid_argument: type and privateKeyHex (or privateKeyPEM for RSA) are required to import a key')
         }
         const managedKey = this.asSphereonManagedKeyInfo({ alias: args.kid, ...args })
-        await this.privateKeyStore.import({ alias: managedKey.kid, ...args })
+        await this.privateKeyStore.importKey({ alias: managedKey.kid, ...args })
         debug('imported key', managedKey.type, managedKey.publicKeyHex)
         return managedKey
       }
@@ -97,7 +97,7 @@ export class SphereonKeyManagementSystem extends KeyManagementSystem {
   async sign({ keyRef, algorithm, data }: { keyRef: Pick<IKey, 'kid'>; algorithm?: string; data: Uint8Array }): Promise<string> {
     let privateKey: ManagedPrivateKey
     try {
-      privateKey = await this.privateKeyStore.get({ alias: keyRef.kid })
+      privateKey = await this.privateKeyStore.getKey({ alias: keyRef.kid })
     } catch (e) {
       throw new Error(`key_not_found: No key entry found for kid=${keyRef.kid}`)
     }

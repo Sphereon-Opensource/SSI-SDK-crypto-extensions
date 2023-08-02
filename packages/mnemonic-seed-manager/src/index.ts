@@ -3,7 +3,7 @@ import { MnemonicEntity } from './entities/MnemonicEntity'
 /**
  * @internal
  */
-const schema = require('../plugin.schema.json')
+const schema = require('./plugin.schema.json')
 export { schema }
 /**
  * @public

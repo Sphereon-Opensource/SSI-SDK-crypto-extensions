@@ -4,6 +4,7 @@
   "source": "src/index.ts",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "type": "module",
   "veramo": {
     "pluginInterfaces": {
       "IMnemonicSeedManager": "./src/types/IMnemonicSeedManager.ts"
@@ -21,20 +22,20 @@
   },
   "dependencies": {
     "@noble/hashes": "1.2.0",
-    "@veramo/core": "4.2.0",
-    "@veramo/data-store": "4.2.0",
-    "@veramo/key-manager": "4.2.0",
-    "@veramo/kms-local": "4.2.0",
-    "@veramo/utils": "4.2.0",
+    "@veramo/core": "^5.3.0",
+    "@veramo/data-store": "5.4.0",
+    "@veramo/key-manager": "5.4.0",
+    "@veramo/kms-local": "5.4.0",
+    "@veramo/utils": "5.4.0",
     "bip39": "^3.1.0",
     "debug": "^4.3.4",
     "typeorm": "0.3.12"
   },
   "devDependencies": {
     "@types/bip39": "^3.0.0",
-    "@veramo/cli": "4.2.0",
-    "@veramo/remote-client": "4.2.0",
-    "@veramo/remote-server": "4.2.0",
+    "@veramo/cli": "^5.3.0",
+    "@veramo/remote-client": "5.4.0",
+    "@veramo/remote-server": "5.4.0",
     "ed25519-hd-key": "^1.3.0"
   },
   "files": [

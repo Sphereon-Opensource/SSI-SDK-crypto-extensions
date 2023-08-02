@@ -23,7 +23,7 @@ export class SphereonKeyManager extends KeyManager {
 
   //FIXME extend the IKeyManagerSignArgs.data to be a string or array of strings
   async keyManagerSign(args: IKeyManagerSignArgs): Promise<string> {
-    const keyInfo: IKey = (await this.localStore.get({ kid: args.keyRef })) as IKey
+    const keyInfo: IKey = (await this.localStore.getKey({ kid: args.keyRef })) as IKey
     const kms = this.getLocalKms(keyInfo.kms)
     if (keyInfo.type === <TKeyType>KeyType.Bls12381G2) {
       return await kms.sign({ keyRef: keyInfo, data: Uint8Array.from(Buffer.from(args.data)) })

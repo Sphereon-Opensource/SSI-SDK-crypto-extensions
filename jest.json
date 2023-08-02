@@ -6,6 +6,11 @@
     "js",
     "jsx"
   ],
+  "extensionsToTreatAsEsm": [
+    ".ts",
+    ".tsx",
+    ".jsx"
+  ],
   "collectCoverage": true,
   "collectCoverageFrom": [
     "packages/**/src/**/*.ts",
@@ -25,9 +30,9 @@
   ],
   "coverageDirectory": "./coverage",
   "transform": {
-    "\\.jsx?$": "babel-jest",
     "\\.tsx?$": ["ts-jest", {
-      "tsconfig": "./packages/tsconfig-base.json"
+      "tsconfig": "./packages/tsconfig-base.json",
+      "useEsm": true
     }]
   },
   "transformIgnorePatterns": [
