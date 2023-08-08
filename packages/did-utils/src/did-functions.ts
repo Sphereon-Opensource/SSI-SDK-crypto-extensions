@@ -268,6 +268,7 @@ export class AgentDIDResolver implements Resolvable {
 
   async resolve(didUrl: string, options?: DIDResolutionOptions): Promise<DIDResolutionResult> {
     let resolutionResult: DIDResolutionResult | undefined
+    let origResolutionResult: DIDResolutionResult | undefined
     let err: any
     if (this.resolverResolution) {
       try {
@@ -276,31 +277,52 @@ export class AgentDIDResolver implements Resolvable {
         err = error
       }
     }
+    if (resolutionResult) {
+      origResolutionResult = resolutionResult
+      if (resolutionResult.didDocument === null) {
+        resolutionResult = undefined
+      }
+    }
     if (!resolutionResult && this.localResolution) {
       try {
         const did = didUrl.split('#')[0]
         const iIdentifier = await this.context.agent.didManagerGet({ did })
         resolutionResult = toDidResolutionResult(iIdentifier, { did })
-        err = undefined
+        if (resolutionResult.didDocument) {
+          err = undefined
+        }
       } catch (error: unknown) {
         if (!err) {
           err = error
         }
       }
     }
+    if (resolutionResult) {
+      if (!origResolutionResult) {
+        origResolutionResult = resolutionResult
+      }
+      if (!resolutionResult.didDocument) {
+        resolutionResult = undefined
+      }
+    }
     if (!resolutionResult && this.uniresolverResolution) {
       resolutionResult = await new UniResolver().resolve(didUrl, options)
-      err = undefined
+      if (!origResolutionResult) {
+        origResolutionResult = resolutionResult
+      }
+      if (resolutionResult.didDocument) {
+        err = undefined
+      }
     }
 
     if (err) {
       // throw original error
       throw err
     }
-    if (!resolutionResult) {
+    if (!resolutionResult && !origResolutionResult) {
       throw `Could not resolve ${didUrl}. Resolutions tried: online: ${this.resolverResolution}, local: ${this.localResolution}, uni resolver: ${this.uniresolverResolution}`
     }
-    return resolutionResult
+    return resolutionResult ?? origResolutionResult!
   }
 }
 
