@@ -30,9 +30,9 @@ export class WebDIDProvider extends AbstractIdentifierProvider {
       opts.push({ type: 'Secp256r1', isController: true })
     }
     const keys = await Promise.all(
-      opts.map((options) => {
-        return importProvidedOrGeneratedKey({ kms: kms ?? this.defaultKms, options }, context)
-      })
+      opts.map((options) =>
+        importProvidedOrGeneratedKey({ kms: kms ?? this.defaultKms, options }, context)
+      )
     )
 
     const controllerIdx = opts.findIndex((opt) => opt.isController)
