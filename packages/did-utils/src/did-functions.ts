@@ -7,7 +7,6 @@ import {
   extractPublicKeyHex,
   isDefined,
   mapIdentifierKeysToDoc,
-  resolveDidOrThrow,
 } from '@veramo/utils'
 import { DIDResolutionOptions, Resolvable, VerificationMethod } from 'did-resolver'
 // @ts-ignore
@@ -18,7 +17,7 @@ import { ENC_KEY_ALGS, hexKeyFromPEMBasedJwk, JwkKeyUse, toJwk } from '@sphereon
 
 export const getFirstKeyWithRelation = async (
   identifier: IIdentifier,
-  context: IAgentContext<IResolver>,
+  context: IAgentContext<IResolver & IDIDManager>,
   vmRelationship?: DIDDocumentSection,
   errorOnNotFound?: boolean
 ): Promise<_ExtendedIKey | undefined> => {
@@ -141,13 +140,21 @@ export function extractPublicKeyHexWithJwkSupport(pk: _ExtendedVerificationMetho
 export async function mapIdentifierKeysToDocWithJwkSupport(
   identifier: IIdentifier,
   section: DIDDocumentSection = 'keyAgreement',
-  context: IAgentContext<IResolver>,
+  context: IAgentContext<IResolver & IDIDManager>,
   didDocument?: DIDDocument
 ): Promise<_ExtendedIKey[]> {
-  const rsaDidWeb = identifier.keys && identifier.keys.length > 0 && identifier.keys[0].type === 'RSA' && didDocument
+  const rsaDidWeb = identifier.keys && identifier.keys.length > 0 && identifier.keys.find((key) => key.type === 'RSA') && didDocument
+
   // We skip mapping in case the identifier is RSA and a did document is supplied.
   const keys = rsaDidWeb ? [] : await mapIdentifierKeysToDoc(identifier, section, context)
-  const didDoc = didDocument ? didDocument : await resolveDidOrThrow(identifier.did, context)
+  const didDoc =
+    didDocument ??
+    (await getAgentResolver(context)
+      .resolve(identifier.did)
+      .then((result) => result.didDocument))
+  if (!didDoc) {
+    throw Error(`Could not resolve DID ${identifier.did}`)
+  }
   // dereference all key agreement keys from DID document and normalize
   const documentKeys: VerificationMethod[] = await dereferenceDidKeysWithJwkSupport(didDoc, section, context)
 
@@ -215,7 +222,7 @@ export function toDIDs(identifiers?: (string | IIdentifier | Partial<IIdentifier
 export async function getKey(
   identifier: IIdentifier,
   verificationMethodSection: DIDDocumentSection = 'authentication',
-  context: IAgentContext<IResolver>,
+  context: IAgentContext<IResolver & IDIDManager>,
   keyId?: string
 ): Promise<IKey> {
   const keys = await mapIdentifierKeysToDocWithJwkSupport(identifier, verificationMethodSection, context)
