@@ -240,32 +240,67 @@ export async function getSupportedDIDMethods(didOpts: IDIDOptions, context: IAge
 }
 
 export function getAgentResolver(
-  context: IAgentContext<IResolver>,
+  context: IAgentContext<IResolver & IDIDManager>,
   opts?: {
-    uniresolverFallback: boolean
+    localResolution?: boolean // Resolve identifiers hosted by the agent
+    uniresolverResolution?: boolean // Resolve identifiers using universal resolver
+    resolverResolution?: boolean // Use registered drivers
   }
 ): Resolvable {
-  return new AgentDIDResolver(context, opts?.uniresolverFallback ?? true)
+  return new AgentDIDResolver(context, opts)
 }
 
 export class AgentDIDResolver implements Resolvable {
-  private readonly context: IAgentContext<IResolver>
-  private readonly uniresolverFallback: boolean
+  private readonly context: IAgentContext<IResolver & IDIDManager>
+  private readonly resolverResolution: boolean
+  private readonly uniresolverResolution: boolean
+  private readonly localResolution: boolean
 
-  constructor(context: IAgentContext<IResolver>, uniresolverFallback?: boolean) {
+  constructor(
+    context: IAgentContext<IResolver & IDIDManager>,
+    opts?: { uniresolverResolution?: boolean; localResolution?: boolean; resolverResolution?: boolean }
+  ) {
     this.context = context
-    this.uniresolverFallback = uniresolverFallback === true
+    this.resolverResolution = opts?.resolverResolution !== false
+    this.uniresolverResolution = opts?.uniresolverResolution !== false
+    this.localResolution = opts?.localResolution !== false
   }
 
   async resolve(didUrl: string, options?: DIDResolutionOptions): Promise<DIDResolutionResult> {
-    try {
-      return await this.context.agent.resolveDid({ didUrl, options })
-    } catch (error: unknown) {
-      if (this.uniresolverFallback) {
-        return await new UniResolver().resolve(didUrl, options)
+    let resolutionResult: DIDResolutionResult | undefined
+    let err: any
+    if (this.resolverResolution) {
+      try {
+        resolutionResult = await this.context.agent.resolveDid({ didUrl, options })
+      } catch (error: unknown) {
+        err = error
       }
-      throw error
     }
+    if (!resolutionResult && this.localResolution) {
+      try {
+        const did = didUrl.split('#')[0]
+        const iIdentifier = await this.context.agent.didManagerGet({ did })
+        resolutionResult = toDidResolutionResult(iIdentifier, { did })
+        err = undefined
+      } catch (error: unknown) {
+        if (!err) {
+          err = error
+        }
+      }
+    }
+    if (!resolutionResult && this.uniresolverResolution) {
+      resolutionResult = await new UniResolver().resolve(didUrl, options)
+      err = undefined
+    }
+
+    if (err) {
+      // throw original error
+      throw err
+    }
+    if (!resolutionResult) {
+      throw `Could not resolve ${didUrl}. Resolutions tried: online: ${this.resolverResolution}, local: ${this.localResolution}, uni resolver: ${this.uniresolverResolution}`
+    }
+    return resolutionResult
   }
 }
 
