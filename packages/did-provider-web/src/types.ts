@@ -10,6 +10,7 @@ export interface IKeyOpts {
 type WithRequiredProperty<Type, Key extends keyof Type> = Type & {
   [Property in Key]-?: Type[Property]
 }
+
 /*export interface IAddKeyArgs {
     identifier: IIdentifier
     key: IKey
@@ -55,6 +56,7 @@ export interface ICreateIdentifierArgs {
   services?: IService[]
   kms?: string
   alias: string
-  options?: IKeyOpts | IKeyOpts[]
+  options?: { keys?: IKeyOpts | IKeyOpts[] }
 }
+
 export type IRequiredContext = IAgentContext<IKeyManager & IDIDManager>

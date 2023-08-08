@@ -24,18 +24,15 @@ export class WebDIDProvider extends AbstractIdentifierProvider {
 
   async createIdentifier(args: ICreateIdentifierArgs, context: IContext): Promise<Omit<IIdentifier, 'provider'>> {
     const { kms, alias } = args
-    const opts = Array.isArray(args.options) ? args.options : args.options ? [args.options] : ([] as IKeyOpts[])
-    if (opts.length === 0) {
+    const opts = args.options ?? {}
+    if (!opts.keys || (Array.isArray(opts.keys) && opts.keys.length === 0)) {
       // Let's generate a key as no import keys or types are provided
-      opts.push({ type: 'Secp256r1', isController: true })
+      opts.keys = [{ type: 'Secp256r1', isController: true }]
     }
-    const keys = await Promise.all(
-      opts.map((options) =>
-        importProvidedOrGeneratedKey({ kms: kms ?? this.defaultKms, options }, context)
-      )
-    )
+    const keyOpts = (typeof opts.keys === 'object') ? [opts.keys as IKeyOpts] : opts.keys
+    const keys = await Promise.all(keyOpts.map((keyOpt) => importProvidedOrGeneratedKey({ kms: kms ?? this.defaultKms, options: keyOpt }, context)))
 
-    const controllerIdx = opts.findIndex((opt) => opt.isController)
+    const controllerIdx = keyOpts.findIndex((opt) => opt.isController)
     const controllerKeyId = controllerIdx < 0 ? keys[0].kid : keys[controllerIdx].kid
     const identifier: Omit<IIdentifier, 'provider'> = {
       did: await asDidWeb(alias),
