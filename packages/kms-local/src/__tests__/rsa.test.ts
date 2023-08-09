@@ -148,7 +148,7 @@ describe('RSA Signer', () => {
       hashAlgorithm: 'SHA-256',
       scheme: 'RSASSA-PKCS1-V1_5',
     })
-    const signature = await signer.sign('test123')
+    const signature = await signer.sign(u8a.fromString('test123', 'utf-8'))
     expect(signature).toBeDefined()
     const result = await signer.verify('test123', signature)
     expect(result).toBeTruthy()

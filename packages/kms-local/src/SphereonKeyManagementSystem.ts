@@ -126,6 +126,25 @@ export class SphereonKeyManagementSystem extends KeyManagementSystem {
     throw Error(`not_supported: Cannot sign using key of type ${privateKey.type}`)
   }
 
+  async verify({
+    publicKeyHex,
+    type,
+    algorithm,
+    data,
+    signature,
+  }: {
+    publicKeyHex: string
+    type: TKeyType
+    algorithm?: string
+    data: Uint8Array
+    signature: string
+  }): Promise<boolean> {
+    if (type === 'RSA') {
+      return await this.verifyRSA(publicKeyHex, data, algorithm ?? 'PS256', signature)
+    }
+    throw Error(`KMS verify is not implemented yet for ${type}`)
+  }
+
   private asSphereonManagedKeyInfo(args: ManagedKeyInfoArgs): ManagedKeyInfo {
     let key: Partial<ManagedKeyInfo>
     switch (args.type) {
@@ -220,5 +239,11 @@ export class SphereonKeyManagementSystem extends KeyManagementSystem {
     const signer = new RSASigner(PEMToJwk(hexToPEM(privateKey.privateKeyHex, 'private'), 'private'), { hashAlgorithm, scheme })
     const signature = await signer.sign(data)
     return signature as string
+  }
+
+  private async verifyRSA(publicKeyHex: string, data: Uint8Array, signingAlgorithm: string, signature: string) {
+    const { hashAlgorithm, scheme } = signAlgorithmToSchemeAndHashAlg(signingAlgorithm)
+    const signer = new RSASigner(PEMToJwk(hexToPEM(publicKeyHex, 'public'), 'public'), { hashAlgorithm, scheme })
+    return await signer.verify(data, signature)
   }
 }
