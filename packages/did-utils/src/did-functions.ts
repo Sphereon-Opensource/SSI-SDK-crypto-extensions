@@ -4,7 +4,10 @@ import {
   _ExtendedIKey,
   _ExtendedVerificationMethod,
   _NormalizedVerificationMethod,
+  compressIdentifierSecp256k1Keys,
+  convertIdentifierEncryptionKeys,
   extractPublicKeyHex,
+  getEthereumAddress,
   isDefined,
   mapIdentifierKeysToDoc,
 } from '@veramo/utils'
@@ -13,6 +16,7 @@ import { DIDResolutionOptions, Resolvable, VerificationMethod } from 'did-resolv
 import elliptic from 'elliptic'
 import * as u8a from 'uint8arrays'
 import { IDIDOptions, IIdentifierOpts } from './types'
+import { computeAddress } from '@ethersproject/transactions'
 import { ENC_KEY_ALGS, hexKeyFromPEMBasedJwk, JwkKeyUse, toJwk } from '@sphereon/ssi-sdk-ext.key-utils'
 
 export const getFirstKeyWithRelation = async (
@@ -143,10 +147,6 @@ export async function mapIdentifierKeysToDocWithJwkSupport(
   context: IAgentContext<IResolver & IDIDManager>,
   didDocument?: DIDDocument
 ): Promise<_ExtendedIKey[]> {
-  const rsaDidWeb = identifier.keys && identifier.keys.length > 0 && identifier.keys.find((key) => key.type === 'RSA') && didDocument
-
-  // We skip mapping in case the identifier is RSA and a did document is supplied.
-  const keys = rsaDidWeb ? [] : await mapIdentifierKeysToDoc(identifier, section, context)
   const didDoc =
     didDocument ??
     (await getAgentResolver(context)
@@ -155,18 +155,28 @@ export async function mapIdentifierKeysToDocWithJwkSupport(
   if (!didDoc) {
     throw Error(`Could not resolve DID ${identifier.did}`)
   }
+
+  // const rsaDidWeb = identifier.keys && identifier.keys.length > 0 && identifier.keys.find((key) => key.type === 'RSA') && didDocument
+
+  // We skip mapping in case the identifier is RSA and a did document is supplied.
+  const keys = didDoc ? [] : await mapIdentifierKeysToDoc(identifier, section, context)
+
   // dereference all key agreement keys from DID document and normalize
   const documentKeys: VerificationMethod[] = await dereferenceDidKeysWithJwkSupport(didDoc, section, context)
 
-  const localKeys = identifier.keys.filter(isDefined)
+  const localKeys = section === 'keyAgreement' ? convertIdentifierEncryptionKeys(identifier) : compressIdentifierSecp256k1Keys(identifier)
+
   // finally map the didDocument keys to the identifier keys by comparing `publicKeyHex`
   const extendedKeys: _ExtendedIKey[] = documentKeys
     .map((verificationMethod) => {
       /*if (verificationMethod.type !== 'JsonWebKey2020') {
-                          return null
-                        }*/
+                                return null
+                              }*/
       const localKey = localKeys.find(
-        (localKey) => localKey.publicKeyHex === verificationMethod.publicKeyHex || verificationMethod.publicKeyHex?.startsWith(localKey.publicKeyHex)
+        (localKey) =>
+          localKey.publicKeyHex === verificationMethod.publicKeyHex ||
+          verificationMethod.publicKeyHex?.startsWith(localKey.publicKeyHex) ||
+          compareBlockchainAccountId(localKey, verificationMethod)
       )
       if (localKey) {
         const { meta, ...localProps } = localKey
@@ -178,6 +188,33 @@ export async function mapIdentifierKeysToDocWithJwkSupport(
     .filter(isDefined)
 
   return keys.concat(extendedKeys)
+}
+
+/**
+ * Compares the `blockchainAccountId` of a `EcdsaSecp256k1RecoveryMethod2020` verification method with the address
+ * computed from a locally managed key.
+ *
+ * @returns true if the local key address corresponds to the `blockchainAccountId`
+ *
+ * @param localKey - The locally managed key
+ * @param verificationMethod - a {@link did-resolver#VerificationMethod | VerificationMethod} with a
+ *   `blockchainAccountId`
+ *
+ * @beta This API may change without a BREAKING CHANGE notice.
+ */
+function compareBlockchainAccountId(localKey: IKey, verificationMethod: VerificationMethod): boolean {
+  if (
+    (verificationMethod.type !== 'EcdsaSecp256k1RecoveryMethod2020' && verificationMethod.type !== 'EcdsaSecp256k1VerificationKey2019') ||
+    localKey.type !== 'Secp256k1'
+  ) {
+    return false
+  }
+  let vmEthAddr = getEthereumAddress(verificationMethod)
+  if (localKey.meta?.account) {
+    return vmEthAddr === localKey.meta?.account.toLowerCase()
+  }
+  const computedAddr = computeAddress('0x' + localKey.publicKeyHex).toLowerCase()
+  return computedAddr === vmEthAddr
 }
 
 export async function getAgentDIDMethods(context: IAgentContext<IDIDManager>) {

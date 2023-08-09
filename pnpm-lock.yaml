@@ -446,6 +446,9 @@ importers:
 
   packages/did-utils:
     dependencies:
+      '@ethersproject/transactions':
+        specifier: ^5.7.0
+        version: 5.7.0
       '@sphereon/did-uni-client':
         specifier: ^0.6.0
         version: 0.6.0
