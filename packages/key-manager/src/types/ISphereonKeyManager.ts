@@ -13,7 +13,7 @@ export interface ISphereonKeyManager extends IPluginMethodMap {
 
   keyManagerImport(key: MinimalImportableKey): Promise<PartialKey>
 
-  keyManagerSign(args: IKeyManagerSignArgs): Promise<string>
+  keyManagerSign(args: ISphereonKeyManagerSignArgs): Promise<string>
 
   keyManagerVerify(args: ISphereonKeyManagerVerifyArgs): Promise<boolean>
 }
@@ -62,7 +62,7 @@ export interface IKeyManagerDeleteArgs {
 }
 
 /**
- * Input arguments for {@link ISphereonKeyManager.keyManagerSign | keyManagerSign}
+ * Input arguments for {@link ISphereonKeyManagerSignArgs.keyManagerSign | keyManagerSign}
  * @public
  */
 // @ts-ignore
