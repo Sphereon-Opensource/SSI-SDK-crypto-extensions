@@ -119,7 +119,7 @@ export class SphereonKeyManagementSystem extends KeyManagementSystem {
       privateKey.type === 'RSA' &&
       (typeof algorithm === 'undefined' || algorithm === 'RS256' || algorithm === 'RS512' || algorithm === 'PS256' || algorithm === 'PS512')
     ) {
-      return await this.signRSA(privateKey.privateKeyHex, data, algorithm ?? 'PS256')
+      return await this.signRSA(privateKey, data, algorithm ?? 'PS256')
     } else {
       return await super.sign({ keyRef, algorithm, data })
     }
@@ -215,9 +215,9 @@ export class SphereonKeyManagementSystem extends KeyManagementSystem {
   /**
    * @returns a base64url encoded signature for the `RS256` alg
    */
-  private async signRSA(privateKeyHex: string, data: Uint8Array, signingAlgorithm: string): Promise<string> {
+  private async signRSA(privateKey: ManagedPrivateKey, data: Uint8Array, signingAlgorithm: string): Promise<string> {
     const { hashAlgorithm, scheme } = signAlgorithmToSchemeAndHashAlg(signingAlgorithm)
-    const signer = new RSASigner(PEMToJwk(hexToPEM(privateKeyHex, 'private'), 'private'), { hashAlgorithm, scheme })
+    const signer = new RSASigner(PEMToJwk(hexToPEM(privateKey.privateKeyHex, 'private'), 'private'), { hashAlgorithm, scheme })
     const signature = await signer.sign(data)
     return signature as string
   }

@@ -28,6 +28,6 @@ export class SphereonKeyManager extends KeyManager {
     if (keyInfo.type === <TKeyType>KeyType.Bls12381G2) {
       return await kms.sign({ keyRef: keyInfo, data: Uint8Array.from(Buffer.from(args.data)) })
     }
-    return await super.keyManagerSign({ keyRef: args.keyRef, data: args.data })
+    return await super.keyManagerSign(args)
   }
 }
