@@ -4,21 +4,24 @@ import {
   _ExtendedIKey,
   _ExtendedVerificationMethod,
   _NormalizedVerificationMethod,
+  compressIdentifierSecp256k1Keys,
+  convertIdentifierEncryptionKeys,
   extractPublicKeyHex,
+  getEthereumAddress,
   isDefined,
   mapIdentifierKeysToDoc,
-  resolveDidOrThrow,
 } from '@veramo/utils'
 import { DIDResolutionOptions, Resolvable, VerificationMethod } from 'did-resolver'
 // @ts-ignore
 import elliptic from 'elliptic'
 import * as u8a from 'uint8arrays'
 import { IDIDOptions, IIdentifierOpts } from './types'
+import { computeAddress } from '@ethersproject/transactions'
 import { ENC_KEY_ALGS, hexKeyFromPEMBasedJwk, JwkKeyUse, toJwk } from '@sphereon/ssi-sdk-ext.key-utils'
 
 export const getFirstKeyWithRelation = async (
   identifier: IIdentifier,
-  context: IAgentContext<IResolver>,
+  context: IAgentContext<IResolver & IDIDManager>,
   vmRelationship?: DIDDocumentSection,
   errorOnNotFound?: boolean
 ): Promise<_ExtendedIKey | undefined> => {
@@ -141,25 +144,39 @@ export function extractPublicKeyHexWithJwkSupport(pk: _ExtendedVerificationMetho
 export async function mapIdentifierKeysToDocWithJwkSupport(
   identifier: IIdentifier,
   section: DIDDocumentSection = 'keyAgreement',
-  context: IAgentContext<IResolver>,
+  context: IAgentContext<IResolver & IDIDManager>,
   didDocument?: DIDDocument
 ): Promise<_ExtendedIKey[]> {
-  const rsaDidWeb = identifier.keys && identifier.keys.length > 0 && identifier.keys[0].type === 'RSA' && didDocument
+  const didDoc =
+    didDocument ??
+    (await getAgentResolver(context)
+      .resolve(identifier.did)
+      .then((result) => result.didDocument))
+  if (!didDoc) {
+    throw Error(`Could not resolve DID ${identifier.did}`)
+  }
+
+  // const rsaDidWeb = identifier.keys && identifier.keys.length > 0 && identifier.keys.find((key) => key.type === 'RSA') && didDocument
+
   // We skip mapping in case the identifier is RSA and a did document is supplied.
-  const keys = rsaDidWeb ? [] : await mapIdentifierKeysToDoc(identifier, section, context)
-  const didDoc = didDocument ? didDocument : await resolveDidOrThrow(identifier.did, context)
+  const keys = didDoc ? [] : await mapIdentifierKeysToDoc(identifier, section, context)
+
   // dereference all key agreement keys from DID document and normalize
   const documentKeys: VerificationMethod[] = await dereferenceDidKeysWithJwkSupport(didDoc, section, context)
 
-  const localKeys = identifier.keys.filter(isDefined)
+  const localKeys = section === 'keyAgreement' ? convertIdentifierEncryptionKeys(identifier) : compressIdentifierSecp256k1Keys(identifier)
+
   // finally map the didDocument keys to the identifier keys by comparing `publicKeyHex`
   const extendedKeys: _ExtendedIKey[] = documentKeys
     .map((verificationMethod) => {
       /*if (verificationMethod.type !== 'JsonWebKey2020') {
-                          return null
-                        }*/
+                                return null
+                              }*/
       const localKey = localKeys.find(
-        (localKey) => localKey.publicKeyHex === verificationMethod.publicKeyHex || verificationMethod.publicKeyHex?.startsWith(localKey.publicKeyHex)
+        (localKey) =>
+          localKey.publicKeyHex === verificationMethod.publicKeyHex ||
+          verificationMethod.publicKeyHex?.startsWith(localKey.publicKeyHex) ||
+          compareBlockchainAccountId(localKey, verificationMethod)
       )
       if (localKey) {
         const { meta, ...localProps } = localKey
@@ -171,6 +188,33 @@ export async function mapIdentifierKeysToDocWithJwkSupport(
     .filter(isDefined)
 
   return keys.concat(extendedKeys)
+}
+
+/**
+ * Compares the `blockchainAccountId` of a `EcdsaSecp256k1RecoveryMethod2020` verification method with the address
+ * computed from a locally managed key.
+ *
+ * @returns true if the local key address corresponds to the `blockchainAccountId`
+ *
+ * @param localKey - The locally managed key
+ * @param verificationMethod - a {@link did-resolver#VerificationMethod | VerificationMethod} with a
+ *   `blockchainAccountId`
+ *
+ * @beta This API may change without a BREAKING CHANGE notice.
+ */
+function compareBlockchainAccountId(localKey: IKey, verificationMethod: VerificationMethod): boolean {
+  if (
+    (verificationMethod.type !== 'EcdsaSecp256k1RecoveryMethod2020' && verificationMethod.type !== 'EcdsaSecp256k1VerificationKey2019') ||
+    localKey.type !== 'Secp256k1'
+  ) {
+    return false
+  }
+  let vmEthAddr = getEthereumAddress(verificationMethod)
+  if (localKey.meta?.account) {
+    return vmEthAddr === localKey.meta?.account.toLowerCase()
+  }
+  const computedAddr = computeAddress('0x' + localKey.publicKeyHex).toLowerCase()
+  return computedAddr === vmEthAddr
 }
 
 export async function getAgentDIDMethods(context: IAgentContext<IDIDManager>) {
@@ -215,7 +259,7 @@ export function toDIDs(identifiers?: (string | IIdentifier | Partial<IIdentifier
 export async function getKey(
   identifier: IIdentifier,
   verificationMethodSection: DIDDocumentSection = 'authentication',
-  context: IAgentContext<IResolver>,
+  context: IAgentContext<IResolver & IDIDManager>,
   keyId?: string
 ): Promise<IKey> {
   const keys = await mapIdentifierKeysToDocWithJwkSupport(identifier, verificationMethodSection, context)
@@ -240,32 +284,89 @@ export async function getSupportedDIDMethods(didOpts: IDIDOptions, context: IAge
 }
 
 export function getAgentResolver(
-  context: IAgentContext<IResolver>,
+  context: IAgentContext<IResolver & IDIDManager>,
   opts?: {
-    uniresolverFallback: boolean
+    localResolution?: boolean // Resolve identifiers hosted by the agent
+    uniresolverResolution?: boolean // Resolve identifiers using universal resolver
+    resolverResolution?: boolean // Use registered drivers
   }
 ): Resolvable {
-  return new AgentDIDResolver(context, opts?.uniresolverFallback ?? true)
+  return new AgentDIDResolver(context, opts)
 }
 
 export class AgentDIDResolver implements Resolvable {
-  private readonly context: IAgentContext<IResolver>
-  private readonly uniresolverFallback: boolean
+  private readonly context: IAgentContext<IResolver & IDIDManager>
+  private readonly resolverResolution: boolean
+  private readonly uniresolverResolution: boolean
+  private readonly localResolution: boolean
 
-  constructor(context: IAgentContext<IResolver>, uniresolverFallback?: boolean) {
+  constructor(
+    context: IAgentContext<IResolver & IDIDManager>,
+    opts?: { uniresolverResolution?: boolean; localResolution?: boolean; resolverResolution?: boolean }
+  ) {
     this.context = context
-    this.uniresolverFallback = uniresolverFallback === true
+    this.resolverResolution = opts?.resolverResolution !== false
+    this.uniresolverResolution = opts?.uniresolverResolution !== false
+    this.localResolution = opts?.localResolution !== false
   }
 
   async resolve(didUrl: string, options?: DIDResolutionOptions): Promise<DIDResolutionResult> {
-    try {
-      return await this.context.agent.resolveDid({ didUrl, options })
-    } catch (error: unknown) {
-      if (this.uniresolverFallback) {
-        return await new UniResolver().resolve(didUrl, options)
+    let resolutionResult: DIDResolutionResult | undefined
+    let origResolutionResult: DIDResolutionResult | undefined
+    let err: any
+    if (this.resolverResolution) {
+      try {
+        resolutionResult = await this.context.agent.resolveDid({ didUrl, options })
+      } catch (error: unknown) {
+        err = error
       }
-      throw error
     }
+    if (resolutionResult) {
+      origResolutionResult = resolutionResult
+      if (resolutionResult.didDocument === null) {
+        resolutionResult = undefined
+      }
+    }
+    if (!resolutionResult && this.localResolution) {
+      try {
+        const did = didUrl.split('#')[0]
+        const iIdentifier = await this.context.agent.didManagerGet({ did })
+        resolutionResult = toDidResolutionResult(iIdentifier, { did })
+        if (resolutionResult.didDocument) {
+          err = undefined
+        }
+      } catch (error: unknown) {
+        if (!err) {
+          err = error
+        }
+      }
+    }
+    if (resolutionResult) {
+      if (!origResolutionResult) {
+        origResolutionResult = resolutionResult
+      }
+      if (!resolutionResult.didDocument) {
+        resolutionResult = undefined
+      }
+    }
+    if (!resolutionResult && this.uniresolverResolution) {
+      resolutionResult = await new UniResolver().resolve(didUrl, options)
+      if (!origResolutionResult) {
+        origResolutionResult = resolutionResult
+      }
+      if (resolutionResult.didDocument) {
+        err = undefined
+      }
+    }
+
+    if (err) {
+      // throw original error
+      throw err
+    }
+    if (!resolutionResult && !origResolutionResult) {
+      throw `Could not resolve ${didUrl}. Resolutions tried: online: ${this.resolverResolution}, local: ${this.localResolution}, uni resolver: ${this.uniresolverResolution}`
+    }
+    return resolutionResult ?? origResolutionResult!
   }
 }
 

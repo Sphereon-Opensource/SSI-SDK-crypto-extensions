@@ -1,15 +1,20 @@
+import { X509Opts } from '@sphereon/ssi-sdk-ext.key-utils'
 import { IAgentContext, IDIDManager, IKeyManager, IService, MinimalImportableKey, TKeyType } from '@veramo/core'
 
 export interface IKeyOpts {
-  keys?: WithRequiredProperty<Partial<MinimalImportableKey>, 'privateKeyHex'>[] // Optional key to import with only privateKeyHex mandatory. If not specified a key with random kid will be created
+  key?: Partial<MinimalImportableKey> // Optional key to import with only privateKeyHex mandatory. If not specified a key with random kid will be created
+  x509?: X509Opts
   type?: TKeyType | 'RSA' // The key type. Defaults to Secp256k1
   isController?: boolean // Whether this is a controller key for a DID document. Please note that only one key can be a controller key. If multiple are supplied, the first one will be used!
 }
 
+/*
 // Needed to make a single property required
 type WithRequiredProperty<Type, Key extends keyof Type> = Type & {
   [Property in Key]-?: Type[Property]
 }
+*/
+
 /*export interface IAddKeyArgs {
     identifier: IIdentifier
     key: IKey
@@ -55,6 +60,7 @@ export interface ICreateIdentifierArgs {
   services?: IService[]
   kms?: string
   alias: string
-  options?: IKeyOpts | IKeyOpts[]
+  options?: { keys?: IKeyOpts | IKeyOpts[] }
 }
+
 export type IRequiredContext = IAgentContext<IKeyManager & IDIDManager>

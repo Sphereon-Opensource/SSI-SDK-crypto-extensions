@@ -5,15 +5,10 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 # [0.13.0](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/compare/v0.12.1...v0.13.0) (2023-07-30)
 
-
 ### Features
 
-* Add DID web provider, with RSA and multi key import support ([8335fbe](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/8335fbe16e4a7740a11e225c99afb516c305d27f))
-* Allow to define controller key when importing keys for a did:web ([89b4916](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/89b4916d5496decd38e91c7962f9045d835393a8))
-
-
-
-
+- Add DID web provider, with RSA and multi key import support ([8335fbe](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/8335fbe16e4a7740a11e225c99afb516c305d27f))
+- Allow to define controller key when importing keys for a did:web ([89b4916](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/89b4916d5496decd38e91c7962f9045d835393a8))
 
 ## [5.1.2](https://github.com/uport-project/veramo/compare/v5.1.1...v5.1.2) (2023-02-25)
 

@@ -1,15 +1,21 @@
-import { IPluginMethodMap, IKey, KeyMetadata, MinimalImportableKey, TKeyType } from '@veramo/core'
+import { IPluginMethodMap, IKey, KeyMetadata, MinimalImportableKey, TKeyType, IKeyManagerSignArgs } from '@veramo/core'
 
 export type PartialKey = Partial<IKey>
 
 export interface ISphereonKeyManager extends IPluginMethodMap {
   keyManagerCreate(args: IKeyManagerCreateArgs): Promise<PartialKey>
+
   keyManagerGetKeyManagementSystems(): Promise<Array<string>>
+
   keyManagerGet({ kid }: IKeyManagerGetArgs): Promise<IKey>
+
   keyManagerDelete({ kid }: IKeyManagerDeleteArgs): Promise<boolean>
+
   keyManagerImport(key: MinimalImportableKey): Promise<PartialKey>
-  keyManagerSign(args: IKeyManagerSignArgs): Promise<string>
-  keyManagerVerify(args: IKeyManagerVerifyArgs): Promise<boolean>
+
+  keyManagerSign(args: ISphereonKeyManagerSignArgs): Promise<string>
+
+  keyManagerVerify(args: ISphereonKeyManagerVerifyArgs): Promise<boolean>
 }
 
 /**
@@ -56,24 +62,22 @@ export interface IKeyManagerDeleteArgs {
 }
 
 /**
- * Input arguments for {@link ISphereonKeyManager.keyManagerSign | keyManagerSign}
+ * Input arguments for {@link ISphereonKeyManagerSignArgs.keyManagerSign | keyManagerSign}
  * @public
  */
-export interface IKeyManagerSignArgs {
-  /**
-   * The key handle, as returned during `keyManagerCreateKey`
-   */
-  keyRef: string
-
+// @ts-ignore
+export interface ISphereonKeyManagerSignArgs extends IKeyManagerSignArgs {
   /**
    * Data to sign
    */
-  data: Uint8Array[]
+  data: string | Uint8Array
 }
 
-export interface IKeyManagerVerifyArgs {
+export interface ISphereonKeyManagerVerifyArgs {
   kms: string
-  publicKey: Uint8Array
-  messages: Uint8Array[]
-  signature: Uint8Array
+  publicKeyHex: string
+  type: TKeyType
+  algorithm?: string
+  data: Uint8Array
+  signature: string
 }

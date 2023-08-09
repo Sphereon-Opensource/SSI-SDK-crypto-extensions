@@ -5,15 +5,10 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 # [0.13.0](https://github.com/Sphereon-Opensource/SSI-SDK/compare/v0.12.1...v0.13.0) (2023-07-30)
 
-
 ### Features
 
-* Add agent resolver method ([3c7b21e](https://github.com/Sphereon-Opensource/SSI-SDK/commit/3c7b21e13538fac64581c0c73d0450ef6e9b56f0))
-* Add DID web provider, with RSA and multi key import support ([8335fbe](https://github.com/Sphereon-Opensource/SSI-SDK/commit/8335fbe16e4a7740a11e225c99afb516c305d27f))
-
-
-
-
+- Add agent resolver method ([3c7b21e](https://github.com/Sphereon-Opensource/SSI-SDK/commit/3c7b21e13538fac64581c0c73d0450ef6e9b56f0))
+- Add DID web provider, with RSA and multi key import support ([8335fbe](https://github.com/Sphereon-Opensource/SSI-SDK/commit/8335fbe16e4a7740a11e225c99afb516c305d27f))
 
 ## [0.12.1](https://github.com/Sphereon-Opensource/SSI-SDK/compare/v0.12.0...v0.12.1) (2023-06-24)
 

@@ -119,11 +119,30 @@ export class SphereonKeyManagementSystem extends KeyManagementSystem {
       privateKey.type === 'RSA' &&
       (typeof algorithm === 'undefined' || algorithm === 'RS256' || algorithm === 'RS512' || algorithm === 'PS256' || algorithm === 'PS512')
     ) {
-      return await this.signRSA(privateKey.privateKeyHex, data, algorithm ?? 'PS256')
+      return await this.signRSA(privateKey, data, algorithm ?? 'PS256')
     } else {
       return await super.sign({ keyRef, algorithm, data })
     }
     throw Error(`not_supported: Cannot sign using key of type ${privateKey.type}`)
+  }
+
+  async verify({
+    publicKeyHex,
+    type,
+    algorithm,
+    data,
+    signature,
+  }: {
+    publicKeyHex: string
+    type: TKeyType
+    algorithm?: string
+    data: Uint8Array
+    signature: string
+  }): Promise<boolean> {
+    if (type === 'RSA') {
+      return await this.verifyRSA(publicKeyHex, data, algorithm ?? 'PS256', signature)
+    }
+    throw Error(`KMS verify is not implemented yet for ${type}`)
   }
 
   private asSphereonManagedKeyInfo(args: ManagedKeyInfoArgs): ManagedKeyInfo {
@@ -215,10 +234,16 @@ export class SphereonKeyManagementSystem extends KeyManagementSystem {
   /**
    * @returns a base64url encoded signature for the `RS256` alg
    */
-  private async signRSA(privateKeyHex: string, data: Uint8Array, signingAlgorithm: string): Promise<string> {
+  private async signRSA(privateKey: ManagedPrivateKey, data: Uint8Array, signingAlgorithm: string): Promise<string> {
     const { hashAlgorithm, scheme } = signAlgorithmToSchemeAndHashAlg(signingAlgorithm)
-    const signer = new RSASigner(PEMToJwk(hexToPEM(privateKeyHex, 'private'), 'private'), { hashAlgorithm, scheme })
+    const signer = new RSASigner(PEMToJwk(hexToPEM(privateKey.privateKeyHex, 'private'), 'private'), { hashAlgorithm, scheme })
     const signature = await signer.sign(data)
     return signature as string
+  }
+
+  private async verifyRSA(publicKeyHex: string, data: Uint8Array, signingAlgorithm: string, signature: string) {
+    const { hashAlgorithm, scheme } = signAlgorithmToSchemeAndHashAlg(signingAlgorithm)
+    const signer = new RSASigner(PEMToJwk(hexToPEM(publicKeyHex, 'public'), 'public'), { hashAlgorithm, scheme })
+    return await signer.verify(data, signature)
   }
 }

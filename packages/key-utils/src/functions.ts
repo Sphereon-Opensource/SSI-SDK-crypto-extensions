@@ -51,12 +51,12 @@ export async function importProvidedOrGeneratedKey(
   const type = args.options?.type ?? args.options?.key?.type ?? args.options?.keyType ?? 'Secp256r1'
   const key = args?.options?.key
   // Make sure x509 options are also set on the metadata as that is what the kms will look for
-  if (args.options?.x509 && key && !key?.meta?.x509) {
+  if (args.options?.x509 && key) {
     key.meta = {
       ...key.meta,
       x509: {
-        ...key.meta?.x509,
         ...args.options.x509,
+        ...key.meta?.x509,
       },
     }
   }
@@ -68,6 +68,10 @@ export async function importProvidedOrGeneratedKey(
   let privateKeyHex: string
   if (key) {
     privateKeyHex = key.privateKeyHex ?? key.meta?.x509?.privateKeyHex
+    if ((!privateKeyHex || privateKeyHex.trim() === '') && key?.meta?.x509?.privateKeyPEM) {
+      // If we do not have a privateKeyHex but do have a PEM
+      privateKeyHex = privateKeyHexFromPEM(key.meta.x509.privateKeyPEM)
+    }
     if (!privateKeyHex && !key.meta?.x509?.privateKeyPEM) {
       throw new Error(`We need to have a private key in Hex or PEM when importing a key`)
     }
