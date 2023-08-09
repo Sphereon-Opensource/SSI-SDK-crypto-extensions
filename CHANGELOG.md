@@ -3,6 +3,30 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.14.0](https://github.com/Sphereon-Opensource/veramo-BBS/compare/v0.13.0...v0.14.0) (2023-08-09)
+
+
+### Bug Fixes
+
+* Allow also for local did resolution ([0f92566](https://github.com/Sphereon-Opensource/veramo-BBS/commit/0f92566758eab0fe7edbf3ac8f04c32f6d9fdbb7))
+* Allow also for local did resolution ([a678459](https://github.com/Sphereon-Opensource/veramo-BBS/commit/a678459a74b6b8a39f5b2229e790ca06a346d93e))
+* Allow also for local did resolution ([91def9c](https://github.com/Sphereon-Opensource/veramo-BBS/commit/91def9c446849521f5e9da5beb07bab6871501d1))
+* RSA import fixes ([1e78d70](https://github.com/Sphereon-Opensource/veramo-BBS/commit/1e78d70679ce8a70d82d2b7320c6f7489ff1a870))
+* RSA import fixes ([77704a2](https://github.com/Sphereon-Opensource/veramo-BBS/commit/77704a2064e1c1d3ffc23e580ddbb36063fc70ae))
+* RSA import fixes ([52c560b](https://github.com/Sphereon-Opensource/veramo-BBS/commit/52c560b4d4fef999554ec00130cf7136dc2db1c6))
+* update varint import ([c35849c](https://github.com/Sphereon-Opensource/veramo-BBS/commit/c35849cbca0d12aaa9da1e12979823072a023061))
+
+
+### Features
+
+* Add verification functions to KMS (only RSA for now) ([a555f11](https://github.com/Sphereon-Opensource/veramo-BBS/commit/a555f115901f325fbee26be5aeda23f808b48a1d))
+* Add verification functions to KMS (only RSA for now) ([8f58f23](https://github.com/Sphereon-Opensource/veramo-BBS/commit/8f58f2308bc0dd612d1bb47b5ae05e8b67cf2efb))
+* Do not resolve DIDs when a DID doc is provided already when matching local keys ([b5b7f76](https://github.com/Sphereon-Opensource/veramo-BBS/commit/b5b7f76496e328e264aa38f351f5a64c4ca03dba))
+
+
+
+
+
 # [0.13.0](https://github.com/Sphereon-Opensource/veramo-BBS/compare/v0.12.1...v0.13.0) (2023-07-30)
 
 
