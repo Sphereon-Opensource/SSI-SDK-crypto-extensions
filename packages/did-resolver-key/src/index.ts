@@ -1,4 +1,4 @@
-import varint from 'varint'
+import {decode} from 'varint'
 import { base58btc } from 'multiformats/bases/base58'
 import ed25519 from './drivers/ed25519'
 import bls12381g2 from './drivers/bls12381g2'
@@ -33,8 +33,8 @@ export const getResolver = (): ResolverRegistry => {
       }
       try {
         const multicodecPubKey = base58btc.decode(parsed.id)
-        const keyType = varint.decode(multicodecPubKey)
-        const pubKeyBytes = multicodecPubKey.slice(varint.decode.bytes)
+        const keyType = decode(multicodecPubKey)
+        const pubKeyBytes = multicodecPubKey.slice(decode.bytes)
         const args: KeyToDidDocArgs = { pubKeyBytes, fingerprint: parsed.id, contentType, options }
         const doc = await prefixToDriverMap[keyType].keyToDidDoc(args)
         if (contentType === DID_LD_JSON) {
