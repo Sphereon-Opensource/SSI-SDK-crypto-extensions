@@ -1,5 +1,5 @@
 import { IPluginMethodMap, KeyMetadata, MinimalImportableKey, TKeyType, IKeyManagerSignArgs, IKeyManager } from '@veramo/core'
-import { ManagedKeyInfo } from '@veramo/core/src/types/IKeyManager'
+import { ManagedKeyInfo } from '@veramo/core'
 
 export type PartialKey = ManagedKeyInfo & { privateKeyHex: string }
 

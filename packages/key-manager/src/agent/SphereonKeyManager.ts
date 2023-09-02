@@ -1,10 +1,10 @@
-import { KeyManager, AbstractKeyManagementSystem, AbstractKeyStore } from '@veramo/key-manager'
+import { KeyManager as VeramoKeyManager, AbstractKeyManagementSystem, AbstractKeyStore } from '@veramo/key-manager'
 
 import { IKey, TKeyType } from '@veramo/core'
 import { KeyType, SphereonKeyManagementSystem } from '@sphereon/ssi-sdk-ext.kms-local'
 import { ISphereonKeyManager, ISphereonKeyManagerSignArgs, ISphereonKeyManagerVerifyArgs } from '../types/ISphereonKeyManager'
 
-export class SphereonKeyManager extends KeyManager {
+export class SphereonKeyManager extends VeramoKeyManager {
   private localStore: AbstractKeyStore
   private readonly localKms: Record<string, AbstractKeyManagementSystem>
   readonly localMethods: ISphereonKeyManager

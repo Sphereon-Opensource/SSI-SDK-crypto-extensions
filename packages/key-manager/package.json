@@ -12,7 +12,7 @@
   },
   "scripts": {
     "build": "tsc --build",
-    "generate-plugin-schema": "pnpm veramo dev generate-plugin-schema"
+    "generate-plugin-schema": "sphereon dev generate-plugin-schema"
   },
   "dependencies": {
     "@mattrglobal/bbs-signatures": "^1.1.0",
@@ -21,7 +21,7 @@
     "@veramo/key-manager": "4.2.0"
   },
   "devDependencies": {
-    "@veramo/cli": "4.2.0"
+    "@sphereon/ssi-sdk.dev": "^0.15.1"
   },
   "resolutions": {
     "jsonld": "npm:@digitalcredentials/jsonld@^5.2.1",

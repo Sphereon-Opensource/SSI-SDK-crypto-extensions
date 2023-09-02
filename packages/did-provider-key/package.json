@@ -7,7 +7,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "extract-api": "pnpm veramo dev extract-api"
+    "extract-api": "sphereon dev extract-api"
   },
   "dependencies": {
     "@sphereon/ssi-sdk-ext.did-resolver-key": "workspace:^",
@@ -22,7 +22,7 @@
     "multicodec": "^3.2.1"
   },
   "devDependencies": {
-    "@veramo/cli": "4.2.0"
+    "@sphereon/ssi-sdk.dev": "^0.15.1"
   },
   "resolutions": {
     "jsonld": "npm:@digitalcredentials/jsonld@^5.2.1",

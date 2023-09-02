@@ -187,6 +187,9 @@ importers:
       '@sphereon/ssi-sdk-ext.kms-local':
         specifier: workspace:^
         version: link:../kms-local
+      '@sphereon/ssi-sdk.dev':
+        specifier: ^0.15.1
+        version: 0.15.1(@types/node@18.15.11)
       '@veramo/cli':
         specifier: 4.2.0
         version: 4.2.0(@types/node@18.15.11)(ts-node@10.9.1)
@@ -285,9 +288,9 @@ importers:
         specifier: ^3.2.1
         version: 3.2.1
     devDependencies:
-      '@veramo/cli':
-        specifier: 4.2.0
-        version: 4.2.0(@types/node@18.15.11)(ts-node@10.9.1)
+      '@sphereon/ssi-sdk.dev':
+        specifier: ^0.15.1
+        version: 0.15.1(@types/node@18.15.11)
 
   packages/did-provider-lto:
     dependencies:
@@ -498,9 +501,9 @@ importers:
         specifier: 4.2.0
         version: 4.2.0
     devDependencies:
-      '@veramo/cli':
-        specifier: 4.2.0
-        version: 4.2.0(@types/node@18.15.11)(ts-node@10.9.1)
+      '@sphereon/ssi-sdk.dev':
+        specifier: ^0.15.1
+        version: 0.15.1(@types/node@18.15.11)
 
   packages/key-utils:
     dependencies:
@@ -590,6 +593,9 @@ importers:
       '@sphereon/jsencrypt':
         specifier: ^3.3.2-unstable.0
         version: 3.3.2-unstable.0
+      '@sphereon/ssi-sdk.dev':
+        specifier: ^0.15.1
+        version: 0.15.1(@types/node@18.15.11)
       '@types/elliptic':
         specifier: 6.4.14
         version: 6.4.14
@@ -627,6 +633,9 @@ importers:
         specifier: 0.3.12
         version: 0.3.12(pg@8.11.2)(sqlite3@5.1.6)(ts-node@10.9.1)
     devDependencies:
+      '@sphereon/ssi-sdk.dev':
+        specifier: ^0.15.1
+        version: 0.15.1(@types/node@18.15.11)
       '@types/bip39':
         specifier: ^3.0.0
         version: 3.0.0
@@ -3059,7 +3068,7 @@ packages:
     resolution: {integrity: sha512-yUCDCcRNNbI9UUsUB6FYEmDHpo5Tn/f0q5D7vhDP4i6Or8kBj82y7+e31hwfLvK2ykOYlDVs2MxAluH/+QUBOQ==}
     engines: {node: ^14.15.0 || >=16.0.0}
     dependencies:
-      chalk: 4.1.0
+      chalk: 4.1.2
       execa: 5.0.0
       strong-log-transformer: 2.1.0
     dev: true
@@ -3157,6 +3166,11 @@ packages:
       - encoding
       - nx
       - supports-color
+    dev: true
+
+  /@ljharb/through@2.3.9:
+    resolution: {integrity: sha512-yN599ZBuMPPK4tdoToLlvgJB4CLK8fGl7ntfy0Wn7U6ttNvHYurd81bfUiK/6sMkiIwm65R6ck4L6+Y3DfVbNQ==}
+    engines: {node: '>= 0.4'}
     dev: true
 
   /@lto-network/lto-crypto@1.1.1:
@@ -4508,6 +4522,28 @@ packages:
       - encoding
       - supports-color
     dev: false
+
+  /@sphereon/ssi-sdk.dev@0.15.1(@types/node@18.15.11):
+    resolution: {integrity: sha512-Xc+HI9Em5pVOFO+1u6C6nE9GRpHYcIaiGBltIckXkczxFKYDVDOaokVy9zxjOV77X+4O1MLcRdG7Cyo3Imcslw==}
+    hasBin: true
+    dependencies:
+      '@microsoft/api-extractor': 7.34.7(@types/node@18.15.11)
+      '@microsoft/api-extractor-model': 7.26.7(@types/node@18.15.11)
+      commander: 10.0.1
+      copyfiles: 2.4.1
+      inquirer: 9.2.10
+      inquirer-autocomplete-prompt: 3.0.0(inquirer@9.2.10)
+      json-schema: 0.4.0
+      json5: 2.2.3
+      jsonpointer: 5.0.1
+      oas-resolver: 2.5.6
+      openapi-types: 12.1.0
+      ts-json-schema-generator: 1.2.0
+      url-parse: 1.5.10
+      yaml: 2.3.1
+    transitivePeerDependencies:
+      - '@types/node'
+    dev: true
 
   /@sphereon/ssi-types@0.15.2-unstable.26:
     resolution: {integrity: sha512-BVA2QHHcm4ziOUZkDtcoQypi3AN8PWR8gtY9F9xQG8jH2faIXtOaYqY+u3sXLfbbOXMyAyKNpIJPwKwjo6QzVQ==}
@@ -6991,6 +7027,11 @@ packages:
     resolution: {integrity: sha512-FxqpkPPwu1HjuN93Omfm4h8uIanXofW0RxVEW3k5RKx+mJJYSthzNhp32Kzxxy3YAEZ/Dc/EWN1vZRY0+kOhbw==}
     engines: {node: '>= 10'}
 
+  /cli-width@4.1.0:
+    resolution: {integrity: sha512-ouuZd4/dm2Sw5Gmqy6bGyNNNe1qt9RpmxveLSO7KcgsTnU7RXfsw+/bukWGo1abgBiMAic068rclZsO4IWmmxQ==}
+    engines: {node: '>= 12'}
+    dev: true
+
   /cliui@6.0.0:
     resolution: {integrity: sha512-t6wbgtoCXvAzst7QgXxJYqPt0usEfbgQdftEPbLL/cvv6HPE5VgvqCuAIDR0NgU52ds6rFwqrgakNLrHEjCbrQ==}
     dependencies:
@@ -7151,6 +7192,11 @@ packages:
       typical: 5.2.0
     dev: false
     optional: true
+
+  /commander@10.0.1:
+    resolution: {integrity: sha512-y4Mg2tXshplEbSGzx7amzPwKKOCGuoSRP/CjEdwwk0FOGlUbq6lKuoyDZTNZkmxHdJtp54hdfY/JUrdL7Xfdug==}
+    engines: {node: '>=14'}
+    dev: true
 
   /commander@2.13.0:
     resolution: {integrity: sha512-MVuS359B+YzaWqjCL/c+22gfryv+mCBPHAv3zyVI2GN8EY6IRP8VwtasXn8jyyhvvq84R4ImN1OKRtcbIasjYA==}
@@ -7384,6 +7430,19 @@ packages:
   /cookie@0.5.0:
     resolution: {integrity: sha512-YZ3GUyn/o8gfKJlnlX7g7xq4gyO6OSuhGPKaaGssGB2qgDUS0gPgtTvoyZLTt9Ab6dC4hfc9dV5arkvc/OCmrw==}
     engines: {node: '>= 0.6'}
+    dev: true
+
+  /copyfiles@2.4.1:
+    resolution: {integrity: sha512-fereAvAvxDrQDOXybk3Qu3dPbOoKoysFMWtkY3mv5BsL8//OSZVL5DCLYqgRfY5cWirgRzlC+WSrxp6Bo3eNZg==}
+    hasBin: true
+    dependencies:
+      glob: 7.2.3
+      minimatch: 3.1.2
+      mkdirp: 1.0.4
+      noms: 0.0.0
+      through2: 2.0.5
+      untildify: 4.0.0
+      yargs: 16.2.0
     dev: true
 
   /core-js-compat@3.32.0:
@@ -9016,7 +9075,7 @@ packages:
     engines: {node: '>=10'}
     dependencies:
       at-least-node: 1.0.0
-      graceful-fs: 4.2.10
+      graceful-fs: 4.2.11
       jsonfile: 6.1.0
       universalify: 2.0.0
 
@@ -9317,7 +9376,7 @@ packages:
       fs.realpath: 1.0.0
       inflight: 1.0.6
       inherits: 2.0.4
-      minimatch: 3.0.5
+      minimatch: 3.1.2
       once: 1.4.0
       path-is-absolute: 1.0.1
     dev: true
@@ -9399,6 +9458,7 @@ packages:
 
   /graceful-fs@4.2.10:
     resolution: {integrity: sha512-9ByhssR2fPVsNZj478qUUbKfmL0+t5BDVyjShtyZZLiK7ZDAArFFfopyOTj0M05wE2tJPisA4iTnnXl2YoPvOA==}
+    dev: true
 
   /graceful-fs@4.2.11:
     resolution: {integrity: sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==}
@@ -9789,6 +9849,20 @@ packages:
       rxjs: 7.8.1
     dev: true
 
+  /inquirer-autocomplete-prompt@3.0.0(inquirer@9.2.10):
+    resolution: {integrity: sha512-nsPWllBQB3qhvpVgV1UIJN4xo3yz7Qv8y1+zrNVpJUNPxtUZ7btCum/4UCAs5apPCe/FVhKH1V6Wx0cAwkreyg==}
+    engines: {node: '>=12'}
+    peerDependencies:
+      inquirer: ^9.1.0
+    dependencies:
+      ansi-escapes: 6.2.0
+      figures: 5.0.0
+      inquirer: 9.2.10
+      picocolors: 1.0.0
+      run-async: 2.4.1
+      rxjs: 7.8.1
+    dev: true
+
   /inquirer@7.3.3:
     resolution: {integrity: sha512-JG3eIAj5V9CwcGvuOmoo6LB9kbAYT8HXffUl6memuszlwDC/qvFAJw49XJ5NROSFNPxp3iQg1GqkFhaY/CR0IA==}
     engines: {node: '>=8.0.0'}
@@ -9848,6 +9922,27 @@ packages:
       string-width: 4.2.3
       strip-ansi: 6.0.1
       through: 2.3.8
+      wrap-ansi: 6.2.0
+    dev: true
+
+  /inquirer@9.2.10:
+    resolution: {integrity: sha512-tVVNFIXU8qNHoULiazz612GFl+yqNfjMTbLuViNJE/d860Qxrd3NMrse8dm40VUQLOQeULvaQF8lpAhvysjeyA==}
+    engines: {node: '>=14.18.0'}
+    dependencies:
+      '@ljharb/through': 2.3.9
+      ansi-escapes: 4.3.2
+      chalk: 5.3.0
+      cli-cursor: 3.1.0
+      cli-width: 4.1.0
+      external-editor: 3.1.0
+      figures: 5.0.0
+      lodash: 4.17.21
+      mute-stream: 1.0.0
+      ora: 5.4.1
+      run-async: 3.0.0
+      rxjs: 7.8.1
+      string-width: 4.2.3
+      strip-ansi: 6.0.1
       wrap-ansi: 6.2.0
     dev: true
 
@@ -10194,6 +10289,10 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       is-docker: 2.2.1
+
+  /isarray@0.0.1:
+    resolution: {integrity: sha512-D2S+3GLxWH+uhrNEcoh/fnmYeP8E8/zHl644d/jdA0g2uyXvy3sb0qxotE+ne0LtccHknQzWwZEzhak7oJ0COQ==}
+    dev: true
 
   /isarray@1.0.0:
     resolution: {integrity: sha512-VLghIWNM6ELQzo7zwmcg0NmTVyWKYjvIeM83yjp0wRDTmUnrM678fQbcKBo6n2CJEF0szoG//ytg+TKla89ALQ==}
@@ -11235,7 +11334,7 @@ packages:
     resolution: {integrity: sha512-Kx8hMakjX03tiGTLAIdJ+lL0htKnXjEZN6hk/tozf/WOuYGdZBJrZ+rCJRbVCugsjB3jMLn9746NsQIf5VjBMw==}
     engines: {node: '>=4'}
     dependencies:
-      graceful-fs: 4.2.10
+      graceful-fs: 4.2.11
       parse-json: 4.0.0
       pify: 3.0.0
       strip-bom: 3.0.0
@@ -11245,7 +11344,7 @@ packages:
     resolution: {integrity: sha512-gUD/epcRms75Cw8RT1pUdHugZYM5ce64ucs2GEISABwkRsOQr0q2wm/MV2TKThycIe5e0ytRweW2RZxclogCdQ==}
     engines: {node: '>=8'}
     dependencies:
-      graceful-fs: 4.2.10
+      graceful-fs: 4.2.11
       parse-json: 5.2.0
       strip-bom: 4.0.0
       type-fest: 0.6.0
@@ -12248,11 +12347,16 @@ packages:
       array-differ: 3.0.0
       array-union: 2.1.0
       arrify: 2.0.1
-      minimatch: 3.0.5
+      minimatch: 3.1.2
     dev: true
 
   /mute-stream@0.0.8:
     resolution: {integrity: sha512-nnbWWOkoWyUsTjKrhgD0dcz22mdkSnpYqbEjIm2nhwhuxlSkpywJmBo8h0ZqJdkp73mb90SssHkN4rsRaBAfAA==}
+
+  /mute-stream@1.0.0:
+    resolution: {integrity: sha512-avsJQhyd+680gKXyG/sQc0nXaC6rBkPOfyHYcFb9+hdkqQkR9bdnkJ0AMZhke0oesPqIO+mFFJ+IdBc7mst4IA==}
+    engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
+    dev: true
 
   /mv@2.1.1:
     resolution: {integrity: sha512-at/ZndSy3xEGJ8i0ygALh8ru9qy7gWW1cmkaqBN29JmMlIvM//MEO9y1sk/avxuwnPcfhkejkLsuPxH81BrkSg==}
@@ -12530,6 +12634,13 @@ packages:
     resolution: {integrity: sha512-LN4fydt9TqhZhThkZIVQnF9cwjU3qmUH9h78Mx/K7d3VvfRqqwthLwJEUOEL0QPZ0XQmNN7be5Ggit5+4dq3Bw==}
     engines: {node: '>=0.12.0'}
     dev: false
+
+  /noms@0.0.0:
+    resolution: {integrity: sha512-lNDU9VJaOPxUmXcLb+HQFeUgQQPtMI24Gt6hgfuMHRJgMRHMF/qZ4HJD3GDru4sSw9IQl2jPjAYnQrdIeLbwow==}
+    dependencies:
+      inherits: 2.0.4
+      readable-stream: 1.0.34
+    dev: true
 
   /nopt@4.0.3:
     resolution: {integrity: sha512-CvaGwVMztSMJLOeXPrez7fyfObdZqNUK1cPAEzLHrTybIua9pMdmmPR5YwtfNftIOMv3DPUhFaxsZMNTQO20Kg==}
@@ -14207,6 +14318,15 @@ packages:
       mute-stream: 0.0.8
     dev: true
 
+  /readable-stream@1.0.34:
+    resolution: {integrity: sha512-ok1qVCJuRkNmvebYikljxJA/UEsKwLl2nI1OmaqAu4/UE+h0wKCHok4XkL/gvi39OacXvw59RJUOFUkDib2rHg==}
+    dependencies:
+      core-util-is: 1.0.3
+      inherits: 2.0.4
+      isarray: 0.0.1
+      string_decoder: 0.10.31
+    dev: true
+
   /readable-stream@2.3.8:
     resolution: {integrity: sha512-8p0AUk4XODgIewSi0l8Epjs+EVnWiK7NoDIEGU0HhE7+ZyY8D1IMY7odu5lRrFXGg71L15KG8QrPmum45RTtdA==}
     dependencies:
@@ -14496,6 +14616,11 @@ packages:
   /run-async@2.4.1:
     resolution: {integrity: sha512-tvVnVv01b8c1RrA6Ep7JkStj85Guv/YrMcwqYQnwjsAS2cTmmPGBBjAjpCW7RrSodNSoE2/qg9O4bceNvUuDgQ==}
     engines: {node: '>=0.12.0'}
+
+  /run-async@3.0.0:
+    resolution: {integrity: sha512-540WwVDOMxA6dN6We19EcT9sc3hkXPw5mzRNGM3FkdN/vtE9NFvj5lFAPNwUDmJjXidm3v7TC1cTE7t17Ulm1Q==}
+    engines: {node: '>=0.12.0'}
+    dev: true
 
   /run-parallel@1.2.0:
     resolution: {integrity: sha512-5l4VyZR86LZ/lDxZTR6jqL8AFE2S0IFLMP26AbjsLVADxHdhB/c0GUsH+y39UfCi3dzz8OlQuPmnaJOMoDHQBA==}
@@ -15109,6 +15234,10 @@ packages:
       call-bind: 1.0.2
       define-properties: 1.2.0
       es-abstract: 1.22.1
+    dev: true
+
+  /string_decoder@0.10.31:
+    resolution: {integrity: sha512-ev2QzSzWPYmy9GuqfIVildA4OdcGLeFZQrq5ys6RtiuF+RQQiZWr8TZNyAcuVXyQRYfEO+MsoB/1BuQVhOJuoQ==}
     dev: true
 
   /string_decoder@1.1.1:
@@ -16058,6 +16187,11 @@ packages:
   /unpipe@1.0.0:
     resolution: {integrity: sha512-pjy2bYhSsufwWlKwPc+l3cN7+wuJlK6uz0YdJEOlQDbl6jo/YlPi4mb8agUkVC8BF7V8NuzeyPNqRksA3hztKQ==}
     engines: {node: '>= 0.8'}
+
+  /untildify@4.0.0:
+    resolution: {integrity: sha512-KK8xQ1mkzZeg9inewmFVDNkg3l5LUhoq9kN6iWYB/CC9YMG8HA+c1Q8HwDe6dEX7kErrEVNVBO3fWsVq5iDgtw==}
+    engines: {node: '>=8'}
+    dev: true
 
   /upath@2.0.1:
     resolution: {integrity: sha512-1uEe95xksV1O0CYKXo8vQvN1JEbtJp7lb7C5U9HMsIp6IVwntkH/oNUzyVNQSd4S1sYk2FpSSW44FqMc8qee5w==}
