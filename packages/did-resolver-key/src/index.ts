@@ -1,4 +1,4 @@
-import {decode} from 'varint'
+import { decode } from 'varint'
 import { base58btc } from 'multiformats/bases/base58'
 import ed25519 from './drivers/ed25519'
 import bls12381g2 from './drivers/bls12381g2'

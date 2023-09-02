@@ -5,19 +5,13 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 # [0.14.0](https://github.com/Sphereon-Opensource/SSI-SDK/compare/v0.13.0...v0.14.0) (2023-08-09)
 
-
 ### Bug Fixes
 
-* RSA import fixes ([77704a2](https://github.com/Sphereon-Opensource/SSI-SDK/commit/77704a2064e1c1d3ffc23e580ddbb36063fc70ae))
-
+- RSA import fixes ([77704a2](https://github.com/Sphereon-Opensource/SSI-SDK/commit/77704a2064e1c1d3ffc23e580ddbb36063fc70ae))
 
 ### Features
 
-* Add verification functions to KMS (only RSA for now) ([8f58f23](https://github.com/Sphereon-Opensource/SSI-SDK/commit/8f58f2308bc0dd612d1bb47b5ae05e8b67cf2efb))
-
-
-
-
+- Add verification functions to KMS (only RSA for now) ([8f58f23](https://github.com/Sphereon-Opensource/SSI-SDK/commit/8f58f2308bc0dd612d1bb47b5ae05e8b67cf2efb))
 
 # [0.13.0](https://github.com/Sphereon-Opensource/SSI-SDK/compare/v0.12.1...v0.13.0) (2023-07-30)
 

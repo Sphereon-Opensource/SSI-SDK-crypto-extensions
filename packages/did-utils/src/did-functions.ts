@@ -1,4 +1,8 @@
+import { computeAddress } from '@ethersproject/transactions'
 import { UniResolver } from '@sphereon/did-uni-client'
+import { ENC_KEY_ALGS, hexKeyFromPEMBasedJwk, JwkKeyUse, toJwk } from '@sphereon/ssi-sdk-ext.key-utils'
+import { base58ToBytes, base64ToBytes, bytesToHex, hexToBytes, multibaseKeyToBytes } from '@sphereon/ssi-sdk.core'
+import { convertPublicKeyToX25519 } from '@stablelib/ed25519'
 import { DIDDocument, DIDDocumentSection, DIDResolutionResult, IAgentContext, IDIDManager, IIdentifier, IKey, IResolver } from '@veramo/core'
 import {
   _ExtendedIKey,
@@ -6,7 +10,6 @@ import {
   _NormalizedVerificationMethod,
   compressIdentifierSecp256k1Keys,
   convertIdentifierEncryptionKeys,
-  extractPublicKeyHex,
   getEthereumAddress,
   isDefined,
   mapIdentifierKeysToDoc,
@@ -16,8 +19,6 @@ import { DIDResolutionOptions, Resolvable, VerificationMethod } from 'did-resolv
 import elliptic from 'elliptic'
 import * as u8a from 'uint8arrays'
 import { IDIDOptions, IIdentifierOpts } from './types'
-import { computeAddress } from '@ethersproject/transactions'
-import { ENC_KEY_ALGS, hexKeyFromPEMBasedJwk, JwkKeyUse, toJwk } from '@sphereon/ssi-sdk-ext.key-utils'
 
 export const getFirstKeyWithRelation = async (
   identifier: IIdentifier,
@@ -123,6 +124,62 @@ export function extractPublicKeyHexWithJwkSupport(pk: _ExtendedVerificationMetho
   }
   // delegate the other types to the original Veramo function
   return extractPublicKeyHex(pk, convert)
+}
+
+interface LegacyVerificationMethod extends VerificationMethod {
+  publicKeyBase64: string
+}
+
+/**
+ * Converts the publicKey of a VerificationMethod to hex encoding (publicKeyHex)
+ *
+ * @param pk - the VerificationMethod to be converted
+ * @param convert - when this flag is set to true, Ed25519 keys are converted to their X25519 pairs
+ * @returns the hex encoding of the public key
+ *
+ * @beta This API may change without a BREAKING CHANGE notice.
+ */
+export function extractPublicKeyHex(pk: _ExtendedVerificationMethod, convert: boolean = false): string {
+  let keyBytes = extractPublicKeyBytes(pk)
+  if (convert) {
+    if (
+      ['Ed25519', 'Ed25519VerificationKey2018', 'Ed25519VerificationKey2020'].includes(pk.type) ||
+      (pk.type === 'JsonWebKey2020' && pk.publicKeyJwk?.crv === 'Ed25519')
+    ) {
+      keyBytes = convertPublicKeyToX25519(keyBytes)
+    } else if (
+      !['X25519', 'X25519KeyAgreementKey2019', 'X25519KeyAgreementKey2020'].includes(pk.type) &&
+      !(pk.type === 'JsonWebKey2020' && pk.publicKeyJwk?.crv === 'X25519')
+    ) {
+      return ''
+    }
+  }
+  return bytesToHex(keyBytes)
+}
+
+function extractPublicKeyBytes(pk: VerificationMethod): Uint8Array {
+  if (pk.publicKeyBase58) {
+    return base58ToBytes(pk.publicKeyBase58)
+  } else if (pk.publicKeyMultibase) {
+    return multibaseKeyToBytes(pk.publicKeyMultibase)
+  } else if ((<LegacyVerificationMethod>pk).publicKeyBase64) {
+    return base64ToBytes((<LegacyVerificationMethod>pk).publicKeyBase64)
+  } else if (pk.publicKeyHex) {
+    return hexToBytes(pk.publicKeyHex)
+  } else if (pk.publicKeyJwk && pk.publicKeyJwk.crv === 'secp256k1' && pk.publicKeyJwk.x && pk.publicKeyJwk.y) {
+    const secp256k1 = new elliptic.ec('secp256k1')
+    return hexToBytes(
+      secp256k1
+        .keyFromPublic({
+          x: bytesToHex(base64ToBytes(pk.publicKeyJwk.x)),
+          y: bytesToHex(base64ToBytes(pk.publicKeyJwk.y)),
+        })
+        .getPublic('hex')
+    )
+  } else if (pk.publicKeyJwk && (pk.publicKeyJwk.crv === 'Ed25519' || pk.publicKeyJwk.crv === 'X25519') && pk.publicKeyJwk.x) {
+    return base64ToBytes(pk.publicKeyJwk.x)
+  }
+  return new Uint8Array()
 }
 
 /**

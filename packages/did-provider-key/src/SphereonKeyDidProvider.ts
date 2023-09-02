@@ -1,4 +1,4 @@
-import { KeyDIDProvider } from '@veramo/did-provider-key'
+import { KeyDIDProvider as VeramoKeyDidProvider } from '@veramo/did-provider-key'
 import { IAgentContext, IIdentifier, IKeyManager } from '@veramo/core'
 import Multibase from 'multibase'
 import Multicodec from 'multicodec'
@@ -9,7 +9,7 @@ const debug = Debug('did-provider-key')
 
 type IContext = IAgentContext<IKeyManager>
 
-export class SphereonKeyDidProvider extends KeyDIDProvider {
+export class SphereonKeyDidProvider extends VeramoKeyDidProvider {
   private readonly kms: string
 
   constructor(options: { defaultKms: string }) {
