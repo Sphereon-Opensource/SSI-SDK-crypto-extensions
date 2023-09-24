@@ -173,15 +173,23 @@ const assertProperKeyLength = (keyHex: string, expectedKeyLength: number | numbe
  * @return The JWK
  */
 const toSecp256k1Jwk = (publicKeyHex: string, opts?: { use?: JwkKeyUse }): JsonWebKey => {
-  assertProperKeyLength(publicKeyHex, 130)
+
+  assertProperKeyLength(publicKeyHex, [64, 66,130])
+  let key = publicKeyHex
+  if (publicKeyHex.length >= 64 && publicKeyHex.length <= 66) {
+    // compressed key. Let's decompress first
+    const secp256 = new elliptic.ec('secp256k1')
+    key = secp256.keyFromPublic(key, 'hex').getPublic(false, 'hex')
+    assertProperKeyLength(key, 130)
+  }
   const { use } = opts ?? {}
   return {
     alg: 'ES256K',
     ...(use !== undefined && { use }),
     kty: KeyType.EC,
     crv: KeyCurve.Secp256k1,
-    x: hex2base64url(publicKeyHex.substr(2, 64)),
-    y: hex2base64url(publicKeyHex.substr(66, 64)),
+    x: hex2base64url(key.substr(2, 64)),
+    y: hex2base64url(key.substr(66, 64)),
   }
 }
 
