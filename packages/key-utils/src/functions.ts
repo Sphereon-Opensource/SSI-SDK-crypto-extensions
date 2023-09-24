@@ -154,7 +154,7 @@ export const jwkDetermineUse = (type: TKeyType, suppliedUse?: JwkKeyUse): JwkKey
  */
 const assertProperKeyLength = (keyHex: string, expectedKeyLength: number | number[]) => {
   if (Array.isArray(expectedKeyLength)) {
-    if (expectedKeyLength.includes(keyHex.length)) {
+    if (!expectedKeyLength.includes(keyHex.length)) {
       throw Error(
         `Invalid key length. Needs to be a hex string with length from ${JSON.stringify(expectedKeyLength)} instead of ${
           keyHex.length
