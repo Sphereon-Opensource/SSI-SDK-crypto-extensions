@@ -1,7 +1,7 @@
 {
   "name": "@sphereon/ssi-sdk-ext.kms-local",
   "description": "Sphereon Local Key Management System with support for BLS/BBS+, RSA keys",
-  "version": "0.14.0",
+  "version": "0.14.1",
   "source": "src/index.ts",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -23,9 +23,9 @@
   },
   "devDependencies": {
     "@sphereon/jsencrypt": "^3.3.2-unstable.0",
+    "@sphereon/ssi-sdk.dev": "^0.15.1",
     "@types/elliptic": "6.4.14",
-    "@veramo/cli": "4.2.0",
-    "@sphereon/ssi-sdk.dev": "^0.15.1"
+    "@veramo/cli": "4.2.0"
   },
   "resolutions": {
     "**/@digitalcredentials/ed25519-verification-key-2020": "3.2.2"

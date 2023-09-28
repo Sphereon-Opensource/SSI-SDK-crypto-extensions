@@ -1,7 +1,7 @@
 {
   "name": "@sphereon/ssi-sdk-ext.did-provider-web",
   "description": "plugin that can enable creation and control of did:web identifiers.",
-  "version": "0.14.0",
+  "version": "0.14.1",
   "main": "dist/index.js",
   "exports": "./dist/index.js",
   "types": "dist/index.d.ts",
