@@ -154,7 +154,7 @@ export const jwkDetermineUse = (type: TKeyType, suppliedUse?: JwkKeyUse): JwkKey
  */
 const assertProperKeyLength = (keyHex: string, expectedKeyLength: number | number[]) => {
   if (Array.isArray(expectedKeyLength)) {
-    if (expectedKeyLength.includes(keyHex.length)) {
+    if (!expectedKeyLength.includes(keyHex.length)) {
       throw Error(
         `Invalid key length. Needs to be a hex string with length from ${JSON.stringify(expectedKeyLength)} instead of ${
           keyHex.length
@@ -173,15 +173,21 @@ const assertProperKeyLength = (keyHex: string, expectedKeyLength: number | numbe
  * @return The JWK
  */
 const toSecp256k1Jwk = (publicKeyHex: string, opts?: { use?: JwkKeyUse }): JsonWebKey => {
-  assertProperKeyLength(publicKeyHex, 130)
   const { use } = opts ?? {}
+  const publicKey = publicKeyHex
+  assertProperKeyLength(publicKeyHex, [64, 66, 130])
+
+  const secp256r1 = new elliptic.ec('secp256k1')
+  const key = secp256r1.keyFromPublic(publicKey, 'hex')
+  const pubPoint = key.getPublic()
+
   return {
     alg: 'ES256K',
     ...(use !== undefined && { use }),
     kty: KeyType.EC,
     crv: KeyCurve.Secp256k1,
-    x: hex2base64url(publicKeyHex.substr(2, 64)),
-    y: hex2base64url(publicKeyHex.substr(66, 64)),
+    x: hex2base64url(pubPoint.getX().toString('hex')),
+    y: hex2base64url(pubPoint.getY().toString('hex')),
   }
 }
 
@@ -194,7 +200,7 @@ const toSecp256k1Jwk = (publicKeyHex: string, opts?: { use?: JwkKeyUse }): JsonW
 const toSecp256r1Jwk = (publicKeyHex: string, opts?: { use?: JwkKeyUse }): JsonWebKey => {
   const { use } = opts ?? {}
   const publicKey = publicKeyHex
-  assertProperKeyLength(publicKey, 66)
+  assertProperKeyLength(publicKey, [64, 66, 130])
 
   const secp256r1 = new elliptic.ec('p256')
   const key = secp256r1.keyFromPublic(publicKey, 'hex')

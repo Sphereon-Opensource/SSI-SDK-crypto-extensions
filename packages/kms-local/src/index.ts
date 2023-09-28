@@ -3,6 +3,8 @@ import { KeyMetadata, TKeyType } from '@veramo/core'
 
 export { SphereonKeyManagementSystem } from './SphereonKeyManagementSystem'
 
+export * from '@veramo/kms-local'
+
 export interface ManagedKeyInfoArgs {
   alias?: string
   type: TKeyType

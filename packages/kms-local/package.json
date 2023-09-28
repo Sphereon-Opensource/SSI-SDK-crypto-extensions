@@ -7,7 +7,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc --build",
-    "generate-plugin-schema": "pnpm veramo dev extract-api"
+    "generate-plugin-schema": "sphereon dev generate-plugin-schema"
   },
   "dependencies": {
     "@mattrglobal/bbs-signatures": "^1.1.0",
@@ -24,7 +24,8 @@
   "devDependencies": {
     "@sphereon/jsencrypt": "^3.3.2-unstable.0",
     "@types/elliptic": "6.4.14",
-    "@veramo/cli": "4.2.0"
+    "@veramo/cli": "4.2.0",
+    "@sphereon/ssi-sdk.dev": "^0.15.1"
   },
   "resolutions": {
     "**/@digitalcredentials/ed25519-verification-key-2020": "3.2.2"

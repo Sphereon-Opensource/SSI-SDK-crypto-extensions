@@ -7,7 +7,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "extract-api": "pnpm veramo dev extract-api"
+    "extract-api": "sphereon dev extract-api"
   },
   "dependencies": {
     "@ethersproject/random": "^5.7.0",
@@ -25,6 +25,7 @@
     "@sphereon/ssi-sdk-ext.key-manager": "workspace:^",
     "@sphereon/ssi-sdk-ext.kms-local": "workspace:^",
     "@veramo/cli": "4.2.0",
+    "@sphereon/ssi-sdk.dev": "^0.15.1",
     "@veramo/key-manager": "4.2.0"
   },
   "resolutions": {
