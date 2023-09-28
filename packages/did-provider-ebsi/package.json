@@ -1,7 +1,7 @@
 {
   "name": "@sphereon/ssi-sdk-ext.did-provider-ebsi",
   "description": "Sphereon SSI-SDK plugin for management of did:ebsi v1 Legal Entity identifiers.",
-  "version": "0.14.0",
+  "version": "0.14.1",
   "source": "src/index.ts",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -24,8 +24,8 @@
   "devDependencies": {
     "@sphereon/ssi-sdk-ext.key-manager": "workspace:^",
     "@sphereon/ssi-sdk-ext.kms-local": "workspace:^",
-    "@veramo/cli": "4.2.0",
     "@sphereon/ssi-sdk.dev": "^0.15.1",
+    "@veramo/cli": "4.2.0",
     "@veramo/key-manager": "4.2.0"
   },
   "resolutions": {

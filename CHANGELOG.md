@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.14.1](https://github.com/Sphereon-Opensource/veramo-BBS/compare/v0.14.0...v0.14.1) (2023-09-28)
+
+
+### Bug Fixes
+
+* decompress comppressed secp256k1 keys when creating JWK ([e3c4771](https://github.com/Sphereon-Opensource/veramo-BBS/commit/e3c47715c8d751bc2ec75bdd1ed1e4965650c947))
+* decompress comppressed secp256k1 keys when creating JWK ([bcdd47c](https://github.com/Sphereon-Opensource/veramo-BBS/commit/bcdd47c0526236cf1b7c3533a7047ebb23204a66))
+* decompress comppressed secp256k1 keys when creating JWK ([31bacfb](https://github.com/Sphereon-Opensource/veramo-BBS/commit/31bacfb4c04e9b4363a4ef6e4e71a8cf7c1daced))
+* public key mapping updates, fixing ed25519 with multibase encoding ([489d4f2](https://github.com/Sphereon-Opensource/veramo-BBS/commit/489d4f20e0f354eb50b1a16a91472d4e85588113))
+
+
+
+
+
 # [0.14.0](https://github.com/Sphereon-Opensource/veramo-BBS/compare/v0.13.0...v0.14.0) (2023-08-09)
 
 
