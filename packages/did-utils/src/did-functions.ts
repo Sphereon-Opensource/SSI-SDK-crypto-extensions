@@ -371,6 +371,9 @@ export class AgentDIDResolver implements Resolvable {
     let resolutionResult: DIDResolutionResult | undefined
     let origResolutionResult: DIDResolutionResult | undefined
     let err: any
+    if (!this.resolverResolution && !this.localResolution && !this.uniresolverResolution) {
+      throw Error(`No agent hosted DID resolution, regular agent resolution nor universal resolver resolution is enabled. Cannot resolve DIDs.`)
+    }
     if (this.resolverResolution) {
       try {
         resolutionResult = await this.context.agent.resolveDid({ didUrl, options })
@@ -383,14 +386,19 @@ export class AgentDIDResolver implements Resolvable {
       if (resolutionResult.didDocument === null) {
         resolutionResult = undefined
       }
+    } else {
+      console.log(`Agent resolver resolution is disabled. This typically isn't desirable!`)
     }
     if (!resolutionResult && this.localResolution) {
+      console.log(`Using local DID resolution, looking at DIDs hosted by the agent.`)
       try {
         const did = didUrl.split('#')[0]
         const iIdentifier = await this.context.agent.didManagerGet({ did })
         resolutionResult = toDidResolutionResult(iIdentifier, { did })
         if (resolutionResult.didDocument) {
           err = undefined
+        } else {
+          console.log(`Local resolution resulted in a DID Document for ${did}`)
         }
       } catch (error: unknown) {
         if (!err) {
@@ -407,6 +415,7 @@ export class AgentDIDResolver implements Resolvable {
       }
     }
     if (!resolutionResult && this.uniresolverResolution) {
+      console.log(`Using universal resolver resolution for did ${didUrl} `)
       resolutionResult = await new UniResolver().resolve(didUrl, options)
       if (!origResolutionResult) {
         origResolutionResult = resolutionResult
