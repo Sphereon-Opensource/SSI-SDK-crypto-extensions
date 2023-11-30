@@ -1,9 +1,3 @@
-import { KeyDIDProvider as VeramoKeyDidProvider } from '@veramo/did-provider-key'
-import { IAgentContext, IIdentifier, IKeyManager } from '@veramo/core'
-import Multibase from 'multibase'
-import Multicodec from 'multicodec'
-import Debug from 'debug'
-import * as u8a from 'uint8arrays'
 import {
   generatePrivateKeyHex,
   JWK_JCS_PUB_NAME,
@@ -13,16 +7,22 @@ import {
   TKeyType,
   toJwk,
 } from '@sphereon/ssi-sdk-ext.key-utils'
+import { IAgentContext, IIdentifier, IKey, IKeyManager, IService } from '@veramo/core'
+import { AbstractIdentifierProvider } from '@veramo/did-manager'
+import Debug from 'debug'
+import Multibase from 'multibase'
+import Multicodec from 'multicodec'
+import * as u8a from 'uint8arrays'
 
 const debug = Debug('did-provider-key')
 
 type IContext = IAgentContext<IKeyManager>
 
-export class SphereonKeyDidProvider extends VeramoKeyDidProvider {
+export class SphereonKeyDidProvider extends AbstractIdentifierProvider {
   private readonly kms: string
 
   constructor(options: { defaultKms: string }) {
-    super(options)
+    super()
     this.kms = options.defaultKms
   }
 
@@ -82,5 +82,35 @@ export class SphereonKeyDidProvider extends VeramoKeyDidProvider {
     }
     debug('Created', identifier.did)
     return identifier
+  }
+
+  async updateIdentifier(
+    args: { did: string; kms?: string | undefined; alias?: string | undefined; options?: any },
+    context: IAgentContext<IKeyManager>
+  ): Promise<IIdentifier> {
+    throw new Error('KeyDIDProvider updateIdentifier not supported yet.')
+  }
+
+  async deleteIdentifier(identifier: IIdentifier, context: IContext): Promise<boolean> {
+    for (const { kid } of identifier.keys) {
+      await context.agent.keyManagerDelete({ kid })
+    }
+    return true
+  }
+
+  async addKey({ identifier, key, options }: { identifier: IIdentifier; key: IKey; options?: any }, context: IContext): Promise<any> {
+    throw Error('KeyDIDProvider addKey not supported')
+  }
+
+  async addService({ identifier, service, options }: { identifier: IIdentifier; service: IService; options?: any }, context: IContext): Promise<any> {
+    throw Error('KeyDIDProvider addService not supported')
+  }
+
+  async removeKey(args: { identifier: IIdentifier; kid: string; options?: any }, context: IContext): Promise<any> {
+    throw Error('KeyDIDProvider removeKey not supported')
+  }
+
+  async removeService(args: { identifier: IIdentifier; id: string; options?: any }, context: IContext): Promise<any> {
+    throw Error('KeyDIDProvider removeService not supported')
   }
 }
