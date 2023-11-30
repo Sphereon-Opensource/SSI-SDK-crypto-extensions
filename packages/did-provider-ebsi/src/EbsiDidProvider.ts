@@ -28,10 +28,16 @@ export class EbsiDidProvider extends AbstractIdentifierProvider {
     context: IContext
   ): Promise<Omit<IIdentifier, 'provider'>> {
     if (!options?.type || options.type === ebsiDIDSpecInfo.V1) {
-      const privateKeyHex = await generateEbsiPrivateKeyHex(
+      let privateKeyHex = generateEbsiPrivateKeyHex(
         ebsiDIDSpecInfo.V1,
         options?.options?.key?.privateKeyHex ? u8a.fromString(options.options.key.privateKeyHex, 'base16') : undefined
       )
+      if (privateKeyHex.startsWith('0x')) {
+        privateKeyHex = privateKeyHex.substring(2)
+      }
+      if (!privateKeyHex || privateKeyHex.length !== 64) {
+        throw Error('Private key should be 32 bytes / 64 chars hex')
+      }
       const key = await context.agent.keyManagerImport({
         type: 'Secp256k1',
         kms: this.assertedKms(kms),

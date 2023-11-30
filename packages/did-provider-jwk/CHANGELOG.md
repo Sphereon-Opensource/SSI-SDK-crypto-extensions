@@ -5,25 +5,15 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 # [0.15.0](https://github.com/Sphereon-OpenSource/ssi-sdk/compare/v0.14.1...v0.15.0) (2023-09-30)
 
-
 ### Features
 
-* check whether resolution is configured properly ([01a693b](https://github.com/Sphereon-OpenSource/ssi-sdk/commit/01a693b94cd612826312168973caf15b0441ebf0))
-
-
-
-
+- check whether resolution is configured properly ([01a693b](https://github.com/Sphereon-OpenSource/ssi-sdk/commit/01a693b94cd612826312168973caf15b0441ebf0))
 
 ## [0.14.1](https://github.com/Sphereon-OpenSource/ssi-sdk/compare/v0.14.0...v0.14.1) (2023-09-28)
 
-
 ### Bug Fixes
 
-* public key mapping updates, fixing ed25519 with multibase encoding ([489d4f2](https://github.com/Sphereon-OpenSource/ssi-sdk/commit/489d4f20e0f354eb50b1a16a91472d4e85588113))
-
-
-
-
+- public key mapping updates, fixing ed25519 with multibase encoding ([489d4f2](https://github.com/Sphereon-OpenSource/ssi-sdk/commit/489d4f20e0f354eb50b1a16a91472d4e85588113))
 
 # [0.14.0](https://github.com/Sphereon-OpenSource/ssi-sdk/compare/v0.13.0...v0.14.0) (2023-08-09)
 

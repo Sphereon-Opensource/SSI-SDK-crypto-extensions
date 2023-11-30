@@ -3,7 +3,16 @@ import { IAgentContext, IIdentifier, IKeyManager } from '@veramo/core'
 import Multibase from 'multibase'
 import Multicodec from 'multicodec'
 import Debug from 'debug'
-import { JWK_JCS_PUB_NAME, JWK_JCS_PUB_PREFIX, jwkJcsEncode, JwkKeyUse, toJwk } from '@sphereon/ssi-sdk-ext.key-utils'
+import * as u8a from 'uint8arrays'
+import {
+  generatePrivateKeyHex,
+  JWK_JCS_PUB_NAME,
+  JWK_JCS_PUB_PREFIX,
+  jwkJcsEncode,
+  JwkKeyUse,
+  TKeyType,
+  toJwk,
+} from '@sphereon/ssi-sdk-ext.key-utils'
 
 const debug = Debug('did-provider-key')
 
@@ -24,42 +33,54 @@ export class SphereonKeyDidProvider extends VeramoKeyDidProvider {
     }: {
       kms?: string
       alias?: string
-      options?: any
+      options?: {
+        type?: TKeyType
+        codecName?: 'EBSI' | 'jwk_jcs-pub' | Multicodec.CodecName
+        key?: {
+          privateKeyHex: string
+        }
+      }
     },
     context: IContext
   ): Promise<Omit<IIdentifier, 'provider'>> {
-    if (options?.type === 'Bls12381G2') {
-      const key = await context.agent.keyManagerCreate({ kms: kms || this.kms, type: 'Bls12381G2' })
-
-      const methodSpecificId = Buffer.from(
-        Multibase.encode('base58btc', Multicodec.addPrefix('bls12_381-g2-pub', Buffer.from(key.publicKeyHex, 'hex')))
-      ).toString()
-
-      const identifier: Omit<IIdentifier, 'provider'> = {
-        did: 'did:key:' + methodSpecificId,
-        controllerKeyId: key.kid,
-        keys: [key],
-        services: [],
+    const keyType: TKeyType = options?.type ?? 'Secp256k1'
+    let codecName = options?.codecName && options.codecName === 'EBSI' ? JWK_JCS_PUB_NAME : (options?.codecName as Multicodec.CodecName)
+    const privateKeyHex = options?.key?.privateKeyHex ?? (await generatePrivateKeyHex(keyType))
+    const key = await context.agent.keyManagerImport({ type: keyType, privateKeyHex, kms: kms ?? this.kms })
+    let methodSpecificId: string | undefined
+    if (codecName === JWK_JCS_PUB_NAME) {
+      const jwk = toJwk(key.publicKeyHex, keyType, { use: JwkKeyUse.Signature, key })
+      methodSpecificId = u8a.toString(
+        Multibase.encode('base58btc', Multicodec.addPrefix(u8a.fromString(JWK_JCS_PUB_PREFIX.valueOf().toString(16), 'hex'), jwkJcsEncode(jwk)))
+      )
+    } else if (codecName) {
+      methodSpecificId = u8a.toString(
+        Multibase.encode('base58btc', Multicodec.addPrefix(codecName as Multicodec.CodecName, u8a.fromString(key.publicKeyHex, 'hex')))
+      )
+    } else {
+      if (keyType === 'Bls12381G2') {
+        codecName = 'bls12_381-g2-pub'
+      } else if (keyType === 'Secp256k1') {
+        codecName = 'secp256k1-pub'
+      } else if (keyType === 'Ed25519') {
+        codecName = 'ed25519-pub'
       }
-      debug('Created', identifier.did)
-      return identifier
-    } else if (options?.type?.toLowerCase()?.includes('ebsi') || options?.type?.toLowerCase() === JWK_JCS_PUB_NAME.toLowerCase()) {
-      const key = await context.agent.keyManagerCreate({ kms: kms || this.kms, type: 'Secp256k1' })
-      const jwk = toJwk(key.publicKeyHex, 'Secp256k1', { use: JwkKeyUse.Signature, key })
-
-      // todo: Remove buffers, and remove redundant code
-      const methodSpecificId = Buffer.from(
-        Multibase.encode('base58btc', Multicodec.addPrefix(Uint8Array.of(JWK_JCS_PUB_PREFIX.valueOf()), jwkJcsEncode(jwk)))
-      ).toString()
-      const identifier: Omit<IIdentifier, 'provider'> = {
-        did: 'did:key:' + methodSpecificId,
-        controllerKeyId: key.kid,
-        keys: [key],
-        services: [],
+      if (codecName) {
+        methodSpecificId = u8a
+          .toString(Multibase.encode('base58btc', Multicodec.addPrefix(codecName as Multicodec.CodecName, u8a.fromString(key.publicKeyHex, 'hex'))))
+          .toString()
       }
-      debug('Created', identifier.did)
-      return identifier
     }
-    return super.createIdentifier({ kms, options }, context)
+    if (!methodSpecificId) {
+      throw Error(`Key type ${keyType} is not supported currently for did:key`)
+    }
+    const identifier: Omit<IIdentifier, 'provider'> = {
+      did: 'did:key:' + methodSpecificId,
+      controllerKeyId: key.kid,
+      keys: [key],
+      services: [],
+    }
+    debug('Created', identifier.did)
+    return identifier
   }
 }
