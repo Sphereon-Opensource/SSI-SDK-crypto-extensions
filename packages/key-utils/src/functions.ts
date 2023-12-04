@@ -168,35 +168,17 @@ const assertProperKeyLength = (keyHex: string, expectedKeyLength: number | numbe
 
 /**
  * Generates a JWK from a Secp256k1 public key
- * @param publicKeyHex Secp256k1 public key in hex
+ * @param keyHex Secp256k1 public or private key in hex
  * @param use The use for the key
  * @return The JWK
  */
-const toSecp256k1Jwk = (publicKeyHex: string, opts?: { use?: JwkKeyUse; isPrivateKey?: boolean }): JsonWebKey => {
+const toSecp256k1Jwk = (keyHex: string, opts?: { use?: JwkKeyUse; isPrivateKey?: boolean }): JsonWebKey => {
   const { use } = opts ?? {}
-  // const publicKey = publicKeyHex
-  assertProperKeyLength(publicKeyHex, [64, 66, 130])
+  assertProperKeyLength(keyHex, [64, 66, 130])
 
   const secp256k1 = new elliptic.ec('secp256k1')
-  const keyBytes = u8a.fromString(publicKeyHex, 'base16')
+  const keyBytes = u8a.fromString(keyHex, 'base16')
   const keyPair = opts?.isPrivateKey ? secp256k1.keyFromPrivate(keyBytes) : secp256k1.keyFromPublic(keyBytes)
-  /*const publicKeyHex = keyPair.getPublic(true, 'hex')
-
-
-  if (opts?.isPrivateKey) {
-    const key = secp256k1.keyFromPrivate(publicKey, 'hex')
-    // const point = key.getPrivate()
-    return {
-      alg: 'ES256K',
-      ...(use !== undefined && { use }),
-      kty: KeyType.EC,
-      crv: KeyCurve.Secp256k1,
-      x: hex2base64url(key.ec.g.x.toString('hex')),
-      y: hex2base64url(key.ec.g.y.toString('hex')),
-      d: hex2base64url(key.getPrivate('hex')),
-    }
-  }*/
-  // const key = secp256k1.keyFromPublic(keyPair, 'hex')
   const pubPoint = keyPair.getPublic()
 
   return {
@@ -218,27 +200,11 @@ const toSecp256k1Jwk = (publicKeyHex: string, opts?: { use?: JwkKeyUse; isPrivat
  */
 const toSecp256r1Jwk = (keyHex: string, opts?: { use?: JwkKeyUse; isPrivateKey?: boolean }): JsonWebKey => {
   const { use } = opts ?? {}
-  const publicKey = keyHex
-  assertProperKeyLength(publicKey, [64, 66, 130])
+  assertProperKeyLength(keyHex, [64, 66, 130])
 
   const secp256r1 = new elliptic.ec('p256')
   const keyBytes = u8a.fromString(keyHex, 'base16')
   const keyPair = opts?.isPrivateKey ? secp256r1.keyFromPrivate(keyBytes) : secp256r1.keyFromPublic(keyBytes)
-
-  /* if (opts?.isPrivateKey) {
-    const key = secp256r1.keyFromPrivate(publicKey, 'hex')
-    // const point = key.getPrivate()
-    return {
-      alg: 'ES256',
-      ...(use !== undefined && { use }),
-      kty: KeyType.EC,
-      crv: KeyCurve.P_256,
-      x: hex2base64url(key.ec.g.x.toString('hex')),
-      y: hex2base64url(key.ec.g.y.toString('hex')),
-      d: hex2base64url(key.getPrivate('hex')),
-    }
-  }*/
-  // const key = secp256r1.keyFromPublic(publicKey, 'hex')
   const point = keyPair.getPublic()
   return {
     alg: 'ES256',

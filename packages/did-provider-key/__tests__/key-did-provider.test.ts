@@ -1,6 +1,6 @@
 import { SphereonKeyManager } from '@sphereon/ssi-sdk-ext.key-manager'
 
-import { Key } from '@sphereon/ssi-sdk-ext.key-utils'
+import { Key, toJwk } from '@sphereon/ssi-sdk-ext.key-utils'
 import { SphereonKeyManagementSystem } from '@sphereon/ssi-sdk-ext.kms-local'
 import { createAgent, IIdentifier, IKeyManager } from '@veramo/core'
 import { DIDManager, MemoryDIDStore } from '@veramo/did-manager'
@@ -11,6 +11,8 @@ import { SphereonKeyDidProvider } from '../src'
 const DID_METHOD = 'did:key'
 const PRIVATE_KEY_HEX = '7dd923e40f4615ac496119f7e793cc2899e99b64b88ca8603db986700089532b'
 
+const jwk = toJwk(PRIVATE_KEY_HEX, 'Secp256k1', { isPrivateKey: true })
+console.log(JSON.stringify(jwk, null, 2))
 const keyDIDProvider = new SphereonKeyDidProvider({
   defaultKms: 'mem',
 })
