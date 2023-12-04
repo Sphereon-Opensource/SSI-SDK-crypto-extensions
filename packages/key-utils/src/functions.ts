@@ -108,10 +108,10 @@ export const hex2base64url = (value: string) => {
  * @param opts. Options, like the optional use for the key (sig/enc)
  * @return The JWK
  */
-export const toJwk = (publicKeyHex: string, type: TKeyType, opts?: { use?: JwkKeyUse; key?: IKey }): JsonWebKey => {
+export const toJwk = (publicKeyHex: string, type: TKeyType, opts?: { use?: JwkKeyUse; key?: IKey; isPrivateKey?: boolean }): JsonWebKey => {
   const { key } = opts ?? {}
-  if (key && key.publicKeyHex !== publicKeyHex) {
-    throw Error(`Provided key with id ${key.kid}, has a different public key hex than supplied public key ${publicKeyHex}`)
+  if (key && key.publicKeyHex !== publicKeyHex && opts?.isPrivateKey !== true) {
+    throw Error(`Provided key with id ${key.kid}, has a different public key hex ${key.publicKeyHex} than supplied public key ${publicKeyHex}`)
   }
   switch (type) {
     case 'Ed25519':
@@ -172,13 +172,26 @@ const assertProperKeyLength = (keyHex: string, expectedKeyLength: number | numbe
  * @param use The use for the key
  * @return The JWK
  */
-const toSecp256k1Jwk = (publicKeyHex: string, opts?: { use?: JwkKeyUse }): JsonWebKey => {
+const toSecp256k1Jwk = (publicKeyHex: string, opts?: { use?: JwkKeyUse; isPrivateKey?: boolean }): JsonWebKey => {
   const { use } = opts ?? {}
   const publicKey = publicKeyHex
   assertProperKeyLength(publicKeyHex, [64, 66, 130])
 
-  const secp256r1 = new elliptic.ec('secp256k1')
-  const key = secp256r1.keyFromPublic(publicKey, 'hex')
+  const secp256k1 = new elliptic.ec('secp256k1')
+  if (opts?.isPrivateKey) {
+    const key = secp256k1.keyFromPrivate(publicKey, 'hex')
+    // const point = key.getPrivate()
+    return {
+      alg: 'ES256K',
+      ...(use !== undefined && { use }),
+      kty: KeyType.EC,
+      crv: KeyCurve.Secp256k1,
+      x: hex2base64url(key.ec.g.x.toString('hex')),
+      y: hex2base64url(key.ec.g.y.toString('hex')),
+      d: hex2base64url(key.getPrivate('hex')),
+    }
+  }
+  const key = secp256k1.keyFromPublic(publicKey, 'hex')
   const pubPoint = key.getPublic()
 
   return {
@@ -193,25 +206,38 @@ const toSecp256k1Jwk = (publicKeyHex: string, opts?: { use?: JwkKeyUse }): JsonW
 
 /**
  * Generates a JWK from a Secp256r1 public key
- * @param publicKeyHex Secp256r1 public key in hex
+ * @param keyHex Secp256r1 public key in hex
  * @param use The use for the key
  * @return The JWK
  */
-const toSecp256r1Jwk = (publicKeyHex: string, opts?: { use?: JwkKeyUse }): JsonWebKey => {
+const toSecp256r1Jwk = (keyHex: string, opts?: { use?: JwkKeyUse; isPrivateKey?: boolean }): JsonWebKey => {
   const { use } = opts ?? {}
-  const publicKey = publicKeyHex
+  const publicKey = keyHex
   assertProperKeyLength(publicKey, [64, 66, 130])
 
   const secp256r1 = new elliptic.ec('p256')
+  if (opts?.isPrivateKey) {
+    const key = secp256r1.keyFromPrivate(publicKey, 'hex')
+    // const point = key.getPrivate()
+    return {
+      alg: 'ES256',
+      ...(use !== undefined && { use }),
+      kty: KeyType.EC,
+      crv: KeyCurve.P_256,
+      x: hex2base64url(key.ec.g.x.toString('hex')),
+      y: hex2base64url(key.ec.g.y.toString('hex')),
+      d: hex2base64url(key.getPrivate('hex')),
+    }
+  }
   const key = secp256r1.keyFromPublic(publicKey, 'hex')
-  const pubPoint = key.getPublic()
+  const point = key.getPublic()
   return {
     alg: 'ES256',
     ...(use !== undefined && { use }),
     kty: KeyType.EC,
     crv: KeyCurve.P_256,
-    x: hex2base64url(pubPoint.getX().toString('hex')),
-    y: hex2base64url(pubPoint.getY().toString('hex')),
+    x: hex2base64url(point.getX().toString('hex')),
+    y: hex2base64url(point.getY().toString('hex')),
   }
 }
 
