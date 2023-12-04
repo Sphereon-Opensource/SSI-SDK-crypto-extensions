@@ -174,10 +174,15 @@ const assertProperKeyLength = (keyHex: string, expectedKeyLength: number | numbe
  */
 const toSecp256k1Jwk = (publicKeyHex: string, opts?: { use?: JwkKeyUse; isPrivateKey?: boolean }): JsonWebKey => {
   const { use } = opts ?? {}
-  const publicKey = publicKeyHex
+  // const publicKey = publicKeyHex
   assertProperKeyLength(publicKeyHex, [64, 66, 130])
 
   const secp256k1 = new elliptic.ec('secp256k1')
+  const keyBytes = u8a.fromString(publicKeyHex, 'base16')
+  const keyPair = opts?.isPrivateKey ? secp256k1.keyFromPrivate(keyBytes) : secp256k1.keyFromPublic(keyBytes)
+  /*const publicKeyHex = keyPair.getPublic(true, 'hex')
+
+
   if (opts?.isPrivateKey) {
     const key = secp256k1.keyFromPrivate(publicKey, 'hex')
     // const point = key.getPrivate()
@@ -190,9 +195,9 @@ const toSecp256k1Jwk = (publicKeyHex: string, opts?: { use?: JwkKeyUse; isPrivat
       y: hex2base64url(key.ec.g.y.toString('hex')),
       d: hex2base64url(key.getPrivate('hex')),
     }
-  }
-  const key = secp256k1.keyFromPublic(publicKey, 'hex')
-  const pubPoint = key.getPublic()
+  }*/
+  // const key = secp256k1.keyFromPublic(keyPair, 'hex')
+  const pubPoint = keyPair.getPublic()
 
   return {
     alg: 'ES256K',
@@ -201,6 +206,7 @@ const toSecp256k1Jwk = (publicKeyHex: string, opts?: { use?: JwkKeyUse; isPrivat
     crv: KeyCurve.Secp256k1,
     x: hex2base64url(pubPoint.getX().toString('hex')),
     y: hex2base64url(pubPoint.getY().toString('hex')),
+    ...(opts?.isPrivateKey && { d: hex2base64url(keyPair.getPrivate('hex')) }),
   }
 }
 
@@ -216,7 +222,10 @@ const toSecp256r1Jwk = (keyHex: string, opts?: { use?: JwkKeyUse; isPrivateKey?:
   assertProperKeyLength(publicKey, [64, 66, 130])
 
   const secp256r1 = new elliptic.ec('p256')
-  if (opts?.isPrivateKey) {
+  const keyBytes = u8a.fromString(keyHex, 'base16')
+  const keyPair = opts?.isPrivateKey ? secp256r1.keyFromPrivate(keyBytes) : secp256r1.keyFromPublic(keyBytes)
+
+  /* if (opts?.isPrivateKey) {
     const key = secp256r1.keyFromPrivate(publicKey, 'hex')
     // const point = key.getPrivate()
     return {
@@ -228,9 +237,9 @@ const toSecp256r1Jwk = (keyHex: string, opts?: { use?: JwkKeyUse; isPrivateKey?:
       y: hex2base64url(key.ec.g.y.toString('hex')),
       d: hex2base64url(key.getPrivate('hex')),
     }
-  }
-  const key = secp256r1.keyFromPublic(publicKey, 'hex')
-  const point = key.getPublic()
+  }*/
+  // const key = secp256r1.keyFromPublic(publicKey, 'hex')
+  const point = keyPair.getPublic()
   return {
     alg: 'ES256',
     ...(use !== undefined && { use }),
@@ -238,6 +247,7 @@ const toSecp256r1Jwk = (keyHex: string, opts?: { use?: JwkKeyUse; isPrivateKey?:
     crv: KeyCurve.P_256,
     x: hex2base64url(point.getX().toString('hex')),
     y: hex2base64url(point.getY().toString('hex')),
+    ...(opts?.isPrivateKey && { d: hex2base64url(keyPair.getPrivate('hex')) }),
   }
 }
 
