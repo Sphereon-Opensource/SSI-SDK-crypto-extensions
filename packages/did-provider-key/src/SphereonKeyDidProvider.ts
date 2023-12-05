@@ -7,8 +7,8 @@ import {
   TKeyType,
   toJwk,
 } from '@sphereon/ssi-sdk-ext.key-utils'
-import { IAgentContext, IIdentifier, IKey, IKeyManager, IService } from '@veramo/core'
-import { AbstractIdentifierProvider } from '@veramo/did-manager'
+import {IAgentContext, IIdentifier, IKey, IKeyManager, IService} from '@veramo/core'
+import {AbstractIdentifierProvider} from '@veramo/did-manager'
 import Debug from 'debug'
 import Multibase from 'multibase'
 import Multicodec from 'multicodec'
@@ -50,6 +50,7 @@ export class SphereonKeyDidProvider extends AbstractIdentifierProvider {
     let methodSpecificId: string | undefined
     if (codecName === JWK_JCS_PUB_NAME) {
       const jwk = toJwk(key.publicKeyHex, keyType, { use: JwkKeyUse.Signature, key })
+      console.log(`FIXME JWK: ${JSON.stringify(toJwk(privateKeyHex, keyType, {use: JwkKeyUse.Signature, key, isPrivateKey: true}), null, 2)}`)
       methodSpecificId = u8a.toString(
         Multibase.encode('base58btc', Multicodec.addPrefix(u8a.fromString(JWK_JCS_PUB_PREFIX.valueOf().toString(16), 'hex'), jwkJcsEncode(jwk)))
       )
@@ -81,6 +82,7 @@ export class SphereonKeyDidProvider extends AbstractIdentifierProvider {
       services: [],
     }
     debug('Created', identifier.did)
+    console.log('FIXME Created', identifier.did)
     return identifier
   }
 
