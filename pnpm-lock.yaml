@@ -515,6 +515,9 @@ importers:
         specifier: 4.2.0
         version: 4.2.0
     devDependencies:
+      '@sphereon/ssi-sdk-ext.key-utils':
+        specifier: workspace:*
+        version: link:../key-utils
       '@sphereon/ssi-sdk.dev':
         specifier: ^0.15.1
         version: 0.15.1(@types/node@18.18.1)
