@@ -4,8 +4,6 @@ import {MemoryKeyStore, MemoryPrivateKeyStore} from '@veramo/key-manager'
 import {SphereonKeyManagementSystem} from '@sphereon/ssi-sdk-ext.kms-local'
 
 describe('@sphereon/ssi-sdk-ext.kms-local encrypt/decrypt', () => {
-    let privateKeyHex: string
-
     const EXAMPLE_PAYLOAD = 'EXAMPLE payload! Could be anything'
 
     const kms = new SphereonKeyManager({
@@ -16,7 +14,7 @@ describe('@sphereon/ssi-sdk-ext.kms-local encrypt/decrypt', () => {
     })
     beforeAll(async () => {
         // Utility method to create an Ed25519 key
-        privateKeyHex = await generatePrivateKeyHex('Ed25519')
+        const privateKeyHex = await generatePrivateKeyHex('Ed25519')
 
         // Import the key and assign it the kid value 'example', which will be used later in the test
         await kms.keyManagerImport({type: 'Ed25519', privateKeyHex, kms: 'local', kid: 'example'})
@@ -24,7 +22,7 @@ describe('@sphereon/ssi-sdk-ext.kms-local encrypt/decrypt', () => {
 
 
     it('should encrypt and decrypt a payload to a specific public key', async () => {
-        // 1) Let's get the key by it's identifier (see the storage method above)
+        // 1) Let's get the key by it's identifier (see the import method above)
         const key = await kms.keyManagerGet({kid: 'example'})
 
         // 2) Let's encrypt the input text. Note that currently the 'kid' value is required, but it is not being used.
@@ -35,7 +33,7 @@ describe('@sphereon/ssi-sdk-ext.kms-local encrypt/decrypt', () => {
         expect(encrypted).toContain("ey")
 
 
-        // 3) For decryption we simply only need the respective kid value that should match the key to which the
+        // 3) For decryption we simply only need the respective kid value that should match the key to which the data was encrypted
         const decrypted = await kms.keyManagerDecryptJWE({kid: 'example', data: encrypted})
         expect(decrypted).toEqual(EXAMPLE_PAYLOAD)
     })
