@@ -18,6 +18,15 @@ describe('@sphereon/ssi-sdk-ext.did-resolver-ebsi', () => {
     })
     expect(resolutionResult.didDocument).toEqual(JSON.parse(fs.readFileSync(`${__dirname}/fixtures/ebsiv1_did_doc.json`, { encoding: 'utf-8' })))
   })
+  it('should resolve conformance DID did:ebsi trying all registries', async () => {
+    const resolver = new Resolver({ ...getResolver() })
+    const resolutionResult = await resolver.resolve('did:ebsi:zhJARjPN69cEtgPxHen1Mid', {
+      accept: DID_LD_JSON,
+    })
+    expect(resolutionResult.didDocument).toMatchObject({
+      '@context': ['https://www.w3.org/ns/did/v1', 'https://w3id.org/security/suites/jws-2020/v1'],
+    })
+  })
 
   it('should not resolve a v1 did:ebsi against a non-existing registry', async () => {
     const resolver = new Resolver({ ...getResolver() })

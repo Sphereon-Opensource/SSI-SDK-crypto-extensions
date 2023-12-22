@@ -29,6 +29,9 @@ export const keyToDidDoc = async (did: string, contentType: string, options: EBS
 const keyToDidDocImpl = async (did: string, contentType: string, registry: string, options: DIDResolutionOptions): Promise<DIDDocument> => {
   const uri = didURI(did, registry)
   const response = await fetch(uri)
+  if (response.status >= 400) {
+    throw Error(await response.json())
+  }
   return (await response.json()) as DIDDocument
 }
 
