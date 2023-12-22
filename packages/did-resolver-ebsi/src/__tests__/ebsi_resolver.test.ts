@@ -25,6 +25,8 @@ describe('@sphereon/ssi-sdk-ext.did-resolver-ebsi', () => {
       resolver.resolve('did:ebsi:z25gUx2D5Ujb6eZcmQEnertx#5jOg2ai976NEo_UKDCDHqDzO1vBx2RQJ_9ZuyZLqSCs', {
         accept: DID_LD_JSON,
         registry: 'http://127.0.0.1:9993',
+        noFallbackRegistries: true,
+        noEnvVarRegistry: true,
       })
     ).resolves.toEqual({
       didDocument: null,
@@ -32,8 +34,7 @@ describe('@sphereon/ssi-sdk-ext.did-resolver-ebsi', () => {
       didResolutionMetadata: {
         contentType: 'application/did+ld+json',
         error: 'invalidDid',
-        message:
-          'FetchError: request to http://127.0.0.1:9993/identifiers/did:ebsi:z25gUx2D5Ujb6eZcmQEnertx failed, reason: connect ECONNREFUSED 127.0.0.1:9993',
+        message: 'Error: Could not resolve DID did:ebsi:z25gUx2D5Ujb6eZcmQEnertx using registries: ["http://127.0.0.1:9993"]',
       },
     })
   })
