@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.16.0](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/compare/v0.15.0...v0.16.0) (2024-01-13)
+
+### Bug Fixes
+
+- did:key ebsi / jcs codec value was wrong ([a71279e](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/a71279e3b79bff4add9fa4c889459264419accc6))
+- error handling fixed for did:ebsi ([6d37523](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/6d375237fac7eeb339e08465deb0065e0dec069a))
+
+### Features
+
+- ebsi resolver. Add support for fallback/multiple registries, so a client isn't required to specify a registry perse ([dedd959](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/dedd95986debbe2822fef298b4bc91a252e64ef7))
+
 # [0.15.0](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/compare/v0.14.1...v0.15.0) (2023-09-30)
 
 ### Features

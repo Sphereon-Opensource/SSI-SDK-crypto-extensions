@@ -1,7 +1,7 @@
 {
   "name": "@sphereon/ssi-sdk-ext.key-manager",
   "description": "Sphereon Key Manager plugin with BLS support",
-  "version": "0.15.0",
+  "version": "0.16.0",
   "source": "src/index.ts",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -21,8 +21,8 @@
     "@veramo/key-manager": "4.2.0"
   },
   "devDependencies": {
-    "@sphereon/ssi-sdk.dev": "^0.15.1",
-    "@sphereon/ssi-sdk-ext.key-utils": "workspace:*"
+    "@sphereon/ssi-sdk-ext.key-utils": "workspace:*",
+    "@sphereon/ssi-sdk.dev": "^0.15.1"
   },
   "resolutions": {
     "jsonld": "npm:@digitalcredentials/jsonld@^5.2.1",
