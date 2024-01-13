@@ -151,7 +151,7 @@ export class SphereonKeyManagementSystem extends KeyManagementSystem {
       case KeyType.Bls12381G2:
         key = {
           type: args.type,
-          kid: args.alias || args.publicKeyHex,
+          kid: args.alias ?? args.publicKeyHex,
           publicKeyHex: args.publicKeyHex,
           meta: {
             algorithms: ['BLS'],
@@ -165,7 +165,7 @@ export class SphereonKeyManagementSystem extends KeyManagementSystem {
         const publicKeyHex = keyPair.getPublic(true, 'hex')
         key = {
           type: args.type,
-          kid: args.alias || publicKeyHex,
+          kid: args.alias ?? publicKeyHex,
           publicKeyHex,
           meta: {
             algorithms: ['ES256'],

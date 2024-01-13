@@ -22,7 +22,8 @@ export const getResolver = (): ResolverRegistry => {
       try {
         const contentType = determineContentType(options)
         response.didResolutionMetadata.contentType = contentType
-        const doc = await methodToDriverMap[parsed.method].keyToDidDoc(did, contentType, options)
+        const driver = methodToDriverMap[parsed.method]
+        const doc = await driver.keyToDidDoc(did, contentType, options)
         switch (contentType) {
           case DID_LD_JSON:
             if (!doc['@context']) {

@@ -21,7 +21,8 @@
     "@veramo/key-manager": "4.2.0"
   },
   "devDependencies": {
-    "@sphereon/ssi-sdk.dev": "^0.15.1"
+    "@sphereon/ssi-sdk.dev": "^0.15.1",
+    "@sphereon/ssi-sdk-ext.key-utils": "workspace:*"
   },
   "resolutions": {
     "jsonld": "npm:@digitalcredentials/jsonld@^5.2.1",
