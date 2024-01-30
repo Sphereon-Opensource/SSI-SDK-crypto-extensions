@@ -31,12 +31,12 @@ export class RSASigner {
     this.scheme = opts?.scheme ?? 'RSA-PSS'
   }
 
-  private getImportParams(): AlgorithmIdentifier | RsaPssParams {
+  private getImportParams(): AlgorithmIdentifier | RsaPssParams | RsaHashedImportParams {
     if (this.scheme === 'RSA-PSS') {
-      return { name: this.scheme, saltLength: 32 }
+      return { name: this.scheme, saltLength: 32, hash: {name: this.hashAlgorithm} as RsaHashedImportParams  }
     }
     // console.log({ name: this.scheme /*, hash: this.hashAlgorithm*/ })
-    return { name: this.scheme /*, hash: this.hashAlgorithm*/ }
+    return { name: this.scheme , hash: {name: this.hashAlgorithm} as RsaHashedImportParams }
   }
 
   private async getKey(): Promise<CryptoKey> {
