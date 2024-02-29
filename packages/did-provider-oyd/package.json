@@ -1,7 +1,7 @@
 {
   "name": "@sphereon/did-provider-oyd",
   "description": "OwnYourData plugin that can enable creation and control of did:oyd identifiers.",
-  "version": "0.0.1",
+  "version": "0.17.0",
   "source": "src/index.ts",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -12,9 +12,9 @@
   "dependencies": {
     "@veramo/core": "4.2.0",
     "@veramo/did-manager": "4.2.0",
-    "did-resolver": "^4.1.0",
     "cross-fetch": "^4.0.0",
-    "debug": "^4.3.3"
+    "debug": "^4.3.3",
+    "did-resolver": "^4.1.0"
   },
   "devDependencies": {
     "@types/debug": "4.1.8",
