@@ -1,6 +1,7 @@
 import { randomBytes } from '@ethersproject/random'
 import { generateKeyPair as generateSigningKeyPair } from '@stablelib/ed25519'
 import { IAgentContext, IKey, IKeyManager } from '@veramo/core'
+import Debug from 'debug'
 
 import { JsonWebKey } from 'did-resolver'
 import elliptic from 'elliptic'
@@ -8,6 +9,7 @@ import * as u8a from 'uint8arrays'
 import { ENC_KEY_ALGS, IImportProvidedOrGeneratedKeyArgs, JwkKeyUse, KeyCurve, KeyType, SIG_KEY_ALGS, TKeyType } from './types'
 import { generateRSAKeyAsPEM, hexToPEM, PEMToJwk, privateKeyHexFromPEM } from './x509'
 
+const debug = Debug('sphereon:kms:local')
 /**
  * Generates a random Private Hex Key for the specified key type
  * @param type The key type
@@ -174,7 +176,12 @@ const assertProperKeyLength = (keyHex: string, expectedKeyLength: number | numbe
  */
 const toSecp256k1Jwk = (keyHex: string, opts?: { use?: JwkKeyUse; isPrivateKey?: boolean }): JsonWebKey => {
   const { use } = opts ?? {}
-  assertProperKeyLength(keyHex, [64, 66, 130])
+  debug(`toSecp256k1Jwk keyHex: ${keyHex}, length: ${keyHex.length}`)
+  if (opts?.isPrivateKey) {
+    assertProperKeyLength(keyHex, [64])
+  } else {
+    assertProperKeyLength(keyHex, [66, 130])
+  }
 
   const secp256k1 = new elliptic.ec('secp256k1')
   const keyBytes = u8a.fromString(keyHex, 'base16')
@@ -200,10 +207,16 @@ const toSecp256k1Jwk = (keyHex: string, opts?: { use?: JwkKeyUse; isPrivateKey?:
  */
 const toSecp256r1Jwk = (keyHex: string, opts?: { use?: JwkKeyUse; isPrivateKey?: boolean }): JsonWebKey => {
   const { use } = opts ?? {}
-  assertProperKeyLength(keyHex, [64, 66, 130])
+  debug(`toSecp256r1Jwk keyHex: ${keyHex}, length: ${keyHex.length}`)
+  if (opts?.isPrivateKey) {
+    assertProperKeyLength(keyHex, [64])
+  } else {
+    assertProperKeyLength(keyHex, [66, 130])
+  }
 
   const secp256r1 = new elliptic.ec('p256')
   const keyBytes = u8a.fromString(keyHex, 'base16')
+  debug(`keyBytes length: ${keyBytes}`)
   const keyPair = opts?.isPrivateKey ? secp256r1.keyFromPrivate(keyBytes) : secp256r1.keyFromPublic(keyBytes)
   const point = keyPair.getPublic()
   return {
