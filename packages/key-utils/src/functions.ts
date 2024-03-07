@@ -255,7 +255,7 @@ const toEd25519OrX25519Jwk = (
 }
 
 const toRSAJwk = (publicKeyHex: string, opts?: { use?: JwkKeyUse; key?: IKey }): JsonWebKey => {
-  const { key } = opts ?? {}
+  const { key, use } = opts ?? {}
   // const publicKey = publicKeyHex
   // assertProperKeyLength(publicKey, [2048, 3072, 4096])
 
@@ -264,5 +264,9 @@ const toRSAJwk = (publicKeyHex: string, opts?: { use?: JwkKeyUse; key?: IKey }):
   }
 
   const publicKeyPEM = key?.meta?.publicKeyPEM ?? hexToPEM(publicKeyHex, 'public')
-  return PEMToJwk(publicKeyPEM, 'public') as JsonWebKey
+  const jwk = PEMToJwk(publicKeyPEM, 'public') as JsonWebKey;
+  if(use !== undefined) {
+    jwk.use = use
+  }
+  return jwk
 }
