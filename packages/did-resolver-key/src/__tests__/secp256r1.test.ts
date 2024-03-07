@@ -18,6 +18,18 @@ describe('Secp256r1 mapper', () => {
     expect(doc).toMatchSnapshot()
   })
 
+  it('successfully resolves the document from did:key from using JCS encoded JWK', async () => {
+    const id = 'zruuPojWkzGPb8sVc42f2YxcTXKUTpAUbdrzVovaTBmGGNyK6cGFaA4Kp7SSLKecrxYz8Sc9d77Rss7rayYt1oFCaNJ'
+
+    const multiformatPubKey = base58btc.decode(id)
+    varint.decode(multiformatPubKey) // decode is changing param multiformatPubKey as well
+    const pubKeyBytes = multiformatPubKey.slice(varint.decode.bytes)
+    const doc = await mapper.keyToDidDoc({ pubKeyBytes, fingerprint: id })
+    expect(doc).toMatchSnapshot()
+  })
+  const id =
+    'did:key:zNUQqWgZZ32cgbNYngBB3tiMp1mZXKM99nCE9kx24poqWyn45ja5Kh9dKDr8JxpMu9BUqPJze3nwXrvQEeJ1f6XLpbn7ZpsA2gwAvC8wmDYWQv8Wq55ddqiepMWe3KqVZUa9sK9BddeTQcXMPdp9TNWjtLFyVMGgsRX2AeZeKiMds4nG'
+
   it('successfully resolves the document from did:key from raw public key #2', async () => {
     const id = 'zrusAFgBbf84b8mBz8Cmy8UoFWKV52EaeRnK86vnLo4Z5QoRypE6hXVPN2urevZMAMtcTaCDFLWBaE1Q3jmdb1FHgve'
 

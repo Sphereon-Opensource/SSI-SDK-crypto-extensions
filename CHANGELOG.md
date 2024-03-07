@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.17.0](https://github.com/Sphereon-Opensource/veramo-BBS/compare/v0.16.0...v0.17.0) (2024-02-29)
+
+### Bug Fixes
+
+- Make sure we are more strict on hex key lengths for Secp256r1/k1 ([2f5bf1f](https://github.com/Sphereon-Opensource/veramo-BBS/commit/2f5bf1f23f7956bc4429a5e82bda1ac167842344))
+
+### Features
+
+- Add OwnYouData DID plugin (temp until upstream publishes it) ([6b428e2](https://github.com/Sphereon-Opensource/veramo-BBS/commit/6b428e242d968594b29938e4861f44ae3e5a7106))
+
 # [0.16.0](https://github.com/Sphereon-Opensource/veramo-BBS/compare/v0.15.0...v0.16.0) (2024-01-13)
 
 ### Bug Fixes

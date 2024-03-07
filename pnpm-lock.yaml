@@ -345,6 +345,31 @@ importers:
         specifier: 4.9.5
         version: 4.9.5
 
+  packages/did-provider-oyd:
+    dependencies:
+      '@veramo/core':
+        specifier: 4.2.0
+        version: 4.2.0(patch_hash=c5oempznsz4br5w3tcuk2i2mau)
+      '@veramo/did-manager':
+        specifier: 4.2.0
+        version: 4.2.0
+      cross-fetch:
+        specifier: ^4.0.0
+        version: 4.0.0
+      debug:
+        specifier: ^4.3.3
+        version: 4.3.4
+      did-resolver:
+        specifier: ^4.1.0
+        version: 4.1.0
+    devDependencies:
+      '@types/debug':
+        specifier: 4.1.8
+        version: 4.1.8
+      typescript:
+        specifier: 5.2.2
+        version: 5.2.2
+
   packages/did-provider-web:
     dependencies:
       '@sphereon/ssi-sdk-ext.did-utils':
@@ -5191,6 +5216,12 @@ packages:
     resolution: { integrity: sha512-eI6gvpcGHLk3dAuHYnRCAjX+41gMv1nz/VP55wAe5HtmAKDOoPSfr3f6vkMc08ov1S0NsjvUBxDtHHxqQY1LGA== }
     dev: false
 
+  /@types/debug@4.1.8:
+    resolution: { integrity: sha512-/vPO1EPOs306Cvhwv7KfVfYvOJqA/S/AXjaHQiJboCZzcNDb+TIJFN9/2C9DZ//ijSKWioNyUxD792QmDJ+HKQ== }
+    dependencies:
+      '@types/ms': 0.7.32
+    dev: true
+
   /@types/debug@4.1.9:
     resolution: { integrity: sha512-8Hz50m2eoS56ldRlepxSBa6PWEVCtzUo/92HgLc2qTMnotJNIm7xP+UZhyWoYsyOdd5dxZ+NZLb24rsKyFs2ow== }
     dependencies:
@@ -7791,7 +7822,6 @@ packages:
       node-fetch: 2.7.0
     transitivePeerDependencies:
       - encoding
-    dev: true
 
   /cross-spawn@6.0.5:
     resolution: { integrity: sha512-eTVLrBSt7fjbDygz805pMnstIs2VTBNkRm0qxZd+M7A5XDdxVRWO5MxGBXZhjY4cqLYLdtrGqRf8mBPmzwSpWQ== }
@@ -16330,6 +16360,12 @@ packages:
 
   /typescript@5.1.6:
     resolution: { integrity: sha512-zaWCozRZ6DLEWAWFrVDz1H6FVXzUSfTy5FUMWsQlU8Ym5JP9eO4xkTIROFCQvhQf61z6O/G6ugw3SgAnvvm+HA== }
+    engines: { node: '>=14.17' }
+    hasBin: true
+    dev: true
+
+  /typescript@5.2.2:
+    resolution: { integrity: sha512-mI4WrpHsbCIcwT9cF4FZvr80QUeKvsUsUvKDoR+X/7XHQH98xYD8YHZg7ANtz2GtZt/CBq2QJ0thkGJMHfqc1w== }
     engines: { node: '>=14.17' }
     hasBin: true
     dev: true
