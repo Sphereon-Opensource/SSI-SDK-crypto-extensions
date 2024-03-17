@@ -43,8 +43,8 @@ export class SphereonKeyDidProvider extends AbstractIdentifierProvider {
     },
     context: IContext
   ): Promise<Omit<IIdentifier, 'provider'>> {
-    const keyType: TKeyType = options?.type ?? 'Secp256k1'
-    let codecName = options?.codecName && options.codecName === 'EBSI' ? JWK_JCS_PUB_NAME : (options?.codecName as Multicodec.CodecName)
+    let codecName = options?.codecName === 'EBSI' ? JWK_JCS_PUB_NAME : (options?.codecName as Multicodec.CodecName)
+    const keyType: TKeyType = options?.type ?? (options?.codecName === JWK_JCS_PUB_NAME ? 'Secp256r1' : 'Secp256k1')
     const privateKeyHex = options?.key?.privateKeyHex ?? (await generatePrivateKeyHex(keyType))
     const key = await context.agent.keyManagerImport({ type: keyType, privateKeyHex, kms: kms ?? this.kms })
     let methodSpecificId: string | undefined

@@ -319,6 +319,9 @@ export async function getKey(
   context: IAgentContext<IResolver & IDIDManager>,
   keyId?: string
 ): Promise<IKey> {
+  if (!identifier) {
+    return Promise.reject(new Error(`No identifier provided to getKey method!`))
+  }
   const keys = await mapIdentifierKeysToDocWithJwkSupport(identifier, verificationMethodSection, context)
   if (!keys || keys.length === 0) {
     throw new Error(`No keys found for verificationMethodSection: ${verificationMethodSection} and did ${identifier.did}`)
