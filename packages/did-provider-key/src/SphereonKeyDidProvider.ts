@@ -7,8 +7,8 @@ import {
   TKeyType,
   toJwk,
 } from '@sphereon/ssi-sdk-ext.key-utils'
-import {IAgentContext, IIdentifier, IKey, IKeyManager, IService} from '@veramo/core'
-import {AbstractIdentifierProvider} from '@veramo/did-manager'
+import { IAgentContext, IIdentifier, IKey, IKeyManager, IService } from '@veramo/core'
+import { AbstractIdentifierProvider } from '@veramo/did-manager'
 import Debug from 'debug'
 import Multibase from 'multibase'
 import Multicodec from 'multicodec'

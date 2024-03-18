@@ -266,3 +266,10 @@ const toRSAJwk = (publicKeyHex: string, opts?: { use?: JwkKeyUse; key?: IKey }):
   const publicKeyPEM = key?.meta?.publicKeyPEM ?? hexToPEM(publicKeyHex, 'public')
   return PEMToJwk(publicKeyPEM, 'public') as JsonWebKey
 }
+
+export const leftpad = (data: string, size = 64, padString?: string): string => {
+  if (data.length === size) {
+    return data
+  }
+  return (padString ?? '0').repeat(size - data.length) + data
+}
