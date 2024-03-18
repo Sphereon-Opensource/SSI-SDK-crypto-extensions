@@ -267,9 +267,17 @@ const toRSAJwk = (publicKeyHex: string, opts?: { use?: JwkKeyUse; key?: IKey }):
   return PEMToJwk(publicKeyPEM, 'public') as JsonWebKey
 }
 
-export const leftpad = (data: string, size = 64, padString?: string): string => {
-  if (data.length === size) {
+export const padLeft = (args: { data: string; size?: number; padString?: string }): string => {
+  const { data } = args
+  const size = args.size ?? 32
+  const padString = args.padString ?? '0'
+  if (data.length >= size) {
     return data
   }
-  return (padString ?? '0').repeat(size - data.length) + data
+
+  if (padString && padString.length === 0) {
+    throw Error(`Pad string needs to have at least a length of 1`)
+  }
+  const length = padString.length
+  return padString.repeat((size - data.length) / length) + data
 }

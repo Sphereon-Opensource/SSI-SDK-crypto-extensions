@@ -1,6 +1,6 @@
 import { computeAddress } from '@ethersproject/transactions'
 import { UniResolver } from '@sphereon/did-uni-client'
-import { ENC_KEY_ALGS, hexKeyFromPEMBasedJwk, JwkKeyUse, leftpad, toJwk } from '@sphereon/ssi-sdk-ext.key-utils'
+import { ENC_KEY_ALGS, hexKeyFromPEMBasedJwk, JwkKeyUse, padLeft, toJwk } from '@sphereon/ssi-sdk-ext.key-utils'
 import { base58ToBytes, base64ToBytes, bytesToHex, hexToBytes, multibaseKeyToBytes } from '@sphereon/ssi-sdk.core'
 import { convertPublicKeyToX25519 } from '@stablelib/ed25519'
 import { DIDDocument, DIDDocumentSection, DIDResolutionResult, IAgentContext, IDIDManager, IIdentifier, IKey, IResolver } from '@veramo/core'
@@ -102,12 +102,11 @@ export function extractPublicKeyHexWithJwkSupport(pk: _ExtendedVerificationMetho
     if (pk.publicKeyJwk.kty === 'EC') {
       const secp256 = new elliptic.ec(pk.publicKeyJwk.crv === 'secp256k1' ? 'secp256k1' : 'p256')
 
-      // const prefix = pk.publicKeyJwk.crv === 'secp256k1' ? '04' : '03'
       const x = u8a.fromString(pk.publicKeyJwk.x!, 'base64url')
       const y = u8a.fromString(pk.publicKeyJwk.y!, 'base64url')
 
-      const xHex = leftpad(u8a.toString(x, 'base16'), 32, '0')
-      const yHex = leftpad(u8a.toString(y, 'base16'), 32, '0')
+      const xHex = padLeft({ data: u8a.toString(x, 'base16'), size: 32, padString: '0' })
+      const yHex = padLeft({ data: u8a.toString(y, 'base16'), size: 32, padString: '0' })
       const prefix = '04' // isEven(yHex) ? '02' : '03'
       // Uncompressed Hex format: 04<x><y>
       // Compressed Hex format: 02<x> (for even y) or 03<x> (for uneven y)
