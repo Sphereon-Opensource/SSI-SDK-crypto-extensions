@@ -1,4 +1,4 @@
-import { blsSign, generateBls12381G2KeyPair } from '@mattrglobal/bbs-signatures'
+// import { blsSign, generateBls12381G2KeyPair } from '@mattrglobal/bbs-signatures'
 import {
   generatePrivateKeyHex,
   hexToPEM,
@@ -68,7 +68,10 @@ export class SphereonKeyManagementSystem extends KeyManagementSystem {
 
     switch (type) {
       case KeyType.Bls12381G2: {
-        const keyPairBls12381G2 = await generateBls12381G2KeyPair()
+        // throw Error('BLS support not available because upstream is not really providing Windows and React-Native support; giving too much headache')
+        // @ts-ignore
+        const mattr = await import('@mattrglobal/bbs-signatures')
+        const keyPairBls12381G2 = await mattr.generateBls12381G2KeyPair()
         key = await this.importKey({
           type,
           privateKeyHex: Buffer.from(keyPairBls12381G2.secretKey).toString('hex'),
@@ -104,6 +107,9 @@ export class SphereonKeyManagementSystem extends KeyManagementSystem {
     }
 
     if (privateKey.type === KeyType.Bls12381G2) {
+      // throw Error('BLS support not available because upstream is not really providing Windows and React-Native support; giving too much headache')
+      // @ts-ignore
+      const mattr = await import('@mattrglobal/bbs-signatures')
       if (!data || Array.isArray(data)) {
         throw new Error('Data must be defined and cannot be an array')
       }
@@ -114,7 +120,7 @@ export class SphereonKeyManagementSystem extends KeyManagementSystem {
         },
         messages: [data],
       }
-      return Buffer.from(await blsSign(keyPair)).toString('hex')
+      return Buffer.from(await mattr.blsSign(keyPair)).toString('hex')
     } else if (
       // @ts-ignore
       privateKey.type === 'RSA' &&
