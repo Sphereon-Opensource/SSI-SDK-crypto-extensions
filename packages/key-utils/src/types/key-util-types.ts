@@ -1,6 +1,6 @@
 import { MinimalImportableKey } from '@veramo/core'
 
-export const JWK_JCS_PUB_NAME = 'jwk_jcs-pub'
+export const JWK_JCS_PUB_NAME = 'jwk_jcs-pub' as const
 export const JWK_JCS_PUB_PREFIX = 0xeb51
 
 export type TKeyType = 'Ed25519' | 'Secp256k1' | 'Secp256r1' | 'X25519' | 'Bls12381G1' | 'Bls12381G2' | 'RSA'

@@ -46,6 +46,7 @@ export class SphereonKeyManagementSystem extends KeyManagementSystem {
         debug('imported key', managedKey.type, managedKey.publicKeyHex)
         return managedKey
 
+      case 'Secp256k1':
       case 'Secp256r1':
       // @ts-ignore
       case 'RSA': {
@@ -158,10 +159,10 @@ export class SphereonKeyManagementSystem extends KeyManagementSystem {
           },
         }
         break
-      case 'Secp256r1': {
+      case 'Secp256k1': {
         const privateBytes = u8a.fromString(args.privateKeyHex.toLowerCase(), 'base16')
-        const secp256r1 = new elliptic.ec('p256')
-        const keyPair = secp256r1.keyFromPrivate(privateBytes)
+        const secp256k1 = new elliptic.ec('secp256k1')
+        const keyPair = secp256k1.keyFromPrivate(privateBytes, 'hex')
         const publicKeyHex = keyPair.getPublic(true, 'hex')
         key = {
           type: args.type,
@@ -169,6 +170,21 @@ export class SphereonKeyManagementSystem extends KeyManagementSystem {
           publicKeyHex,
           meta: {
             algorithms: ['ES256'],
+          },
+        }
+        break
+      }
+      case 'Secp256r1': {
+        const privateBytes = u8a.fromString(args.privateKeyHex.toLowerCase(), 'base16')
+        const secp256r1 = new elliptic.ec('p256')
+        const keyPair = secp256r1.keyFromPrivate(privateBytes, 'hex')
+        const publicKeyHex = keyPair.getPublic(true, 'hex')
+        key = {
+          type: args.type,
+          kid: args.alias ?? publicKeyHex,
+          publicKeyHex,
+          meta: {
+            algorithms: ['ES256K', 'ES256K-R', 'eth_signTransaction', 'eth_signTypedData', 'eth_signMessage', 'eth_rawSign'],
           },
         }
         break
