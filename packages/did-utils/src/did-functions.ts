@@ -14,6 +14,7 @@ import {
   isDefined,
   mapIdentifierKeysToDoc,
 } from '@veramo/utils'
+import {leftpad} from "did-jwt/lib/util";
 import { DIDResolutionOptions, Resolvable, VerificationMethod } from 'did-resolver'
 // @ts-ignore
 import elliptic from 'elliptic'
@@ -106,9 +107,9 @@ export function extractPublicKeyHexWithJwkSupport(pk: _ExtendedVerificationMetho
       const x = u8a.fromString(pk.publicKeyJwk.x!, 'base64url')
       const y = u8a.fromString(pk.publicKeyJwk.y!, 'base64url')
 
-      const xHex = u8a.toString(x, 'base16')
-      const yHex = u8a.toString(y, 'base16')
-      const prefix = '04'
+      const xHex = leftpad(u8a.toString(x, 'base16'), 32)
+      const yHex = leftpad(u8a.toString(y, 'base16'), 32)
+      const prefix = '04' // isEven(yHex) ? '02' : '03'
       // Uncompressed Hex format: 04<x><y>
       // Compressed Hex format: 02<x> (for even y) or 03<x> (for uneven y)
       const hex = `${prefix}${xHex}${yHex}`
@@ -126,6 +127,11 @@ export function extractPublicKeyHexWithJwkSupport(pk: _ExtendedVerificationMetho
   return extractPublicKeyHex(pk, convert)
 }
 
+
+export function isEvenHexString(hex: string) {
+  const lastChar = hex[hex.length - 1].toLowerCase()
+  return ['0', '2', '4', '6', '8', 'a', 'c', 'e'].includes(lastChar)
+}
 interface LegacyVerificationMethod extends VerificationMethod {
   publicKeyBase64: string
 }
