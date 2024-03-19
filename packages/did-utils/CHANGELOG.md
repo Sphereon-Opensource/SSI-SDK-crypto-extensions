@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.18.0](https://github.com/Sphereon-OpenSource/ssi-sdk-crypto-extensions/compare/v0.17.0...v0.18.0) (2024-03-19)
+
+### Bug Fixes
+
+- unknown point format ([b25d6de](https://github.com/Sphereon-OpenSource/ssi-sdk-crypto-extensions/commit/b25d6de6e8c938d36cf2aa6e8679a549bd41aea5))
+
+### Features
+
+- Ensure proper key type is used for did:key in case codeName is JCS/EBSI ([af11a99](https://github.com/Sphereon-OpenSource/ssi-sdk-crypto-extensions/commit/af11a99b0912d911e2d11fad94e7ccf02068afbd))
+
 # [0.17.0](https://github.com/Sphereon-OpenSource/ssi-sdk-crypto-extensions/compare/v0.16.0...v0.17.0) (2024-02-29)
 
 **Note:** Version bump only for package @sphereon/ssi-sdk-ext.did-utils

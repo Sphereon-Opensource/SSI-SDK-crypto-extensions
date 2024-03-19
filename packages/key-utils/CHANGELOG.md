@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.18.0](https://github.com/Sphereon-OpenSource/ssi-sdk/compare/v0.17.0...v0.18.0) (2024-03-19)
+
+### Bug Fixes
+
+- Make sure secp256k1 keys are compressed ([15493c1](https://github.com/Sphereon-OpenSource/ssi-sdk/commit/15493c1b310c34bb70f6140c26819252e1b7b697))
+
 # [0.17.0](https://github.com/Sphereon-OpenSource/ssi-sdk/compare/v0.16.0...v0.17.0) (2024-02-29)
 
 ### Bug Fixes

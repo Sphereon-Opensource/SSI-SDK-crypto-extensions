@@ -1,7 +1,7 @@
 {
   "name": "@sphereon/ssi-sdk-ext.did-provider-key",
   "description": "Sphereon SSI-SDK plugin for management of did:key identifiers.",
-  "version": "0.17.0",
+  "version": "0.18.0",
   "source": "src/index.ts",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -15,8 +15,8 @@
     "@transmute/did-key-bls12381": "0.3.0-unstable.10",
     "@veramo/core": "4.2.0",
     "@veramo/did-manager": "4.2.0",
-    "did-jwt": "6.11.6",
     "debug": "^4.3.4",
+    "did-jwt": "6.11.6",
     "did-resolver": "^4.1.0",
     "multibase": "^4.0.6",
     "multicodec": "^3.2.1",

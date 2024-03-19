@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.18.0](https://github.com/Sphereon-Opensource/veramo-BBS/compare/v0.17.0...v0.18.0) (2024-03-19)
+
+### Bug Fixes
+
+- Key did provider fixes for invalid did:key encodings ([194c480](https://github.com/Sphereon-Opensource/veramo-BBS/commit/194c4808221ef232b0791ce04ce48459980611a2))
+- Make sure bbs-sig packages are peer deps, because of heir poor Windows and RN support ([32d6bd9](https://github.com/Sphereon-Opensource/veramo-BBS/commit/32d6bd9c0857f431c9b7a845e73437536f2d377b))
+- Make sure secp256k1 keys are compressed ([15493c1](https://github.com/Sphereon-Opensource/veramo-BBS/commit/15493c1b310c34bb70f6140c26819252e1b7b697))
+- unknown point format ([b25d6de](https://github.com/Sphereon-Opensource/veramo-BBS/commit/b25d6de6e8c938d36cf2aa6e8679a549bd41aea5))
+
+### Features
+
+- Ensure proper key type is used for did:key in case codeName is JCS/EBSI ([af11a99](https://github.com/Sphereon-Opensource/veramo-BBS/commit/af11a99b0912d911e2d11fad94e7ccf02068afbd))
+
 # [0.17.0](https://github.com/Sphereon-Opensource/veramo-BBS/compare/v0.16.0...v0.17.0) (2024-02-29)
 
 ### Bug Fixes
