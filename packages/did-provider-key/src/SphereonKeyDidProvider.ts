@@ -18,6 +18,16 @@ const debug = Debug('did-provider-key')
 
 type IContext = IAgentContext<IKeyManager>
 
+const keyCodecs = {
+  RSA: 'rsa-pub',
+  Ed25519: 'ed25519-pub',
+  X25519: 'x25519-pub',
+  Secp256k1: 'secp256k1-pub',
+  Secp256r1: 'p256-pub',
+  Bls12381G1: 'bls12_381-g1-pub',
+  Bls12381G2: 'bls12_381-g2-pub',
+} as const
+
 export class SphereonKeyDidProvider extends AbstractIdentifierProvider {
   private readonly kms: string
 
@@ -43,8 +53,11 @@ export class SphereonKeyDidProvider extends AbstractIdentifierProvider {
     },
     context: IContext
   ): Promise<Omit<IIdentifier, 'provider'>> {
-    const keyType: TKeyType = options?.type ?? 'Secp256k1'
-    let codecName = options?.codecName && options.codecName === 'EBSI' ? JWK_JCS_PUB_NAME : (options?.codecName as Multicodec.CodecName)
+    let codecName = (options?.codecName?.toUpperCase() === 'EBSI' ? (JWK_JCS_PUB_NAME as Multicodec.CodecName) : options?.codecName) as
+      | CodeNameType
+      | undefined
+    const keyType: TKeyType = options?.type ?? (codecName === JWK_JCS_PUB_NAME ? 'Secp256r1' : 'Secp256k1')
+    console.log(`keytype: ${keyType}, codecName: ${codecName}`)
     const privateKeyHex = options?.key?.privateKeyHex ?? (await generatePrivateKeyHex(keyType))
     const key = await context.agent.keyManagerImport({ type: keyType, privateKeyHex, kms: kms ?? this.kms })
     let methodSpecificId: string | undefined
@@ -59,24 +72,20 @@ export class SphereonKeyDidProvider extends AbstractIdentifierProvider {
         Multibase.encode('base58btc', Multicodec.addPrefix(codecName as Multicodec.CodecName, u8a.fromString(key.publicKeyHex, 'hex')))
       )
     } else {
-      if (keyType === 'Bls12381G2') {
-        codecName = 'bls12_381-g2-pub'
-      } else if (keyType === 'Secp256k1') {
-        codecName = 'secp256k1-pub'
-      } else if (keyType === 'Ed25519') {
-        codecName = 'ed25519-pub'
-      }
+      codecName = keyCodecs[keyType]
+
       if (codecName) {
+        // methodSpecificId  = bytesToMultibase({bytes: u8a.fromString(key.publicKeyHex, 'hex'), codecName})
         methodSpecificId = u8a
           .toString(Multibase.encode('base58btc', Multicodec.addPrefix(codecName as Multicodec.CodecName, u8a.fromString(key.publicKeyHex, 'hex'))))
           .toString()
       }
     }
     if (!methodSpecificId) {
-      throw Error(`Key type ${keyType} is not supported currently for did:key`)
+      throw Error(`Key type ${keyType}, codec ${codecName} is not supported currently for did:key`)
     }
     const identifier: Omit<IIdentifier, 'provider'> = {
-      did: 'did:key:' + methodSpecificId,
+      did: `did:key:${methodSpecificId}`,
       controllerKeyId: key.kid,
       keys: [key],
       services: [],
@@ -116,3 +125,5 @@ export class SphereonKeyDidProvider extends AbstractIdentifierProvider {
     throw Error('KeyDIDProvider removeService not supported')
   }
 }
+
+type CodeNameType = Multicodec.CodecName | 'rsa-pub' | 'jwk_jcs-pub'

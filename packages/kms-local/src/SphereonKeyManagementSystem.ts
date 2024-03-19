@@ -1,4 +1,4 @@
-import { blsSign, generateBls12381G2KeyPair } from '@mattrglobal/bbs-signatures'
+// import { blsSign, generateBls12381G2KeyPair } from '@mattrglobal/bbs-signatures'
 import {
   generatePrivateKeyHex,
   hexToPEM,
@@ -46,6 +46,7 @@ export class SphereonKeyManagementSystem extends KeyManagementSystem {
         debug('imported key', managedKey.type, managedKey.publicKeyHex)
         return managedKey
 
+      case 'Secp256k1':
       case 'Secp256r1':
       // @ts-ignore
       case 'RSA': {
@@ -67,7 +68,10 @@ export class SphereonKeyManagementSystem extends KeyManagementSystem {
 
     switch (type) {
       case KeyType.Bls12381G2: {
-        const keyPairBls12381G2 = await generateBls12381G2KeyPair()
+        // throw Error('BLS support not available because upstream is not really providing Windows and React-Native support; giving too much headache')
+        // @ts-ignore
+        const mattr = await import('@mattrglobal/bbs-signatures')
+        const keyPairBls12381G2 = await mattr.generateBls12381G2KeyPair()
         key = await this.importKey({
           type,
           privateKeyHex: Buffer.from(keyPairBls12381G2.secretKey).toString('hex'),
@@ -103,6 +107,9 @@ export class SphereonKeyManagementSystem extends KeyManagementSystem {
     }
 
     if (privateKey.type === KeyType.Bls12381G2) {
+      // throw Error('BLS support not available because upstream is not really providing Windows and React-Native support; giving too much headache')
+      // @ts-ignore
+      const mattr = await import('@mattrglobal/bbs-signatures')
       if (!data || Array.isArray(data)) {
         throw new Error('Data must be defined and cannot be an array')
       }
@@ -113,7 +120,7 @@ export class SphereonKeyManagementSystem extends KeyManagementSystem {
         },
         messages: [data],
       }
-      return Buffer.from(await blsSign(keyPair)).toString('hex')
+      return Buffer.from(await mattr.blsSign(keyPair)).toString('hex')
     } else if (
       // @ts-ignore
       privateKey.type === 'RSA' &&
@@ -158,10 +165,10 @@ export class SphereonKeyManagementSystem extends KeyManagementSystem {
           },
         }
         break
-      case 'Secp256r1': {
+      case 'Secp256k1': {
         const privateBytes = u8a.fromString(args.privateKeyHex.toLowerCase(), 'base16')
-        const secp256r1 = new elliptic.ec('p256')
-        const keyPair = secp256r1.keyFromPrivate(privateBytes)
+        const secp256k1 = new elliptic.ec('secp256k1')
+        const keyPair = secp256k1.keyFromPrivate(privateBytes, 'hex')
         const publicKeyHex = keyPair.getPublic(true, 'hex')
         key = {
           type: args.type,
@@ -169,6 +176,21 @@ export class SphereonKeyManagementSystem extends KeyManagementSystem {
           publicKeyHex,
           meta: {
             algorithms: ['ES256'],
+          },
+        }
+        break
+      }
+      case 'Secp256r1': {
+        const privateBytes = u8a.fromString(args.privateKeyHex.toLowerCase(), 'base16')
+        const secp256r1 = new elliptic.ec('p256')
+        const keyPair = secp256r1.keyFromPrivate(privateBytes, 'hex')
+        const publicKeyHex = keyPair.getPublic(true, 'hex')
+        key = {
+          type: args.type,
+          kid: args.alias ?? publicKeyHex,
+          publicKeyHex,
+          meta: {
+            algorithms: ['ES256K', 'ES256K-R', 'eth_signTransaction', 'eth_signTypedData', 'eth_signMessage', 'eth_rawSign'],
           },
         }
         break

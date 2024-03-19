@@ -52,7 +52,7 @@ describe('@sphereon/did-provider-key', () => {
     const identifier: IIdentifier = await agent.didManagerCreate({ options })
 
     expect(identifier).toBeDefined()
-    expect(identifier.did).toBe('did:key:z7r8oriqybh8QSuroAtjntBoRysmWDxRzCGbJo9GbkG22dd8s6p2jLqbLmWgPYdrkYLdZjTmhFn61UKYBCXL9gxdFLf7Q')
+    expect(identifier.did).toBe('did:key:zQ3shqZQs23rWENxtomyw4BNz1p23AkbjzwdeYg6DpmhWDDE6')
   })
 
   it('should remove identifier', async () => {
@@ -71,15 +71,6 @@ describe('@sphereon/did-provider-key', () => {
     } catch (error) {
       expect(JSON.stringify(error)).toMatch('An operation request already exists in queue for DID')
     }
-  })
-
-  it('should create identifier with Secp256k1 key', async () => {
-    const options = { type: Key.Secp256k1 }
-    const identifier: IIdentifier = await agent.didManagerCreate({ options })
-
-    expect(identifier).toBeDefined()
-    expect(identifier.keys.length).toBe(1)
-    expect(identifier.keys[0].type).toBe(Key.Secp256k1)
   })
 
   it('should create identifier with Secp256k1 key', async () => {
