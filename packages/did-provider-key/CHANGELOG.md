@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.18.0](https://github.com/Sphereon-Opensource/SSI-SDK/compare/v0.17.0...v0.18.0) (2024-03-19)
+
+### Bug Fixes
+
+- Key did provider fixes for invalid did:key encodings ([194c480](https://github.com/Sphereon-Opensource/SSI-SDK/commit/194c4808221ef232b0791ce04ce48459980611a2))
+
+### Features
+
+- Ensure proper key type is used for did:key in case codeName is JCS/EBSI ([af11a99](https://github.com/Sphereon-Opensource/SSI-SDK/commit/af11a99b0912d911e2d11fad94e7ccf02068afbd))
+
 # [0.17.0](https://github.com/Sphereon-Opensource/SSI-SDK/compare/v0.16.0...v0.17.0) (2024-02-29)
 
 **Note:** Version bump only for package @sphereon/ssi-sdk-ext.did-provider-key
