@@ -28,13 +28,9 @@ export const ebsiDIDSpecInfo: Record<string, EbsiDidSpecInfo> = {
 }
 
 export interface IKeyOpts {
-  methodSpecificId?: string // method specific id for import
-  keys?: {
-    secp256k1: WithRequiredProperty<Partial<MinimalImportableKey>, 'privateKeyHex'>
-    secp256r1: WithRequiredProperty<Partial<MinimalImportableKey>, 'privateKeyHex'>
-  }// Optional key to import with only privateKeyHex mandatory. If not specified a key with random kid will be created
-  /*type?: Key // The key type. Defaults to Secp256k1
-  use?: KeyUse // The key use*/
+  kid?: string
+  key?: WithRequiredProperty<Partial<MinimalImportableKey>, 'privateKeyHex'>
+  type?: KeyType
 }
 
 // Needed to make a single property required
@@ -46,5 +42,28 @@ export interface ICreateIdentifierArgs {
   kms?: string
   alias?: string
   type?: EbsiDidSpecInfo
-  options?: IKeyOpts
+  options?: {
+    methodSpecificId?: string // method specific id for import
+    secp256k1?: IKeyOpts | VerificationMethod
+    secp256r1?: IKeyOpts | VerificationMethod
+  }
+}
+
+export interface ICreateIdentifierOpts {
+
+}
+
+export enum KeyType {
+  Secp256k1 = 'Secp256k1',
+  Secp256r1 = 'Secp256r1'
+}
+
+export enum EbsiPublicKeyPurpose {
+  Authentication = 'authentication',
+  AssertionMethod = 'assertionMethod',
+  CapabilityInvocation = 'capabilityInvocation',
+}
+
+export interface VerificationMethod extends IKeyOpts {
+  purposes: EbsiPublicKeyPurpose[]
 }

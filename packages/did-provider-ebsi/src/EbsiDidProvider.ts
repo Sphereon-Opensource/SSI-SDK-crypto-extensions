@@ -1,10 +1,10 @@
-import {IAgentContext, IIdentifier, IKeyManager, MinimalImportableKey, TKeyType} from '@veramo/core'
+import {IAgentContext, IIdentifier, IKeyManager, MinimalImportableKey} from '@veramo/core'
 import Debug from 'debug'
 import {AbstractIdentifierProvider} from '@veramo/did-manager/build/abstract-identifier-provider'
 import {DIDDocument} from 'did-resolver'
 import {IKey, IService} from '@veramo/core/build/types/IIdentifier'
 import * as u8a from 'uint8arrays'
-import {ebsiDIDSpecInfo, IContext, ICreateIdentifierArgs} from './types'
+import {ebsiDIDSpecInfo, IContext, ICreateIdentifierArgs, IKeyOpts, KeyType, VerificationMethod} from './types'
 import {generateEbsiPrivateKeyHex, toMethodSpecificId} from './functions'
 
 const debug = Debug('sphereon:did-provider-ebsi')
@@ -17,22 +17,22 @@ export class EbsiDidProvider extends AbstractIdentifierProvider {
     this.defaultKms = options.defaultKms
   }
 
-  async createIdentifier(
-    {
-      kms,
-      options,
-    }: {
-      kms?: string
-      options?: ICreateIdentifierArgs
-    },
-    context: IContext
-  ): Promise<Omit<IIdentifier, 'provider'>> {
-    if (!options?.type || options.type === ebsiDIDSpecInfo.V1) {
-      const { secp256k1, secp256r1 } = { ...options?.options?.keys }
-      const secp256k1ManagedKeyInfo = await this.generateEbsiKeyPair('Secp256k1', secp256k1 as Partial<MinimalImportableKey>, kms as string, context);
-      const secp256r1ManagedKeyInfo = await this.generateEbsiKeyPair('Secp256r1', secp256r1 as Partial<MinimalImportableKey>, kms as string, context);
+  async createIdentifier(args: ICreateIdentifierArgs, context: IContext): Promise<Omit<IIdentifier, 'provider'>> {
+    const { type, options,kms,alias } = { ...args }
+    if (!type || type === ebsiDIDSpecInfo.V1) {
 
-      const methodSpecificId = toMethodSpecificId(ebsiDIDSpecInfo.V1, options?.options?.methodSpecificId)
+        const secp256k1ManagedKeyInfo = await this.generateEbsiKeyPair({
+            keyOpts: options?.secp256k1,
+            alias,
+            kms
+        }, context);
+        const secp256r1ManagedKeyInfo = await this.generateEbsiKeyPair({
+            keyOpts: options?.secp256r1,
+            alias,
+            kms
+        }, context);
+
+      const methodSpecificId = toMethodSpecificId(ebsiDIDSpecInfo.V1, options?.methodSpecificId)
       const identifier: Omit<IIdentifier, 'provider'> = {
         did: ebsiDIDSpecInfo.V1.method + methodSpecificId,
         controllerKeyId: secp256k1ManagedKeyInfo.kid,
@@ -41,16 +41,16 @@ export class EbsiDidProvider extends AbstractIdentifierProvider {
       }
       debug('Created', identifier.did)
       return identifier
-    } else if (options.type === ebsiDIDSpecInfo.KEY) {
-      throw Error(`Type ${options.type} not supported. Please use @sphereon/ssi-sdk-ext.did-provider-key for Natural Person EBSI DIDs`)
+    } else if (type === ebsiDIDSpecInfo.KEY) {
+      throw Error(`Type ${type} not supported. Please use @sphereon/ssi-sdk-ext.did-provider-key for Natural Person EBSI DIDs`)
     }
-    throw Error(`Type ${options.type} not supported`)
+    throw Error(`Type ${type} not supported`)
   }
 
-  private async generateEbsiKeyPair(keyType: TKeyType, key: Partial<MinimalImportableKey>, kms: string, context: IAgentContext<IKeyManager>) {
+  private async generateEbsiKeyPair(args: { keyOpts?: IKeyOpts | VerificationMethod, alias?: string, kms?: string }, context: IAgentContext<IKeyManager>) {
       let privateKeyHex = generateEbsiPrivateKeyHex(
           ebsiDIDSpecInfo.V1,
-          key?.privateKeyHex ? u8a.fromString(key.privateKeyHex, 'base16') : undefined
+          args.keyOpts?.key?.privateKeyHex ? u8a.fromString(args.keyOpts.key.privateKeyHex, 'base16') : undefined
       )
       if (privateKeyHex.startsWith('0x')) {
         privateKeyHex = privateKeyHex.substring(2)
@@ -59,12 +59,18 @@ export class EbsiDidProvider extends AbstractIdentifierProvider {
         throw Error('Private key should be 32 bytes / 64 chars hex')
       }
 
-      return await context.agent.keyManagerImport({
-        type: keyType,
-        kms: this.assertedKms(kms),
-        kid: key?.kid,
-        privateKeyHex,
-      })
+      const keyManagerImportArgs: MinimalImportableKey = {
+          type: args.keyOpts?.type ?? KeyType.Secp256k1,
+          kms: this.assertedKms(args.kms),
+          kid: args.keyOpts?.kid,
+          privateKeyHex
+      }
+
+      if (args?.keyOpts && 'purposes' in args.keyOpts) {
+          keyManagerImportArgs.meta = { purposes: [...args.keyOpts.purposes ] }
+      }
+
+      return await context.agent.keyManagerImport(keyManagerImportArgs)
   }
 
   addKey(
