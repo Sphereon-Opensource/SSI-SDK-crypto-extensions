@@ -1,4 +1,4 @@
-import {IAgentContext, IKeyManager, MinimalImportableKey} from '@veramo/core'
+import { IAgentContext, IKeyManager, MinimalImportableKey } from '@veramo/core'
 
 export type IContext = IAgentContext<IKeyManager>
 
@@ -49,13 +49,11 @@ export interface ICreateIdentifierArgs {
   }
 }
 
-export interface ICreateIdentifierOpts {
-
-}
+export interface ICreateIdentifierOpts {}
 
 export enum KeyType {
   Secp256k1 = 'Secp256k1',
-  Secp256r1 = 'Secp256r1'
+  Secp256r1 = 'Secp256r1',
 }
 
 export enum EbsiPublicKeyPurpose {
