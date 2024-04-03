@@ -101,12 +101,16 @@ export function extractPublicKeyHexWithJwkSupport(pk: _ExtendedVerificationMetho
   if (pk.publicKeyJwk) {
     if (pk.publicKeyJwk.kty === 'EC') {
       const secp256 = new elliptic.ec(pk.publicKeyJwk.crv === 'secp256k1' ? 'secp256k1' : 'p256')
+      const padString = '0'
 
       const x = u8a.fromString(pk.publicKeyJwk.x!, 'base64url')
       const y = u8a.fromString(pk.publicKeyJwk.y!, 'base64url')
+      const xData = u8a.toString(x, 'base16')
+      const yData = u8a.toString(y, 'base16')
+      const size = yData.length <= 32 ? 32 : 64
 
-      const xHex = padLeft({ data: u8a.toString(x, 'base16'), size: 32, padString: '0' })
-      const yHex = padLeft({ data: u8a.toString(y, 'base16'), size: 32, padString: '0' })
+      const xHex = padLeft({ data: xData, size, padString })
+      const yHex = padLeft({ data: yData, size, padString })
       const prefix = '04' // isEven(yHex) ? '02' : '03'
       // Uncompressed Hex format: 04<x><y>
       // Compressed Hex format: 02<x> (for even y) or 03<x> (for uneven y)

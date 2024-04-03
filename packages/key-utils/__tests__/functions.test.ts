@@ -1,4 +1,4 @@
-import { generatePrivateKeyHex } from '../src'
+import { generatePrivateKeyHex, padLeft } from '../src'
 import { Key } from '../src'
 
 describe('functions: key generator', () => {
@@ -42,5 +42,24 @@ describe('functions: key generator', () => {
   })
   it('Ed25519 should result in hex length 128', async () => {
     expect((await generatePrivateKeyHex(Key.Ed25519)).length).toBe(128)
+  })
+})
+describe('functions: Leftpad', () => {
+  it('should pad left to 64 chars when 62 chars are present', () => {
+    const data = '2df693fc990b11367d8d1613b780fdd35876493e5e2517c4e1ada0ecfd8aa1'
+    const result = padLeft({ data, size: 64, padString: '0' })
+    expect(result).toEqual(`00${data}`)
+  })
+
+  it('should not pad left to 64 chars when 64 chars are present', () => {
+    const data = '002df693fc990b11367d8d1613b780fdd35876493e5e2517c4e1ada0ecfd8aa1'
+    const result = padLeft({ data, size: 64, padString: '0' })
+    expect(result).toEqual(`${data}`)
+  })
+
+  it('should not pad left to 64 chars when more than 64 chars are present', () => {
+    const data = '12345002df693fc990b11367d8d1613b780fdd35876493e5e2517c4e1ada0ecfd8aa1'
+    const result = padLeft({ data, size: 64, padString: '0' })
+    expect(result).toEqual(`${data}`)
   })
 })
