@@ -4,7 +4,7 @@ import { AbstractIdentifierProvider } from '@veramo/did-manager/build/abstract-i
 import { DIDDocument } from 'did-resolver'
 import { IKey, IService } from '@veramo/core/build/types/IIdentifier'
 import * as u8a from 'uint8arrays'
-import { ebsiDIDSpecInfo, EbsiPublicKeyPurpose, IContext, ICreateIdentifierArgs, IKeyOpts, KeyType, VerificationMethod } from './types'
+import { ebsiDIDSpecInfo, EbsiKeyType, EbsiPublicKeyPurpose, IContext, ICreateIdentifierArgs, IKeyOpts } from './types'
 import { generateEbsiPrivateKeyHex, toMethodSpecificId } from './functions'
 
 const debug = Debug('sphereon:did-provider-ebsi')
@@ -22,24 +22,16 @@ export class EbsiDidProvider extends AbstractIdentifierProvider {
     if (!type || type === ebsiDIDSpecInfo.V1) {
       const secp256k1ManagedKeyInfo = await this.generateEbsiKeyPair(
         {
-          keyOpts: {
-            ...options?.secp256k1,
-            type: this.assertedKeyType({ key: options?.secp256k1, keyType: KeyType.Secp256k1 }),
-            purposes: this.assertedPurposes({ keyType: KeyType.Secp256k1, purposes: (options?.secp256k1 as VerificationMethod)?.purposes }),
-          },
-          alias,
+          keyOpts: options?.secp256k1Key,
+          keyType: 'Secp256k1',
           kms,
         },
         context
       )
       const secp256r1ManagedKeyInfo = await this.generateEbsiKeyPair(
         {
-          keyOpts: {
-            ...options?.secp256r1,
-            type: this.assertedKeyType({ key: options?.secp256r1, keyType: KeyType.Secp256r1 }),
-            purposes: this.assertedPurposes({ keyType: KeyType.Secp256r1, purposes: (options?.secp256r1 as VerificationMethod)?.purposes }),
-          },
-          alias,
+          keyOpts: options?.secp256r1Key,
+          keyType: 'Secp256r1',
           kms,
         },
         context
@@ -50,6 +42,7 @@ export class EbsiDidProvider extends AbstractIdentifierProvider {
         did: ebsiDIDSpecInfo.V1.method + methodSpecificId,
         controllerKeyId: secp256k1ManagedKeyInfo.kid,
         keys: [secp256k1ManagedKeyInfo, secp256r1ManagedKeyInfo],
+        alias,
         services: [],
       }
       debug('Created', identifier.did)
@@ -60,13 +53,11 @@ export class EbsiDidProvider extends AbstractIdentifierProvider {
     throw Error(`Type ${type} not supported`)
   }
 
-  private async generateEbsiKeyPair(
-    args: { keyOpts?: IKeyOpts | VerificationMethod; alias?: string; kms?: string },
-    context: IAgentContext<IKeyManager>
-  ) {
+  private async generateEbsiKeyPair(args: { keyOpts?: IKeyOpts; keyType: EbsiKeyType; kms?: string }, context: IAgentContext<IKeyManager>) {
+    const { keyOpts, keyType, kms } = args
     let privateKeyHex = generateEbsiPrivateKeyHex(
       ebsiDIDSpecInfo.V1,
-      args.keyOpts?.key?.privateKeyHex ? u8a.fromString(args.keyOpts.key.privateKeyHex, 'base16') : undefined
+      keyOpts?.privateKeyHex ? u8a.fromString(keyOpts.privateKeyHex, 'base16') : undefined
     )
     if (privateKeyHex.startsWith('0x')) {
       privateKeyHex = privateKeyHex.substring(2)
@@ -74,19 +65,8 @@ export class EbsiDidProvider extends AbstractIdentifierProvider {
     if (!privateKeyHex || privateKeyHex.length !== 64) {
       throw Error('Private key should be 32 bytes / 64 chars hex')
     }
-
-    const keyManagerImportArgs: MinimalImportableKey = {
-      type: args.keyOpts?.type!, // It's safe to use '!', a default value is set
-      kms: this.assertedKms(args.kms),
-      kid: args.keyOpts?.kid,
-      privateKeyHex,
-    }
-
-    if (args?.keyOpts && 'purposes' in args.keyOpts) {
-      keyManagerImportArgs.meta = { purposes: [...args.keyOpts.purposes] }
-    }
-
-    return await context.agent.keyManagerImport(keyManagerImportArgs)
+    const importableKey = this.assertedKey({ key: { ...keyOpts, privateKeyHex }, type: keyType, kms })
+    return await context.agent.keyManagerImport(importableKey)
   }
 
   addKey(
@@ -148,6 +128,15 @@ export class EbsiDidProvider extends AbstractIdentifierProvider {
     throw Error(`Not (yet) implemented for the EBSI did provider`)
   }
 
+  private assertedKey = (args: { key?: IKeyOpts; type: EbsiKeyType; kms?: string }): MinimalImportableKey => {
+    const { key, type, kms } = args
+    const minimalImportableKey: Partial<MinimalImportableKey> = { ...key } ?? {}
+    minimalImportableKey.kms = this.assertedKms(kms)
+    minimalImportableKey.type = this.assertedKeyType({ key, type })
+    minimalImportableKey.meta = { purposes: this.assertedPurposes({ key, type }) }
+    return minimalImportableKey as MinimalImportableKey
+  }
+
   private assertedKms(kms?: string) {
     const result = kms ?? this.defaultKms
     if (!!result) {
@@ -156,26 +145,52 @@ export class EbsiDidProvider extends AbstractIdentifierProvider {
     throw Error('no KMS supplied')
   }
 
-  private assertedKeyType = (args: { key?: IKeyOpts; keyType: KeyType }): KeyType => {
+  private assertedKeyType = (args: { key?: IKeyOpts; type: EbsiKeyType }): EbsiKeyType => {
     if (!args.key?.type) {
-      return args.keyType
+      return args.type
     }
     return args.key.type
   }
 
-  private assertedPurposes = (args: { keyType: KeyType; purposes: EbsiPublicKeyPurpose[] }) => {
-    if (args.purposes) {
-      return args.purposes
-    }
-    switch (args.keyType) {
-      case 'Secp256k1': {
-        return [EbsiPublicKeyPurpose.CapabilityInvocation]
+  private assertedPurposes = (args: { key?: IKeyOpts; type: EbsiKeyType }) => {
+    const { key, type } = args
+    if (key?.purposes && key.purposes.length > 0) {
+      switch (key.type) {
+        case 'Secp256k1': {
+          if (key?.purposes && key.purposes.length > 0 && key.purposes?.includes(EbsiPublicKeyPurpose.CapabilityInvocation)) {
+            return key.purposes
+          }
+          throw new Error(`Secp256k1 key requires ${EbsiPublicKeyPurpose.CapabilityInvocation} purpose`)
+        }
+        case 'Secp256r1': {
+          if (
+            key?.purposes &&
+            key.purposes.length > 0 &&
+            key.purposes.every((purpose) => [EbsiPublicKeyPurpose.AssertionMethod, EbsiPublicKeyPurpose.Authentication].includes(purpose))
+          ) {
+            return key.purposes
+          }
+          throw new Error(`Secp256r1 key requires ${[EbsiPublicKeyPurpose.AssertionMethod, EbsiPublicKeyPurpose.Authentication].join(', ')} purposes`)
+        }
+        default:
+          throw new Error(`Unsupported key type: ${key.type}`)
       }
-      case 'Secp256r1': {
-        return [EbsiPublicKeyPurpose.AssertionMethod, EbsiPublicKeyPurpose.Authentication]
-      }
-      default:
-        throw new Error(`Unsupported key type: ${args.keyType}`)
     }
+    return this.setDefaultPurposes({ key, type })
+  }
+
+  private setDefaultPurposes = (args: { key?: IKeyOpts; type: EbsiKeyType }): EbsiPublicKeyPurpose[] => {
+    const { key, type } = args
+    if (!key?.purposes || key.purposes.length === 0) {
+      switch (type) {
+        case 'Secp256k1':
+          return [EbsiPublicKeyPurpose.CapabilityInvocation]
+        case 'Secp256r1':
+          return [EbsiPublicKeyPurpose.AssertionMethod, EbsiPublicKeyPurpose.Authentication]
+        default:
+          throw new Error(`Unsupported key type: ${key?.type}`)
+      }
+    }
+    return key.purposes
   }
 }
