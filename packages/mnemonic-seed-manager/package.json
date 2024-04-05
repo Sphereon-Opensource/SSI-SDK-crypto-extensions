@@ -1,6 +1,6 @@
 {
   "name": "@sphereon/ssi-sdk-ext.mnemonic-seed-manager",
-  "version": "0.18.0",
+  "version": "0.18.1",
   "source": "src/index.ts",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -31,7 +31,7 @@
     "typeorm": "0.3.12"
   },
   "devDependencies": {
-    "@sphereon/ssi-sdk.dev": "^0.15.1",
+    "@sphereon/ssi-sdk.dev": "^0.21.0",
     "@types/bip39": "^3.0.0",
     "@veramo/cli": "4.2.0",
     "@veramo/remote-client": "4.2.0",
