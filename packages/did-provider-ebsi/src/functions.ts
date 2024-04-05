@@ -1,7 +1,10 @@
-import { ebsiDIDSpecInfo, EbsiDidSpecInfo } from './types'
+import { ebsiDIDSpecInfo, EbsiDidSpecInfo, EbsiKeyType } from './types'
 import { randomBytes } from '@ethersproject/random'
 import * as u8a from 'uint8arrays'
 import { base58btc } from 'multiformats/bases/base58'
+import { IKey } from '@veramo/core'
+import { getBytes, SigningKey } from 'ethers'
+import { JwkKeyUse, toJwk } from '@sphereon/ssi-sdk-ext.key-utils'
 
 export function toMethodSpecificId(specInfo?: EbsiDidSpecInfo, methodSpecificId?: string): string {
   const spec = specInfo ?? ebsiDIDSpecInfo.V1
@@ -32,4 +35,31 @@ export function generateEbsiPrivateKeyHex(specInfo?: EbsiDidSpecInfo, privateKey
     return u8a.toString(privateKeyBytes, 'base16')
   }
   return u8a.toString(randomBytes(length), 'base16')
+}
+
+/**
+ * Returns the public key in the correct format to be used with the did registry v5
+ * - in case of Secp256k1 - returns the uncompressed public key as hex string prefixed with 0x04
+ * - in case of Secp256r1 - returns the jwk public key as hex string
+ * @param {{ key: IKey, type: EbsiKeyType }} args
+ *  - key is the cryptographic key containing the public key
+ *  - type is the type of the key which can be Secp256k1 or Secp256r1
+ *  @returns {string} The properly formatted public key
+ *  @throws {Error} If the key type is invalid
+ */
+export const formatEbsiPublicKey = (args: { key: IKey; type: EbsiKeyType }): string => {
+  const { key, type } = args
+  let bytes = getBytes(key.publicKeyHex, 'key')
+  switch (type) {
+    case 'Secp256k1': {
+      return SigningKey.computePublicKey(bytes, false)
+    }
+    case 'Secp256r1': {
+      const jwk: JsonWebKey = toJwk(key.publicKeyHex, type, { use: JwkKeyUse.Signature, key })
+      const jwkString = JSON.stringify(jwk, null, 2)
+      return u8a.toString(u8a.fromString(jwkString), 'base16')
+    }
+    default:
+      throw new Error(`Invalid key type: ${type}`)
+  }
 }

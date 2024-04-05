@@ -8,6 +8,9 @@
   "references": [
     {
       "path": "../did-resolver-ebsi"
+    },
+    {
+      "path": "../key-utils"
     }
   ]
 }
