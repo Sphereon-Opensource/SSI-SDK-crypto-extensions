@@ -189,8 +189,8 @@ importers:
         specifier: workspace:^
         version: link:../kms-local
       '@sphereon/ssi-sdk.dev':
-        specifier: ^0.15.1
-        version: 0.15.1(@types/node@18.18.1)
+        specifier: ^0.21.0
+        version: 0.21.0(@types/node@18.18.1)
       '@veramo/cli':
         specifier: 4.2.0
         version: 4.2.0(@types/node@18.18.1)(ts-node@10.9.1)
@@ -320,8 +320,8 @@ importers:
         specifier: ~1.0.0
         version: 1.0.0
       '@sphereon/did-uni-client':
-        specifier: ^0.6.0
-        version: 0.6.0
+        specifier: ^0.6.2
+        version: 0.6.2
       '@sphereon/lto-did-ts':
         specifier: 0.1.8-unstable.0
         version: 0.1.8-unstable.0(debug@4.3.4)(typescript@4.9.5)
@@ -497,8 +497,8 @@ importers:
         specifier: ^5.7.0
         version: 5.7.0
       '@sphereon/did-uni-client':
-        specifier: ^0.6.0
-        version: 0.6.0
+        specifier: ^0.6.2
+        version: 0.6.2
       '@sphereon/ssi-sdk-ext.key-utils':
         specifier: workspace:^
         version: link:../key-utils
@@ -546,8 +546,8 @@ importers:
         specifier: workspace:*
         version: link:../key-utils
       '@sphereon/ssi-sdk.dev':
-        specifier: ^0.15.1
-        version: 0.15.1(@types/node@18.18.1)
+        specifier: ^0.21.0
+        version: 0.21.0(@types/node@18.18.1)
 
   packages/key-utils:
     dependencies:
@@ -638,8 +638,8 @@ importers:
         specifier: 3.3.2-unstable.0
         version: 3.3.2-unstable.0
       '@sphereon/ssi-sdk.dev':
-        specifier: ^0.15.1
-        version: 0.15.1(@types/node@18.18.1)
+        specifier: ^0.21.0
+        version: 0.21.0(@types/node@18.18.1)
       '@types/elliptic':
         specifier: 6.4.14
         version: 6.4.14
@@ -678,8 +678,8 @@ importers:
         version: 0.3.12(pg@8.11.3)(ts-node@10.9.1)
     devDependencies:
       '@sphereon/ssi-sdk.dev':
-        specifier: ^0.15.1
-        version: 0.15.1(@types/node@18.18.1)
+        specifier: ^0.21.0
+        version: 0.21.0(@types/node@18.18.1)
       '@types/bip39':
         specifier: ^3.0.0
         version: 3.0.0
@@ -4636,8 +4636,8 @@ packages:
       - encoding
     dev: false
 
-  /@sphereon/did-uni-client@0.6.0:
-    resolution: { integrity: sha512-JDZYHR5wj49PHfI51g0+sfXzaLxIvWwad6Va42LIKcW/e9fOgjQJxpUySazWQkYYlewHhLg3GDbqMKIyIMQs6A== }
+  /@sphereon/did-uni-client@0.6.2:
+    resolution: { integrity: sha512-zWfgEmV3Lh4K6InIz5FiozrmJCkRJNvnblD3EKH3SFrYo0t+u4Tp5r2g+7bVfCX3RjAVxvf9FIUdeU6wNs/nMg== }
     dependencies:
       cross-fetch: 3.1.8
       did-resolver: 4.1.0
@@ -4704,8 +4704,8 @@ packages:
       - supports-color
     dev: false
 
-  /@sphereon/ssi-sdk.dev@0.15.1(@types/node@18.18.1):
-    resolution: { integrity: sha512-Xc+HI9Em5pVOFO+1u6C6nE9GRpHYcIaiGBltIckXkczxFKYDVDOaokVy9zxjOV77X+4O1MLcRdG7Cyo3Imcslw== }
+  /@sphereon/ssi-sdk.dev@0.17.5(@types/node@18.18.1):
+    resolution: { integrity: sha512-z0h50lvU8VMIdQdBKn1bu7JbKlZ7YziArwKKcfgheptNVOjrcdD16cFqe8KPXL1HEbErulQ3EuwcgFn/k3ST5A== }
     hasBin: true
     dependencies:
       '@microsoft/api-extractor': 7.37.3(@types/node@18.18.1)
@@ -4726,8 +4726,8 @@ packages:
       - '@types/node'
     dev: true
 
-  /@sphereon/ssi-sdk.dev@0.17.5(@types/node@18.18.1):
-    resolution: { integrity: sha512-z0h50lvU8VMIdQdBKn1bu7JbKlZ7YziArwKKcfgheptNVOjrcdD16cFqe8KPXL1HEbErulQ3EuwcgFn/k3ST5A== }
+  /@sphereon/ssi-sdk.dev@0.21.0(@types/node@18.18.1):
+    resolution: { integrity: sha512-p9i1tDeMoFECPWxW0QMFe4l718JEZW1FmfTW6N4jKHAAxLQMd7BcxXFYWdZtqKtss7/6PQa/s75B9N8212hQGA== }
     hasBin: true
     dependencies:
       '@microsoft/api-extractor': 7.37.3(@types/node@18.18.1)
