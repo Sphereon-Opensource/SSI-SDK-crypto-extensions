@@ -185,7 +185,7 @@ export type UnsignedTransaction = {
   value: string
 }
 /**
- * @typedef SendSignedTransactionArgs
+ * @typedef SendSignedTransactionParams
  * @type {object}
  * @property {string} protocol - Example: eth
  * @property {UnsignedTransaction} unsignedTransaction - The unsigned transaction
@@ -194,7 +194,7 @@ export type UnsignedTransaction = {
  * @property {string} v - ECDSA recovery id
  * @property {string} signedRawTransaction - The signed raw transaction
  */
-export type SendSignedTransactionArgs = {
+export type SendSignedTransactionParams = {
   protocol: string
   unsignedTransaction: UnsignedTransaction
   r: string
@@ -217,7 +217,7 @@ export type Response200 = {
 }
 
 /**
- * @typedef Response400
+ * @typedef ResponseNot200
  * @type {object}
  * @property {URL | string} type - An absolute URI that identifies the problem type. When dereferenced,
  * it SHOULD provide human-readable documentation for the problem type.
@@ -227,7 +227,7 @@ export type Response200 = {
  * @property {URL | string} instance An absolute URI that identifies the specific occurrence of the problem.
  * It may or may not yield further information if dereferenced.
  */
-export type Response400 = {
+export type ResponseNot200 = {
   type: URL | string
   title: string
   status: number
@@ -235,4 +235,73 @@ export type Response400 = {
   instance: URL | string
 }
 
-export type Response = Response200 | Response400
+/**
+ * @typedef GetDidDocumentParams
+ * @type {object}
+ * @property {string} did
+ * @property {string} validAt
+ */
+export type GetDidDocumentParams = {
+  did: string;
+  validAt?: string
+}
+
+/**
+ * @typedef GetDidDocumentsParams
+ * @type {object}
+ * @property {string} offset Originally page[after] Cursor that points to the end of the page of data that has been returned.
+ * @property {number} size Originally page[size] Defines the maximum number of objects that may be returned.
+ * @property {string} controller Filter by controller DID.
+ */
+export type GetDidDocumentsParams = {
+  offset?: string;
+  size?: number;
+  controller?: string;
+}
+
+/**
+ * Result of listing dids
+ * @typedef {Item}
+ * @type {object}
+ * @property {string} did - The DID
+ * @property {string} href - The referrer of the DID
+ */
+export type Item = {
+  did: string
+  href: string
+}
+
+/**
+ * The links related to pagination
+ * @typedef Links
+ * @type {object}
+ * @property {string} first - The link to the first page
+ * @property {string} prev - The link ot the previous page
+ * @property {string} next - The link to the next page
+ * @property {string} last - The link to the last page
+ */
+export type Links = {
+  first: string;
+  prev: string;
+  next: string;
+  last: string;
+}
+
+/**
+ * @typedef GetDidDocumentResponse
+ * @type {object}
+ * @property {string} self - Absolute path to the collection (consult)
+ * @property {Item[]} items - List of DIDs and their referrers
+ * @property {number} total - Total number of items across all pages.
+ * @property {pageSize} number - Maximum number of items per page. For the last page, its value should be independent of the number of actually returned items.
+ * @property {Links} links - The links related to pagination
+ */
+export type GetDidDocumentsResponse = {
+  self: string;
+  items: Item[];
+  total: number;
+  pageSize: number;
+  links: Links;
+}
+
+export type Response = Response200 | ResponseNot200 | GetDidDocumentsResponse;

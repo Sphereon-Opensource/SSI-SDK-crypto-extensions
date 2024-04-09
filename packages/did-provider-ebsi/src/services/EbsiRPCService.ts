@@ -1,11 +1,13 @@
 import { Headers } from 'cross-fetch'
 import {
   AddVerificationMethodParams,
-  AddVerificationMethodRelationshipParams,
+  AddVerificationMethodRelationshipParams, GetDidDocumentParams, GetDidDocumentsParams,
   InsertDidDocumentParams,
-  SendSignedTransactionArgs,
+  SendSignedTransactionParams,
   UpdateBaseDocumentParams,
+  Response, GetDidDocumentsResponse
 } from '../types'
+import {DIDDocument} from "did-resolver";
 
 /**
  * @constant {string} jsonrpc
@@ -105,9 +107,9 @@ export const addVerificationMethodRelationship = async (args: {
 
 /**
  * Call to send a signed transaction to the blockchain. Requires an access token with "didr_invite" or "didr_write" scope.
- * @param {{ params: SendSignedTransactionArgs[], id: number }} args
+ * @param {{ params: SendSignedTransactionParams[], id: number }} args
  */
-export const sendSignedTransaction = async (args: { params: SendSignedTransactionArgs[]; id: number }): Promise<Response> => {
+export const sendSignedTransaction = async (args: { params: SendSignedTransactionParams[]; id: number }): Promise<Response> => {
   const { params, id } = args
   const options = {
     method: 'POST',
@@ -124,4 +126,35 @@ export const sendSignedTransaction = async (args: { params: SendSignedTransactio
   return await (await fetch(baseUrl, options)).json()
 }
 
+/**
+ * Gets the DID document corresponding to the DID.
+ * @param {GetDidDocumentParams} args
+ * @returns a did document
+ */
+export const getDidDocument = async (args: GetDidDocumentParams): Promise<DIDDocument> => {
+  const { did, validAt } = args
+  if (!did) {
+    throw new Error('did parameter is required')
+  }
+  const query = `?${validAt && `valid_at=${validAt}`}`
+  return await (await fetch(`https://api-pilot.ebsi.eu/did-registry/v5/identifiers/${did}${query}`)).json()
+}
+
+/**
+ * listDidDocuments - Returns a list of identifiers.
+ * @param {GetDidDocumentsParams} args
+ * @returns a list of identifiers
+ */
+export const listDidDocuments = async (args: GetDidDocumentsParams): Promise<GetDidDocumentsResponse> => {
+  const { offset, size, controller } = args
+  const query = `?${[
+      offset && `page[after]=${offset}`,
+      size && `page[size]=${size}`, 
+      controller && `controller=${controller}`]
+      .filter(Boolean)
+      .join('&')}`
+  return await (await fetch(`https://api-pilot.ebsi.eu/did-registry/v5/identifiers${query}`)).json()
+}
+
+// Fixed the args vs params clash
 // Key rotation?
