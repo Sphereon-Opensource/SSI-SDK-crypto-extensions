@@ -1,11 +1,21 @@
-import { IAgentContext, IIdentifier, IKeyManager, MinimalImportableKey } from '@veramo/core'
+import { IAgentContext, IDIDManager, IIdentifier, IKeyManager, ManagedKeyInfo, MinimalImportableKey } from '@veramo/core'
 import Debug from 'debug'
 import { AbstractIdentifierProvider } from '@veramo/did-manager/build/abstract-identifier-provider'
 import { DIDDocument } from 'did-resolver'
 import { IKey, IService } from '@veramo/core/build/types/IIdentifier'
 import * as u8a from 'uint8arrays'
-import { ebsiDIDSpecInfo, EbsiKeyType, EbsiPublicKeyPurpose, IContext, ICreateIdentifierArgs, IKeyOpts } from './types'
-import { generateEbsiPrivateKeyHex, toMethodSpecificId } from './functions'
+import { ebsiDIDSpecInfo, EbsiKeyType, EbsiPublicKeyPurpose, IContext, ICreateIdentifierArgs, IKeyOpts, Response, Response200 } from './types'
+import { formatEbsiPublicKey, generateEbsiPrivateKeyHex, toMethodSpecificId } from './functions'
+import {
+  addVerificationMethod,
+  addVerificationMethodRelationship,
+  insertDidDocument,
+  sendSignedTransaction,
+  updateBaseDocument,
+} from './services/EbsiRPCService'
+import { toJwk } from '@sphereon/ssi-sdk-ext.key-utils'
+import { calculateJwkThumbprint } from 'jose'
+import { Transaction } from 'ethers'
 
 const debug = Debug('sphereon:did-provider-ebsi')
 
@@ -19,6 +29,7 @@ export class EbsiDidProvider extends AbstractIdentifierProvider {
 
   async createIdentifier(args: ICreateIdentifierArgs, context: IContext): Promise<Omit<IIdentifier, 'provider'>> {
     const { type, options, kms, alias } = { ...args }
+
     if (!type || type === ebsiDIDSpecInfo.V1) {
       const secp256k1ManagedKeyInfo = await this.generateEbsiKeyPair(
         {
@@ -45,12 +56,120 @@ export class EbsiDidProvider extends AbstractIdentifierProvider {
         alias,
         services: [],
       }
+      const id = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER)
+
+      if (options === undefined) {
+        throw new Error(`Options must be provided ${JSON.stringify(options)}`)
+      }
+
+      await this.createEbsiDid({ identifier, secp256k1ManagedKeyInfo, secp256r1ManagedKeyInfo, id, from: options.from }, context)
+
       debug('Created', identifier.did)
       return identifier
     } else if (type === ebsiDIDSpecInfo.KEY) {
       throw Error(`Type ${type} not supported. Please use @sphereon/ssi-sdk-ext.did-provider-key for Natural Person EBSI DIDs`)
     }
     throw Error(`Type ${type} not supported`)
+  }
+
+  async createEbsiDid(
+    args: {
+      identifier: Omit<IIdentifier, 'provider'>
+      secp256k1ManagedKeyInfo: ManagedKeyInfo
+      secp256r1ManagedKeyInfo: ManagedKeyInfo
+      id: number
+      from: string
+      baseDocument?: string
+    },
+    context: IContext
+  ): Promise<void> {
+    const insertDidDocTransaction = await insertDidDocument({
+      params: [
+        {
+          from: args.from,
+          did: args.identifier.did,
+          baseDocument:
+            args.baseDocument ?? JSON.stringify({ '@context': ['https://www.w3.org/ns/did/v1', 'https://w3id.org/security/suites/jws-2020/v1'] }),
+          vMethoddId: await calculateJwkThumbprint(toJwk(args.secp256k1ManagedKeyInfo.publicKeyHex, 'Secp256k1')),
+          isSecp256k1: true,
+          publicKey: formatEbsiPublicKey({ key: args.secp256k1ManagedKeyInfo, type: 'Secp256k1' }),
+          notBefore: 1,
+          notAfter: 1,
+        },
+      ],
+      id: args.id,
+    })
+
+    await this.sendTransaction({ docTransactionResponse: insertDidDocTransaction, kid: args.secp256r1ManagedKeyInfo.kid, id: args.id }, context)
+
+    const addVerificationMethodTransaction = await addVerificationMethod({
+      params: [
+        {
+          from: args.from, // required
+          did: args.identifier.did,
+          isSecp256k1: true,
+          vMethoddId: await calculateJwkThumbprint(toJwk(args.secp256k1ManagedKeyInfo.publicKeyHex, 'Secp256k1')),
+          publicKey: formatEbsiPublicKey({ key: args.secp256k1ManagedKeyInfo, type: 'Secp256k1' }),
+        },
+      ],
+      id: args.id,
+    })
+
+    await this.sendTransaction(
+      { docTransactionResponse: addVerificationMethodTransaction, kid: args.secp256r1ManagedKeyInfo.kid, id: args.id },
+      context
+    )
+
+    const addVerificationMethodRelationshipTransaction = await addVerificationMethodRelationship({
+      params: [
+        {
+          from: args?.from,
+          did: args.identifier.did,
+          vMethoddId: await calculateJwkThumbprint(toJwk(args.secp256r1ManagedKeyInfo.publicKeyHex, 'Secp256r1')),
+          name: 'assertionMethod',
+          notAfter: 1,
+          notBefore: 1,
+        },
+      ],
+      id: args.id,
+    })
+
+    await this.sendTransaction(
+      { docTransactionResponse: addVerificationMethodRelationshipTransaction, kid: args.secp256r1ManagedKeyInfo.kid, id: args.id },
+      context
+    )
+  }
+
+  private sendTransaction = async (args: { docTransactionResponse: Response; kid: string; id: number }, context: IContext) => {
+    if ('status' in args.docTransactionResponse) {
+      throw new Error(JSON.stringify(args.docTransactionResponse, null, 2))
+    }
+    const unsignedTransaction = (args.docTransactionResponse as Response200).result
+
+    const signedRawTransaction = await context.agent.keyManagerSignEthTX({
+      kid: args.kid,
+      transaction: unsignedTransaction,
+    })
+
+    const { r, s, v } = Transaction.from(signedRawTransaction).signature!
+
+    const sTResponse = await sendSignedTransaction({
+      params: [
+        {
+          protocol: 'eth',
+          unsignedTransaction: unsignedTransaction,
+          r,
+          s,
+          v: v.toString(),
+          signedRawTransaction,
+        },
+      ],
+      id: args.id,
+    })
+
+    if ('status' in sTResponse) {
+      throw new Error(JSON.stringify(sTResponse, null, 2))
+    }
   }
 
   private async generateEbsiKeyPair(args: { keyOpts?: IKeyOpts; keyType: EbsiKeyType; kms?: string }, context: IAgentContext<IKeyManager>) {
@@ -117,14 +236,28 @@ export class EbsiDidProvider extends AbstractIdentifierProvider {
     throw Error(`Not (yet) implemented for the EBSI did provider`)
   }
 
-  updateIdentifier(
+  // TODO How does it work? Not inferable from the api: https://hub.ebsi.eu/apis/pilot/did-registry/v5/post-jsonrpc#updatebasedocument
+  async updateIdentifier(
     args: {
       did: string
       document: Partial<DIDDocument>
       options?: { [p: string]: any }
     },
-    context: IAgentContext<IKeyManager>
+    context: IAgentContext<IKeyManager & IDIDManager>
   ): Promise<IIdentifier> {
+    const id = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER)
+    await updateBaseDocument({
+      params: [
+        {
+          from: args.options?.from ?? 'eth',
+          did: args.did,
+          baseDocument:
+            args.options?.baseDocument ??
+            JSON.stringify({ '@context': ['https://www.w3.org/ns/did/v1', 'https://w3id.org/security/suites/jws-2020/v1'] }),
+        },
+      ],
+      id,
+    })
     throw Error(`Not (yet) implemented for the EBSI did provider`)
   }
 

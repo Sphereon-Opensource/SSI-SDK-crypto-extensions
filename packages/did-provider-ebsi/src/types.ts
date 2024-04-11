@@ -82,6 +82,8 @@ export interface ICreateIdentifierArgs {
     methodSpecificId?: string
     secp256k1Key?: IKeyOpts
     secp256r1Key?: IKeyOpts
+    from: string
+    baseDocument?: string
   }
 }
 
@@ -242,7 +244,7 @@ export type ResponseNot200 = {
  * @property {string} validAt
  */
 export type GetDidDocumentParams = {
-  did: string;
+  did: string
   validAt?: string
 }
 
@@ -254,9 +256,9 @@ export type GetDidDocumentParams = {
  * @property {string} controller Filter by controller DID.
  */
 export type GetDidDocumentsParams = {
-  offset?: string;
-  size?: number;
-  controller?: string;
+  offset?: string
+  size?: number
+  controller?: string
 }
 
 /**
@@ -281,10 +283,10 @@ export type Item = {
  * @property {string} last - The link to the last page
  */
 export type Links = {
-  first: string;
-  prev: string;
-  next: string;
-  last: string;
+  first: string
+  prev: string
+  next: string
+  last: string
 }
 
 /**
@@ -297,11 +299,11 @@ export type Links = {
  * @property {Links} links - The links related to pagination
  */
 export type GetDidDocumentsResponse = {
-  self: string;
-  items: Item[];
-  total: number;
-  pageSize: number;
-  links: Links;
+  self: string
+  items: Item[]
+  total: number
+  pageSize: number
+  links: Links
 }
 
-export type Response = Response200 | ResponseNot200 | GetDidDocumentsResponse;
+export type Response = Response200 | ResponseNot200 | GetDidDocumentsResponse

@@ -1,13 +1,16 @@
 import { Headers } from 'cross-fetch'
 import {
   AddVerificationMethodParams,
-  AddVerificationMethodRelationshipParams, GetDidDocumentParams, GetDidDocumentsParams,
+  AddVerificationMethodRelationshipParams,
+  GetDidDocumentParams,
+  GetDidDocumentsParams,
   InsertDidDocumentParams,
   SendSignedTransactionParams,
   UpdateBaseDocumentParams,
-  Response, GetDidDocumentsResponse
+  Response,
+  GetDidDocumentsResponse,
 } from '../types'
-import {DIDDocument} from "did-resolver";
+import { DIDDocument } from 'did-resolver'
 
 /**
  * @constant {string} jsonrpc
@@ -43,7 +46,7 @@ export const insertDidDocument = async (args: { params: InsertDidDocumentParams[
  * "didr_write" scope.
  * @param {{ params: UpdateBaseDocumentParams[], id:number }} args
  */
-export const updateBaseDocument = async (args: { params: UpdateBaseDocumentParams; id: number }): Promise<Response> => {
+export const updateBaseDocument = async (args: { params: UpdateBaseDocumentParams[]; id: number }): Promise<Response> => {
   const { params, id } = args
   const options = {
     method: 'POST',
@@ -147,14 +150,8 @@ export const getDidDocument = async (args: GetDidDocumentParams): Promise<DIDDoc
  */
 export const listDidDocuments = async (args: GetDidDocumentsParams): Promise<GetDidDocumentsResponse> => {
   const { offset, size, controller } = args
-  const query = `?${[
-      offset && `page[after]=${offset}`,
-      size && `page[size]=${size}`, 
-      controller && `controller=${controller}`]
-      .filter(Boolean)
-      .join('&')}`
+  const query = `?${[offset && `page[after]=${offset}`, size && `page[size]=${size}`, controller && `controller=${controller}`]
+    .filter(Boolean)
+    .join('&')}`
   return await (await fetch(`https://api-pilot.ebsi.eu/did-registry/v5/identifiers${query}`)).json()
 }
-
-// Fixed the args vs params clash
-// Key rotation?
