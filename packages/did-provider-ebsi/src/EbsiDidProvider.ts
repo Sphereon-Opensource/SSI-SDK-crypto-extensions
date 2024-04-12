@@ -100,12 +100,12 @@ export class EbsiDidProvider extends AbstractIdentifierProvider {
       id: args.id,
     })
 
-    await this.sendTransaction({ docTransactionResponse: insertDidDocTransaction, kid: args.secp256r1ManagedKeyInfo.kid, id: args.id }, context)
+    await this.sendTransaction({ docTransactionResponse: insertDidDocTransaction, kid: args.secp256k1ManagedKeyInfo.kid, id: args.id }, context)
 
     const addVerificationMethodTransaction = await addVerificationMethod({
       params: [
         {
-          from: args.from, // required
+          from: args.from,
           did: args.identifier.did,
           isSecp256k1: true,
           vMethoddId: await calculateJwkThumbprint(toJwk(args.secp256k1ManagedKeyInfo.publicKeyHex, 'Secp256k1')),
@@ -116,7 +116,7 @@ export class EbsiDidProvider extends AbstractIdentifierProvider {
     })
 
     await this.sendTransaction(
-      { docTransactionResponse: addVerificationMethodTransaction, kid: args.secp256r1ManagedKeyInfo.kid, id: args.id },
+      { docTransactionResponse: addVerificationMethodTransaction, kid: args.secp256k1ManagedKeyInfo.kid, id: args.id },
       context
     )
 
@@ -135,7 +135,7 @@ export class EbsiDidProvider extends AbstractIdentifierProvider {
     })
 
     await this.sendTransaction(
-      { docTransactionResponse: addVerificationMethodRelationshipTransaction, kid: args.secp256r1ManagedKeyInfo.kid, id: args.id },
+      { docTransactionResponse: addVerificationMethodRelationshipTransaction, kid: args.secp256k1ManagedKeyInfo.kid, id: args.id },
       context
     )
   }

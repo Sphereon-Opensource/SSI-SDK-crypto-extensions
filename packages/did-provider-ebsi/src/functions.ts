@@ -49,7 +49,7 @@ export function generateEbsiPrivateKeyHex(specInfo?: EbsiDidSpecInfo, privateKey
  */
 export const formatEbsiPublicKey = (args: { key: IKey; type: EbsiKeyType }): string => {
   const { key, type } = args
-  let bytes = getBytes(key.publicKeyHex, 'key')
+  let bytes = getBytes('0x' + key.publicKeyHex, 'key')
   switch (type) {
     case 'Secp256k1': {
       return SigningKey.computePublicKey(bytes, false)
