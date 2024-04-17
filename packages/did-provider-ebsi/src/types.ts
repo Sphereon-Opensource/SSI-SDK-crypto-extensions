@@ -84,6 +84,8 @@ export interface ICreateIdentifierArgs {
     secp256r1Key?: IKeyOpts
     from: string
     baseDocument?: string
+    notBefore: number
+    notAfter: number
   }
 }
 

@@ -62,7 +62,18 @@ export class EbsiDidProvider extends AbstractIdentifierProvider {
         throw new Error(`Options must be provided ${JSON.stringify(options)}`)
       }
 
-      await this.createEbsiDid({ identifier, secp256k1ManagedKeyInfo, secp256r1ManagedKeyInfo, id, from: options.from }, context)
+      await this.createEbsiDid(
+        {
+          identifier,
+          secp256k1ManagedKeyInfo,
+          secp256r1ManagedKeyInfo,
+          id,
+          from: options.from,
+          notBefore: options.notBefore,
+          notAfter: options.notAfter,
+        },
+        context
+      )
 
       debug('Created', identifier.did)
       return identifier
@@ -80,6 +91,8 @@ export class EbsiDidProvider extends AbstractIdentifierProvider {
       id: number
       from: string
       baseDocument?: string
+      notBefore: number
+      notAfter: number
     },
     context: IContext
   ): Promise<void> {
@@ -93,8 +106,8 @@ export class EbsiDidProvider extends AbstractIdentifierProvider {
           vMethoddId: await calculateJwkThumbprint(toJwk(args.secp256k1ManagedKeyInfo.publicKeyHex, 'Secp256k1')),
           isSecp256k1: true,
           publicKey: formatEbsiPublicKey({ key: args.secp256k1ManagedKeyInfo, type: 'Secp256k1' }),
-          notBefore: 1,
-          notAfter: 1,
+          notBefore: args.notBefore,
+          notAfter: args.notAfter,
         },
       ],
       id: args.id,
