@@ -48,8 +48,6 @@ export interface ICreateIdentifierArgs {
   }
 }
 
-export interface ICreateIdentifierOpts {}
-
 export type EbsiKeyType = Extract<TKeyType, 'Secp256k1' | 'Secp256r1'>
 
 export enum EbsiPublicKeyPurpose {
