@@ -132,7 +132,7 @@ export class EbsiDidProvider extends AbstractIdentifierProvider {
     const { key, type, kms } = args
     const minimalImportableKey: Partial<MinimalImportableKey> = { ...key } ?? {}
     minimalImportableKey.kms = this.assertedKms(kms)
-    minimalImportableKey.type = this.assertedKeyType({ key, type })
+    minimalImportableKey.type = this.setDefaultKeyType({ key, type })
     minimalImportableKey.meta = { purposes: this.assertedPurposes({ key, type }) }
     return minimalImportableKey as MinimalImportableKey
   }
@@ -145,7 +145,7 @@ export class EbsiDidProvider extends AbstractIdentifierProvider {
     throw Error('no KMS supplied')
   }
 
-  private assertedKeyType = (args: { key?: IKeyOpts; type: EbsiKeyType }): EbsiKeyType => {
+  private setDefaultKeyType = (args: { key?: IKeyOpts; type: EbsiKeyType }): EbsiKeyType => {
     if (!args.key?.type) {
       return args.type
     }
