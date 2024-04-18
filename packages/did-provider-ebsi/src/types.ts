@@ -42,7 +42,6 @@ export interface ICreateIdentifierArgs {
   alias?: string
   type?: EbsiDidSpecInfo
   options?: {
-    methodSpecificId?: string // method specific id for import
     secp256k1Key?: IKeyOpts
     secp256r1Key?: IKeyOpts
   }

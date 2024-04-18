@@ -5,7 +5,7 @@ import { DIDDocument } from 'did-resolver'
 import { IKey, IService } from '@veramo/core/build/types/IIdentifier'
 import * as u8a from 'uint8arrays'
 import { ebsiDIDSpecInfo, EbsiKeyType, EbsiPublicKeyPurpose, IContext, ICreateIdentifierArgs, IKeyOpts } from './types'
-import { generateEbsiPrivateKeyHex, toMethodSpecificId } from './functions'
+import { generateEbsiPrivateKeyHex, generateMethodSpecificId } from './functions'
 
 const debug = Debug('sphereon:did-provider-ebsi')
 
@@ -37,7 +37,7 @@ export class EbsiDidProvider extends AbstractIdentifierProvider {
         context
       )
 
-      const methodSpecificId = toMethodSpecificId(ebsiDIDSpecInfo.V1, options?.methodSpecificId)
+      const methodSpecificId = generateMethodSpecificId(ebsiDIDSpecInfo.V1)
       const identifier: Omit<IIdentifier, 'provider'> = {
         did: ebsiDIDSpecInfo.V1.method + methodSpecificId,
         controllerKeyId: secp256k1ManagedKeyInfo.kid,
