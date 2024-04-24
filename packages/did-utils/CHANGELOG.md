@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.18.1](https://github.com/Sphereon-OpenSource/ssi-sdk-crypto-extensions/compare/v0.18.0...v0.18.1) (2024-04-04)
+
+### Bug Fixes
+
+- Padding had incorrect length comparison ([d141050](https://github.com/Sphereon-OpenSource/ssi-sdk-crypto-extensions/commit/d141050b31bd1b846a2f5471a2e9673895e1239b))
+
 # [0.18.0](https://github.com/Sphereon-OpenSource/ssi-sdk-crypto-extensions/compare/v0.17.0...v0.18.0) (2024-03-19)
 
 ### Bug Fixes
