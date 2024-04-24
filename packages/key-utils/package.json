@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@ethersproject/random": "^5.7.0",
-    "@sphereon/isomorphic-webcrypto": "2.4.0-unstable.4",
+    "@sphereon/isomorphic-webcrypto": "2.4.1-unstable.0",
     "@stablelib/ed25519": "^1.0.3",
     "@stablelib/sha256": "^1.0.1",
     "@stablelib/sha512": "^1.0.1",
