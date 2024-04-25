@@ -3,16 +3,10 @@ import { randomBytes } from '@ethersproject/random'
 import * as u8a from 'uint8arrays'
 import { base58btc } from 'multiformats/bases/base58'
 
-export function toMethodSpecificId(specInfo?: EbsiDidSpecInfo, methodSpecificId?: string): string {
+export function generateMethodSpecificId(specInfo?: EbsiDidSpecInfo): string {
   const spec = specInfo ?? ebsiDIDSpecInfo.V1
   const length = spec.didLength ?? 16
 
-  if (methodSpecificId) {
-    if (methodSpecificId.length < length || methodSpecificId.length > length + 1) {
-      throw Error(`Invalid did length supplied (${methodSpecificId.length}. Expected ${length} for ${spec.type}`)
-    }
-    return methodSpecificId.length === length ? `z${methodSpecificId}` : methodSpecificId
-  }
   const result = new Uint8Array(length + (spec.version ? 1 : 0))
   if (spec.version) {
     result.set([spec.version])

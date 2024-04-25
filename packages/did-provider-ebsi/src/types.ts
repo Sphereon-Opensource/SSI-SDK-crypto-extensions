@@ -1,4 +1,4 @@
-import { IAgentContext, IKeyManager, MinimalImportableKey } from '@veramo/core'
+import { IAgentContext, IKeyManager, MinimalImportableKey, TKeyType } from '@veramo/core'
 
 export type IContext = IAgentContext<IKeyManager>
 
@@ -27,11 +27,9 @@ export const ebsiDIDSpecInfo: Record<string, EbsiDidSpecInfo> = {
   },
 }
 
-export interface IKeyOpts {
-  methodSpecificId?: string // method specific id for import
-  key?: WithRequiredProperty<Partial<MinimalImportableKey>, 'privateKeyHex'> // Optional key to import with only privateKeyHex mandatory. If not specified a key with random kid will be created
-  /*type?: Key // The key type. Defaults to Secp256k1
-  use?: KeyUse // The key use*/
+export interface IKeyOpts extends WithRequiredProperty<Partial<MinimalImportableKey>, 'privateKeyHex'> {
+  type?: EbsiKeyType
+  purposes?: EbsiPublicKeyPurpose[]
 }
 
 // Needed to make a single property required
@@ -43,5 +41,16 @@ export interface ICreateIdentifierArgs {
   kms?: string
   alias?: string
   type?: EbsiDidSpecInfo
-  options?: IKeyOpts
+  options?: {
+    secp256k1Key?: IKeyOpts
+    secp256r1Key?: IKeyOpts
+  }
+}
+
+export type EbsiKeyType = Extract<TKeyType, 'Secp256k1' | 'Secp256r1'>
+
+export enum EbsiPublicKeyPurpose {
+  Authentication = 'authentication',
+  AssertionMethod = 'assertionMethod',
+  CapabilityInvocation = 'capabilityInvocation',
 }
