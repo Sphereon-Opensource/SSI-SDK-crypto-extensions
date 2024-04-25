@@ -318,8 +318,8 @@ importers:
         specifier: ~1.0.0
         version: 1.0.0
       '@sphereon/did-uni-client':
-        specifier: ^0.6.2
-        version: 0.6.2
+        specifier: ^0.6.3
+        version: 0.6.3
       '@sphereon/lto-did-ts':
         specifier: 0.1.8-unstable.0
         version: 0.1.8-unstable.0(debug@4.3.4)(typescript@4.9.5)
@@ -495,8 +495,8 @@ importers:
         specifier: ^5.7.0
         version: 5.7.0
       '@sphereon/did-uni-client':
-        specifier: ^0.6.2
-        version: 0.6.2
+        specifier: ^0.6.3
+        version: 0.6.3
       '@sphereon/ssi-sdk-ext.key-utils':
         specifier: workspace:*
         version: link:../key-utils
@@ -3762,7 +3762,7 @@ packages:
     resolution: {integrity: sha512-LJaN3HwRbfQK0X1xFSi0Q9amqOgzQnnDngIt+ZlsBC3Bm7/nE7K0kwshZHyaru79yIVRv/e1mQAjZyuZG6jOFQ==}
     dependencies:
       '@noble/curves': 1.3.0
-      '@noble/hashes': 1.3.3
+      '@noble/hashes': 1.2.0
       '@scure/base': 1.1.6
     dev: true
 
@@ -3836,7 +3836,7 @@ packages:
       https-proxy-agent: 7.0.4
       issue-parser: 6.0.0
       lodash-es: 4.17.21
-      mime: 4.0.2
+      mime: 4.0.3
       p-filter: 4.1.0
       semantic-release: 21.1.2(typescript@5.4.5)
       url-join: 5.0.0
@@ -3950,8 +3950,8 @@ packages:
       - encoding
     dev: false
 
-  /@sphereon/did-uni-client@0.6.2:
-    resolution: {integrity: sha512-zWfgEmV3Lh4K6InIz5FiozrmJCkRJNvnblD3EKH3SFrYo0t+u4Tp5r2g+7bVfCX3RjAVxvf9FIUdeU6wNs/nMg==}
+  /@sphereon/did-uni-client@0.6.3:
+    resolution: {integrity: sha512-g7LD7ofbE36slHN7Bhr5dwUrj6t0BuZeXBYJMaVY/pOeL1vJxW1cZHbZqu0NSfOmzyBg4nsYVlgTjyi/Aua2ew==}
     dependencies:
       cross-fetch: 3.1.8
       did-resolver: 4.1.0
@@ -6937,7 +6937,7 @@ packages:
     engines: {node: '>=10'}
     dependencies:
       globby: 11.1.0
-      graceful-fs: 4.2.11
+      graceful-fs: 4.2.10
       is-glob: 4.0.3
       is-path-cwd: 2.2.0
       is-path-inside: 3.0.3
@@ -9833,7 +9833,7 @@ packages:
     dependencies:
       universalify: 2.0.1
     optionalDependencies:
-      graceful-fs: 4.2.11
+      graceful-fs: 4.2.10
     dev: true
 
   /jsonld-checker@0.1.8:
@@ -10434,8 +10434,8 @@ packages:
     hasBin: true
     dev: true
 
-  /mime@4.0.2:
-    resolution: {integrity: sha512-rSR2L7RhEm0ifwn6lZAa+CcLy7EEl6POovp3QcnFHb/C5P4B+h6u+yCQPQaWzNdecHL8p85zRowrAjpF9F46Og==}
+  /mime@4.0.3:
+    resolution: {integrity: sha512-KgUb15Oorc0NEKPbvfa0wRU+PItIEZmiv+pyAO2i0oTIVTJhlzMclU7w4RXWQrSOVH5ax/p/CkIO7KI4OyFJTQ==}
     engines: {node: '>=16'}
     hasBin: true
     dev: true
@@ -14166,7 +14166,7 @@ packages:
   /write-file-atomic@2.4.3:
     resolution: {integrity: sha512-GaETH5wwsX+GcnzhPgKcKjJ6M2Cq3/iZp1WyY/X1CSqrW+jVNM9Y7D8EC2sM4ZG/V8wZlSniJnCKWPmBYAucRQ==}
     dependencies:
-      graceful-fs: 4.2.11
+      graceful-fs: 4.2.10
       imurmurhash: 0.1.4
       signal-exit: 3.0.7
     dev: true

@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@ethersproject/transactions": "^5.7.0",
-    "@sphereon/did-uni-client": "^0.6.4",
+    "@sphereon/did-uni-client": "^0.6.3",
     "@sphereon/ssi-sdk-ext.key-utils": "workspace:*",
     "@sphereon/ssi-sdk.core": "0.23.0",
     "@stablelib/ed25519": "^1.0.3",

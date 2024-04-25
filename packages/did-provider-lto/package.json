@@ -13,7 +13,7 @@
     "@lto-network/lto-crypto": "~1.1.1",
     "@lto-network/lto-transactions": "1.2.12",
     "@lto-network/signature-generator": "~1.0.0",
-    "@sphereon/did-uni-client": "^0.6.4",
+    "@sphereon/did-uni-client": "^0.6.3",
     "@sphereon/lto-did-ts": "0.1.8-unstable.0",
     "@veramo/core": "4.2.0",
     "@veramo/did-manager": "4.2.0",
