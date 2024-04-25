@@ -3,7 +3,7 @@ import { DIDManager, MemoryDIDStore } from '@veramo/did-manager'
 import { MemoryKeyStore, MemoryPrivateKeyStore } from '@veramo/key-manager'
 import { SphereonKeyManager } from '@sphereon/ssi-sdk-ext.key-manager'
 import { SphereonKeyManagementSystem } from '@sphereon/ssi-sdk-ext.kms-local'
-import { EbsiDidProvider } from '../src'
+import { EbsiDidProvider, EbsiPublicKeyPurpose } from '../src'
 
 const DID_METHOD = 'did:ebsi'
 const PRIVATE_KEY_HEX = '7dd923e40f4615ac496119f7e793cc2899e99b64b88ca8603db986700089532b'
@@ -37,7 +37,35 @@ describe('@sphereon/did-provider-ebsi', () => {
     const identifier: IIdentifier = await agent.didManagerCreate()
 
     expect(identifier).toBeDefined()
-    expect(identifier.keys.length).toBe(1)
+    expect(identifier.keys.length).toBe(2)
+    const secp256k1 = identifier.keys.find((key) => key.type === 'Secp256k1')
+    const secp256r1 = identifier.keys.find((key) => key.type === 'Secp256r1')
+    expect(secp256k1).toBeDefined()
+    expect(secp256k1).toEqual(
+      expect.objectContaining({
+        kid: expect.any(String),
+        kms: 'mem',
+        type: 'Secp256k1',
+        publicKeyHex: expect.any(String),
+        meta: {
+          algorithms: ['ES256'],
+          purposes: [EbsiPublicKeyPurpose.CapabilityInvocation],
+        },
+      })
+    )
+    expect(secp256k1).toBeDefined()
+    expect(secp256r1).toEqual(
+      expect.objectContaining({
+        kid: expect.any(String),
+        kms: 'mem',
+        type: 'Secp256r1',
+        publicKeyHex: expect.any(String),
+        meta: {
+          algorithms: ['ES256K', 'ES256K-R', 'eth_signTransaction', 'eth_signTypedData', 'eth_signMessage', 'eth_rawSign'],
+          purposes: [EbsiPublicKeyPurpose.AssertionMethod, EbsiPublicKeyPurpose.Authentication],
+        },
+      })
+    )
   })
 
   it('should create consistent identifier with provided key', async () => {
