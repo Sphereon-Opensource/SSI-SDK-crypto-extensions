@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.19.0](https://github.com/Sphereon-Opensource/veramo-BBS/compare/v0.18.2...v0.19.0) (2024-04-25)
+
+### Features
+
+- Added secp256r1 key to createIdentifier() method ([f8da68d](https://github.com/Sphereon-Opensource/veramo-BBS/commit/f8da68d0b79a8977128bcfa16673ab8bf8547b58))
+
 ## [0.18.2](https://github.com/Sphereon-Opensource/veramo-BBS/compare/v0.18.1...v0.18.2) (2024-04-24)
 
 **Note:** Version bump only for package @sphereon/ssi-sdk-ext.workspace
