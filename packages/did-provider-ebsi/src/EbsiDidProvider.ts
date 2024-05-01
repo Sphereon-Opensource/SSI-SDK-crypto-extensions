@@ -1,11 +1,21 @@
-import { IAgentContext, IDIDManager, IIdentifier, IKeyManager, ManagedKeyInfo, MinimalImportableKey } from '@veramo/core'
+import {IAgentContext, IDIDManager, IIdentifier, IKeyManager, ManagedKeyInfo, MinimalImportableKey} from '@veramo/core'
 import Debug from 'debug'
-import { AbstractIdentifierProvider } from '@veramo/did-manager/build/abstract-identifier-provider'
-import { DIDDocument } from 'did-resolver'
-import { IKey, IService } from '@veramo/core/build/types/IIdentifier'
+import {AbstractIdentifierProvider} from '@veramo/did-manager/build/abstract-identifier-provider'
+import {DIDDocument} from 'did-resolver'
+import {IKey, IService} from '@veramo/core/build/types/IIdentifier'
 import * as u8a from 'uint8arrays'
-import { ebsiDIDSpecInfo, EbsiKeyType, EbsiPublicKeyPurpose, IContext, ICreateIdentifierArgs, IKeyOpts, Response, Response200 } from './types'
-import { formatEbsiPublicKey, generateEbsiPrivateKeyHex, generateMethodSpecificId } from './functions'
+import {
+  ApiOpts,
+  ebsiDIDSpecInfo,
+  EbsiKeyType,
+  EbsiPublicKeyPurpose,
+  IContext,
+  ICreateIdentifierArgs,
+  IKeyOpts,
+  Response,
+  Response200
+} from './types'
+import {formatEbsiPublicKey, generateEbsiPrivateKeyHex, generateMethodSpecificId} from './functions'
 import {
   addVerificationMethod,
   addVerificationMethodRelationship,
@@ -13,18 +23,20 @@ import {
   sendSignedTransaction,
   updateBaseDocument,
 } from './services/EbsiRPCService'
-import { toJwk } from '@sphereon/ssi-sdk-ext.key-utils'
-import { calculateJwkThumbprint } from 'jose'
-import { Transaction } from 'ethers'
+import {toJwk} from '@sphereon/ssi-sdk-ext.key-utils'
+import {calculateJwkThumbprint} from 'jose'
+import {Transaction} from 'ethers'
 
 const debug = Debug('sphereon:did-provider-ebsi')
 
 export class EbsiDidProvider extends AbstractIdentifierProvider {
   private readonly defaultKms?: string
+  private readonly apiOpts?: ApiOpts
 
-  constructor(options: { defaultKms?: string }) {
+  constructor(options: { defaultKms?: string; apiOpts?: ApiOpts }) {
     super()
     this.defaultKms = options.defaultKms
+    this.apiOpts = options.apiOpts
   }
 
   async createIdentifier(args: ICreateIdentifierArgs, context: IContext): Promise<Omit<IIdentifier, 'provider'>> {
@@ -93,6 +105,7 @@ export class EbsiDidProvider extends AbstractIdentifierProvider {
       baseDocument?: string
       notBefore: number
       notAfter: number
+      apiOpts?: ApiOpts
     },
     context: IContext
   ): Promise<void> {
@@ -111,9 +124,11 @@ export class EbsiDidProvider extends AbstractIdentifierProvider {
         },
       ],
       id: args.id,
+      apiOpts: args.apiOpts ?? this.apiOpts,
+      token: '', //TODO hook it up: https://sphereon.atlassian.net/browse/SDK-10
     })
 
-    await this.sendTransaction({ docTransactionResponse: insertDidDocTransaction, kid: args.secp256k1ManagedKeyInfo.kid, id: args.id }, context)
+    await this.sendTransaction({ docTransactionResponse: insertDidDocTransaction, kid: args.secp256k1ManagedKeyInfo.kid, id: args.id, apiOpts: args.apiOpts }, context)
 
     const addVerificationMethodTransaction = await addVerificationMethod({
       params: [
@@ -126,10 +141,12 @@ export class EbsiDidProvider extends AbstractIdentifierProvider {
         },
       ],
       id: args.id,
+      apiOpts: args.apiOpts ?? this.apiOpts,
+      token: '' //TODO hook it up: https://sphereon.atlassian.net/browse/SDK-10
     })
 
     await this.sendTransaction(
-      { docTransactionResponse: addVerificationMethodTransaction, kid: args.secp256k1ManagedKeyInfo.kid, id: args.id },
+      { docTransactionResponse: addVerificationMethodTransaction, kid: args.secp256k1ManagedKeyInfo.kid, id: args.id, apiOpts: args.apiOpts },
       context
     )
 
@@ -145,15 +162,17 @@ export class EbsiDidProvider extends AbstractIdentifierProvider {
         },
       ],
       id: args.id,
+      apiOpts: args.apiOpts ?? this.apiOpts,
+      token: '' //TODO hook it up: https://sphereon.atlassian.net/browse/SDK-10
     })
 
     await this.sendTransaction(
-      { docTransactionResponse: addVerificationMethodRelationshipTransaction, kid: args.secp256k1ManagedKeyInfo.kid, id: args.id },
+      { docTransactionResponse: addVerificationMethodRelationshipTransaction, kid: args.secp256k1ManagedKeyInfo.kid, id: args.id, apiOpts: args.apiOpts },
       context
     )
   }
 
-  private sendTransaction = async (args: { docTransactionResponse: Response; kid: string; id: number }, context: IContext) => {
+  private sendTransaction = async (args: { docTransactionResponse: Response; kid: string; id: number; apiOpts?: ApiOpts }, context: IContext) => {
     if ('status' in args.docTransactionResponse) {
       throw new Error(JSON.stringify(args.docTransactionResponse, null, 2))
     }
@@ -178,6 +197,8 @@ export class EbsiDidProvider extends AbstractIdentifierProvider {
         },
       ],
       id: args.id,
+      apiOpts: args.apiOpts ?? this.apiOpts,
+      token: '' //TODO hook it up: https://sphereon.atlassian.net/browse/SDK-10
     })
 
     if ('status' in sTResponse) {
@@ -271,6 +292,8 @@ export class EbsiDidProvider extends AbstractIdentifierProvider {
         },
       ],
       id,
+      apiOpts: args.options?.apiOpts ?? this.apiOpts,
+      token: '' //TODO hook it up: https://sphereon.atlassian.net/browse/SDK-10
     })
     throw Error(`Not (yet) implemented for the EBSI did provider`)
   }

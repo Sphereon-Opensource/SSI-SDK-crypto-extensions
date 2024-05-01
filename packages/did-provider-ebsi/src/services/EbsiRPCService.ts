@@ -1,31 +1,32 @@
-import { Headers } from 'cross-fetch'
+import {Headers} from 'cross-fetch'
 import {
   AddVerificationMethodParams,
   AddVerificationMethodRelationshipParams,
+  ApiOpts,
   GetDidDocumentParams,
   GetDidDocumentsParams,
-  InsertDidDocumentParams,
-  SendSignedTransactionParams,
-  UpdateBaseDocumentParams,
-  Response,
   GetDidDocumentsResponse,
+  InsertDidDocumentParams,
+  jsonrpc,
+  Response,
+  SendSignedTransactionParams,
+  UpdateBaseDocumentParams
 } from '../types'
-import { DIDDocument } from 'did-resolver'
+import {DIDDocument} from 'did-resolver'
+import {getDidRegistryRPCUrl} from "../functions";
 
 /**
  * @constant {string} jsonrpc
  */
-const jsonrpc = '2.0' // optional param of plugin?
-const baseUrl = 'https://api-pilot.ebsi.eu/did-registry/v5/jsonrpc' // optional param of plugin?
 
 
 /**
  * Call to build an unsigned transaction to insert a new DID document. Requires an access token with "didr_invite" or
  * "didr_write" scope.
- * @param {{ id: InsertDidDocumentParams[], id: number, token: string }} args
+ * @param {{ id: InsertDidDocumentParams[], id: number, token: string, apiOpts?: ApiOpts }} args
  */
-export const insertDidDocument = async (args: { params: InsertDidDocumentParams[]; id: number; token: string }): Promise<Response> => {
-  const { params, id, token } = args
+export const insertDidDocument = async (args: { params: InsertDidDocumentParams[]; id: number;  token: string; apiOpts?: ApiOpts }): Promise<Response> => {
+  const { params, id, token, apiOpts } = args
   const options = {
     method: 'POST',
     headers: new Headers({
@@ -38,16 +39,16 @@ export const insertDidDocument = async (args: { params: InsertDidDocumentParams[
       id,
     }),
   }
-  return await (await fetch(baseUrl, options)).json()
+  return await (await fetch(getDidRegistryRPCUrl({...apiOpts}), options)).json()
 }
 
 /**
  * Call to build an unsigned transaction to update the base document of an existing DID. Requires an access token with
  * "didr_write" scope.
- * @param {{ params: UpdateBaseDocumentParams[], id: number, token: string }} args
+ * @param {{ params: UpdateBaseDocumentParams[], id: number, token: string, apiOpts?: ApiOpts }} args
  */
-export const updateBaseDocument = async (args: { params: UpdateBaseDocumentParams[]; id: number; token: string }): Promise<Response> => {
-  const { params, id, token } = args
+export const updateBaseDocument = async (args: { params: UpdateBaseDocumentParams[]; id: number; token: string; apiOpts?: ApiOpts }): Promise<Response> => {
+  const { params, id, token, apiOpts } = args
   const options = {
     method: 'POST',
     headers: new Headers({
@@ -60,15 +61,15 @@ export const updateBaseDocument = async (args: { params: UpdateBaseDocumentParam
       id,
     }),
   }
-  return await (await fetch(baseUrl, options)).json()
+  return await (await fetch(getDidRegistryRPCUrl({...apiOpts}), options)).json()
 }
 
 /**
  * Call to build an unsigned transaction to add a verification method. Requires an access token with "didr_write" scope.
- * @param {{ params: AddVerificationMethodParams[], id: number, token: string }} args
+ * @param {{ params: AddVerificationMethodParams[], id: number, token: string, apiOpts?: ApiOpts }} args
  */
-export const addVerificationMethod = async (args: { params: AddVerificationMethodParams[]; id: number; token: string }): Promise<Response> => {
-  const { params, id, token } = args
+export const addVerificationMethod = async (args: { params: AddVerificationMethodParams[]; id: number; token: string; apiOpts?: ApiOpts }): Promise<Response> => {
+  const { params, id, token, apiOpts } = args
   const options = {
     method: 'POST',
     headers: new Headers({
@@ -81,19 +82,20 @@ export const addVerificationMethod = async (args: { params: AddVerificationMetho
       id,
     }),
   }
-  return await (await fetch(baseUrl, options)).json()
+  return await (await fetch(getDidRegistryRPCUrl({...apiOpts}), options)).json()
 }
 
 /**
  * Call to build an unsigned transaction to add a verification relationship. Requires an access token with "didr_write" scope.
- * @param {{ params: AddVerificationMethodRelationshipParams[], id: number, token: string }} args
+ * @param {{ params: AddVerificationMethodRelationshipParams[], id: number, token: string, apiOpts?: ApiOpts }} args
  */
 export const addVerificationMethodRelationship = async (args: {
   params: AddVerificationMethodRelationshipParams[]
   id: number
   token: string
+  apiOpts?: ApiOpts
 }): Promise<Response> => {
-  const { params, id, token } = args
+  const { params, id, token, apiOpts } = args
   const options = {
     method: 'POST',
     headers: new Headers({
@@ -106,15 +108,15 @@ export const addVerificationMethodRelationship = async (args: {
       id,
     }),
   }
-  return await (await fetch(baseUrl, options)).json()
+  return await (await fetch(getDidRegistryRPCUrl({...apiOpts}), options)).json()
 }
 
 /**
  * Call to send a signed transaction to the blockchain. Requires an access token with "didr_invite" or "didr_write" scope.
- * @param {{ params: SendSignedTransactionParams[], id: number, token: string }} args
+ * @param {{ params: SendSignedTransactionParams[], id: number, token: string, apiOpts?: ApiOpts}} args
  */
-export const sendSignedTransaction = async (args: { params: SendSignedTransactionParams[]; id: number; token: string }): Promise<Response> => {
-  const { params, id, token } = args
+export const sendSignedTransaction = async (args: { params: SendSignedTransactionParams[]; id: number; token: string; apiOpts?: ApiOpts }): Promise<Response> => {
+  const { params, id, token, apiOpts } = args
   const options = {
     method: 'POST',
     headers: new Headers({
@@ -127,7 +129,7 @@ export const sendSignedTransaction = async (args: { params: SendSignedTransactio
       id,
     }),
   }
-  return await (await fetch(baseUrl, options)).json()
+  return await (await fetch(getDidRegistryRPCUrl({...apiOpts}), options)).json()
 }
 
 /**

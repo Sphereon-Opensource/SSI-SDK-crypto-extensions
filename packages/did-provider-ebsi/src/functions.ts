@@ -1,4 +1,4 @@
-import { ebsiDIDSpecInfo, EbsiDidSpecInfo, EbsiKeyType } from './types'
+import {ebsiDIDSpecInfo, EbsiDidSpecInfo, EbsiEnvironment, EbsiKeyType} from './types'
 import { randomBytes } from '@ethersproject/random'
 import * as u8a from 'uint8arrays'
 import { base58btc } from 'multiformats/bases/base58'
@@ -56,4 +56,9 @@ export const formatEbsiPublicKey = (args: { key: IKey; type: EbsiKeyType }): str
     default:
       throw new Error(`Invalid key type: ${type}`)
   }
+}
+
+export const getDidRegistryRPCUrl = (args: { environment?: EbsiEnvironment, version?: string }) => {
+  const { environment = 'pilot', version = 'v5' } = args
+  return `https://api-${environment}.ebsi.eu/did-registry/${version}/jsonrpc`
 }
