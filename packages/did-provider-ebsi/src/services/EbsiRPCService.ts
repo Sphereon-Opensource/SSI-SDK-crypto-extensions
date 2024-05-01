@@ -1,4 +1,3 @@
-import {Headers} from 'cross-fetch'
 import {
   AddVerificationMethodParams,
   AddVerificationMethodRelationshipParams,
@@ -9,6 +8,7 @@ import {
   InsertDidDocumentParams,
   jsonrpc,
   Response,
+  RPCParams,
   SendSignedTransactionParams,
   UpdateBaseDocumentParams
 } from '../types'
@@ -27,18 +27,7 @@ import {getDidRegistryRPCUrl} from "../functions";
  */
 export const insertDidDocument = async (args: { params: InsertDidDocumentParams[]; id: number;  token: string; apiOpts?: ApiOpts }): Promise<Response> => {
   const { params, id, token, apiOpts } = args
-  const options = {
-    method: 'POST',
-    headers: new Headers({
-      Authorization: 'Bearer ' + token,
-    }),
-    body: JSON.stringify({
-      jsonrpc,
-      method: 'insertDidDocument',
-      params,
-      id,
-    }),
-  }
+  const options = buildFetchOptions({ token, params, id, method: 'insertDidDocument' })
   return await (await fetch(getDidRegistryRPCUrl({...apiOpts}), options)).json()
 }
 
@@ -49,18 +38,7 @@ export const insertDidDocument = async (args: { params: InsertDidDocumentParams[
  */
 export const updateBaseDocument = async (args: { params: UpdateBaseDocumentParams[]; id: number; token: string; apiOpts?: ApiOpts }): Promise<Response> => {
   const { params, id, token, apiOpts } = args
-  const options = {
-    method: 'POST',
-    headers: new Headers({
-      Authorization: 'Bearer ' + token,
-    }),
-    body: JSON.stringify({
-      jsonrpc,
-      method: 'updateBaseDocument',
-      params,
-      id,
-    }),
-  }
+  const options = buildFetchOptions({ token, params, id, method: 'updateBaseDocument' })
   return await (await fetch(getDidRegistryRPCUrl({...apiOpts}), options)).json()
 }
 
@@ -70,18 +48,7 @@ export const updateBaseDocument = async (args: { params: UpdateBaseDocumentParam
  */
 export const addVerificationMethod = async (args: { params: AddVerificationMethodParams[]; id: number; token: string; apiOpts?: ApiOpts }): Promise<Response> => {
   const { params, id, token, apiOpts } = args
-  const options = {
-    method: 'POST',
-    headers: new Headers({
-      Authorization: 'Bearer ' + token,
-    }),
-    body: JSON.stringify({
-      jsonrpc,
-      method: 'addVerificationMethod',
-      params,
-      id,
-    }),
-  }
+  const options = buildFetchOptions({ token, params, id, method: 'addVerificationMethod' })
   return await (await fetch(getDidRegistryRPCUrl({...apiOpts}), options)).json()
 }
 
@@ -96,18 +63,7 @@ export const addVerificationMethodRelationship = async (args: {
   apiOpts?: ApiOpts
 }): Promise<Response> => {
   const { params, id, token, apiOpts } = args
-  const options = {
-    method: 'POST',
-    headers: new Headers({
-      Authorization: 'Bearer ' + token,
-    }),
-    body: JSON.stringify({
-      jsonrpc,
-      method: 'addVerificationMethodRelationship',
-      params,
-      id,
-    }),
-  }
+  const options = buildFetchOptions({ token, params, id, method: 'addVerificationMethodRelationship' })
   return await (await fetch(getDidRegistryRPCUrl({...apiOpts}), options)).json()
 }
 
@@ -117,19 +73,24 @@ export const addVerificationMethodRelationship = async (args: {
  */
 export const sendSignedTransaction = async (args: { params: SendSignedTransactionParams[]; id: number; token: string; apiOpts?: ApiOpts }): Promise<Response> => {
   const { params, id, token, apiOpts } = args
-  const options = {
+  const options = buildFetchOptions({ token, params, id, method: 'sendSignedTransaction' });
+  return await (await fetch(getDidRegistryRPCUrl({...apiOpts}), options)).json()
+}
+
+const buildFetchOptions = (args: { params: RPCParams[], id: number, token: string, method: string }) => {
+  const { params, id, token, method } = args
+  return {
     method: 'POST',
-    headers: new Headers({
+    headers: {
       Authorization: 'Bearer ' + token,
-    }),
+    },
     body: JSON.stringify({
       jsonrpc,
-      method: 'sendSignedTransaction',
+      method,
       params,
       id,
     }),
   }
-  return await (await fetch(getDidRegistryRPCUrl({...apiOpts}), options)).json()
 }
 
 /**
