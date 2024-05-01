@@ -103,7 +103,7 @@ export const getDidDocument = async (args: GetDidDocumentParams): Promise<DIDDoc
   if (!did) {
     throw new Error('did parameter is required')
   }
-  const query = `?${validAt && `valid_at=${validAt}`}`
+  const query = validAt ? `?valid_at=${validAt}`: ''
   return await (await fetch(`https://api-pilot.ebsi.eu/did-registry/v5/identifiers/${did}${query}`)).json()
 }
 
