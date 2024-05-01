@@ -185,9 +185,6 @@ importers:
       ethers:
         specifier: ^6.11.1
         version: 6.12.1
-      jose:
-        specifier: ^4.14.6
-        version: 4.15.5
       multiformats:
         specifier: 9.9.0
         version: 9.9.0
@@ -9755,6 +9752,7 @@ packages:
 
   /jose@4.15.5:
     resolution: {integrity: sha512-jc7BFxgKPKi94uOvEmzlSWFFe2+vASyXaKUpdQKatWAESU2MWjDfFf0fdfc83CDKcA5QecabZeNLyfhe3yKNkg==}
+    dev: true
 
   /js-base64@3.7.7:
     resolution: {integrity: sha512-7rCnleh0z2CkXhH67J8K1Ytz0b2Y+yxTPL+/KOJoa20hfnVQ/3/T6W/KflYI4bRHRagNeXeU2bkNGI3v1oS/lw==}
