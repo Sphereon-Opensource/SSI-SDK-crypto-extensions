@@ -13,7 +13,7 @@ import {
   UpdateBaseDocumentParams
 } from '../types'
 import {DIDDocument} from 'did-resolver'
-import {getDidRegistryRPCUrl} from "../functions";
+import {getUrls} from "../functions";
 
 /**
  * @constant {string} jsonrpc
@@ -28,7 +28,7 @@ import {getDidRegistryRPCUrl} from "../functions";
 export const insertDidDocument = async (args: { params: InsertDidDocumentParams[]; id: number;  token: string; apiOpts?: ApiOpts }): Promise<Response> => {
   const { params, id, token, apiOpts } = args
   const options = buildFetchOptions({ token, params, id, method: 'insertDidDocument' })
-  return await (await fetch(getDidRegistryRPCUrl({...apiOpts}), options)).json()
+  return await (await fetch(getUrls({...apiOpts}).mutate, options)).json()
 }
 
 /**
@@ -39,7 +39,7 @@ export const insertDidDocument = async (args: { params: InsertDidDocumentParams[
 export const updateBaseDocument = async (args: { params: UpdateBaseDocumentParams[]; id: number; token: string; apiOpts?: ApiOpts }): Promise<Response> => {
   const { params, id, token, apiOpts } = args
   const options = buildFetchOptions({ token, params, id, method: 'updateBaseDocument' })
-  return await (await fetch(getDidRegistryRPCUrl({...apiOpts}), options)).json()
+  return await (await fetch(getUrls({...apiOpts}).mutate, options)).json()
 }
 
 /**
@@ -49,7 +49,7 @@ export const updateBaseDocument = async (args: { params: UpdateBaseDocumentParam
 export const addVerificationMethod = async (args: { params: AddVerificationMethodParams[]; id: number; token: string; apiOpts?: ApiOpts }): Promise<Response> => {
   const { params, id, token, apiOpts } = args
   const options = buildFetchOptions({ token, params, id, method: 'addVerificationMethod' })
-  return await (await fetch(getDidRegistryRPCUrl({...apiOpts}), options)).json()
+  return await (await fetch(getUrls({...apiOpts}).mutate, options)).json()
 }
 
 /**
@@ -64,7 +64,7 @@ export const addVerificationMethodRelationship = async (args: {
 }): Promise<Response> => {
   const { params, id, token, apiOpts } = args
   const options = buildFetchOptions({ token, params, id, method: 'addVerificationMethodRelationship' })
-  return await (await fetch(getDidRegistryRPCUrl({...apiOpts}), options)).json()
+  return await (await fetch(getUrls({...apiOpts}).mutate, options)).json()
 }
 
 /**
@@ -74,7 +74,7 @@ export const addVerificationMethodRelationship = async (args: {
 export const sendSignedTransaction = async (args: { params: SendSignedTransactionParams[]; id: number; token: string; apiOpts?: ApiOpts }): Promise<Response> => {
   const { params, id, token, apiOpts } = args
   const options = buildFetchOptions({ token, params, id, method: 'sendSignedTransaction' });
-  return await (await fetch(getDidRegistryRPCUrl({...apiOpts}), options)).json()
+  return await (await fetch(getUrls({...apiOpts}).mutate, options)).json()
 }
 
 const buildFetchOptions = (args: { params: RPCParams[], id: number, token: string, method: string }) => {
@@ -95,35 +95,37 @@ const buildFetchOptions = (args: { params: RPCParams[], id: number, token: strin
 
 /**
  * Gets the DID document corresponding to the DID.
- * @param {GetDidDocumentParams} args
+ * @param {{ params: GetDidDocumentParams, apiOpts?: ApiOpts }} args
  * @returns a did document
  */
-export const getDidDocument = async (args: GetDidDocumentParams): Promise<DIDDocument> => {
-  const { did, validAt } = args
+export const getDidDocument = async (args: { params: GetDidDocumentParams; apiOpts?: ApiOpts }): Promise<DIDDocument> => {
+  const { params, apiOpts } = args
+  const { did, validAt } = params
   if (!did) {
     throw new Error('did parameter is required')
   }
   const query = validAt ? `?valid_at=${validAt}`: ''
-  return await (await fetch(`https://api-pilot.ebsi.eu/did-registry/v5/identifiers/${did}${query}`)).json()
+  return await (await fetch(`${getUrls({...apiOpts}).query}/${did}${query}`)).json()
 }
 
 /**
  * listDidDocuments - Returns a list of identifiers.
- * @param {GetDidDocumentsParams} args
+ * @param {{ params: GetDidDocumentsParams; apiOpts?: ApiOpts }} args
  * @returns a list of identifiers
  */
-export const listDidDocuments = async (args: GetDidDocumentsParams): Promise<GetDidDocumentsResponse> => {
-  const { offset, size, controller } = args
-  const params: string[] = []
+export const listDidDocuments = async (args: { params: GetDidDocumentsParams; apiOpts?: ApiOpts }): Promise<GetDidDocumentsResponse> => {
+  const { params, apiOpts } = args
+  const { offset, size, controller } = params
+  const queryParams: string[] = []
   if (offset) {
-    params.push(`page[after]=${offset}`)
+    queryParams.push(`page[after]=${offset}`)
   }
   if (size) {
-    params.push(`page[size]=${size}`)
+    queryParams.push(`page[size]=${size}`)
   }
   if (controller) {
-    params.push(`controller=${controller}`)
+    queryParams.push(`controller=${controller}`)
   }
-  const query = `?${params.filter(Boolean).join('&')}`
-  return await (await fetch(`https://api-pilot.ebsi.eu/did-registry/v5/identifiers${query}`)).json()
+  const query = `?${queryParams.filter(Boolean).join('&')}`
+  return await (await fetch(`${getUrls({...apiOpts}).query}/${query}`)).json()
 }

@@ -58,7 +58,11 @@ export const formatEbsiPublicKey = (args: { key: IKey; type: EbsiKeyType }): str
   }
 }
 
-export const getDidRegistryRPCUrl = (args: { environment?: EbsiEnvironment, version?: string }) => {
+export const getUrls = (args: { environment?: EbsiEnvironment, version?: string }): { mutate: string; query: string } => {
   const { environment = 'pilot', version = 'v5' } = args
-  return `https://api-${environment}.ebsi.eu/did-registry/${version}/jsonrpc`
+  const baseUrl = `https://api-${environment}.ebsi.eu/did-registry/${version}`
+  return {
+    mutate: `${baseUrl}/jsonrpc`,
+    query: `${baseUrl}/identifiers`
+  }
 }
