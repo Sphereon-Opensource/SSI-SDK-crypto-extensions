@@ -114,8 +114,16 @@ export const getDidDocument = async (args: GetDidDocumentParams): Promise<DIDDoc
  */
 export const listDidDocuments = async (args: GetDidDocumentsParams): Promise<GetDidDocumentsResponse> => {
   const { offset, size, controller } = args
-  const query = `?${[offset && `page[after]=${offset}`, size && `page[size]=${size}`, controller && `controller=${controller}`]
-    .filter(Boolean)
-    .join('&')}`
+  const params: string[] = []
+  if (offset) {
+    params.push(`page[after]=${offset}`)
+  }
+  if (size) {
+    params.push(`page[size]=${size}`)
+  }
+  if (controller) {
+    params.push(`controller=${controller}`)
+  }
+  const query = `?${params.filter(Boolean).join('&')}`
   return await (await fetch(`https://api-pilot.ebsi.eu/did-registry/v5/identifiers${query}`)).json()
 }
