@@ -3,8 +3,10 @@ import { randomBytes } from '@ethersproject/random'
 import * as u8a from 'uint8arrays'
 import { base58btc } from 'multiformats/bases/base58'
 import { IKey } from '@veramo/core'
-import { getBytes, SigningKey } from 'ethers'
-import { JwkKeyUse, toJwk } from '@sphereon/ssi-sdk-ext.key-utils'
+import { getBytes, SigningKey, sha256, sha512 } from 'ethers'
+import { JwkKeyUse, toJwk, JWK } from '@sphereon/ssi-sdk-ext.key-utils'
+
+export const base64url = (input: string): string => u8a.toString(u8a.fromString(input), 'base64url')
 
 export function generateMethodSpecificId(specInfo?: EbsiDidSpecInfo): string {
   const spec = specInfo ?? ebsiDIDSpecInfo.V1
@@ -49,6 +51,10 @@ export const formatEbsiPublicKey = (args: { key: IKey; type: EbsiKeyType }): str
       return SigningKey.computePublicKey(bytes, false)
     }
     case 'Secp256r1': {
+      /*
+        Public key as hex string. For an ES256K key, it must be in uncompressed format prefixed with "0x04".
+        For other algorithms, it must be the JWK transformed to string and then to hex format.
+       */
       const jwk: JsonWebKey = toJwk(key.publicKeyHex, type, { use: JwkKeyUse.Signature, key })
       const jwkString = JSON.stringify(jwk, null, 2)
       return u8a.toString(u8a.fromString(jwkString), 'base16')
@@ -64,5 +70,46 @@ export const getUrls = (args: { environment?: EbsiEnvironment; version?: string 
   return {
     mutate: `${baseUrl}/jsonrpc`,
     query: `${baseUrl}/identifiers`,
+  }
+}
+
+export const calculateJwkThumbprint = async (args: { jwk: JWK; digestAlgorithm?: 'sha256' | 'sha512' }): Promise<string> => {
+  const { jwk, digestAlgorithm = 'sha256' } = args
+  let components
+  switch (jwk.kty) {
+    case 'EC':
+      check(jwk.crv, '"crv" (Curve) Parameter')
+      check(jwk.x, '"x" (X Coordinate) Parameter')
+      check(jwk.y, '"y" (Y Coordinate) Parameter')
+      components = { crv: jwk.crv, kty: jwk.kty, x: jwk.x, y: jwk.y }
+      break
+    case 'OKP':
+      check(jwk.crv, '"crv" (Subtype of Key Pair) Parameter')
+      check(jwk.x, '"x" (Public Key) Parameter')
+      components = { crv: jwk.crv, kty: jwk.kty, x: jwk.x }
+      break
+    case 'RSA':
+      check(jwk.e, '"e" (Exponent) Parameter')
+      check(jwk.n, '"n" (Modulus) Parameter')
+      components = { e: jwk.e, kty: jwk.kty, n: jwk.n }
+      break
+    case 'oct':
+      check(jwk.k, '"k" (Key Value) Parameter')
+      components = { k: jwk.k, kty: jwk.kty }
+      break
+    default:
+      throw new Error('"kty" (Key Type) Parameter missing or unsupported')
+  }
+  const data = u8a.fromString(JSON.stringify(components))
+
+  if (digestAlgorithm === 'sha512') {
+    return base64url(sha512(data))
+  }
+  return base64url(sha256(data))
+}
+
+const check = (value: unknown, description: string) => {
+  if (typeof value !== 'string' || !value) {
+    throw new Error(`${description} missing or invalid`)
   }
 }

@@ -15,7 +15,7 @@ import {
   Response,
   Response200,
 } from './types'
-import { formatEbsiPublicKey, generateEbsiPrivateKeyHex, generateMethodSpecificId } from './functions'
+import { calculateJwkThumbprint, formatEbsiPublicKey, generateEbsiPrivateKeyHex, generateMethodSpecificId } from './functions'
 import {
   addVerificationMethod,
   addVerificationMethodRelationship,
@@ -24,7 +24,6 @@ import {
   updateBaseDocument,
 } from './services/EbsiRPCService'
 import { toJwk } from '@sphereon/ssi-sdk-ext.key-utils'
-import { calculateJwkThumbprint } from 'jose'
 import { Transaction } from 'ethers'
 
 const debug = Debug('sphereon:did-provider-ebsi')
@@ -116,7 +115,7 @@ export class EbsiDidProvider extends AbstractIdentifierProvider {
           did: args.identifier.did,
           baseDocument:
             args.baseDocument ?? JSON.stringify({ '@context': ['https://www.w3.org/ns/did/v1', 'https://w3id.org/security/suites/jws-2020/v1'] }),
-          vMethoddId: await calculateJwkThumbprint(toJwk(args.secp256k1ManagedKeyInfo.publicKeyHex, 'Secp256k1')),
+          vMethoddId: await calculateJwkThumbprint({ jwk: toJwk(args.secp256k1ManagedKeyInfo.publicKeyHex, 'Secp256k1') }),
           isSecp256k1: true,
           publicKey: formatEbsiPublicKey({ key: args.secp256k1ManagedKeyInfo, type: 'Secp256k1' }),
           notBefore: args.notBefore,
@@ -139,7 +138,7 @@ export class EbsiDidProvider extends AbstractIdentifierProvider {
           from: args.from,
           did: args.identifier.did,
           isSecp256k1: true,
-          vMethoddId: await calculateJwkThumbprint(toJwk(args.secp256k1ManagedKeyInfo.publicKeyHex, 'Secp256k1')),
+          vMethoddId: await calculateJwkThumbprint({ jwk: toJwk(args.secp256k1ManagedKeyInfo.publicKeyHex, 'Secp256k1') }),
           publicKey: formatEbsiPublicKey({ key: args.secp256k1ManagedKeyInfo, type: 'Secp256k1' }),
         },
       ],
@@ -158,7 +157,7 @@ export class EbsiDidProvider extends AbstractIdentifierProvider {
         {
           from: args?.from,
           did: args.identifier.did,
-          vMethoddId: await calculateJwkThumbprint(toJwk(args.secp256r1ManagedKeyInfo.publicKeyHex, 'Secp256r1')),
+          vMethoddId: await calculateJwkThumbprint({ jwk: toJwk(args.secp256r1ManagedKeyInfo.publicKeyHex, 'Secp256r1') }),
           name: 'assertionMethod',
           notAfter: 1,
           notBefore: 1,
