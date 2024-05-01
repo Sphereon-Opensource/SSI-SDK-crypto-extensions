@@ -65,3 +65,4 @@ test/*.js
 /packages/connection-manager/plugin.schema.json
 /packages/key-manager/plugin.schema.json
 /packages/ms-request-api/plugin.schema.json
+/packages/kms-local/plugin.schema.json

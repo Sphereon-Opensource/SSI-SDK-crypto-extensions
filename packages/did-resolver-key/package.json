@@ -1,7 +1,7 @@
 {
   "name": "@sphereon/ssi-sdk-ext.did-resolver-key",
   "description": "Sphereon did:key resolver with BBS+/BLS and EBSI support.",
-  "version": "0.18.1",
+  "version": "0.19.0",
   "source": "src/index.ts",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -9,7 +9,7 @@
     "build": "tsc"
   },
   "dependencies": {
-    "@sphereon/ssi-sdk-ext.key-utils": "workspace:^",
+    "@sphereon/ssi-sdk-ext.key-utils": "workspace:*",
     "@stablelib/ed25519": "^1.0.3",
     "bigint-mod-arith": "^3.3.1",
     "did-resolver": "^4.1.0",

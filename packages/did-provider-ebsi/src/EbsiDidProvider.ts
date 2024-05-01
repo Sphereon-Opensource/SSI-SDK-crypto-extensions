@@ -256,6 +256,7 @@ export class EbsiDidProvider extends AbstractIdentifierProvider {
       document: Partial<DIDDocument>
       options?: { [p: string]: any }
     },
+    // TODO extract a type
     context: IAgentContext<IKeyManager & IDIDManager>
   ): Promise<IIdentifier> {
     const id = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER)
@@ -278,8 +279,8 @@ export class EbsiDidProvider extends AbstractIdentifierProvider {
     const { key, type, kms } = args
     const minimalImportableKey: Partial<MinimalImportableKey> = { ...key } ?? {}
     minimalImportableKey.kms = this.assertedKms(kms)
-    minimalImportableKey.type = this.assertedKeyType({ key, type })
-    minimalImportableKey.meta = { purposes: this.assertedPurposes({ key, type }) }
+    minimalImportableKey.type = this.setDefaultKeyType({ key, type })
+    minimalImportableKey.meta = { purposes: this.assertedPurposes({ key }) ?? this.setDefaultPurposes({ key, type }) }
     return minimalImportableKey as MinimalImportableKey
   }
 
@@ -291,15 +292,15 @@ export class EbsiDidProvider extends AbstractIdentifierProvider {
     throw Error('no KMS supplied')
   }
 
-  private assertedKeyType = (args: { key?: IKeyOpts; type: EbsiKeyType }): EbsiKeyType => {
+  private setDefaultKeyType = (args: { key?: IKeyOpts; type: EbsiKeyType }): EbsiKeyType => {
     if (!args.key?.type) {
       return args.type
     }
     return args.key.type
   }
 
-  private assertedPurposes = (args: { key?: IKeyOpts; type: EbsiKeyType }) => {
-    const { key, type } = args
+  private assertedPurposes = (args: { key?: IKeyOpts }): EbsiPublicKeyPurpose[] | undefined => {
+    const { key } = args
     if (key?.purposes && key.purposes.length > 0) {
       switch (key.type) {
         case 'Secp256k1': {
@@ -322,7 +323,7 @@ export class EbsiDidProvider extends AbstractIdentifierProvider {
           throw new Error(`Unsupported key type: ${key.type}`)
       }
     }
-    return this.setDefaultPurposes({ key, type })
+    return key?.purposes
   }
 
   private setDefaultPurposes = (args: { key?: IKeyOpts; type: EbsiKeyType }): EbsiPublicKeyPurpose[] => {
