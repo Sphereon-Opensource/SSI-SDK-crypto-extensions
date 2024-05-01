@@ -17,15 +17,15 @@ import { DIDDocument } from 'did-resolver'
  */
 const jsonrpc = '2.0' // optional param of plugin?
 const baseUrl = 'https://api-pilot.ebsi.eu/did-registry/v5/jsonrpc' // optional param of plugin?
-const token = '' // optional param of plugin?
+
 
 /**
  * Call to build an unsigned transaction to insert a new DID document. Requires an access token with "didr_invite" or
  * "didr_write" scope.
- * @param {{ id: InsertDidDocumentParams[], id: number }} args
+ * @param {{ id: InsertDidDocumentParams[], id: number, token: string }} args
  */
-export const insertDidDocument = async (args: { params: InsertDidDocumentParams[]; id: number }): Promise<Response> => {
-  const { params, id } = args
+export const insertDidDocument = async (args: { params: InsertDidDocumentParams[]; id: number; token: string }): Promise<Response> => {
+  const { params, id, token } = args
   const options = {
     method: 'POST',
     headers: new Headers({
@@ -44,10 +44,10 @@ export const insertDidDocument = async (args: { params: InsertDidDocumentParams[
 /**
  * Call to build an unsigned transaction to update the base document of an existing DID. Requires an access token with
  * "didr_write" scope.
- * @param {{ params: UpdateBaseDocumentParams[], id:number }} args
+ * @param {{ params: UpdateBaseDocumentParams[], id: number, token: string }} args
  */
-export const updateBaseDocument = async (args: { params: UpdateBaseDocumentParams[]; id: number }): Promise<Response> => {
-  const { params, id } = args
+export const updateBaseDocument = async (args: { params: UpdateBaseDocumentParams[]; id: number; token: string }): Promise<Response> => {
+  const { params, id, token } = args
   const options = {
     method: 'POST',
     headers: new Headers({
@@ -65,10 +65,10 @@ export const updateBaseDocument = async (args: { params: UpdateBaseDocumentParam
 
 /**
  * Call to build an unsigned transaction to add a verification method. Requires an access token with "didr_write" scope.
- * @param {{ params: AddVerificationMethodParams[], id:number }} args
+ * @param {{ params: AddVerificationMethodParams[], id: number, token: string }} args
  */
-export const addVerificationMethod = async (args: { params: AddVerificationMethodParams[]; id: number }): Promise<Response> => {
-  const { params, id } = args
+export const addVerificationMethod = async (args: { params: AddVerificationMethodParams[]; id: number; token: string }): Promise<Response> => {
+  const { params, id, token } = args
   const options = {
     method: 'POST',
     headers: new Headers({
@@ -86,13 +86,14 @@ export const addVerificationMethod = async (args: { params: AddVerificationMetho
 
 /**
  * Call to build an unsigned transaction to add a verification relationship. Requires an access token with "didr_write" scope.
- * @param {{ params: AddVerificationMethodRelationshipParams[], id: number }} args
+ * @param {{ params: AddVerificationMethodRelationshipParams[], id: number, token: string }} args
  */
 export const addVerificationMethodRelationship = async (args: {
   params: AddVerificationMethodRelationshipParams[]
   id: number
+  token: string
 }): Promise<Response> => {
-  const { params, id } = args
+  const { params, id, token } = args
   const options = {
     method: 'POST',
     headers: new Headers({
@@ -110,10 +111,10 @@ export const addVerificationMethodRelationship = async (args: {
 
 /**
  * Call to send a signed transaction to the blockchain. Requires an access token with "didr_invite" or "didr_write" scope.
- * @param {{ params: SendSignedTransactionParams[], id: number }} args
+ * @param {{ params: SendSignedTransactionParams[], id: number, token: string }} args
  */
-export const sendSignedTransaction = async (args: { params: SendSignedTransactionParams[]; id: number }): Promise<Response> => {
-  const { params, id } = args
+export const sendSignedTransaction = async (args: { params: SendSignedTransactionParams[]; id: number; token: string }): Promise<Response> => {
+  const { params, id, token } = args
   const options = {
     method: 'POST',
     headers: new Headers({
