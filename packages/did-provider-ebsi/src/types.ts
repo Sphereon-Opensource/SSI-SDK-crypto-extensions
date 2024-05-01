@@ -313,8 +313,13 @@ export const jsonrpc = '2.0'
 
 export type EbsiEnvironment = 'pilot' | 'conformance'
 
-export type ApiOpts = { environment?: EbsiEnvironment, version?: string }
+export type ApiOpts = { environment?: EbsiEnvironment; version?: string }
 
-export type RPCParams = InsertDidDocumentParams | UpdateBaseDocumentParams | AddVerificationMethodParams | AddVerificationMethodRelationshipParams | SendSignedTransactionParams
+export type RPCParams =
+  | InsertDidDocumentParams
+  | UpdateBaseDocumentParams
+  | AddVerificationMethodParams
+  | AddVerificationMethodRelationshipParams
+  | SendSignedTransactionParams
 
 export type Response = Response200 | ResponseNot200 | GetDidDocumentsResponse

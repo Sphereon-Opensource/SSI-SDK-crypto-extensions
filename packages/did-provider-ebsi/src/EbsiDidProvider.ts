@@ -1,8 +1,8 @@
-import {IAgentContext, IDIDManager, IIdentifier, IKeyManager, ManagedKeyInfo, MinimalImportableKey} from '@veramo/core'
+import { IAgentContext, IDIDManager, IIdentifier, IKeyManager, ManagedKeyInfo, MinimalImportableKey } from '@veramo/core'
 import Debug from 'debug'
-import {AbstractIdentifierProvider} from '@veramo/did-manager/build/abstract-identifier-provider'
-import {DIDDocument} from 'did-resolver'
-import {IKey, IService} from '@veramo/core/build/types/IIdentifier'
+import { AbstractIdentifierProvider } from '@veramo/did-manager/build/abstract-identifier-provider'
+import { DIDDocument } from 'did-resolver'
+import { IKey, IService } from '@veramo/core/build/types/IIdentifier'
 import * as u8a from 'uint8arrays'
 import {
   ApiOpts,
@@ -13,9 +13,9 @@ import {
   ICreateIdentifierArgs,
   IKeyOpts,
   Response,
-  Response200
+  Response200,
 } from './types'
-import {formatEbsiPublicKey, generateEbsiPrivateKeyHex, generateMethodSpecificId} from './functions'
+import { formatEbsiPublicKey, generateEbsiPrivateKeyHex, generateMethodSpecificId } from './functions'
 import {
   addVerificationMethod,
   addVerificationMethodRelationship,
@@ -23,9 +23,9 @@ import {
   sendSignedTransaction,
   updateBaseDocument,
 } from './services/EbsiRPCService'
-import {toJwk} from '@sphereon/ssi-sdk-ext.key-utils'
-import {calculateJwkThumbprint} from 'jose'
-import {Transaction} from 'ethers'
+import { toJwk } from '@sphereon/ssi-sdk-ext.key-utils'
+import { calculateJwkThumbprint } from 'jose'
+import { Transaction } from 'ethers'
 
 const debug = Debug('sphereon:did-provider-ebsi')
 
@@ -128,7 +128,10 @@ export class EbsiDidProvider extends AbstractIdentifierProvider {
       token: '', //TODO hook it up: https://sphereon.atlassian.net/browse/SDK-10
     })
 
-    await this.sendTransaction({ docTransactionResponse: insertDidDocTransaction, kid: args.secp256k1ManagedKeyInfo.kid, id: args.id, apiOpts: args.apiOpts }, context)
+    await this.sendTransaction(
+      { docTransactionResponse: insertDidDocTransaction, kid: args.secp256k1ManagedKeyInfo.kid, id: args.id, apiOpts: args.apiOpts },
+      context
+    )
 
     const addVerificationMethodTransaction = await addVerificationMethod({
       params: [
@@ -142,7 +145,7 @@ export class EbsiDidProvider extends AbstractIdentifierProvider {
       ],
       id: args.id,
       apiOpts: args.apiOpts ?? this.apiOpts,
-      token: '' //TODO hook it up: https://sphereon.atlassian.net/browse/SDK-10
+      token: '', //TODO hook it up: https://sphereon.atlassian.net/browse/SDK-10
     })
 
     await this.sendTransaction(
@@ -163,11 +166,16 @@ export class EbsiDidProvider extends AbstractIdentifierProvider {
       ],
       id: args.id,
       apiOpts: args.apiOpts ?? this.apiOpts,
-      token: '' //TODO hook it up: https://sphereon.atlassian.net/browse/SDK-10
+      token: '', //TODO hook it up: https://sphereon.atlassian.net/browse/SDK-10
     })
 
     await this.sendTransaction(
-      { docTransactionResponse: addVerificationMethodRelationshipTransaction, kid: args.secp256k1ManagedKeyInfo.kid, id: args.id, apiOpts: args.apiOpts },
+      {
+        docTransactionResponse: addVerificationMethodRelationshipTransaction,
+        kid: args.secp256k1ManagedKeyInfo.kid,
+        id: args.id,
+        apiOpts: args.apiOpts,
+      },
       context
     )
   }
@@ -198,7 +206,7 @@ export class EbsiDidProvider extends AbstractIdentifierProvider {
       ],
       id: args.id,
       apiOpts: args.apiOpts ?? this.apiOpts,
-      token: '' //TODO hook it up: https://sphereon.atlassian.net/browse/SDK-10
+      token: '', //TODO hook it up: https://sphereon.atlassian.net/browse/SDK-10
     })
 
     if ('status' in sTResponse) {
@@ -293,7 +301,7 @@ export class EbsiDidProvider extends AbstractIdentifierProvider {
       ],
       id,
       apiOpts: args.options?.apiOpts ?? this.apiOpts,
-      token: '' //TODO hook it up: https://sphereon.atlassian.net/browse/SDK-10
+      token: '', //TODO hook it up: https://sphereon.atlassian.net/browse/SDK-10
     })
     throw Error(`Not (yet) implemented for the EBSI did provider`)
   }

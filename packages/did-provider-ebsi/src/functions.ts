@@ -1,4 +1,4 @@
-import {ebsiDIDSpecInfo, EbsiDidSpecInfo, EbsiEnvironment, EbsiKeyType} from './types'
+import { ebsiDIDSpecInfo, EbsiDidSpecInfo, EbsiEnvironment, EbsiKeyType } from './types'
 import { randomBytes } from '@ethersproject/random'
 import * as u8a from 'uint8arrays'
 import { base58btc } from 'multiformats/bases/base58'
@@ -58,11 +58,11 @@ export const formatEbsiPublicKey = (args: { key: IKey; type: EbsiKeyType }): str
   }
 }
 
-export const getUrls = (args: { environment?: EbsiEnvironment, version?: string }): { mutate: string; query: string } => {
+export const getUrls = (args: { environment?: EbsiEnvironment; version?: string }): { mutate: string; query: string } => {
   const { environment = 'pilot', version = 'v5' } = args
   const baseUrl = `https://api-${environment}.ebsi.eu/did-registry/${version}`
   return {
     mutate: `${baseUrl}/jsonrpc`,
-    query: `${baseUrl}/identifiers`
+    query: `${baseUrl}/identifiers`,
   }
 }
