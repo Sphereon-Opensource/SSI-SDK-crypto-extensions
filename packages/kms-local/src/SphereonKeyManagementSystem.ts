@@ -268,4 +268,8 @@ export class SphereonKeyManagementSystem extends KeyManagementSystem {
     const signer = new RSASigner(PEMToJwk(hexToPEM(publicKeyHex, 'public'), 'public'), { hashAlgorithm, scheme })
     return await signer.verify(data, signature)
   }
+
+  public async listKeys(): Promise<ManagedKeyInfo[]> {
+    return (await this.privateKeyStore.list({})).map(privateKey=>this.asSphereonManagedKeyInfo(privateKey))
+  }
 }

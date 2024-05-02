@@ -82,6 +82,23 @@ describe('@sphereon/ssi-sdk-ext.kms-local', () => {
     await expect(kms.keyManagerDelete({ kid: Buffer.from(bls.publicKey).toString('hex') })).resolves.toBeTruthy()
   })
 
+  it('should get all the keys in the sphereon key manager', async () => {
+    const myKey = {
+      type: 'Bls12381G2',
+      privateKeyHex: Buffer.from(bls.secretKey).toString('hex'),
+      publicKeyHex: Buffer.from(bls.publicKey).toString('hex'),
+    }
+    await kms.keyManagerImport({
+      kid: myKey.publicKeyHex,
+      privateKeyHex: myKey.privateKeyHex,
+      publicKeyHex: myKey.publicKeyHex,
+      kms: 'local',
+      type: 'Bls12381G2',
+    })
+    const keys = await kms.keyManagerListKeys({})
+    console.log('should get all the keys in the sphereon key manager:\n', keys)
+  })
+
   afterAll(async () => {
     await new Promise((resolve) => setTimeout((v: void) => resolve(v), 500))
   })

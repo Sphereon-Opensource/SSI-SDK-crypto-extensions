@@ -1,6 +1,6 @@
 import { KeyManager as VeramoKeyManager, AbstractKeyManagementSystem, AbstractKeyStore } from '@veramo/key-manager'
 
-import { IKey, TKeyType } from '@veramo/core'
+import {IKey, ManagedKeyInfo, TKeyType} from '@veramo/core'
 import { KeyType, SphereonKeyManagementSystem } from '@sphereon/ssi-sdk-ext.kms-local'
 import { ISphereonKeyManager, ISphereonKeyManagerSignArgs, ISphereonKeyManagerVerifyArgs } from '../types/ISphereonKeyManager'
 
@@ -44,5 +44,15 @@ export class SphereonKeyManager extends VeramoKeyManager {
       return await kms.verify(args)
     }
     throw Error(`KMS ${kms} does not support verification`)
+  }
+
+  async keyManagerListKeys({}): Promise<ManagedKeyInfo[]> {
+    const kmsNames = await this.keyManagerGetKeyManagementSystems()
+    const keys: ManagedKeyInfo[] = []
+    for (let i = 0; i < kmsNames.length; i++) {
+      const kms = this.getLocalKms(kmsNames[i])
+      keys.push(...await kms.listKeys())
+    }
+    return keys
   }
 }
