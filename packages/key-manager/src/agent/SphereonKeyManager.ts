@@ -1,6 +1,6 @@
 import { KeyManager as VeramoKeyManager, AbstractKeyManagementSystem, AbstractKeyStore } from '@veramo/key-manager'
 
-import {IKey, ManagedKeyInfo, TKeyType} from '@veramo/core'
+import { IKey, ManagedKeyInfo, TKeyType } from '@veramo/core'
 import { KeyType, SphereonKeyManagementSystem } from '@sphereon/ssi-sdk-ext.kms-local'
 import { ISphereonKeyManager, ISphereonKeyManagerSignArgs, ISphereonKeyManagerVerifyArgs } from '../types/ISphereonKeyManager'
 
@@ -51,7 +51,7 @@ export class SphereonKeyManager extends VeramoKeyManager {
     const keys: ManagedKeyInfo[] = []
     for (let i = 0; i < kmsNames.length; i++) {
       const kms = this.getLocalKms(kmsNames[i])
-      keys.push(...await kms.listKeys())
+      keys.push(...(await kms.listKeys()))
     }
     return keys
   }
