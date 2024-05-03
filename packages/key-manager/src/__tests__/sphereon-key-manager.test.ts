@@ -1,6 +1,6 @@
 import { SphereonKeyManager } from '../agent/SphereonKeyManager'
 import { MemoryKeyStore, MemoryPrivateKeyStore } from '@veramo/key-manager'
-import { IKey } from '@veramo/core'
+import { IKey, ManagedKeyInfo } from '@veramo/core'
 import { generateBls12381G2KeyPair } from '@mattrglobal/bbs-signatures'
 import { SphereonKeyManagementSystem } from '@sphereon/ssi-sdk-ext.kms-local'
 
@@ -95,8 +95,10 @@ describe('@sphereon/ssi-sdk-ext.kms-local', () => {
       kms: 'local',
       type: 'Bls12381G2',
     })
-    const keys = await kms.keyManagerListKeys({})
-    console.log('should get all the keys in the sphereon key manager:\n', keys)
+    const keys: ManagedKeyInfo[] = await kms.keyManagerListKeys({})
+    keys.forEach((key) => {
+      expect(key['privateKeyHex' as keyof ManagedKeyInfo]).toBeUndefined()
+    })
   })
 
   afterAll(async () => {
