@@ -46,12 +46,13 @@ export class SphereonKeyManager extends VeramoKeyManager {
     throw Error(`KMS ${kms} does not support verification`)
   }
 
-  async keyManagerListKeys({}): Promise<ManagedKeyInfo[]> {
-    const kmsNames = await this.keyManagerGetKeyManagementSystems()
+  async keyManagerListKeys(): Promise<ManagedKeyInfo[]> {
+    const kmsNames: string[] = await this.keyManagerGetKeyManagementSystems()
     const keys: ManagedKeyInfo[] = []
-    for (let i = 0; i < kmsNames.length; i++) {
-      const kms = this.getLocalKms(kmsNames[i])
-      keys.push(...(await kms.listKeys()))
+    for (const kmsName of kmsNames) {
+      const kms: AbstractKeyManagementSystem = this.getLocalKms(kmsName)
+      const keyList: ManagedKeyInfo[] = await kms.listKeys()
+      keys.push(...keyList)
     }
     return keys
   }

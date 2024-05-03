@@ -17,6 +17,8 @@ export interface ISphereonKeyManager extends IKeyManager, IPluginMethodMap {
    * @param args
    */
   keyManagerVerify(args: ISphereonKeyManagerVerifyArgs): Promise<boolean>
+
+  keyManagerListKeys(): Promise<Array<ManagedKeyInfo>>
 }
 
 /**

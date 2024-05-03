@@ -269,7 +269,7 @@ export class SphereonKeyManagementSystem extends KeyManagementSystem {
     return await signer.verify(data, signature)
   }
 
-  public async listKeys(): Promise<ManagedKeyInfo[]> {
-    return (await this.privateKeyStore.list({})).map((privateKey) => this.asSphereonManagedKeyInfo(privateKey))
+  public async listKeys(): Promise<Array<ManagedKeyInfo>> {
+    return (await this.privateKeyStore.list({})).map((privateKey: ManagedPrivateKey) => this.asSphereonManagedKeyInfo(privateKey))
   }
 }
