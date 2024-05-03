@@ -95,7 +95,7 @@ describe('@sphereon/ssi-sdk-ext.kms-local', () => {
       kms: 'local',
       type: 'Bls12381G2',
     })
-    const keys: ManagedKeyInfo[] = await kms.keyManagerListKeys({})
+    const keys: ManagedKeyInfo[] = await kms.keyManagerListKeys()
     keys.forEach((key) => {
       expect(key['privateKeyHex' as keyof ManagedKeyInfo]).toBeUndefined()
     })
