@@ -21,6 +21,7 @@ export class SphereonKeyManager extends VeramoKeyManager {
     this.availableKMSes = options.kms
     const methods = this.methods
     methods.keyManagerVerify = this.keyManagerVerify.bind(this)
+    methods.keyManagerListKeys = this.keyManagerListKeys.bind(this)
     this.localMethods = <ISphereonKeyManager>(<unknown>methods)
   }
 
