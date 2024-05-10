@@ -1,10 +1,11 @@
-import { IAgentContext, IDIDManager, IIdentifier, IKeyManager, MinimalImportableKey } from '@veramo/core'
+import {IAgentContext, IDIDManager, IIdentifier, IKeyManager, MinimalImportableKey} from '@veramo/core'
 import Debug from 'debug'
-import { AbstractIdentifierProvider } from '@veramo/did-manager/build/abstract-identifier-provider'
-import { IKey, IService } from '@veramo/core/build/types/IIdentifier'
+import {AbstractIdentifierProvider} from '@veramo/did-manager/build/abstract-identifier-provider'
+import {IKey, IService} from '@veramo/core/build/types/IIdentifier'
 import * as u8a from 'uint8arrays'
 import {
-  ApiOpts, baseDocument,
+  ApiOpts,
+  baseDocument,
   CreateEbsiDidParams,
   ebsiDIDSpecInfo,
   EbsiKeyType,
@@ -16,16 +17,20 @@ import {
   Response200,
   UpdateIdentifierParams,
 } from './types'
-import { calculateJwkThumbprint, formatEbsiPublicKey, generateEbsiPrivateKeyHex, generateMethodSpecificId } from './functions'
+import {
+  calculateJwkThumbprint,
+  formatEbsiPublicKey,
+  generateEbsiPrivateKeyHex,
+  generateMethodSpecificId
+} from './functions'
 import {
   addVerificationMethod,
   addVerificationMethodRelationship,
   insertDidDocument,
   sendSignedTransaction,
-  updateBaseDocument,
 } from './services/EbsiRPCService'
-import { toJwk } from '@sphereon/ssi-sdk-ext.key-utils'
-import { Transaction } from 'ethers'
+import {toJwk} from '@sphereon/ssi-sdk-ext.key-utils'
+import {Transaction} from 'ethers'
 
 const debug = Debug('sphereon:did-provider-ebsi')
 
@@ -271,21 +276,7 @@ export class EbsiDidProvider extends AbstractIdentifierProvider {
 
   // TODO How does it work? Not inferable from the api: https://hub.ebsi.eu/apis/pilot/did-registry/v5/post-jsonrpc#updatebasedocument
   async updateIdentifier(args: UpdateIdentifierParams, context: IAgentContext<IKeyManager & IDIDManager>): Promise<IIdentifier> {
-    const id = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER)
-    await updateBaseDocument({
-      params: [
-        {
-          from: args.options?.from ?? 'eth',
-          did: args.did,
-          baseDocument:
-            args.options?.baseDocument ?? baseDocument,
-        },
-      ],
-      id,
-      apiOpts: args.options?.apiOpts ?? this.apiOpts,
-      token: '', //TODO hook it up: https://sphereon.atlassian.net/browse/SDK-10
-    })
-    throw Error(`Not (yet) implemented for the EBSI did provider`)
+    throw new Error(`Not (yet) implemented for the EBSI did provider`)
   }
 
   private assertedKey = (args: { key?: IKeyOpts; type: EbsiKeyType; kms?: string }): MinimalImportableKey => {
