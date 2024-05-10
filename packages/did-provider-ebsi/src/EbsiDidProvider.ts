@@ -4,7 +4,7 @@ import { AbstractIdentifierProvider } from '@veramo/did-manager/build/abstract-i
 import { IKey, IService } from '@veramo/core/build/types/IIdentifier'
 import * as u8a from 'uint8arrays'
 import {
-  ApiOpts,
+  ApiOpts, baseDocument,
   CreateEbsiDidParams,
   ebsiDIDSpecInfo,
   EbsiKeyType,
@@ -106,7 +106,7 @@ export class EbsiDidProvider extends AbstractIdentifierProvider {
           from: args.from,
           did: args.identifier.did,
           baseDocument:
-            args.baseDocument ?? JSON.stringify({ '@context': ['https://www.w3.org/ns/did/v1', 'https://w3id.org/security/suites/jws-2020/v1'] }),
+            args.baseDocument ?? baseDocument,
           vMethoddId: await calculateJwkThumbprint({ jwk: toJwk(args.secp256k1ManagedKeyInfo.publicKeyHex, 'Secp256k1') }),
           isSecp256k1: true,
           publicKey: formatEbsiPublicKey({ key: args.secp256k1ManagedKeyInfo, type: 'Secp256k1' }),
@@ -278,8 +278,7 @@ export class EbsiDidProvider extends AbstractIdentifierProvider {
           from: args.options?.from ?? 'eth',
           did: args.did,
           baseDocument:
-            args.options?.baseDocument ??
-            JSON.stringify({ '@context': ['https://www.w3.org/ns/did/v1', 'https://w3id.org/security/suites/jws-2020/v1'] }),
+            args.options?.baseDocument ?? baseDocument,
         },
       ],
       id,

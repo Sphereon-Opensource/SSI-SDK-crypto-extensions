@@ -350,6 +350,8 @@ export type CreateEbsiDidParams = {
 
 export const jsonrpc = '2.0'
 
+export const baseDocument = JSON.stringify({ '@context': ['https://www.w3.org/ns/did/v1', 'https://w3id.org/security/suites/jws-2020/v1'] })
+
 export type EbsiEnvironment = 'pilot' | 'conformance'
 
 export type ApiOpts = { environment?: EbsiEnvironment; version?: string }
