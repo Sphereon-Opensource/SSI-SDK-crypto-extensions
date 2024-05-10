@@ -95,9 +95,9 @@ export class EbsiDidProvider extends AbstractIdentifierProvider {
       debug('Created', identifier.did)
       return identifier
     } else if (type === ebsiDIDSpecInfo.KEY) {
-      throw Error(`Type ${type} not supported. Please use @sphereon/ssi-sdk-ext.did-provider-key for Natural Person EBSI DIDs`)
+      throw new Error(`Type ${type} not supported. Please use @sphereon/ssi-sdk-ext.did-provider-key for Natural Person EBSI DIDs`)
     }
-    throw Error(`Type ${type} not supported`)
+    throw new Error(`Type ${type} not supported`)
   }
 
   private async createEbsiDid(
@@ -220,7 +220,7 @@ export class EbsiDidProvider extends AbstractIdentifierProvider {
       privateKeyHex = privateKeyHex.substring(2)
     }
     if (!privateKeyHex || privateKeyHex.length !== 64) {
-      throw Error('Private key should be 32 bytes / 64 chars hex')
+      throw new Error('Private key should be 32 bytes / 64 chars hex')
     }
     const importableKey = this.assertedKey({ key: { ...keyOpts, privateKeyHex }, type: keyType, kms })
     return await context.agent.keyManagerImport(importableKey)
@@ -234,7 +234,7 @@ export class EbsiDidProvider extends AbstractIdentifierProvider {
     },
     context: IAgentContext<IKeyManager>
   ): Promise<any> {
-    throw Error(`Not (yet) implemented for the EBSI did provider`)
+    throw new Error(`Not (yet) implemented for the EBSI did provider`)
   }
 
   addService(
@@ -245,7 +245,7 @@ export class EbsiDidProvider extends AbstractIdentifierProvider {
     },
     context: IAgentContext<IKeyManager>
   ): Promise<any> {
-    throw Error(`Not (yet) implemented for the EBSI did provider`)
+    throw new Error(`Not (yet) implemented for the EBSI did provider`)
   }
 
   deleteIdentifier(args: IIdentifier, context: IAgentContext<IKeyManager>): Promise<boolean> {
@@ -260,7 +260,7 @@ export class EbsiDidProvider extends AbstractIdentifierProvider {
     },
     context: IAgentContext<IKeyManager>
   ): Promise<any> {
-    throw Error(`Not (yet) implemented for the EBSI did provider`)
+    throw new Error(`Not (yet) implemented for the EBSI did provider`)
   }
 
   removeService(
@@ -271,7 +271,7 @@ export class EbsiDidProvider extends AbstractIdentifierProvider {
     },
     context: IAgentContext<IKeyManager>
   ): Promise<any> {
-    throw Error(`Not (yet) implemented for the EBSI did provider`)
+    throw new Error(`Not (yet) implemented for the EBSI did provider`)
   }
 
   // TODO How does it work? Not inferable from the api: https://hub.ebsi.eu/apis/pilot/did-registry/v5/post-jsonrpc#updatebasedocument
@@ -293,7 +293,7 @@ export class EbsiDidProvider extends AbstractIdentifierProvider {
     if (!!result) {
       return result
     }
-    throw Error('no KMS supplied')
+    throw new Error('no KMS supplied')
   }
 
   private setDefaultKeyType = (args: { key?: IKeyOpts; type: EbsiKeyType }): EbsiKeyType => {
