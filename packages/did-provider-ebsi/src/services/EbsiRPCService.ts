@@ -1,102 +1,35 @@
-import {
-  AddVerificationMethodParams,
-  AddVerificationMethodRelationshipParams,
-  ApiOpts,
-  GetDidDocumentParams,
-  GetDidDocumentsParams,
-  GetDidDocumentsResponse,
-  InsertDidDocumentParams,
-  jsonrpc,
-  Response,
-  RPCParams,
-  SendSignedTransactionParams,
-  UpdateBaseDocumentParams,
-} from '../types'
+import { ApiOpts, EbsiRpcMethod, GetDidDocumentParams, GetDidDocumentsParams, GetDidDocumentsResponse, jsonrpc, Response, RPCParams } from '../types'
 import { DIDDocument } from 'did-resolver'
 import { getUrls } from '../functions'
 
 /**
- * @constant {string} jsonrpc
+ * Allows to call 5 api methods of the EBSI RPC api
+ * - insertDidDocument
+ * - updateBaseDocument
+ * - addVerificationMethod
+ * - addVerificationMethodRelationship
+ * - sendSignedTransaction
+ * @function callRpcMethod
+ * @param {{ params: RPCParams[]; id: number; token: string; method: EbsiRpcMethod; apiOpts? ApiOpts }} args
  */
-
-/**
- * Call to build an unsigned transaction to insert a new DID document. Requires an access token with "didr_invite" or
- * "didr_write" scope.
- * @param {{ id: InsertDidDocumentParams[], id: number, token: string, apiOpts?: ApiOpts }} args
- */
-export const insertDidDocument = async (args: {
-  params: InsertDidDocumentParams[]
+export const callRpcMethod = async (args: {
+  params: RPCParams[]
   id: number
   token: string
+  method: EbsiRpcMethod
   apiOpts?: ApiOpts
 }): Promise<Response> => {
-  const { params, id, token, apiOpts } = args
-  const options = buildFetchOptions({ token, params, id, method: 'insertDidDocument' })
+  const { params, id, token, method, apiOpts } = args
+  const options = buildFetchOptions({ token, params, id, method })
   return await (await fetch(getUrls({ ...apiOpts }).mutate, options)).json()
 }
 
 /**
- * Call to build an unsigned transaction to update the base document of an existing DID. Requires an access token with
- * "didr_write" scope.
- * @param {{ params: UpdateBaseDocumentParams[], id: number, token: string, apiOpts?: ApiOpts }} args
+ * Builds the request body of the http request to EBSI RPC api
+ * @function buildFetchOptions
+ * @param {{ params: RPCParams[]; id: number; token: string; method: EbsiRpcMethod }} args
  */
-export const updateBaseDocument = async (args: {
-  params: UpdateBaseDocumentParams[]
-  id: number
-  token: string
-  apiOpts?: ApiOpts
-}): Promise<Response> => {
-  const { params, id, token, apiOpts } = args
-  const options = buildFetchOptions({ token, params, id, method: 'updateBaseDocument' })
-  return await (await fetch(getUrls({ ...apiOpts }).mutate, options)).json()
-}
-
-/**
- * Call to build an unsigned transaction to add a verification method. Requires an access token with "didr_write" scope.
- * @param {{ params: AddVerificationMethodParams[], id: number, token: string, apiOpts?: ApiOpts }} args
- */
-export const addVerificationMethod = async (args: {
-  params: AddVerificationMethodParams[]
-  id: number
-  token: string
-  apiOpts?: ApiOpts
-}): Promise<Response> => {
-  const { params, id, token, apiOpts } = args
-  const options = buildFetchOptions({ token, params, id, method: 'addVerificationMethod' })
-  return await (await fetch(getUrls({ ...apiOpts }).mutate, options)).json()
-}
-
-/**
- * Call to build an unsigned transaction to add a verification relationship. Requires an access token with "didr_write" scope.
- * @param {{ params: AddVerificationMethodRelationshipParams[], id: number, token: string, apiOpts?: ApiOpts }} args
- */
-export const addVerificationMethodRelationship = async (args: {
-  params: AddVerificationMethodRelationshipParams[]
-  id: number
-  token: string
-  apiOpts?: ApiOpts
-}): Promise<Response> => {
-  const { params, id, token, apiOpts } = args
-  const options = buildFetchOptions({ token, params, id, method: 'addVerificationMethodRelationship' })
-  return await (await fetch(getUrls({ ...apiOpts }).mutate, options)).json()
-}
-
-/**
- * Call to send a signed transaction to the blockchain. Requires an access token with "didr_invite" or "didr_write" scope.
- * @param {{ params: SendSignedTransactionParams[], id: number, token: string, apiOpts?: ApiOpts}} args
- */
-export const sendSignedTransaction = async (args: {
-  params: SendSignedTransactionParams[]
-  id: number
-  token: string
-  apiOpts?: ApiOpts
-}): Promise<Response> => {
-  const { params, id, token, apiOpts } = args
-  const options = buildFetchOptions({ token, params, id, method: 'sendSignedTransaction' })
-  return await (await fetch(getUrls({ ...apiOpts }).mutate, options)).json()
-}
-
-const buildFetchOptions = (args: { params: RPCParams[]; id: number; token: string; method: string }) => {
+const buildFetchOptions = (args: { params: RPCParams[]; id: number; token: string; method: EbsiRpcMethod }) => {
   const { params, id, token, method } = args
   return {
     method: 'POST',

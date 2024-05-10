@@ -348,9 +348,28 @@ export type CreateEbsiDidParams = {
   apiOpts?: ApiOpts
 }
 
+/**
+ * @constant jsonrpc
+ */
 export const jsonrpc = '2.0'
 
+/**
+ * @constant baseDocument
+ */
 export const baseDocument = JSON.stringify({ '@context': ['https://www.w3.org/ns/did/v1', 'https://w3id.org/security/suites/jws-2020/v1'] })
+
+/**
+ * The EBSI RPC operations
+ * @readonly
+ * @enum {string}
+ */
+export enum EbsiRpcMethod {
+  INSERT_DID_DOCUMENT = 'insertDidDocument',
+  UPDATE_DID_DOCUMENT = 'updateBaseDocument',
+  ADD_VERIFICATION_METHOD = 'addVerificationMethod',
+  ADD_VERIFICATION_METHOD_RELATIONSHIP = 'addVerificationMethodRelationship',
+  SEND_SIGNED_TRANSACTION = 'sendSignedTransaction',
+}
 
 export type EbsiEnvironment = 'pilot' | 'conformance'
 

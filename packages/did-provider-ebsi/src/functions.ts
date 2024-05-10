@@ -7,6 +7,7 @@ import {
   EbsiEnvironment,
   EbsiKeyType,
   EbsiPublicKeyPurpose,
+  EbsiRpcMethod,
   IContext,
   IKeyOpts,
   Response,
@@ -18,7 +19,7 @@ import { base58btc } from 'multiformats/bases/base58'
 import { IAgentContext, IKey, IKeyManager, MinimalImportableKey } from '@veramo/core'
 import { getBytes, sha256, sha512, SigningKey, Transaction } from 'ethers'
 import { JWK, JwkKeyUse, toJwk } from '@sphereon/ssi-sdk-ext.key-utils'
-import { addVerificationMethod, addVerificationMethodRelationship, insertDidDocument, sendSignedTransaction } from './services/EbsiRPCService'
+import { callRpcMethod } from './services/EbsiRPCService'
 
 export const base64url = (input: string): string => u8a.toString(u8a.fromString(input), 'base64url')
 
@@ -146,7 +147,7 @@ export const sendTransaction = async (args: { docTransactionResponse: Response; 
 
   const { r, s, v } = Transaction.from(signedRawTransaction).signature!
 
-  const sTResponse = await sendSignedTransaction({
+  const sTResponse = await callRpcMethod({
     params: [
       {
         protocol: 'eth',
@@ -157,6 +158,7 @@ export const sendTransaction = async (args: { docTransactionResponse: Response; 
         signedRawTransaction,
       },
     ],
+    method: EbsiRpcMethod.SEND_SIGNED_TRANSACTION,
     id: args.id,
     apiOpts: args.apiOpts,
     token: '', //TODO hook it up: https://sphereon.atlassian.net/browse/SDK-10
@@ -250,7 +252,7 @@ export const setDefaultPurposes = (args: { key?: IKeyOpts; type: EbsiKeyType }):
 }
 
 export const createEbsiDid = async (args: CreateEbsiDidParams, context: IContext): Promise<void> => {
-  const insertDidDocTransaction = await insertDidDocument({
+  const insertDidDocTransaction = await callRpcMethod({
     params: [
       {
         from: args.from,
@@ -263,6 +265,7 @@ export const createEbsiDid = async (args: CreateEbsiDidParams, context: IContext
         notAfter: args.notAfter,
       },
     ],
+    method: EbsiRpcMethod.INSERT_DID_DOCUMENT,
     id: args.id,
     apiOpts: args.apiOpts,
     token: '', //TODO hook it up: https://sphereon.atlassian.net/browse/SDK-10
@@ -273,7 +276,7 @@ export const createEbsiDid = async (args: CreateEbsiDidParams, context: IContext
     context
   )
 
-  const addVerificationMethodTransaction = await addVerificationMethod({
+  const addVerificationMethodTransaction = await callRpcMethod({
     params: [
       {
         from: args.from,
@@ -283,6 +286,7 @@ export const createEbsiDid = async (args: CreateEbsiDidParams, context: IContext
         publicKey: formatEbsiPublicKey({ key: args.secp256k1ManagedKeyInfo, type: 'Secp256k1' }),
       },
     ],
+    method: EbsiRpcMethod.ADD_VERIFICATION_METHOD,
     id: args.id,
     apiOpts: args.apiOpts,
     token: '', //TODO hook it up: https://sphereon.atlassian.net/browse/SDK-10
@@ -293,7 +297,7 @@ export const createEbsiDid = async (args: CreateEbsiDidParams, context: IContext
     context
   )
 
-  const addVerificationMethodRelationshipTransaction = await addVerificationMethodRelationship({
+  const addVerificationMethodRelationshipTransaction = await callRpcMethod({
     params: [
       {
         from: args?.from,
@@ -304,6 +308,7 @@ export const createEbsiDid = async (args: CreateEbsiDidParams, context: IContext
         notBefore: 1,
       },
     ],
+    method: EbsiRpcMethod.ADD_VERIFICATION_METHOD_RELATIONSHIP,
     id: args.id,
     apiOpts: args.apiOpts,
     token: '', //TODO hook it up: https://sphereon.atlassian.net/browse/SDK-10
