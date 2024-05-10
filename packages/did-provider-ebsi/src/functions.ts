@@ -97,23 +97,23 @@ export const calculateJwkThumbprint = async (args: { jwk: JWK; digestAlgorithm?:
   let components
   switch (jwk.kty) {
     case 'EC':
-      checkPresent(jwk.crv, '"crv" (Curve) Parameter')
-      checkPresent(jwk.x, '"x" (X Coordinate) Parameter')
-      checkPresent(jwk.y, '"y" (Y Coordinate) Parameter')
+      assertPresent(jwk.crv, '"crv" (Curve) Parameter')
+      assertPresent(jwk.x, '"x" (X Coordinate) Parameter')
+      assertPresent(jwk.y, '"y" (Y Coordinate) Parameter')
       components = { crv: jwk.crv, kty: jwk.kty, x: jwk.x, y: jwk.y }
       break
     case 'OKP':
-      checkPresent(jwk.crv, '"crv" (Subtype of Key Pair) Parameter')
-      checkPresent(jwk.x, '"x" (Public Key) Parameter')
+      assertPresent(jwk.crv, '"crv" (Subtype of Key Pair) Parameter')
+      assertPresent(jwk.x, '"x" (Public Key) Parameter')
       components = { crv: jwk.crv, kty: jwk.kty, x: jwk.x }
       break
     case 'RSA':
-      checkPresent(jwk.e, '"e" (Exponent) Parameter')
-      checkPresent(jwk.n, '"n" (Modulus) Parameter')
+      assertPresent(jwk.e, '"e" (Exponent) Parameter')
+      assertPresent(jwk.n, '"n" (Modulus) Parameter')
       components = { e: jwk.e, kty: jwk.kty, n: jwk.n }
       break
     case 'oct':
-      checkPresent(jwk.k, '"k" (Key Value) Parameter')
+      assertPresent(jwk.k, '"k" (Key Value) Parameter')
       components = { k: jwk.k, kty: jwk.kty }
       break
     default:
@@ -127,7 +127,7 @@ export const calculateJwkThumbprint = async (args: { jwk: JWK; digestAlgorithm?:
   return base64url(sha256(data))
 }
 
-const checkPresent = (value: unknown, description: string) => {
+const assertPresent = (value: unknown, description: string) => {
   if (typeof value !== 'string' || !value) {
     throw new Error(`${description} missing or invalid`)
   }
