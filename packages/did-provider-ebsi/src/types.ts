@@ -1,4 +1,4 @@
-import { IAgentContext, IKeyManager, MinimalImportableKey, TKeyType } from '@veramo/core'
+import { IAgentContext, IIdentifier, IKeyManager, ManagedKeyInfo, MinimalImportableKey, TKeyType } from '@veramo/core'
 
 export type IContext = IAgentContext<IKeyManager>
 
@@ -307,6 +307,31 @@ export type GetDidDocumentsResponse = {
   total: number
   pageSize: number
   links: Links
+}
+
+/**
+ * @typedef CreateEbsiDidParams
+ * @type {object}
+ * @Property {Omit<IIdentifier, 'provider'>} identifier An identifier without the provider
+ * @Property {ManagedKeyInfo} secp256k1ManagedKeyInfo A Secp256k1 managed key
+ * @Property {ManagedKeyInfo} secp256r1ManagedKeyInfo A Secp256r1 managed key
+ * @Property {number} id A client created id
+ * @Property {string} from The wallet eth like address
+ * @Property {string} [baseDocument] The base DID document
+ * @Property {number} notBefore Date of issuance of the identifier
+ * @Property {number} notAfter Date of expiration of the identifier
+ * @Property {ApiOpts} [apiOpts] The EBSI API options
+ */
+export type CreateEbsiDidParams = {
+  identifier: Omit<IIdentifier, 'provider'>
+  secp256k1ManagedKeyInfo: ManagedKeyInfo
+  secp256r1ManagedKeyInfo: ManagedKeyInfo
+  id: number
+  from: string
+  baseDocument?: string
+  notBefore: number
+  notAfter: number
+  apiOpts?: ApiOpts
 }
 
 export const jsonrpc = '2.0'

@@ -1,4 +1,4 @@
-import { IAgentContext, IDIDManager, IIdentifier, IKeyManager, ManagedKeyInfo, MinimalImportableKey } from '@veramo/core'
+import { IAgentContext, IDIDManager, IIdentifier, IKeyManager, MinimalImportableKey } from '@veramo/core'
 import Debug from 'debug'
 import { AbstractIdentifierProvider } from '@veramo/did-manager/build/abstract-identifier-provider'
 import { DIDDocument } from 'did-resolver'
@@ -6,6 +6,7 @@ import { IKey, IService } from '@veramo/core/build/types/IIdentifier'
 import * as u8a from 'uint8arrays'
 import {
   ApiOpts,
+  CreateEbsiDidParams,
   ebsiDIDSpecInfo,
   EbsiKeyType,
   EbsiPublicKeyPurpose,
@@ -94,18 +95,9 @@ export class EbsiDidProvider extends AbstractIdentifierProvider {
     throw Error(`Type ${type} not supported`)
   }
 
-  async createEbsiDid(
-    args: {
-      identifier: Omit<IIdentifier, 'provider'>
-      secp256k1ManagedKeyInfo: ManagedKeyInfo
-      secp256r1ManagedKeyInfo: ManagedKeyInfo
-      id: number
-      from: string
-      baseDocument?: string
-      notBefore: number
-      notAfter: number
-      apiOpts?: ApiOpts
-    },
+  private async createEbsiDid(
+    args: CreateEbsiDidParams,
+
     context: IContext
   ): Promise<void> {
     const insertDidDocTransaction = await insertDidDocument({
