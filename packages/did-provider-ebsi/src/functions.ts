@@ -56,6 +56,11 @@ export const formatEbsiPublicKey = (args: { key: IKey; type: EbsiKeyType }): str
         For other algorithms, it must be the JWK transformed to string and then to hex format.
        */
       const jwk: JsonWebKey = toJwk(key.publicKeyHex, type, { use: JwkKeyUse.Signature, key })
+      /*
+        Converting JWK to string and then hex is odd and may lead to errors. Implementing
+        it like that because it's how EBSI does it. However, it may be a point of pain
+        in the future.
+       */
       const jwkString = JSON.stringify(jwk, null, 2)
       return u8a.toString(u8a.fromString(jwkString), 'base16')
     }
