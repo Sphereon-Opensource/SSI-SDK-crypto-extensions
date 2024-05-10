@@ -83,23 +83,23 @@ export const calculateJwkThumbprint = async (args: { jwk: JWK; digestAlgorithm?:
   let components
   switch (jwk.kty) {
     case 'EC':
-      check(jwk.crv, '"crv" (Curve) Parameter')
-      check(jwk.x, '"x" (X Coordinate) Parameter')
-      check(jwk.y, '"y" (Y Coordinate) Parameter')
+      checkPresent(jwk.crv, '"crv" (Curve) Parameter')
+      checkPresent(jwk.x, '"x" (X Coordinate) Parameter')
+      checkPresent(jwk.y, '"y" (Y Coordinate) Parameter')
       components = { crv: jwk.crv, kty: jwk.kty, x: jwk.x, y: jwk.y }
       break
     case 'OKP':
-      check(jwk.crv, '"crv" (Subtype of Key Pair) Parameter')
-      check(jwk.x, '"x" (Public Key) Parameter')
+      checkPresent(jwk.crv, '"crv" (Subtype of Key Pair) Parameter')
+      checkPresent(jwk.x, '"x" (Public Key) Parameter')
       components = { crv: jwk.crv, kty: jwk.kty, x: jwk.x }
       break
     case 'RSA':
-      check(jwk.e, '"e" (Exponent) Parameter')
-      check(jwk.n, '"n" (Modulus) Parameter')
+      checkPresent(jwk.e, '"e" (Exponent) Parameter')
+      checkPresent(jwk.n, '"n" (Modulus) Parameter')
       components = { e: jwk.e, kty: jwk.kty, n: jwk.n }
       break
     case 'oct':
-      check(jwk.k, '"k" (Key Value) Parameter')
+      checkPresent(jwk.k, '"k" (Key Value) Parameter')
       components = { k: jwk.k, kty: jwk.kty }
       break
     default:
@@ -113,7 +113,7 @@ export const calculateJwkThumbprint = async (args: { jwk: JWK; digestAlgorithm?:
   return base64url(sha256(data))
 }
 
-const check = (value: unknown, description: string) => {
+const checkPresent = (value: unknown, description: string) => {
   if (typeof value !== 'string' || !value) {
     throw new Error(`${description} missing or invalid`)
   }
