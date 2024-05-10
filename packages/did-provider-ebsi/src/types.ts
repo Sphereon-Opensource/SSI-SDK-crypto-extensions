@@ -1,4 +1,5 @@
 import { IAgentContext, IIdentifier, IKeyManager, ManagedKeyInfo, MinimalImportableKey, TKeyType } from '@veramo/core'
+import { DIDDocument } from 'did-resolver'
 
 export type IContext = IAgentContext<IKeyManager>
 
@@ -139,6 +140,19 @@ export type InsertDidDocumentParams = {
  * @property {string} baseDocument - JSON string containing the @context of the DID document
  */
 export type UpdateBaseDocumentParams = Pick<InsertDidDocumentParams, 'from' | 'did' | 'baseDocument'>
+
+/**
+ * @typedef UpdateIdentifierParams
+ * @type {object}
+ * @property {string} did - A DID
+ * @property {Partial<DIDDocument>} document - The partial DID document
+ * @property {{ [p: string]: any }} [options] - Any additional options
+ */
+export type UpdateIdentifierParams = {
+  did: string
+  document: Partial<DIDDocument>
+  options?: { [p: string]: any }
+}
 
 /**
  * @typedef AddVerificationMethodParams
@@ -312,15 +326,15 @@ export type GetDidDocumentsResponse = {
 /**
  * @typedef CreateEbsiDidParams
  * @type {object}
- * @Property {Omit<IIdentifier, 'provider'>} identifier An identifier without the provider
- * @Property {ManagedKeyInfo} secp256k1ManagedKeyInfo A Secp256k1 managed key
- * @Property {ManagedKeyInfo} secp256r1ManagedKeyInfo A Secp256r1 managed key
- * @Property {number} id A client created id
- * @Property {string} from The wallet eth like address
- * @Property {string} [baseDocument] The base DID document
- * @Property {number} notBefore Date of issuance of the identifier
- * @Property {number} notAfter Date of expiration of the identifier
- * @Property {ApiOpts} [apiOpts] The EBSI API options
+ * @property {Omit<IIdentifier, 'provider'>} identifier An identifier without the provider
+ * @property {ManagedKeyInfo} secp256k1ManagedKeyInfo A Secp256k1 managed key
+ * @property {ManagedKeyInfo} secp256r1ManagedKeyInfo A Secp256r1 managed key
+ * @property {number} id A client created id
+ * @property {string} from The wallet eth like address
+ * @property {string} [baseDocument] The base DID document
+ * @property {number} notBefore Date of issuance of the identifier
+ * @property {number} notAfter Date of expiration of the identifier
+ * @property {ApiOpts} [apiOpts] The EBSI API options
  */
 export type CreateEbsiDidParams = {
   identifier: Omit<IIdentifier, 'provider'>

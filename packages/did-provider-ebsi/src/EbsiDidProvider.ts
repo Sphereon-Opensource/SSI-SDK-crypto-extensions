@@ -1,7 +1,6 @@
 import { IAgentContext, IDIDManager, IIdentifier, IKeyManager, MinimalImportableKey } from '@veramo/core'
 import Debug from 'debug'
 import { AbstractIdentifierProvider } from '@veramo/did-manager/build/abstract-identifier-provider'
-import { DIDDocument } from 'did-resolver'
 import { IKey, IService } from '@veramo/core/build/types/IIdentifier'
 import * as u8a from 'uint8arrays'
 import {
@@ -15,6 +14,7 @@ import {
   IKeyOpts,
   Response,
   Response200,
+  UpdateIdentifierParams,
 } from './types'
 import { calculateJwkThumbprint, formatEbsiPublicKey, generateEbsiPrivateKeyHex, generateMethodSpecificId } from './functions'
 import {
@@ -270,15 +270,7 @@ export class EbsiDidProvider extends AbstractIdentifierProvider {
   }
 
   // TODO How does it work? Not inferable from the api: https://hub.ebsi.eu/apis/pilot/did-registry/v5/post-jsonrpc#updatebasedocument
-  async updateIdentifier(
-    args: {
-      did: string
-      document: Partial<DIDDocument>
-      options?: { [p: string]: any }
-    },
-    // TODO extract a type
-    context: IAgentContext<IKeyManager & IDIDManager>
-  ): Promise<IIdentifier> {
+  async updateIdentifier(args: UpdateIdentifierParams, context: IAgentContext<IKeyManager & IDIDManager>): Promise<IIdentifier> {
     const id = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER)
     await updateBaseDocument({
       params: [
