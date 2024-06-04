@@ -1,6 +1,6 @@
 import { SphereonKeyManager } from '../agent/SphereonKeyManager'
 import { MemoryKeyStore, MemoryPrivateKeyStore } from '@veramo/key-manager'
-import { IKey } from '@veramo/core'
+import { IKey, ManagedKeyInfo } from '@veramo/core'
 import { generateBls12381G2KeyPair } from '@mattrglobal/bbs-signatures'
 import { SphereonKeyManagementSystem } from '@sphereon/ssi-sdk-ext.kms-local'
 
@@ -80,6 +80,25 @@ describe('@sphereon/ssi-sdk-ext.kms-local', () => {
 
   it('should delete a bls key', async () => {
     await expect(kms.keyManagerDelete({ kid: Buffer.from(bls.publicKey).toString('hex') })).resolves.toBeTruthy()
+  })
+
+  it('should get all the keys in the sphereon key manager', async () => {
+    const myKey = {
+      type: 'Bls12381G2',
+      privateKeyHex: Buffer.from(bls.secretKey).toString('hex'),
+      publicKeyHex: Buffer.from(bls.publicKey).toString('hex'),
+    }
+    await kms.keyManagerImport({
+      kid: myKey.publicKeyHex,
+      privateKeyHex: myKey.privateKeyHex,
+      publicKeyHex: myKey.publicKeyHex,
+      kms: 'local',
+      type: 'Bls12381G2',
+    })
+    const keys: ManagedKeyInfo[] = await kms.keyManagerListKeys()
+    keys.forEach((key) => {
+      expect(key['privateKeyHex' as keyof ManagedKeyInfo]).toBeUndefined()
+    })
   })
 
   afterAll(async () => {
