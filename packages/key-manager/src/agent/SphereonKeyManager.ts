@@ -54,11 +54,6 @@ export class SphereonKeyManager extends VeramoKeyManager {
   }
 
   async keyManagerListKeys(): Promise<ManagedKeyInfo[]> {
-    const kmsNames: string[] = await this.keyManagerGetKeyManagementSystems();
-    const keysArrays = await Promise.all(kmsNames.map(async (kmsName) => {
-      const kms: AbstractKeyManagementSystem = this.getAvailableKms(kmsName);
-      return kms.listKeys()
-    }))
-    return keysArrays.flat()
+    return this.localStore.list({}) // FIXME there are no args it seems
   }
 }
