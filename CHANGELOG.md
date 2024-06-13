@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.20.0](https://github.com/Sphereon-Opensource/veramo-BBS/compare/v0.19.0...v0.20.0) (2024-06-13)
+
+### Bug Fixes
+
+- added a few fixes and type definitions ([7040799](https://github.com/Sphereon-Opensource/veramo-BBS/commit/7040799e509da9546ca3c52c1a209a5a7679ac13))
+- added keyManagerListKeys binding ([e2f723b](https://github.com/Sphereon-Opensource/veramo-BBS/commit/e2f723b3412266d30405909b7822efc4a94b051d))
+- Bugfix creating eth transactions ([1d2e04d](https://github.com/Sphereon-Opensource/veramo-BBS/commit/1d2e04da8e682ffa725f280d3863fc66a4fe0f9a))
+- fix base64url sanitizing ([473c028](https://github.com/Sphereon-Opensource/veramo-BBS/commit/473c0281e8c24565bb0ada0d335d32014453294d))
+- Fixed broken tests ([07d320a](https://github.com/Sphereon-Opensource/veramo-BBS/commit/07d320a4a04bfd41093e6ed7133b81134aa6a381))
+
+### Features
+
+- (wip) added list keys functionality. the kms-local function works but we face error on key-manager level ([bde93d3](https://github.com/Sphereon-Opensource/veramo-BBS/commit/bde93d3e4d131ac0257ae4c04671be6bce014b1e))
+- Added secp256r1 key to createIdentifier() method ([81fff51](https://github.com/Sphereon-Opensource/veramo-BBS/commit/81fff5196b74fe3f579407a19f60cb67db554bbb))
+- Implemented conversion of public keys, rpc service and documentation ([b0ac3b5](https://github.com/Sphereon-Opensource/veramo-BBS/commit/b0ac3b5d9fea4a4d37d6175057ff131ffee38307))
+- Implemented integration of the ebsi rpc service with the ebsi did provider ([3c1ef0d](https://github.com/Sphereon-Opensource/veramo-BBS/commit/3c1ef0da981f86f0b8241d5fcab65d32f03584ba))
+
 # [0.19.0](https://github.com/Sphereon-Opensource/veramo-BBS/compare/v0.18.2...v0.19.0) (2024-04-25)
 
 ### Features

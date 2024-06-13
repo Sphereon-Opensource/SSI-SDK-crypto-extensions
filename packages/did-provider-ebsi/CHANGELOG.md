@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.20.0](https://github.com/Sphereon-Opensource/SSI-SDK/compare/v0.19.0...v0.20.0) (2024-06-13)
+
+### Bug Fixes
+
+- Bugfix creating eth transactions ([1d2e04d](https://github.com/Sphereon-Opensource/SSI-SDK/commit/1d2e04da8e682ffa725f280d3863fc66a4fe0f9a))
+- Fixed broken tests ([07d320a](https://github.com/Sphereon-Opensource/SSI-SDK/commit/07d320a4a04bfd41093e6ed7133b81134aa6a381))
+
+### Features
+
+- Added secp256r1 key to createIdentifier() method ([81fff51](https://github.com/Sphereon-Opensource/SSI-SDK/commit/81fff5196b74fe3f579407a19f60cb67db554bbb))
+- Implemented conversion of public keys, rpc service and documentation ([b0ac3b5](https://github.com/Sphereon-Opensource/SSI-SDK/commit/b0ac3b5d9fea4a4d37d6175057ff131ffee38307))
+- Implemented integration of the ebsi rpc service with the ebsi did provider ([3c1ef0d](https://github.com/Sphereon-Opensource/SSI-SDK/commit/3c1ef0da981f86f0b8241d5fcab65d32f03584ba))
+
 # [0.19.0](https://github.com/Sphereon-Opensource/SSI-SDK/compare/v0.18.2...v0.19.0) (2024-04-25)
 
 ### Features
