@@ -1,7 +1,7 @@
 {
   "name": "@sphereon/did-provider-oyd",
   "description": "OwnYourData plugin that can enable creation and control of did:oyd identifiers.",
-  "version": "0.19.0",
+  "version": "0.20.0",
   "source": "src/index.ts",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

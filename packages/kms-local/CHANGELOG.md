@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.20.0](https://github.com/Sphereon-Opensource/SSI-SDK/compare/v0.19.0...v0.20.0) (2024-06-13)
+
+### Bug Fixes
+
+- added a few fixes and type definitions ([7040799](https://github.com/Sphereon-Opensource/SSI-SDK/commit/7040799e509da9546ca3c52c1a209a5a7679ac13))
+
+### Features
+
+- (wip) added list keys functionality. the kms-local function works but we face error on key-manager level ([bde93d3](https://github.com/Sphereon-Opensource/SSI-SDK/commit/bde93d3e4d131ac0257ae4c04671be6bce014b1e))
+
 # [0.19.0](https://github.com/Sphereon-Opensource/SSI-SDK/compare/v0.18.2...v0.19.0) (2024-04-25)
 
 **Note:** Version bump only for package @sphereon/ssi-sdk-ext.kms-local

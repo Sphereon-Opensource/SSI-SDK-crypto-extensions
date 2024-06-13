@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.20.0](https://github.com/Sphereon-OpenSource/ssi-sdk/compare/v0.19.0...v0.20.0) (2024-06-13)
+
+### Bug Fixes
+
+- fix base64url sanitizing ([473c028](https://github.com/Sphereon-OpenSource/ssi-sdk/commit/473c0281e8c24565bb0ada0d335d32014453294d))
+
 # [0.19.0](https://github.com/Sphereon-OpenSource/ssi-sdk/compare/v0.18.2...v0.19.0) (2024-04-25)
 
 **Note:** Version bump only for package @sphereon/ssi-sdk-ext.key-utils
