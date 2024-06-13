@@ -2,8 +2,8 @@ import { IAgentContext, IDIDManager, IIdentifier, IKeyManager } from '@veramo/co
 import Debug from 'debug'
 import { AbstractIdentifierProvider } from '@veramo/did-manager/build/abstract-identifier-provider'
 import { IKey, IService } from '@veramo/core/build/types/IIdentifier'
-import { ApiOpts, ebsiDIDSpecInfo, IContext, ICreateIdentifierArgs, UpdateIdentifierParams } from './types'
-import { createEbsiDid, generateEbsiKeyPair, generateMethodSpecificId } from './functions'
+import { ApiOpts, EBSI_DID_SPEC_INFOS, IContext, ICreateIdentifierArgs, UpdateIdentifierParams } from './types'
+import { createEbsiDidOnLedger, generateEbsiKeyPair, generateMethodSpecificId, randomRpcId } from './functions'
 
 const debug = Debug('sphereon:did-provider-ebsi')
 
@@ -18,57 +18,62 @@ export class EbsiDidProvider extends AbstractIdentifierProvider {
   }
 
   async createIdentifier(args: ICreateIdentifierArgs, context: IContext): Promise<Omit<IIdentifier, 'provider'>> {
-    const { type, options, kms, alias } = { ...args }
+    const { type, options, kms, alias } = args
+    const { notBefore, notAfter, secp256k1Key, secp256r1Key, bearerToken, from } = { ...options }
+    const rpcId = options?.rpcId ?? randomRpcId()
 
-    if (!type || type === ebsiDIDSpecInfo.V1) {
-      const secp256k1ManagedKeyInfo = await generateEbsiKeyPair(
+    if (!type || type === EBSI_DID_SPEC_INFOS.V1) {
+      const secp256k1GeneratedKey = await generateEbsiKeyPair(
         {
-          keyOpts: options?.secp256k1Key,
+          keyOpts: secp256k1Key,
           keyType: 'Secp256k1',
           kms: kms ?? this.defaultKms,
         },
         context
       )
-      const secp256r1ManagedKeyInfo = await generateEbsiKeyPair(
+
+      const secp256k1ManagedKeyInfo = await context.agent.keyManagerImport(secp256k1GeneratedKey)
+      const secp256r1GeneratedKey = await generateEbsiKeyPair(
         {
-          keyOpts: options?.secp256r1Key,
+          keyOpts: secp256r1Key,
           keyType: 'Secp256r1',
           kms: kms ?? this.defaultKms,
         },
         context
       )
 
-      const methodSpecificId = generateMethodSpecificId(ebsiDIDSpecInfo.V1)
+      const secp256r1ManagedKeyInfo = await context.agent.keyManagerImport(secp256r1GeneratedKey)
+      const methodSpecificId = generateMethodSpecificId(EBSI_DID_SPEC_INFOS.V1)
       const identifier: Omit<IIdentifier, 'provider'> = {
-        did: ebsiDIDSpecInfo.V1.method + methodSpecificId,
+        did: `${EBSI_DID_SPEC_INFOS.V1.method}${methodSpecificId}`,
         controllerKeyId: secp256k1ManagedKeyInfo.kid,
         keys: [secp256k1ManagedKeyInfo, secp256r1ManagedKeyInfo],
         alias,
         services: [],
       }
-      const id = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER)
 
       if (options === undefined) {
         throw new Error(`Options must be provided ${JSON.stringify(options)}`)
       }
 
-      await createEbsiDid(
+      await createEbsiDidOnLedger(
         {
           identifier,
           secp256k1ManagedKeyInfo,
           secp256r1ManagedKeyInfo,
-          id,
-          from: options.from,
-          notBefore: options.notBefore,
-          notAfter: options.notAfter,
-          apiOpts: options.apiOpts ?? this.apiOpts,
+          bearerToken,
+          rpcId,
+          from,
+          notBefore: notBefore ?? Date.now() / 1000,
+          notAfter: notAfter ?? Number.MAX_SAFE_INTEGER,
+          apiOpts: { ...this.apiOpts, ...options.apiOpts },
         },
         context
       )
 
       debug('Created', identifier.did)
       return identifier
-    } else if (type === ebsiDIDSpecInfo.KEY) {
+    } else if (type === EBSI_DID_SPEC_INFOS.KEY) {
       throw new Error(`Type ${type} not supported. Please use @sphereon/ssi-sdk-ext.did-provider-key for Natural Person EBSI DIDs`)
     }
     throw new Error(`Type ${type} not supported`)

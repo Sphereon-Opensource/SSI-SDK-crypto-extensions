@@ -1,7 +1,23 @@
-import { ApiOpts, EbsiRpcMethod, GetDidDocumentParams, GetDidDocumentsParams, GetDidDocumentsResponse, jsonrpc, Response, RPCParams } from '../types'
+import {
+  ApiOpts,
+  EbsiRpcMethod,
+  GetDidDocumentParams,
+  GetDidDocumentsParams,
+  GetDidDocumentsResponse,
+  JSON_RPC_VERSION,
+  EbsiRPCResponse,
+  RPCParams,
+} from '../types'
 import { DIDDocument } from 'did-resolver'
-import { getUrls } from '../functions'
+import { getRegistryAPIUrls } from '../functions'
 
+type RpcMethodArgs = {
+  params: RPCParams[]
+  rpcId: number
+  bearerToken: string
+  rpcMethod: EbsiRpcMethod
+  apiOpts?: ApiOpts
+}
 /**
  * Allows to call 5 api methods of the EBSI RPC api
  * - insertDidDocument
@@ -12,16 +28,10 @@ import { getUrls } from '../functions'
  * @function callRpcMethod
  * @param {{ params: RPCParams[]; id: number; token: string; method: EbsiRpcMethod; apiOpts? ApiOpts }} args
  */
-export const callRpcMethod = async (args: {
-  params: RPCParams[]
-  id: number
-  token: string
-  method: EbsiRpcMethod
-  apiOpts?: ApiOpts
-}): Promise<Response> => {
-  const { params, id, token, method, apiOpts } = args
-  const options = buildFetchOptions({ token, params, id, method })
-  return await (await fetch(getUrls({ ...apiOpts }).mutate, options)).json()
+export const callRpcMethod = async (args: RpcMethodArgs): Promise<EbsiRPCResponse> => {
+  const { params, rpcId, bearerToken, rpcMethod, apiOpts } = args
+  const options = buildFetchOptions({ bearerToken, params, rpcId, rpcMethod })
+  return await (await fetch(getRegistryAPIUrls({ ...apiOpts }).mutate, options)).json()
 }
 
 /**
@@ -29,18 +39,18 @@ export const callRpcMethod = async (args: {
  * @function buildFetchOptions
  * @param {{ params: RPCParams[]; id: number; token: string; method: EbsiRpcMethod }} args
  */
-const buildFetchOptions = (args: { params: RPCParams[]; id: number; token: string; method: EbsiRpcMethod }) => {
-  const { params, id, token, method } = args
+const buildFetchOptions = (args: RpcMethodArgs) => {
+  const { params, rpcId, bearerToken, rpcMethod } = args
   return {
     method: 'POST',
     headers: {
-      Authorization: 'Bearer ' + token,
+      Authorization: `Bearer ${bearerToken}`,
     },
     body: JSON.stringify({
-      jsonrpc,
-      method,
+      jsonrpc: JSON_RPC_VERSION,
+      method: rpcMethod,
       params,
-      id,
+      id: rpcId,
     }),
   }
 }
@@ -57,7 +67,7 @@ export const getDidDocument = async (args: { params: GetDidDocumentParams; apiOp
     throw new Error('did parameter is required')
   }
   const query = validAt ? `?valid_at=${validAt}` : ''
-  return await (await fetch(`${getUrls({ ...apiOpts }).query}/${did}${query}`)).json()
+  return await (await fetch(`${getRegistryAPIUrls({ ...apiOpts }).query}/${did}${query}`)).json()
 }
 
 /**
@@ -79,5 +89,5 @@ export const listDidDocuments = async (args: { params: GetDidDocumentsParams; ap
     queryParams.push(`controller=${controller}`)
   }
   const query = `?${queryParams.filter(Boolean).join('&')}`
-  return await (await fetch(`${getUrls({ ...apiOpts }).query}/${query}`)).json()
+  return await (await fetch(`${getRegistryAPIUrls({ ...apiOpts }).query}/${query}`)).json()
 }
