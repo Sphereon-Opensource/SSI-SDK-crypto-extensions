@@ -12,6 +12,11 @@ const ebsiDidProvider = new EbsiDidProvider({
   defaultKms: 'mem',
 })
 
+jest.mock('../src/services/EbsiRPCService', () => ({
+  ...jest.requireActual('../src/services/EbsiRPCService'),
+  callRpcMethod: jest.fn().mockResolvedValue({ result: { r: '', s: '', v: '' } }),
+}))
+
 const agent = createAgent<IKeyManager & IDIDManager>({
   plugins: [
     new SphereonKeyManager({

@@ -7,7 +7,7 @@ import { JsonWebKey } from 'did-resolver'
 import elliptic from 'elliptic'
 import * as u8a from 'uint8arrays'
 import { ENC_KEY_ALGS, IImportProvidedOrGeneratedKeyArgs, JwkKeyUse, KeyCurve, KeyType, SIG_KEY_ALGS, TKeyType } from './types'
-import { generateRSAKeyAsPEM, hexToPEM, PEMToJwk, privateKeyHexFromPEM } from './x509'
+import { generateRSAKeyAsPEM, hexToBase64, hexToPEM, PEMToJwk, privateKeyHexFromPEM } from './x509'
 
 const debug = Debug('sphereon:kms:local')
 /**
@@ -87,20 +87,6 @@ export async function importProvidedOrGeneratedKey(
     type,
     privateKeyHex,
   })
-}
-
-/**
- * Converts hex value to base64url
- * @param value hex value
- * @return Base64Url encoded value
- */
-export const hex2base64url = (value: string) => {
-  //fixme: Buffer to u8a
-  const buffer = Buffer.from(value, 'hex')
-  const base64 = buffer.toString('base64')
-  const base64url = base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
-
-  return base64url
 }
 
 /**
@@ -193,9 +179,9 @@ const toSecp256k1Jwk = (keyHex: string, opts?: { use?: JwkKeyUse; isPrivateKey?:
     ...(use !== undefined && { use }),
     kty: KeyType.EC,
     crv: KeyCurve.Secp256k1,
-    x: hex2base64url(pubPoint.getX().toString('hex')),
-    y: hex2base64url(pubPoint.getY().toString('hex')),
-    ...(opts?.isPrivateKey && { d: hex2base64url(keyPair.getPrivate('hex')) }),
+    x: hexToBase64(pubPoint.getX().toString('hex'), 'base64url'),
+    y: hexToBase64(pubPoint.getY().toString('hex'), 'base64url'),
+    ...(opts?.isPrivateKey && { d: hexToBase64(keyPair.getPrivate('hex'), 'base64url') }),
   }
 }
 
@@ -218,15 +204,15 @@ const toSecp256r1Jwk = (keyHex: string, opts?: { use?: JwkKeyUse; isPrivateKey?:
   const keyBytes = u8a.fromString(keyHex, 'base16')
   debug(`keyBytes length: ${keyBytes}`)
   const keyPair = opts?.isPrivateKey ? secp256r1.keyFromPrivate(keyBytes) : secp256r1.keyFromPublic(keyBytes)
-  const point = keyPair.getPublic()
+  const pubPoint = keyPair.getPublic()
   return {
     alg: 'ES256',
     ...(use !== undefined && { use }),
     kty: KeyType.EC,
     crv: KeyCurve.P_256,
-    x: hex2base64url(point.getX().toString('hex')),
-    y: hex2base64url(point.getY().toString('hex')),
-    ...(opts?.isPrivateKey && { d: hex2base64url(keyPair.getPrivate('hex')) }),
+    x: hexToBase64(pubPoint.getX().toString('hex'), 'base64url'),
+    y: hexToBase64(pubPoint.getY().toString('hex'), 'base64url'),
+    ...(opts?.isPrivateKey && { d: hexToBase64(keyPair.getPrivate('hex'), 'base64url') }),
   }
 }
 
@@ -250,7 +236,7 @@ const toEd25519OrX25519Jwk = (
     ...(use !== undefined && { use }),
     kty: KeyType.OKP,
     crv: opts?.crv ?? KeyCurve.Ed25519,
-    x: hex2base64url(publicKeyHex.substr(0, 64)),
+    x: hexToBase64(publicKeyHex, 'base64url'),
   }
 }
 
