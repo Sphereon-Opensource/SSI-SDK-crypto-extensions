@@ -3,7 +3,7 @@ import Debug from 'debug'
 import { AbstractIdentifierProvider } from '@veramo/did-manager/build/abstract-identifier-provider'
 import { IKey, IService } from '@veramo/core/build/types/IIdentifier'
 import { ApiOpts, EBSI_DID_SPEC_INFOS, IContext, ICreateIdentifierArgs, UpdateIdentifierParams } from './types'
-import { createEbsiDidOnLedger, generateEbsiKeyPair, generateMethodSpecificId, randomRpcId } from './functions'
+import { createEbsiDidOnLedger, generateEbsiKeyPair, generateEbsiMethodSpecificId, randomRpcId } from './functions'
 
 const debug = Debug('sphereon:did-provider-ebsi')
 
@@ -43,7 +43,7 @@ export class EbsiDidProvider extends AbstractIdentifierProvider {
       )
 
       const secp256r1ManagedKeyInfo = await context.agent.keyManagerImport(secp256r1GeneratedKey)
-      const methodSpecificId = generateMethodSpecificId(EBSI_DID_SPEC_INFOS.V1)
+      const methodSpecificId = generateEbsiMethodSpecificId(EBSI_DID_SPEC_INFOS.V1)
       const identifier: Omit<IIdentifier, 'provider'> = {
         did: `${EBSI_DID_SPEC_INFOS.V1.method}${methodSpecificId}`,
         controllerKeyId: secp256k1ManagedKeyInfo.kid,

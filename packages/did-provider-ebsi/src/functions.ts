@@ -22,9 +22,9 @@ import { getBytes, sha256, sha512, SigningKey, Transaction } from 'ethers'
 import { JWK, JwkKeyUse, toJwk } from '@sphereon/ssi-sdk-ext.key-utils'
 import { callRpcMethod } from './services/EbsiRPCService'
 
-export const base64url = (input: string): string => u8a.toString(u8a.fromString(input), 'base64url')
+export const toBase64url = (input: string): string => u8a.toString(u8a.fromString(input), 'base64url')
 
-export function generateMethodSpecificId(specInfo?: EbsiDidSpecInfo): string {
+export function generateEbsiMethodSpecificId(specInfo?: EbsiDidSpecInfo): string {
   const spec = specInfo ?? EBSI_DID_SPEC_INFOS.V1
   const length = spec.didLength ?? 16
 
@@ -68,15 +68,15 @@ export const formatEbsiPublicKey = (args: { key: IKey; type: EbsiKeyType }): str
     }
     case 'Secp256r1': {
       /*
-              Public key as hex string. For an ES256K key, it must be in uncompressed format prefixed with "0x04".
-              For other algorithms, it must be the JWK transformed to string and then to hex format.
-             */
+                    Public key as hex string. For an ES256K key, it must be in uncompressed format prefixed with "0x04".
+                    For other algorithms, it must be the JWK transformed to string and then to hex format.
+                   */
       const jwk: JsonWebKey = toJwk(key.publicKeyHex, type, { use: JwkKeyUse.Signature, key })
       /*
-              Converting JWK to string and then hex is odd and may lead to errors. Implementing
-              it like that because it's how EBSI does it. However, it may be a point of pain
-              in the future.
-             */
+                    Converting JWK to string and then hex is odd and may lead to errors. Implementing
+                    it like that because it's how EBSI does it. However, it may be a point of pain
+                    in the future.
+                   */
       const jwkString = JSON.stringify(jwk, null, 2)
       return u8a.toString(u8a.fromString(jwkString), 'base16')
     }
@@ -103,37 +103,33 @@ export const calculateJwkThumbprint = async (args: { jwk: JWK; digestAlgorithm?:
   let components
   switch (jwk.kty) {
     case 'EC':
-      assertPresent(jwk.crv, '"crv" (Curve) Parameter')
-      assertPresent(jwk.x, '"x" (X Coordinate) Parameter')
-      assertPresent(jwk.y, '"y" (Y Coordinate) Parameter')
+      assertJwkClaimPresent(jwk.crv, '"crv" (Curve) Parameter')
+      assertJwkClaimPresent(jwk.x, '"x" (X Coordinate) Parameter')
+      assertJwkClaimPresent(jwk.y, '"y" (Y Coordinate) Parameter')
       components = { crv: jwk.crv, kty: jwk.kty, x: jwk.x, y: jwk.y }
       break
     case 'OKP':
-      assertPresent(jwk.crv, '"crv" (Subtype of Key Pair) Parameter')
-      assertPresent(jwk.x, '"x" (Public Key) Parameter')
+      assertJwkClaimPresent(jwk.crv, '"crv" (Subtype of Key Pair) Parameter')
+      assertJwkClaimPresent(jwk.x, '"x" (Public Key) Parameter')
       components = { crv: jwk.crv, kty: jwk.kty, x: jwk.x }
       break
     case 'RSA':
-      assertPresent(jwk.e, '"e" (Exponent) Parameter')
-      assertPresent(jwk.n, '"n" (Modulus) Parameter')
+      assertJwkClaimPresent(jwk.e, '"e" (Exponent) Parameter')
+      assertJwkClaimPresent(jwk.n, '"n" (Modulus) Parameter')
       components = { e: jwk.e, kty: jwk.kty, n: jwk.n }
       break
     case 'oct':
-      assertPresent(jwk.k, '"k" (Key Value) Parameter')
+      assertJwkClaimPresent(jwk.k, '"k" (Key Value) Parameter')
       components = { k: jwk.k, kty: jwk.kty }
       break
     default:
       throw new Error('"kty" (Key Type) Parameter missing or unsupported')
   }
   const data = u8a.fromString(JSON.stringify(components))
-
-  if (digestAlgorithm === 'sha512') {
-    return base64url(sha512(data))
-  }
-  return base64url(sha256(data))
+  return toBase64url(digestAlgorithm === 'sha512' ? sha512(data) : sha256(data))
 }
 
-const assertPresent = (value: unknown, description: string) => {
+const assertJwkClaimPresent = (value: unknown, description: string) => {
   if (typeof value !== 'string' || !value) {
     throw new Error(`${description} missing or invalid`)
   }

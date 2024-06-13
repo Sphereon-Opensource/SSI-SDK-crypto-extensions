@@ -1,23 +1,15 @@
 import {
   ApiOpts,
-  EbsiRpcMethod,
   GetDidDocumentParams,
   GetDidDocumentsParams,
   GetDidDocumentsResponse,
   JSON_RPC_VERSION,
   EbsiRPCResponse,
-  RPCParams,
+  RpcMethodArgs,
 } from '../types'
 import { DIDDocument } from 'did-resolver'
 import { getRegistryAPIUrls } from '../functions'
 
-type RpcMethodArgs = {
-  params: RPCParams[]
-  rpcId: number
-  bearerToken: string
-  rpcMethod: EbsiRpcMethod
-  apiOpts?: ApiOpts
-}
 /**
  * Allows to call 5 api methods of the EBSI RPC api
  * - insertDidDocument

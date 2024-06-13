@@ -65,6 +65,14 @@ type WithRequiredProperty<Type, Key extends keyof Type> = Type & {
   [Property in Key]-?: Type[Property]
 }
 
+export type RpcMethodArgs = {
+  params: RPCParams[]
+  rpcId: number
+  bearerToken: string
+  rpcMethod: EbsiRpcMethod
+  apiOpts?: ApiOpts
+}
+
 export type CreateIdentifierOpts = {
   methodSpecificId?: string
   rpcId?: number
