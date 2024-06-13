@@ -1,6 +1,12 @@
 import { computeAddress } from '@ethersproject/transactions'
 import { UniResolver } from '@sphereon/did-uni-client'
-import { ENC_KEY_ALGS, hexKeyFromPEMBasedJwk, JwkKeyUse, padLeft, toJwk } from '@sphereon/ssi-sdk-ext.key-utils'
+import {
+  base64ToHex,
+  ENC_KEY_ALGS,
+  hexKeyFromPEMBasedJwk,
+  JwkKeyUse,
+  toJwk,
+} from '@sphereon/ssi-sdk-ext.key-utils'
 import { base58ToBytes, base64ToBytes, bytesToHex, hexToBytes, multibaseKeyToBytes } from '@sphereon/ssi-sdk.core'
 import { convertPublicKeyToX25519 } from '@stablelib/ed25519'
 import { DIDDocument, DIDDocumentSection, DIDResolutionResult, IAgentContext, IDIDManager, IIdentifier, IKey, IResolver } from '@veramo/core'
@@ -101,16 +107,9 @@ export function extractPublicKeyHexWithJwkSupport(pk: _ExtendedVerificationMetho
   if (pk.publicKeyJwk) {
     if (pk.publicKeyJwk.kty === 'EC') {
       const secp256 = new elliptic.ec(pk.publicKeyJwk.crv === 'secp256k1' ? 'secp256k1' : 'p256')
-      const padString = '0'
 
-      const x = u8a.fromString(pk.publicKeyJwk.x!, 'base64url')
-      const y = u8a.fromString(pk.publicKeyJwk.y!, 'base64url')
-      const xData = u8a.toString(x, 'base16')
-      const yData = u8a.toString(y, 'base16')
-      const size = yData.length <= 32 ? 32 : 64
-
-      const xHex = padLeft({ data: xData, size, padString })
-      const yHex = padLeft({ data: yData, size, padString })
+      const xHex = base64ToHex(pk.publicKeyJwk.x!, 'base64url')
+      const yHex = base64ToHex(pk.publicKeyJwk.y!, 'base64url')
       const prefix = '04' // isEven(yHex) ? '02' : '03'
       // Uncompressed Hex format: 04<x><y>
       // Compressed Hex format: 02<x> (for even y) or 03<x> (for uneven y)
@@ -173,13 +172,13 @@ function extractPublicKeyBytes(pk: VerificationMethod): Uint8Array {
     return base64ToBytes((<LegacyVerificationMethod>pk).publicKeyBase64)
   } else if (pk.publicKeyHex) {
     return hexToBytes(pk.publicKeyHex)
-  } else if (pk.publicKeyJwk && pk.publicKeyJwk.crv === 'secp256k1' && pk.publicKeyJwk.x && pk.publicKeyJwk.y) {
-    const secp256k1 = new elliptic.ec('secp256k1')
+  } else if (pk.publicKeyJwk && (pk.publicKeyJwk.crv === 'secp256k1' || pk.publicKeyJwk.crv === 'P-256') && pk.publicKeyJwk.x && pk.publicKeyJwk.y) {
+    const secp = new elliptic.ec(pk.publicKeyJwk.crv)
     return hexToBytes(
-      secp256k1
+      secp
         .keyFromPublic({
-          x: bytesToHex(base64ToBytes(pk.publicKeyJwk.x)),
-          y: bytesToHex(base64ToBytes(pk.publicKeyJwk.y)),
+          x: base64ToHex(pk.publicKeyJwk.x, 'base64url'),
+          y: base64ToHex(pk.publicKeyJwk.y, 'base64url'),
         })
         .getPublic('hex')
     )
