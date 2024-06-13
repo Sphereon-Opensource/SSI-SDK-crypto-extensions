@@ -108,7 +108,7 @@ export const PEMToHex = (PEM: string, headerKey?: string): string => {
  * @param inputEncoding
  */
 export const base64ToHex = (input: string, inputEncoding?: 'base64' | 'base64pad' | 'base64url' | 'base64urlpad') => {
-  const base64NoNewlines = input.replace(/[^0-9A-Za-z_~\/+=]*/g, '')
+  const base64NoNewlines = input.replace(/[^0-9A-Za-z_\-~\/+=]*/g, '')
   return u8a.toString(u8a.fromString(base64NoNewlines, inputEncoding ? inputEncoding : 'base64pad'), 'base16')
 }
 
