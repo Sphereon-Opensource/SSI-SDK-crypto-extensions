@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.21.0](https://github.com/OwnYourData/veramo/compare/v0.20.0...v0.21.0) (2024-06-19)
+
+**Note:** Version bump only for package @sphereon/did-provider-oyd
+
 # [0.20.0](https://github.com/OwnYourData/veramo/compare/v0.19.0...v0.20.0) (2024-06-13)
 
 **Note:** Version bump only for package @sphereon/did-provider-oyd

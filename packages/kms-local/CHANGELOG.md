@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.21.0](https://github.com/Sphereon-Opensource/SSI-SDK/compare/v0.20.0...v0.21.0) (2024-06-19)
+
+### Bug Fixes
+
+- Multiple DID EBSI fixes ([131faa0](https://github.com/Sphereon-Opensource/SSI-SDK/commit/131faa0b583063cb3d8d5e77a33f337a23b90536))
+
 # [0.20.0](https://github.com/Sphereon-Opensource/SSI-SDK/compare/v0.19.0...v0.20.0) (2024-06-13)
 
 ### Bug Fixes
