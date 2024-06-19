@@ -43,6 +43,7 @@ const agent = createAgent<IKeyManager & DIDManager & IResolver>({
 function toAbsolute(didDoc: any, did: string) {
   return JSON.parse(JSON.stringify(didDoc).replace(/#0/g, `${did}#0`))
 }
+
 describe('@sphereon/did-provider-jwk comparison ES256k', () => {
   it('external JWK should result in equal DID Document', async () => {
     const { publicKeyJwk } = await method.generateKeyPair('ES256K')
@@ -203,7 +204,7 @@ describe('@sphereon/did-provider-jwk comparison ES256', () => {
     } as IAgentContext<IResolver>)
     const publicKeyHex = keys[0].publicKeyHex as string
     expect(publicKeyHex).toEqual('0369c6c8422b8cb378bcfeeb33123276b694ed44ce04537cb3f753c7e82747d95d')
-    const jwk = toJwk(publicKeyHex, 'Secp256r1')
+    const jwk = toJwk(publicKeyHex, 'Secp256r1', { noKidThumbprint: true })
     expect(jwk).toEqual({
       alg: 'ES256',
       kty: 'EC',
@@ -258,6 +259,7 @@ describe('@sphereon/did-provider-jwk comparison ES256', () => {
     expect(jwk).toEqual({
       alg: 'ES256',
       kty: 'EC',
+      kid: 'T9XxxVUPtvL7tgGL9Y8jTxXCOT1LF7nSesZytwqi5S8',
       crv: 'P-256',
       x: 'p01AACad5aWaZfW00mxjSGHTn5Gui7vzpfjBmC_faGA',
       y: 's4xcAXRuhCVta6bh_Uss7xNv4gyRDUAnRKcsFRB32oY',
@@ -279,7 +281,7 @@ describe('@sphereon/did-provider-jwk comparison ES256', () => {
 
   it('Creation from privateKeyHex', async () => {
     /*const privateKeyHex = await generatePrivateKeyHex('Secp256r1')
-        console.log(privateKeyHex)*/
+            console.log(privateKeyHex)*/
     const privateKeyHex = '47dc6ae067aa011f8574d2da7cf8c326538af08b85e6779d192a9893291c9a0a'
     const options: IKeyOpts = {
       key: {

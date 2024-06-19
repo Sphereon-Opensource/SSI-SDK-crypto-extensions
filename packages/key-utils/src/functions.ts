@@ -1,12 +1,13 @@
 import { randomBytes } from '@ethersproject/random'
 import { generateKeyPair as generateSigningKeyPair } from '@stablelib/ed25519'
-import { IAgentContext, IKey, IKeyManager } from '@veramo/core'
+import { IAgentContext, IKey, IKeyManager, ManagedKeyInfo, MinimalImportableKey } from '@veramo/core'
 import Debug from 'debug'
 
 import { JsonWebKey } from 'did-resolver'
 import elliptic from 'elliptic'
 import * as u8a from 'uint8arrays'
-import { ENC_KEY_ALGS, IImportProvidedOrGeneratedKeyArgs, JwkKeyUse, KeyCurve, KeyType, SIG_KEY_ALGS, TKeyType } from './types'
+import { digestMethodParams } from './digest-methods'
+import { ENC_KEY_ALGS, IImportProvidedOrGeneratedKeyArgs, JWK, JwkKeyUse, KeyCurve, KeyType, SIG_KEY_ALGS, TKeyType } from './types'
 import { generateRSAKeyAsPEM, hexToBase64, hexToPEM, PEMToJwk, privateKeyHexFromPEM } from './x509'
 
 const debug = Debug('sphereon:kms:local')
@@ -89,6 +90,68 @@ export async function importProvidedOrGeneratedKey(
   })
 }
 
+export const calculateJwkThumbprintForKey = (args: {
+  key: IKey | MinimalImportableKey | ManagedKeyInfo
+  digestAlgorithm?: 'sha256' | 'sha512'
+}): string => {
+  const { key } = args
+
+  const jwk = key.publicKeyHex
+    ? toJwk(key.publicKeyHex, key.type, { key: key, isPrivateKey: false })
+    : 'privateKeyHex' in key && key.privateKeyHex
+    ? toJwk(key.privateKeyHex, key.type, { isPrivateKey: true })
+    : undefined
+  if (!jwk) {
+    throw Error(`Could not determine jwk from key ${key.kid}`)
+  }
+  return calculateJwkThumbprint({ jwk, digestAlgorithm: args.digestAlgorithm })
+}
+
+const assertJwkClaimPresent = (value: unknown, description: string) => {
+  if (typeof value !== 'string' || !value) {
+    throw new Error(`${description} missing or invalid`)
+  }
+}
+export const toBase64url = (input: string): string => u8a.toString(u8a.fromString(input), 'base64url')
+
+/**
+ * Calculate the JWK thumbprint
+ * @param args
+ */
+export const calculateJwkThumbprint = (args: { jwk: JWK; digestAlgorithm?: 'sha256' | 'sha512' }): string => {
+  const { jwk, digestAlgorithm = 'sha256' } = args
+  let components
+  switch (jwk.kty) {
+    case 'EC':
+      assertJwkClaimPresent(jwk.crv, '"crv" (Curve) Parameter')
+      assertJwkClaimPresent(jwk.x, '"x" (X Coordinate) Parameter')
+      assertJwkClaimPresent(jwk.y, '"y" (Y Coordinate) Parameter')
+      components = { crv: jwk.crv, kty: jwk.kty, x: jwk.x, y: jwk.y }
+      break
+    case 'OKP':
+      assertJwkClaimPresent(jwk.crv, '"crv" (Subtype of Key Pair) Parameter')
+      assertJwkClaimPresent(jwk.x, '"x" (Public Key) Parameter')
+      components = { crv: jwk.crv, kty: jwk.kty, x: jwk.x }
+      break
+    case 'RSA':
+      assertJwkClaimPresent(jwk.e, '"e" (Exponent) Parameter')
+      assertJwkClaimPresent(jwk.n, '"n" (Modulus) Parameter')
+      components = { e: jwk.e, kty: jwk.kty, n: jwk.n }
+      break
+    case 'oct':
+      assertJwkClaimPresent(jwk.k, '"k" (Key Value) Parameter')
+      components = { k: jwk.k, kty: jwk.kty }
+      break
+    default:
+      throw new Error('"kty" (Key Type) Parameter missing or unsupported')
+  }
+  const data = JSON.stringify(components)
+
+  return digestAlgorithm === 'sha512'
+    ? digestMethodParams('SHA-512').digestMethod(data, 'base64url')
+    : digestMethodParams('SHA-256').digestMethod(data, 'base64url')
+}
+
 /**
  * Converts a public key in hex format to a JWK
  * @param publicKeyHex public key in hex
@@ -96,26 +159,39 @@ export async function importProvidedOrGeneratedKey(
  * @param opts. Options, like the optional use for the key (sig/enc)
  * @return The JWK
  */
-export const toJwk = (publicKeyHex: string, type: TKeyType, opts?: { use?: JwkKeyUse; key?: IKey; isPrivateKey?: boolean }): JsonWebKey => {
-  const { key } = opts ?? {}
+export const toJwk = (
+  publicKeyHex: string,
+  type: TKeyType,
+  opts?: { use?: JwkKeyUse; key?: IKey | MinimalImportableKey; isPrivateKey?: boolean; noKidThumbprint?: boolean }
+): JWK => {
+  const { key, noKidThumbprint = false } = opts ?? {}
   if (key && key.publicKeyHex !== publicKeyHex && opts?.isPrivateKey !== true) {
     throw Error(`Provided key with id ${key.kid}, has a different public key hex ${key.publicKeyHex} than supplied public key ${publicKeyHex}`)
   }
+  let jwk: JWK
   switch (type) {
     case 'Ed25519':
-      return toEd25519OrX25519Jwk(publicKeyHex, { ...opts, crv: KeyCurve.Ed25519 })
+      jwk = toEd25519OrX25519Jwk(publicKeyHex, { ...opts, crv: KeyCurve.Ed25519 })
+      break
     case 'X25519':
-      return toEd25519OrX25519Jwk(publicKeyHex, { ...opts, crv: KeyCurve.X25519 })
+      jwk = toEd25519OrX25519Jwk(publicKeyHex, { ...opts, crv: KeyCurve.X25519 })
+      break
     case 'Secp256k1':
-      return toSecp256k1Jwk(publicKeyHex, opts)
+      jwk = toSecp256k1Jwk(publicKeyHex, opts)
+      break
     case 'Secp256r1':
-      return toSecp256r1Jwk(publicKeyHex, opts)
+      jwk = toSecp256r1Jwk(publicKeyHex, opts)
+      break
     case 'RSA':
-      return toRSAJwk(publicKeyHex, opts)
-
+      jwk = toRSAJwk(publicKeyHex, opts)
+      break
     default:
       throw new Error(`not_supported: Key type ${type} not yet supported for this did:jwk implementation`)
   }
+  if (!jwk.kid && !noKidThumbprint) {
+    jwk['kid'] = calculateJwkThumbprint({ jwk })
+  }
+  return jwk
 }
 
 /**
@@ -160,7 +236,7 @@ const assertProperKeyLength = (keyHex: string, expectedKeyLength: number | numbe
  * @param use The use for the key
  * @return The JWK
  */
-const toSecp256k1Jwk = (keyHex: string, opts?: { use?: JwkKeyUse; isPrivateKey?: boolean }): JsonWebKey => {
+const toSecp256k1Jwk = (keyHex: string, opts?: { use?: JwkKeyUse; isPrivateKey?: boolean }): JWK => {
   const { use } = opts ?? {}
   debug(`toSecp256k1Jwk keyHex: ${keyHex}, length: ${keyHex.length}`)
   if (opts?.isPrivateKey) {
@@ -191,7 +267,7 @@ const toSecp256k1Jwk = (keyHex: string, opts?: { use?: JwkKeyUse; isPrivateKey?:
  * @param use The use for the key
  * @return The JWK
  */
-const toSecp256r1Jwk = (keyHex: string, opts?: { use?: JwkKeyUse; isPrivateKey?: boolean }): JsonWebKey => {
+const toSecp256r1Jwk = (keyHex: string, opts?: { use?: JwkKeyUse; isPrivateKey?: boolean }): JWK => {
   const { use } = opts ?? {}
   debug(`toSecp256r1Jwk keyHex: ${keyHex}, length: ${keyHex.length}`)
   if (opts?.isPrivateKey) {
@@ -228,7 +304,7 @@ const toEd25519OrX25519Jwk = (
     use?: JwkKeyUse
     crv: KeyCurve.Ed25519 | KeyCurve.X25519
   }
-): JsonWebKey => {
+): JWK => {
   assertProperKeyLength(publicKeyHex, 64)
   const { use } = opts ?? {}
   return {
@@ -240,7 +316,7 @@ const toEd25519OrX25519Jwk = (
   }
 }
 
-const toRSAJwk = (publicKeyHex: string, opts?: { use?: JwkKeyUse; key?: IKey }): JsonWebKey => {
+const toRSAJwk = (publicKeyHex: string, opts?: { use?: JwkKeyUse; key?: IKey | MinimalImportableKey }): JWK => {
   const { key } = opts ?? {}
   // const publicKey = publicKeyHex
   // assertProperKeyLength(publicKey, [2048, 3072, 4096])

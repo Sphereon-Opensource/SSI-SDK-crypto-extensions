@@ -30,7 +30,7 @@ export class JwkDIDProvider extends AbstractIdentifierProvider {
     )
 
     const use = jwkDetermineUse(key.type, args?.options?.use)
-    const jwk: JsonWebKey = toJwk(key.publicKeyHex, key.type, { use, key })
+    const jwk: JsonWebKey = toJwk(key.publicKeyHex, key.type, { use, key, noKidThumbprint: true })
     debug(JSON.stringify(jwk, null, 2))
     const did = `did:jwk:${base64url(JSON.stringify(jwk))}`
     const identifier: Omit<IIdentifier, 'provider'> = {

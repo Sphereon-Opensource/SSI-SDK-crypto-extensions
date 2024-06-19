@@ -1,9 +1,9 @@
 import { IAgentContext, IDIDManager, IIdentifier, IKeyManager } from '@veramo/core'
-import Debug from 'debug'
-import { AbstractIdentifierProvider } from '@veramo/did-manager/build/abstract-identifier-provider'
 import { IKey, IService } from '@veramo/core/build/types/IIdentifier'
-import { ApiOpts, ebsiDIDSpecInfo, IContext, ICreateIdentifierArgs, UpdateIdentifierParams } from './types'
-import { createEbsiDid, generateEbsiKeyPair, generateMethodSpecificId } from './functions'
+import { AbstractIdentifierProvider } from '@veramo/did-manager/build/abstract-identifier-provider'
+import Debug from 'debug'
+import { createEbsiDidOnLedger, generateEbsiMethodSpecificId, generateOrUseEbsiKeyPair, randomRpcId } from './functions'
+import { ApiOpts, EBSI_DID_SPEC_INFOS, IContext, ICreateIdentifierArgs, UpdateIdentifierParams } from './types'
 
 const debug = Debug('sphereon:did-provider-ebsi')
 
@@ -18,60 +18,71 @@ export class EbsiDidProvider extends AbstractIdentifierProvider {
   }
 
   async createIdentifier(args: ICreateIdentifierArgs, context: IContext): Promise<Omit<IIdentifier, 'provider'>> {
-    const { type, options, kms, alias } = { ...args }
+    const { type, options, kms, alias } = args
+    const { notBefore, notAfter, secp256k1Key, secp256r1Key, bearerToken, from, executeLedgerOperation = false } = { ...options }
 
-    if (!type || type === ebsiDIDSpecInfo.V1) {
-      const secp256k1ManagedKeyInfo = await generateEbsiKeyPair(
-        {
-          keyOpts: options?.secp256k1Key,
-          keyType: 'Secp256k1',
-          kms: kms ?? this.defaultKms,
-        },
-        context
-      )
-      const secp256r1ManagedKeyInfo = await generateEbsiKeyPair(
-        {
-          keyOpts: options?.secp256r1Key,
-          keyType: 'Secp256r1',
-          kms: kms ?? this.defaultKms,
-        },
-        context
-      )
+    if (executeLedgerOperation && !bearerToken) {
+      throw new Error('Bearer token must be provided to execute ledger operation')
+    }
+    const rpcId = options?.rpcId ?? randomRpcId()
 
-      const methodSpecificId = generateMethodSpecificId(ebsiDIDSpecInfo.V1)
-      const identifier: Omit<IIdentifier, 'provider'> = {
-        did: ebsiDIDSpecInfo.V1.method + methodSpecificId,
-        controllerKeyId: secp256k1ManagedKeyInfo.kid,
-        keys: [secp256k1ManagedKeyInfo, secp256r1ManagedKeyInfo],
-        alias,
-        services: [],
+    if (type === EBSI_DID_SPEC_INFOS.KEY) {
+      throw new Error(`Type ${type} not supported. Please use @sphereon/ssi-sdk-ext.did-provider-key for Natural Person EBSI DIDs`)
+    }
+
+    const secp256k1ImportKey = await generateOrUseEbsiKeyPair(
+      {
+        keyOpts: secp256k1Key,
+        keyType: 'Secp256k1',
+        kms: kms ?? this.defaultKms,
+      },
+      context
+    )
+    const secp256k1ManagedKeyInfo = await context.agent.keyManagerImport(secp256k1ImportKey)
+
+    const secp256r1ImportKey = await generateOrUseEbsiKeyPair(
+      {
+        keyOpts: secp256r1Key,
+        keyType: 'Secp256r1',
+        kms: kms ?? this.defaultKms,
+      },
+      context
+    )
+
+    const secp256r1ManagedKeyInfo = await context.agent.keyManagerImport(secp256r1ImportKey)
+
+    const methodSpecificId = generateEbsiMethodSpecificId(EBSI_DID_SPEC_INFOS.V1)
+    const identifier: Omit<IIdentifier, 'provider'> = {
+      did: `${EBSI_DID_SPEC_INFOS.V1.method}${methodSpecificId}`,
+      controllerKeyId: secp256k1ManagedKeyInfo.kid,
+      keys: [secp256k1ManagedKeyInfo, secp256r1ManagedKeyInfo],
+      alias,
+      services: [],
+    }
+
+    if (executeLedgerOperation) {
+      if (!from) {
+        // TODO: The agent should be able to devise the from, as we have access to the keys etc.
+        throw Error(`No from provided, whilst we are performing a ledger operation!`)
       }
-      const id = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER)
-
-      if (options === undefined) {
-        throw new Error(`Options must be provided ${JSON.stringify(options)}`)
-      }
-
-      await createEbsiDid(
+      await createEbsiDidOnLedger(
         {
           identifier,
           secp256k1ManagedKeyInfo,
           secp256r1ManagedKeyInfo,
-          id,
-          from: options.from,
-          notBefore: options.notBefore,
-          notAfter: options.notAfter,
-          apiOpts: options.apiOpts ?? this.apiOpts,
+          bearerToken: bearerToken!,
+          rpcId,
+          from,
+          notBefore: notBefore ?? Date.now() / 1000,
+          notAfter: notAfter ?? Number.MAX_SAFE_INTEGER,
+          apiOpts: { ...this.apiOpts, ...options?.apiOpts },
         },
         context
       )
-
-      debug('Created', identifier.did)
-      return identifier
-    } else if (type === ebsiDIDSpecInfo.KEY) {
-      throw new Error(`Type ${type} not supported. Please use @sphereon/ssi-sdk-ext.did-provider-key for Natural Person EBSI DIDs`)
     }
-    throw new Error(`Type ${type} not supported`)
+
+    debug('Created', identifier.did)
+    return identifier
   }
 
   addKey(

@@ -1,10 +1,10 @@
-import { generateEbsiPrivateKeyHex } from '../src/functions'
+import { generateOrUseProvidedEbsiPrivateKeyHex } from '../src/functions'
 
 describe('functions: key generator', () => {
   it('Secp256k1 should generate random keys', () => {
-    const key1 = generateEbsiPrivateKeyHex()
-    const key2 = generateEbsiPrivateKeyHex()
-    const key3 = generateEbsiPrivateKeyHex()
+    const key1 = generateOrUseProvidedEbsiPrivateKeyHex()
+    const key2 = generateOrUseProvidedEbsiPrivateKeyHex()
+    const key3 = generateOrUseProvidedEbsiPrivateKeyHex()
     expect(key1).toBeDefined()
     expect(key2).toBeDefined()
     expect(key3).toBeDefined()
@@ -12,6 +12,6 @@ describe('functions: key generator', () => {
     expect(key2).not.toBe(key3)
   })
   it('Secp256k1 should result in hex length 64', () => {
-    expect(generateEbsiPrivateKeyHex().length).toBe(64)
+    expect(generateOrUseProvidedEbsiPrivateKeyHex().length).toBe(64)
   })
 })

@@ -34,7 +34,7 @@ export interface EbsiDidSpecInfo {
   privateKeyLength?: number
 }
 
-export const ebsiDIDSpecInfo: Record<string, EbsiDidSpecInfo> = {
+export const EBSI_DID_SPEC_INFOS: Record<string, EbsiDidSpecInfo> = {
   V1: {
     type: 'LEGAL_ENTITY',
     method: 'did:ebsi:',
@@ -65,6 +65,28 @@ type WithRequiredProperty<Type, Key extends keyof Type> = Type & {
   [Property in Key]-?: Type[Property]
 }
 
+export type RpcMethodArgs = {
+  params: RPCParams[]
+  rpcId: number
+  bearerToken: string
+  rpcMethod: EbsiRpcMethod
+  apiOpts?: ApiOpts
+}
+
+export type EbsiCreateIdentifierOpts = {
+  methodSpecificId?: string
+  rpcId?: number
+  secp256k1Key?: IKeyOpts
+  secp256r1Key?: IKeyOpts
+  from?: string
+  executeLedgerOperation?: boolean
+  bearerToken?: string
+  baseDocument?: string
+  notBefore?: number
+  notAfter: number
+  apiOpts?: ApiOpts
+}
+
 /**
  * @typedef ICreateIdentifierArgs
  * @type {object}
@@ -79,16 +101,7 @@ export interface ICreateIdentifierArgs {
   kms?: string
   alias?: string
   type?: EbsiDidSpecInfo
-  options?: {
-    methodSpecificId?: string
-    secp256k1Key?: IKeyOpts
-    secp256r1Key?: IKeyOpts
-    from: string
-    baseDocument?: string
-    notBefore: number
-    notAfter: number
-    apiOpts?: ApiOpts
-  }
+  options?: EbsiCreateIdentifierOpts
 }
 
 /**
@@ -114,7 +127,7 @@ export enum EbsiPublicKeyPurpose {
  * @type {object}
  * @property {string} from - Ethereum address of the signer
  * @property {string} did - DID to insert. It must be for a legal entity (DID v1)
- * @property {string} baseDocument - JSON string containing the @context of the DID document
+ * @property {string} BASE_CONTEXT_DOC - JSON string containing the @context of the DID document
  * @property {string} vMethoddId - Thumbprint of the public key
  * @property {string} publicKey - Public key for secp256k1 in uncompressed format prefixed with "0x04"
  * @property {boolean} isSecp256k1 -  It must be true
@@ -137,7 +150,7 @@ export type InsertDidDocumentParams = {
  * @type {object}
  * @property {string} from - Ethereum address of the signer
  * @property {string} did - Existing DID
- * @property {string} baseDocument - JSON string containing the @context of the DID document
+ * @property {string} BASE_CONTEXT_DOC - JSON string containing the @context of the DID document
  */
 export type UpdateBaseDocumentParams = Pick<InsertDidDocumentParams, 'from' | 'did' | 'baseDocument'>
 
@@ -225,7 +238,7 @@ export type SendSignedTransactionParams = {
 /**
  * @typedef Response200
  * @type {object}
- * @property {string} jsonrpc - Must be exactly "2.0"
+ * @property {string} JSON_RPC_VERSION - Must be exactly "2.0"
  * @property {number} id - Same identifier established by the client in the call
  * @property {object} result - Result of the transaction
  */
@@ -340,23 +353,29 @@ export type CreateEbsiDidParams = {
   identifier: Omit<IIdentifier, 'provider'>
   secp256k1ManagedKeyInfo: ManagedKeyInfo
   secp256r1ManagedKeyInfo: ManagedKeyInfo
-  id: number
+  rpcId?: number
   from: string
+  bearerToken: string
   baseDocument?: string
-  notBefore: number
-  notAfter: number
+  notBefore?: number
+  notAfter?: number
   apiOpts?: ApiOpts
 }
 
 /**
- * @constant jsonrpc
+ * @constant JSON_RPC_VERSION
  */
-export const jsonrpc = '2.0'
+export const JSON_RPC_VERSION = '2.0'
 
 /**
- * @constant baseDocument
+ * @constant BASE_CONTEXT_DOC
  */
-export const baseDocument = JSON.stringify({ '@context': ['https://www.w3.org/ns/did/v1', 'https://w3id.org/security/suites/jws-2020/v1'] })
+export const BASE_CONTEXT_DOC = JSON.stringify({ '@context': ['https://www.w3.org/ns/did/v1', 'https://w3id.org/security/suites/jws-2020/v1'] })
+
+export interface EbsiDidRegistryAPIEndpoints {
+  mutate: string
+  query: string
+}
 
 /**
  * The EBSI RPC operations
@@ -382,4 +401,4 @@ export type RPCParams =
   | AddVerificationMethodRelationshipParams
   | SendSignedTransactionParams
 
-export type Response = Response200 | ResponseNot200 | GetDidDocumentsResponse
+export type EbsiRPCResponse = Response200 | ResponseNot200 | GetDidDocumentsResponse

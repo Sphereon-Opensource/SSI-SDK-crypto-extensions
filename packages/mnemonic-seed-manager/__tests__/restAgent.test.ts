@@ -59,7 +59,7 @@ const setup = async (): Promise<boolean> => {
     type: 'sqlite',
     database: databaseFile,
     synchronize: false,
-    logging: true,
+    logging: ['info', 'warn'],
     entities: [...MnemonicSeedManagerEntities, ...Entities],
     migrations: [...MnemonicSeedManagerMigrations, ...migrations],
     migrationsRun: true,

@@ -44,8 +44,6 @@ describe('@sphereon/did-provider-ebsi', () => {
     expect(identifier).toBeDefined()
     expect(identifier.keys.length).toBe(2)
     const secp256k1 = identifier.keys.find((key) => key.type === 'Secp256k1')
-    const secp256r1 = identifier.keys.find((key) => key.type === 'Secp256r1')
-    expect(secp256k1).toBeDefined()
     expect(secp256k1).toEqual(
       expect.objectContaining({
         kid: expect.any(String),
@@ -53,12 +51,15 @@ describe('@sphereon/did-provider-ebsi', () => {
         type: 'Secp256k1',
         publicKeyHex: expect.any(String),
         meta: {
+          jwkThumbprint: expect.any(String),
           algorithms: ['ES256'],
           purposes: [EbsiPublicKeyPurpose.CapabilityInvocation],
         },
       })
     )
-    expect(secp256k1).toBeDefined()
+    expect(secp256k1?.publicKeyHex?.length).toEqual(66)
+
+    const secp256r1 = identifier.keys.find((key) => key.type === 'Secp256r1')
     expect(secp256r1).toEqual(
       expect.objectContaining({
         kid: expect.any(String),
@@ -66,11 +67,13 @@ describe('@sphereon/did-provider-ebsi', () => {
         type: 'Secp256r1',
         publicKeyHex: expect.any(String),
         meta: {
+          jwkThumbprint: expect.any(String),
           algorithms: ['ES256K', 'ES256K-R', 'eth_signTransaction', 'eth_signTypedData', 'eth_signMessage', 'eth_rawSign'],
           purposes: [EbsiPublicKeyPurpose.AssertionMethod, EbsiPublicKeyPurpose.Authentication],
         },
       })
     )
+    expect(secp256r1?.publicKeyHex?.length).toEqual(66)
   })
 
   it('should create consistent identifier with provided key', async () => {
