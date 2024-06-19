@@ -9,6 +9,7 @@ import {
 } from '../types'
 import { DIDDocument } from 'did-resolver'
 import { getRegistryAPIUrls } from '../functions'
+import fetch from 'cross-fetch'
 
 /**
  * Allows to call 5 api methods of the EBSI RPC api

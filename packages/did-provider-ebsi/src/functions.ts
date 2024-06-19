@@ -18,11 +18,9 @@ import { randomBytes } from '@ethersproject/random'
 import * as u8a from 'uint8arrays'
 import { base58btc } from 'multiformats/bases/base58'
 import { IAgentContext, IKey, IKeyManager, MinimalImportableKey } from '@veramo/core'
-import { getBytes, sha256, sha512, SigningKey, Transaction } from 'ethers'
-import { JWK, JwkKeyUse, toJwk } from '@sphereon/ssi-sdk-ext.key-utils'
+import { getBytes, SigningKey, Transaction } from 'ethers'
+import { calculateJwkThumbprint, calculateJwkThumbprintForKey, JwkKeyUse, toJwk } from '@sphereon/ssi-sdk-ext.key-utils'
 import { callRpcMethod } from './services/EbsiRPCService'
-
-export const toBase64url = (input: string): string => u8a.toString(u8a.fromString(input), 'base64url')
 
 export function generateEbsiMethodSpecificId(specInfo?: EbsiDidSpecInfo): string {
   const spec = specInfo ?? EBSI_DID_SPEC_INFOS.V1
@@ -36,12 +34,12 @@ export function generateEbsiMethodSpecificId(specInfo?: EbsiDidSpecInfo): string
   return base58btc.encode(result)
 }
 
-export function generateEbsiPrivateKeyHex(specInfo?: EbsiDidSpecInfo, privateKeyBytes?: Uint8Array): string {
+export function generateOrUseProvidedEbsiPrivateKeyHex(specInfo?: EbsiDidSpecInfo, privateKeyBytes?: Uint8Array): string {
   const spec = specInfo ?? EBSI_DID_SPEC_INFOS.V1
   const length = spec.didLength ? 2 * spec.didLength : 32
 
   if (privateKeyBytes) {
-    if (privateKeyBytes.length != length) {
+    if (privateKeyBytes.length !== length) {
       throw Error(`Invalid private key length supplied (${privateKeyBytes.length}. Expected ${length} for ${spec.type}`)
     }
     return u8a.toString(privateKeyBytes, 'base16')
@@ -68,15 +66,15 @@ export const formatEbsiPublicKey = (args: { key: IKey; type: EbsiKeyType }): str
     }
     case 'Secp256r1': {
       /*
-                    Public key as hex string. For an ES256K key, it must be in uncompressed format prefixed with "0x04".
-                    For other algorithms, it must be the JWK transformed to string and then to hex format.
-                   */
+                          Public key as hex string. For an ES256K key, it must be in uncompressed format prefixed with "0x04".
+                          For other algorithms, it must be the JWK transformed to string and then to hex format.
+                         */
       const jwk: JsonWebKey = toJwk(key.publicKeyHex, type, { use: JwkKeyUse.Signature, key })
       /*
-                    Converting JWK to string and then hex is odd and may lead to errors. Implementing
-                    it like that because it's how EBSI does it. However, it may be a point of pain
-                    in the future.
-                   */
+                          Converting JWK to string and then hex is odd and may lead to errors. Implementing
+                          it like that because it's how EBSI does it. However, it may be a point of pain
+                          in the future.
+                         */
       const jwkString = JSON.stringify(jwk, null, 2)
       return u8a.toString(u8a.fromString(jwkString), 'base16')
     }
@@ -91,47 +89,6 @@ export const getRegistryAPIUrls = (args: { environment?: EbsiEnvironment; versio
   return {
     mutate: `${baseUrl}/jsonrpc`,
     query: `${baseUrl}/identifiers`,
-  }
-}
-
-/**
- * EBSI specific way to calculate the JWK thumbprint
- * @param args
- */
-export const calculateJwkThumbprint = async (args: { jwk: JWK; digestAlgorithm?: 'sha256' | 'sha512' }): Promise<string> => {
-  const { jwk, digestAlgorithm = 'sha256' } = args
-  let components
-  switch (jwk.kty) {
-    case 'EC':
-      assertJwkClaimPresent(jwk.crv, '"crv" (Curve) Parameter')
-      assertJwkClaimPresent(jwk.x, '"x" (X Coordinate) Parameter')
-      assertJwkClaimPresent(jwk.y, '"y" (Y Coordinate) Parameter')
-      components = { crv: jwk.crv, kty: jwk.kty, x: jwk.x, y: jwk.y }
-      break
-    case 'OKP':
-      assertJwkClaimPresent(jwk.crv, '"crv" (Subtype of Key Pair) Parameter')
-      assertJwkClaimPresent(jwk.x, '"x" (Public Key) Parameter')
-      components = { crv: jwk.crv, kty: jwk.kty, x: jwk.x }
-      break
-    case 'RSA':
-      assertJwkClaimPresent(jwk.e, '"e" (Exponent) Parameter')
-      assertJwkClaimPresent(jwk.n, '"n" (Modulus) Parameter')
-      components = { e: jwk.e, kty: jwk.kty, n: jwk.n }
-      break
-    case 'oct':
-      assertJwkClaimPresent(jwk.k, '"k" (Key Value) Parameter')
-      components = { k: jwk.k, kty: jwk.kty }
-      break
-    default:
-      throw new Error('"kty" (Key Type) Parameter missing or unsupported')
-  }
-  const data = u8a.fromString(JSON.stringify(components))
-  return toBase64url(digestAlgorithm === 'sha512' ? sha512(data) : sha256(data))
-}
-
-const assertJwkClaimPresent = (value: unknown, description: string) => {
-  if (typeof value !== 'string' || !value) {
-    throw new Error(`${description} missing or invalid`)
   }
 }
 
@@ -180,7 +137,7 @@ export const sendLedgerTransaction = async (
   }
 }
 
-export const generateEbsiKeyPair = async (
+export const generateOrUseEbsiKeyPair = async (
   args: {
     keyOpts?: IKeyOpts
     keyType: EbsiKeyType
@@ -189,7 +146,7 @@ export const generateEbsiKeyPair = async (
   context: IAgentContext<IKeyManager>
 ) => {
   const { keyOpts, keyType, kms } = args
-  let privateKeyHex = generateEbsiPrivateKeyHex(
+  let privateKeyHex = generateOrUseProvidedEbsiPrivateKeyHex(
     EBSI_DID_SPEC_INFOS.V1,
     keyOpts?.privateKeyHex ? u8a.fromString(keyOpts.privateKeyHex, 'base16') : undefined
   )
@@ -199,31 +156,32 @@ export const generateEbsiKeyPair = async (
   if (!privateKeyHex || privateKeyHex.length !== 64) {
     throw new Error('Private key should be 32 bytes / 64 chars hex')
   }
-  return assertedKey({ key: { ...keyOpts, privateKeyHex }, type: keyType, kms })
+  return toMinimalImportableKey({ key: { ...keyOpts, privateKeyHex }, type: keyType, kms })
 }
 
-export const assertedKey = (args: { key?: IKeyOpts; type: EbsiKeyType; kms?: string }): MinimalImportableKey => {
+export const toMinimalImportableKey = async (args: { key?: IKeyOpts; type: EbsiKeyType; kms?: string }): Promise<MinimalImportableKey> => {
   const { key, type, kms } = args
-  const minimalImportableKey: Partial<MinimalImportableKey> = { ...key } ?? {}
+  const minimalImportableKey: Partial<MinimalImportableKey> = { ...key }
   minimalImportableKey.kms = assertedKms(kms)
-  minimalImportableKey.type = setDefaultKeyType({ key, type })
-  minimalImportableKey.meta = { purposes: assertedPurposes({ key }) ?? setDefaultPurposes({ key, type }) }
+  minimalImportableKey.type = args.key?.type ?? args.type
+  if (!minimalImportableKey.privateKeyHex) {
+    throw Error(`Minimal importable key needs a private key`)
+  }
+  minimalImportableKey.meta = {
+    purposes: assertedPurposes({ key }) ?? setDefaultPurposes({ key, type }),
+    jwkThumbprint: calculateJwkThumbprintForKey({
+      key: minimalImportableKey as MinimalImportableKey,
+      digestAlgorithm: 'sha256',
+    }),
+  }
   return minimalImportableKey as MinimalImportableKey
 }
 
-export const assertedKms = (kms?: string) => {
-  const result = kms
-  if (!!result) {
-    return result
+export const assertedKms = (kms?: string): string => {
+  if (!kms) {
+    throw new Error('no KMS supplied')
   }
-  throw new Error('no KMS supplied')
-}
-
-export const setDefaultKeyType = (args: { key?: IKeyOpts; type: EbsiKeyType }): EbsiKeyType => {
-  if (!args.key?.type) {
-    return args.type
-  }
-  return args.key.type
+  return kms
 }
 
 export const assertedPurposes = (args: { key?: IKeyOpts }): EbsiPublicKeyPurpose[] | undefined => {
@@ -273,7 +231,7 @@ export const randomRpcId = (): number => {
 }
 
 export const createEbsiDidOnLedger = async (args: CreateEbsiDidParams, context: IContext): Promise<void> => {
-  const { from, apiOpts, notBefore, notAfter, baseDocument, identifier, secp256k1ManagedKeyInfo, bearerToken } = args
+  const { from, apiOpts, notBefore, notAfter, baseDocument, identifier, secp256k1ManagedKeyInfo, secp256r1ManagedKeyInfo, bearerToken } = args
   const rpcId = args.rpcId ?? randomRpcId()
   const insertDidDocTransaction = await callRpcMethod({
     params: [
@@ -281,7 +239,7 @@ export const createEbsiDidOnLedger = async (args: CreateEbsiDidParams, context: 
         from,
         did: identifier.did,
         baseDocument: baseDocument ?? BASE_CONTEXT_DOC,
-        vMethoddId: await calculateJwkThumbprint({ jwk: toJwk(secp256k1ManagedKeyInfo.publicKeyHex, 'Secp256k1') }),
+        vMethoddId: calculateJwkThumbprint({ jwk: toJwk(secp256k1ManagedKeyInfo.publicKeyHex, 'Secp256k1') }),
         isSecp256k1: true,
         publicKey: formatEbsiPublicKey({ key: secp256k1ManagedKeyInfo, type: 'Secp256k1' }),
         notBefore,
@@ -297,7 +255,7 @@ export const createEbsiDidOnLedger = async (args: CreateEbsiDidParams, context: 
   await sendLedgerTransaction(
     {
       docTransactionResponse: insertDidDocTransaction,
-      kid: args.secp256k1ManagedKeyInfo.kid,
+      kid: secp256k1ManagedKeyInfo.kid,
       rpcId,
       bearerToken,
       apiOpts,
@@ -311,8 +269,8 @@ export const createEbsiDidOnLedger = async (args: CreateEbsiDidParams, context: 
         from,
         did: identifier.did,
         isSecp256k1: true,
-        vMethoddId: await calculateJwkThumbprint({ jwk: toJwk(args.secp256k1ManagedKeyInfo.publicKeyHex, 'Secp256k1') }),
-        publicKey: formatEbsiPublicKey({ key: args.secp256k1ManagedKeyInfo, type: 'Secp256k1' }),
+        vMethoddId: calculateJwkThumbprint({ jwk: toJwk(secp256k1ManagedKeyInfo.publicKeyHex, 'Secp256k1') }),
+        publicKey: formatEbsiPublicKey({ key: secp256k1ManagedKeyInfo, type: 'Secp256k1' }),
       },
     ],
     rpcMethod: EbsiRpcMethod.ADD_VERIFICATION_METHOD,
@@ -324,7 +282,7 @@ export const createEbsiDidOnLedger = async (args: CreateEbsiDidParams, context: 
   await sendLedgerTransaction(
     {
       docTransactionResponse: addVerificationMethodTransaction,
-      kid: args.secp256k1ManagedKeyInfo.kid,
+      kid: secp256k1ManagedKeyInfo.kid,
       rpcId,
       bearerToken,
       apiOpts,
@@ -335,9 +293,9 @@ export const createEbsiDidOnLedger = async (args: CreateEbsiDidParams, context: 
   const addVerificationMethodRelationshipTransaction = await callRpcMethod({
     params: [
       {
-        from: args?.from,
-        did: args.identifier.did,
-        vMethoddId: await calculateJwkThumbprint({ jwk: toJwk(args.secp256r1ManagedKeyInfo.publicKeyHex, 'Secp256r1') }),
+        from,
+        did: identifier.did,
+        vMethoddId: calculateJwkThumbprintForKey({ key: secp256r1ManagedKeyInfo }),
         name: 'assertionMethod',
         notAfter: 1,
         notBefore: 1,

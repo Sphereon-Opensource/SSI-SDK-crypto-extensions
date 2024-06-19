@@ -1,24 +1,27 @@
 import { hash as sha256 } from '@stablelib/sha256'
 import { hash as sha512 } from '@stablelib/sha512'
 import * as u8a from 'uint8arrays'
+import { SupportedEncodings } from 'uint8arrays/to-string'
 
 export type HashAlgorithm = 'SHA-256' | 'SHA-512'
-export type TDigestMethod = (input: string) => string
+export type TDigestMethod = (input: string, encoding?: SupportedEncodings) => string
 
-export const digestMethodParams = (hashAlgorithm: HashAlgorithm): { hashAlgorithm: HashAlgorithm; digestMethod: TDigestMethod } => {
+export const digestMethodParams = (
+  hashAlgorithm: HashAlgorithm
+): { hashAlgorithm: HashAlgorithm; digestMethod: TDigestMethod; hash: (data: Uint8Array) => Uint8Array } => {
   if (hashAlgorithm === 'SHA-256') {
-    return { hashAlgorithm: 'SHA-256', digestMethod: sha256DigestMethod }
+    return { hashAlgorithm: 'SHA-256', digestMethod: sha256DigestMethod, hash: sha256 }
   } else {
-    return { hashAlgorithm: 'SHA-512', digestMethod: sha512DigestMethod }
+    return { hashAlgorithm: 'SHA-512', digestMethod: sha512DigestMethod, hash: sha512 }
   }
 }
 
-const sha256DigestMethod = (input: string): string => {
-  return u8a.toString(sha256(u8a.fromString(input, 'utf-8')), 'base16')
+const sha256DigestMethod = (input: string, encoding: SupportedEncodings = 'base16'): string => {
+  return u8a.toString(sha256(u8a.fromString(input, 'utf-8')), encoding)
 }
 
-const sha512DigestMethod = (input: string): string => {
-  return u8a.toString(sha512(u8a.fromString(input, 'utf-8')), 'base16')
+const sha512DigestMethod = (input: string, encoding: SupportedEncodings = 'base16'): string => {
+  return u8a.toString(sha512(u8a.fromString(input, 'utf-8')), encoding)
 }
 
 /*

@@ -73,15 +73,16 @@ export type RpcMethodArgs = {
   apiOpts?: ApiOpts
 }
 
-export type CreateIdentifierOpts = {
+export type EbsiCreateIdentifierOpts = {
   methodSpecificId?: string
   rpcId?: number
   secp256k1Key?: IKeyOpts
   secp256r1Key?: IKeyOpts
-  from: string
-  bearerToken: string
+  from?: string
+  executeLedgerOperation?: boolean
+  bearerToken?: string
   baseDocument?: string
-  notBefore: number
+  notBefore?: number
   notAfter: number
   apiOpts?: ApiOpts
 }
@@ -100,7 +101,7 @@ export interface ICreateIdentifierArgs {
   kms?: string
   alias?: string
   type?: EbsiDidSpecInfo
-  options: CreateIdentifierOpts
+  options?: EbsiCreateIdentifierOpts
 }
 
 /**
