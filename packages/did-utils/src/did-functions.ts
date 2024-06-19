@@ -440,6 +440,16 @@ export class AgentDIDResolver implements Resolvable {
   }
 }
 
+/**
+ * Please note that this is not an exact representation of the actual DID Document.
+ *
+ * We try to do our best, to map keys onto relevant verification methods and relationships, but we simply lack the context
+ * of the actual DID method here. Do not relly on this method for DID resolution. It is only handy for offline use cases
+ * when no DID Document is cached.
+ *
+ * @param identifier
+ * @param opts
+ */
 export function toDidDocument(
   identifier?: IIdentifier,
   opts?: {
@@ -467,18 +477,41 @@ export function toDidDocument(
       }),
       ...((!opts?.use || opts?.use?.includes(JwkKeyUse.Signature)) &&
         identifier.keys && {
-          assertionMethod: identifier.keys.map((key) => {
-            return `${did}#${key.kid}`
-          }),
-          authentication: identifier.keys.map((key) => {
-            return `${did}#${key.kid}`
-          }),
+          assertionMethod: identifier.keys
+            .filter((key) => key?.meta?.purpose || key?.meta?.purpose === 'assertionMethod')
+            .map((key) => {
+              return `${did}#${key.kid}`
+            }),
+          authentication: identifier.keys
+            .filter((key) => key?.meta?.purpose || key?.meta?.purpose === 'authentication')
+            .map((key) => {
+              return `${did}#${key.kid}`
+            }),
         }),
       ...((!opts?.use || opts?.use?.includes(JwkKeyUse.Encryption)) &&
-        identifier.keys &&
-        identifier.keys.filter((key) => key.type === 'X25519').length > 0 && {
+        identifier.keys && {
           keyAgreement: identifier.keys
-            .filter((key) => key.type === 'X25519')
+            .filter((key) => key.type === 'X25519' || key?.meta?.purpose === 'keyAgreement')
+            .map((key) => {
+              if (key.kid.startsWith(did) && key.kid.includes('#')) {
+                return key.kid
+              }
+              return `${did}#${key.kid}`
+            }),
+        } &&
+        identifier.keys && {
+          capabilityInvocation: identifier.keys
+            .filter((key) => key.type === 'X25519' || key?.meta?.purpose === 'capabilityInvocation')
+            .map((key) => {
+              if (key.kid.startsWith(did) && key.kid.includes('#')) {
+                return key.kid
+              }
+              return `${did}#${key.kid}`
+            }),
+        } &&
+        identifier.keys && {
+          capabilityDelegation: identifier.keys
+            .filter((key) => key.type === 'X25519' || key?.meta?.purpose === 'capabilityDelegation')
             .map((key) => {
               if (key.kid.startsWith(did) && key.kid.includes('#')) {
                 return key.kid
