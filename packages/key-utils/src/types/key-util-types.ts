@@ -34,7 +34,7 @@ export const ENC_KEY_ALGS = ['X25519', 'ECDH_ES_A256KW', 'RSA_OAEP_256']
 
 export interface JWK extends JsonWebKey {
   kid?: string
-  x5c?: string
+  x5c?: string[]
   x5u?: string
 }
 

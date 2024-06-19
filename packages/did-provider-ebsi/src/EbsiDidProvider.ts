@@ -30,6 +30,7 @@ export class EbsiDidProvider extends AbstractIdentifierProvider {
       throw new Error(`Type ${type} not supported. Please use @sphereon/ssi-sdk-ext.did-provider-key for Natural Person EBSI DIDs`)
     }
 
+    // CapabilityInvocation purpose
     const secp256k1ImportKey = await generateOrUseEbsiKeyPair(
       {
         keyOpts: secp256k1Key,
@@ -40,6 +41,7 @@ export class EbsiDidProvider extends AbstractIdentifierProvider {
     )
     const secp256k1ManagedKeyInfo = await context.agent.keyManagerImport(secp256k1ImportKey)
 
+    // Authentication, assertionMethod purpose
     const secp256r1ImportKey = await generateOrUseEbsiKeyPair(
       {
         keyOpts: secp256r1Key,

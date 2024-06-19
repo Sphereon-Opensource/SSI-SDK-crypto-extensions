@@ -192,7 +192,7 @@ export const assertedPurposes = (args: { key?: IKeyOpts }): EbsiPublicKeyPurpose
         if (key?.purposes && key.purposes.length > 0 && key.purposes?.includes(EbsiPublicKeyPurpose.CapabilityInvocation)) {
           return key.purposes
         }
-        throw new Error(`Secp256k1 key requires ${EbsiPublicKeyPurpose.CapabilityInvocation} purpose`)
+        throw new Error(`Secp256k1/ES256K key requires ${EbsiPublicKeyPurpose.CapabilityInvocation} purpose`)
       }
       case 'Secp256r1': {
         if (
@@ -202,7 +202,9 @@ export const assertedPurposes = (args: { key?: IKeyOpts }): EbsiPublicKeyPurpose
         ) {
           return key.purposes
         }
-        throw new Error(`Secp256r1 key requires ${[EbsiPublicKeyPurpose.AssertionMethod, EbsiPublicKeyPurpose.Authentication].join(', ')} purposes`)
+        throw new Error(
+          `Secp256r1/ES256 key requires ${[EbsiPublicKeyPurpose.AssertionMethod, EbsiPublicKeyPurpose.Authentication].join(', ')} purposes`
+        )
       }
       default:
         throw new Error(`Unsupported key type: ${key.type}`)
