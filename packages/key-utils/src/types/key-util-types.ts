@@ -33,6 +33,7 @@ export const SIG_KEY_ALGS = ['ES256', 'ES384', 'ES512', 'EdDSA', 'ES256K', 'Ed25
 export const ENC_KEY_ALGS = ['X25519', 'ECDH_ES_A256KW', 'RSA_OAEP_256']
 
 export interface JWK extends JsonWebKey {
+  kid?: string
   x5c?: string
   x5u?: string
 }

@@ -1,12 +1,6 @@
 import { computeAddress } from '@ethersproject/transactions'
 import { UniResolver } from '@sphereon/did-uni-client'
-import {
-  base64ToHex,
-  ENC_KEY_ALGS,
-  hexKeyFromPEMBasedJwk,
-  JwkKeyUse,
-  toJwk,
-} from '@sphereon/ssi-sdk-ext.key-utils'
+import { base64ToHex, ENC_KEY_ALGS, hexKeyFromPEMBasedJwk, JwkKeyUse, toJwk } from '@sphereon/ssi-sdk-ext.key-utils'
 import { base58ToBytes, base64ToBytes, bytesToHex, hexToBytes, multibaseKeyToBytes } from '@sphereon/ssi-sdk.core'
 import { convertPublicKeyToX25519 } from '@stablelib/ed25519'
 import { DIDDocument, DIDDocumentSection, DIDResolutionResult, IAgentContext, IDIDManager, IIdentifier, IKey, IResolver } from '@veramo/core'
@@ -20,7 +14,7 @@ import {
   isDefined,
   mapIdentifierKeysToDoc,
 } from '@veramo/utils'
-import { DIDResolutionOptions, Resolvable, VerificationMethod } from 'did-resolver'
+import { DIDResolutionOptions, Resolvable, VerificationMethod, JsonWebKey } from 'did-resolver'
 // @ts-ignore
 import elliptic from 'elliptic'
 import * as u8a from 'uint8arrays'
@@ -30,10 +24,11 @@ export const getFirstKeyWithRelation = async (
   identifier: IIdentifier,
   context: IAgentContext<IResolver & IDIDManager>,
   vmRelationship?: DIDDocumentSection,
-  errorOnNotFound?: boolean
+  errorOnNotFound?: boolean,
+  didDocument?: DIDDocument
 ): Promise<_ExtendedIKey | undefined> => {
   const section = vmRelationship ?? 'verificationMethod' // search all VMs in case no relationship is provided
-  const matchedKeys = await mapIdentifierKeysToDocWithJwkSupport(identifier, section, context)
+  const matchedKeys = await mapIdentifierKeysToDocWithJwkSupport(identifier, section, context, didDocument)
   if (Array.isArray(matchedKeys) && matchedKeys.length > 0) {
     return matchedKeys[0]
   }
@@ -465,7 +460,7 @@ export function toDidDocument(
           publicKeyJwk: toJwk(key.publicKeyHex, key.type, {
             use: ENC_KEY_ALGS.includes(key.type) ? JwkKeyUse.Encryption : JwkKeyUse.Signature,
             key,
-          }),
+          }) as JsonWebKey,
           type: 'JsonWebKey2020',
         }
         return vm
