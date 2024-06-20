@@ -323,14 +323,18 @@ export async function getKey(
   if (!identifier) {
     return Promise.reject(new Error(`No identifier provided to getKey method!`))
   }
-  const keys = await mapIdentifierKeysToDocWithJwkSupport(identifier, verificationMethodSection, context)
-  if (!keys || keys.length === 0) {
-    throw new Error(`No keys found for verificationMethodSection: ${verificationMethodSection} and did ${identifier.did}`)
-  }
-
-  const identifierKey = keyId ? keys.find((key: _ExtendedIKey) => key.kid === keyId || key.meta.verificationMethod.id === keyId) : keys[0]
+  let identifierKey = keyId ? identifier.keys.find((key: IKey) => key.kid === keyId || key?.meta?.jwkThumbprint === keyId) : undefined
   if (!identifierKey) {
-    throw new Error(`No matching verificationMethodSection key found for keyId: ${keyId}`)
+    const keys = await mapIdentifierKeysToDocWithJwkSupport(identifier, verificationMethodSection, context)
+    if (!keys || keys.length === 0) {
+      throw new Error(`No keys found for verificationMethodSection: ${verificationMethodSection} and did ${identifier.did}`)
+    }
+    identifierKey = keyId ? keys.find((key: _ExtendedIKey) => key.meta.verificationMethod.id === keyId) : keys[0]
+  }
+  if (!identifierKey) {
+    throw new Error(
+      `No matching verificationMethodSection key found for keyId: ${keyId} and vmSection: ${verificationMethodSection} for id ${identifier.did}`
+    )
   }
 
   return identifierKey
