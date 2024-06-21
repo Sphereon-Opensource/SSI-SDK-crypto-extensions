@@ -3,7 +3,16 @@ import { UniResolver } from '@sphereon/did-uni-client'
 import { base64ToHex, ENC_KEY_ALGS, hexKeyFromPEMBasedJwk, JwkKeyUse, toJwk } from '@sphereon/ssi-sdk-ext.key-utils'
 import { base58ToBytes, base64ToBytes, bytesToHex, hexToBytes, multibaseKeyToBytes } from '@sphereon/ssi-sdk.core'
 import { convertPublicKeyToX25519 } from '@stablelib/ed25519'
-import { DIDDocument, DIDDocumentSection, DIDResolutionResult, IAgentContext, IDIDManager, IIdentifier, IKey, IResolver } from '@veramo/core'
+import {
+  DIDDocument,
+  DIDDocumentSection,
+  DIDResolutionResult,
+  IAgentContext,
+  IDIDManager,
+  IIdentifier,
+  IKey, IKeyManager,
+  IResolver,
+} from '@veramo/core'
 import {
   _ExtendedIKey,
   _ExtendedVerificationMethod,
@@ -14,24 +23,58 @@ import {
   isDefined,
   mapIdentifierKeysToDoc,
 } from '@veramo/utils'
-import { DIDResolutionOptions, Resolvable, VerificationMethod, JsonWebKey } from 'did-resolver'
+import { DIDResolutionOptions, JsonWebKey, Resolvable, VerificationMethod } from 'did-resolver'
 // @ts-ignore
 import elliptic from 'elliptic'
 import * as u8a from 'uint8arrays'
 import {
-  CreateIdentifierOpts, CreateOrGetIdentifierOpts,
-  DID_PREFIX, GetOrCreateResult, IdentifierAliasEnum, IdentifierProviderOpts,
+  CreateIdentifierOpts,
+  CreateOrGetIdentifierOpts,
+  DID_PREFIX,
+  GetOrCreateResult,
+  IdentifierAliasEnum,
+  IdentifierProviderOpts,
   IDIDOptions,
   IIdentifierOpts,
   KeyManagementSystemEnum,
   SupportedDidMethodEnum,
 } from './types'
 
-export const getAuthenticationKey = async (identifier: IIdentifier, context: IAgentContext<IResolver & IDIDManager>): Promise<_ExtendedIKey> => {
-  return (
-    (await getFirstKeyWithRelation(identifier, context, 'authentication', false)) ||
-    ((await getFirstKeyWithRelation(identifier, context, 'verificationMethod', true)) as _ExtendedIKey)
-  )
+
+export const getAuthenticationKey = async (identifier: IIdentifier,
+                                           context: IAgentContext<IResolver & IDIDManager & IKeyManager>,
+                                           offlineWhenNoDIDRegistered?: boolean,
+                                           noVerificationMethodFallback?: boolean): Promise<_ExtendedIKey> => {
+
+  let key: _ExtendedIKey | undefined = undefined
+  try {
+    key =
+      (await getFirstKeyWithRelation(identifier, context, 'authentication', false)) ??
+      (noVerificationMethodFallback ? undefined : await getFirstKeyWithRelation(identifier, context, 'verificationMethod', false))
+  } catch (e) {
+    if (e instanceof Error) {
+      if (!e.message.includes('404') || !offlineWhenNoDIDRegistered) {
+        throw e;
+      }
+    } else {
+      throw e;
+    }
+  }
+  if (!key && offlineWhenNoDIDRegistered) {
+    const offlineDID = toDidDocument(identifier)
+    key =
+      (await getFirstKeyWithRelation(identifier, context, 'authentication', false, offlineDID)) ??
+      (noVerificationMethodFallback ? undefined : await getFirstKeyWithRelation(identifier, context, 'verificationMethod', false, offlineDID))
+    if (!key) {
+      key = identifier.keys
+        .map((key) => key as _ExtendedIKey)
+        .find((key) => key.meta.verificationMethod?.type.includes('authentication') || key.meta.purposes?.includes('authentication'))
+    }
+  }
+  if (!key) {
+    throw Error(`Could not find authentication key for DID ${identifier.did}`)
+  }
+  return key
 }
 
 export const getOrCreatePrimaryIdentifier = async (context: IAgentContext<IDIDManager>, opts?: CreateOrGetIdentifierOpts): Promise<GetOrCreateResult<IIdentifier>> => {
