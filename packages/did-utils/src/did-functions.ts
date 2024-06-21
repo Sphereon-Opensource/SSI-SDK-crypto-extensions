@@ -18,7 +18,61 @@ import { DIDResolutionOptions, Resolvable, VerificationMethod, JsonWebKey } from
 // @ts-ignore
 import elliptic from 'elliptic'
 import * as u8a from 'uint8arrays'
-import { IDIDOptions, IIdentifierOpts } from './types'
+import {
+  CreateIdentifierOpts, CreateOrGetIdentifierOpts,
+  DID_PREFIX, GetOrCreateResult, IdentifierAliasEnum, IdentifierProviderOpts,
+  IDIDOptions,
+  IIdentifierOpts,
+  KeyManagementSystemEnum,
+  SupportedDidMethodEnum,
+} from './types'
+
+export const getAuthenticationKey = async (identifier: IIdentifier, context: IAgentContext<IResolver & IDIDManager>): Promise<_ExtendedIKey> => {
+  return (
+    (await getFirstKeyWithRelation(identifier, context, 'authentication', false)) ||
+    ((await getFirstKeyWithRelation(identifier, context, 'verificationMethod', true)) as _ExtendedIKey)
+  )
+}
+
+export const getOrCreatePrimaryIdentifier = async (context: IAgentContext<IDIDManager>, opts?: CreateOrGetIdentifierOpts): Promise<GetOrCreateResult<IIdentifier>> => {
+  const primaryIdentifier = await getPrimaryIdentifier(context, opts?.createOpts?.options)
+  if (primaryIdentifier !== undefined) {
+    return {
+      created: false,
+      result: primaryIdentifier,
+    }
+  }
+
+  if (opts?.method === SupportedDidMethodEnum.DID_KEY) {
+    const createOpts = opts?.createOpts ?? {}
+    createOpts.options = { codecName: 'EBSI', type: 'Secp256r1', ...createOpts }
+    opts.createOpts = createOpts
+  }
+  const createdIdentifier = await createIdentifier(context, opts)
+  return {
+    created: true,
+    result: createdIdentifier,
+  }
+}
+
+export const getPrimaryIdentifier = async (context: IAgentContext<IDIDManager>, opts?: IdentifierProviderOpts): Promise<IIdentifier | undefined> => {
+  const identifiers = (await context.agent.didManagerFind(opts?.method ? { provider: `${DID_PREFIX}:${opts?.method}` } : {})).filter(
+    (identifier: IIdentifier) =>
+      opts?.type === undefined || identifier.keys.some((key: IKey) => key.type === opts?.type),
+  )
+
+  return (identifiers && identifiers.length > 0) ? identifiers[0] : undefined
+}
+
+export const createIdentifier = async (context: IAgentContext<IDIDManager>, opts?: CreateIdentifierOpts): Promise<IIdentifier> => {
+  const identifier = await context.agent.didManagerCreate({
+    kms: opts?.createOpts?.kms ?? KeyManagementSystemEnum.LOCAL,
+    ...(opts?.method && { provider: `${DID_PREFIX}:${opts?.method}` }),
+    alias: opts?.createOpts?.alias ?? `${IdentifierAliasEnum.PRIMARY}-${opts?.method}-${opts?.createOpts?.options?.type}-${new Date().toUTCString()}`,
+    options: opts?.createOpts?.options,
+  })
+  return identifier
+}
 
 export const getFirstKeyWithRelation = async (
   identifier: IIdentifier,
