@@ -10,7 +10,7 @@ import {
   IAgentContext,
   IDIDManager,
   IIdentifier,
-  IKey, IKeyManager,
+  IKey,
   IResolver,
 } from '@veramo/core'
 import {
@@ -42,7 +42,7 @@ import {
 
 
 export const getAuthenticationKey = async (identifier: IIdentifier,
-                                           context: IAgentContext<IResolver & IDIDManager & IKeyManager>,
+                                           context: IAgentContext<IResolver & IDIDManager>,
                                            offlineWhenNoDIDRegistered?: boolean,
                                            noVerificationMethodFallback?: boolean): Promise<_ExtendedIKey> => {
 
