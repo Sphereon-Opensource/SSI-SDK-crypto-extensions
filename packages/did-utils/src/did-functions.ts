@@ -341,7 +341,7 @@ export async function getKey(
 }
 
 export function determineKid(key: IKey, idOpts: IIdentifierOpts): string {
-  return key.meta?.verificationMethod.id ?? idOpts.kid ?? key.kid
+  return key.meta?.verificationMethod?.id ?? idOpts.kid ?? key.kid
 }
 
 export async function getSupportedDIDMethods(didOpts: IDIDOptions, context: IAgentContext<IDIDManager>) {
