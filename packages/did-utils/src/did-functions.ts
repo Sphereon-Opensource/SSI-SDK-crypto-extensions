@@ -332,7 +332,15 @@ export async function getKey(
     if (!keys || keys.length === 0) {
       throw new Error(`No keys found for verificationMethodSection: ${verificationMethodSection} and did ${identifier.did}`)
     }
-    identifierKey = keyId ? keys.find((key: _ExtendedIKey) => key.meta.verificationMethod?.id === keyId || (kid && key.meta.verificationMethod?.id?.includes(kid))) : keys[0]
+    if (keyId) {
+        identifierKey = keys.find((key: _ExtendedIKey) => key.meta.verificationMethod?.id === keyId || (kid && key.meta.verificationMethod?.id?.includes(kid)))
+    }
+    if (!identifierKey) {
+        identifierKey = keys.find((key: _ExtendedIKey) => key.meta.verificationMethod?.type === verificationMethodSection || (key.meta.purposes?.includes(verificationMethodSection)))
+    }
+    if (!identifierKey) {
+      identifierKey = keys[0]
+    }
   }
   if (!identifierKey) {
     throw new Error(
