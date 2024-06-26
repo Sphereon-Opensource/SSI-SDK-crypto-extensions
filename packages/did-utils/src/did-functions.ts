@@ -323,13 +323,16 @@ export async function getKey(
   if (!identifier) {
     return Promise.reject(new Error(`No identifier provided to getKey method!`))
   }
-  let identifierKey = keyId ? identifier.keys.find((key: IKey) => key.kid === keyId || key?.meta?.jwkThumbprint === keyId) : undefined
+  // normalize to kid, in case keyId was passed in as did#vm or #vm
+  const kidVals = keyId?.split(`#`)
+  const kid = kidVals ? (kidVals?.length === 2 ? kidVals[1] : kidVals[0]) : undefined
+  let identifierKey = keyId ? identifier.keys.find((key: IKey) => key.kid === kid || key?.meta?.jwkThumbprint === kid) : undefined
   if (!identifierKey) {
     const keys = await mapIdentifierKeysToDocWithJwkSupport(identifier, verificationMethodSection, context)
     if (!keys || keys.length === 0) {
       throw new Error(`No keys found for verificationMethodSection: ${verificationMethodSection} and did ${identifier.did}`)
     }
-    identifierKey = keyId ? keys.find((key: _ExtendedIKey) => key.meta.verificationMethod.id === keyId) : keys[0]
+    identifierKey = keyId ? keys.find((key: _ExtendedIKey) => key.meta.verificationMethod?.id === keyId || (kid && key.meta.verificationMethod?.id?.includes(kid))) : keys[0]
   }
   if (!identifierKey) {
     throw new Error(
