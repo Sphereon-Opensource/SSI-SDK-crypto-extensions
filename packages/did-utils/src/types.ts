@@ -8,7 +8,7 @@ export enum SupportedDidMethodEnum {
   DID_KEY = 'key',
   DID_LTO = 'lto',
   DID_ION = 'ion',
-  DID_FACTOM = 'factom',
+  DID_EBSI = 'ebsi',
   DID_JWK = 'jwk',
 }
 
