@@ -1,4 +1,5 @@
-import { IAgentContext, IIdentifier, IKeyManager, ManagedKeyInfo, MinimalImportableKey, TKeyType } from '@veramo/core'
+import { IAgentContext, IIdentifier, IKeyManager, MinimalImportableKey, TKeyType } from '@veramo/core'
+import { IService } from '@veramo/core/build/types/IIdentifier'
 import { DIDDocument } from 'did-resolver'
 
 export type IContext = IAgentContext<IKeyManager>
@@ -78,7 +79,6 @@ export type EbsiCreateIdentifierOpts = {
   rpcId?: number
   secp256k1Key?: IKeyOpts
   secp256r1Key?: IKeyOpts
-  from?: string
   executeLedgerOperation?: boolean
   bearerToken?: string
   baseDocument?: string
@@ -128,7 +128,7 @@ export enum EbsiPublicKeyPurpose {
  * @property {string} from - Ethereum address of the signer
  * @property {string} did - DID to insert. It must be for a legal entity (DID v1)
  * @property {string} BASE_CONTEXT_DOC - JSON string containing the @context of the DID document
- * @property {string} vMethoddId - Thumbprint of the public key
+ * @property {string} vMethodId - Thumbprint of the public key
  * @property {string} publicKey - Public key for secp256k1 in uncompressed format prefixed with "0x04"
  * @property {boolean} isSecp256k1 -  It must be true
  * @property {number} notBefore - Capability invocation is valid from this time
@@ -138,7 +138,7 @@ export type InsertDidDocumentParams = {
   from: string
   did: string
   baseDocument: string
-  vMethoddId: string
+  vMethodId: string
   publicKey: string
   isSecp256k1: boolean
   notBefore: number
@@ -167,17 +167,23 @@ export type UpdateIdentifierParams = {
   options?: { [p: string]: any }
 }
 
+export type AddServiceParams = {
+  from: string
+  did: string
+  service: IService
+}
+
 /**
  * @typedef AddVerificationMethodParams
  * @type {object}
  * @property {string} from - Ethereum address of the signer
  * @property {string} did - Existing DID
- * @property {string} vMethoddId - New verification method id
+ * @property {string} vMethodId - New verification method id
  * @property {boolean} isSecp256k1 - Boolean defining if the public key is for secp256k1 curve or not
  * @property {string} publicKey - Public key as hex string. For an ES256K key, it must be in uncompressed format
  * prefixed with "0x04". For other algorithms, it must be the JWK transformed to string and then to hex format.
  */
-export type AddVerificationMethodParams = Pick<InsertDidDocumentParams, 'from' | 'did' | 'vMethoddId' | 'isSecp256k1' | 'publicKey'>
+export type AddVerificationMethodParams = Pick<InsertDidDocumentParams, 'from' | 'did' | 'vMethodId' | 'isSecp256k1' | 'publicKey'>
 
 /**
  * @typedef AddVerificationMethodRelationshipParams
@@ -185,11 +191,11 @@ export type AddVerificationMethodParams = Pick<InsertDidDocumentParams, 'from' |
  * @property {string} from - Ethereum address of the signer
  * @property {string} did -  Existing DID
  * @property {string} name - Name of the verification relationship
- * @property {string} vMethoddId - Reference to the verification method
+ * @property {string} vMethodId - Reference to the verification method
  * @property {number} notBefore - Verification relationship is valid from this time
  * @property {number} notAfter - Expiration of the verification relationship
  */
-export type AddVerificationMethodRelationshipParams = Pick<InsertDidDocumentParams, 'from' | 'did' | 'vMethoddId' | 'notBefore' | 'notAfter'> & {
+export type AddVerificationMethodRelationshipParams = Pick<InsertDidDocumentParams, 'from' | 'did' | 'vMethodId' | 'notBefore' | 'notAfter'> & {
   name: string
 }
 
@@ -350,11 +356,8 @@ export type GetDidDocumentsResponse = {
  * @property {ApiOpts} [apiOpts] The EBSI API options
  */
 export type CreateEbsiDidParams = {
-  identifier: Omit<IIdentifier, 'provider'>
-  secp256k1ManagedKeyInfo: ManagedKeyInfo
-  secp256r1ManagedKeyInfo: ManagedKeyInfo
+  identifier: IIdentifier
   rpcId?: number
-  from: string
   bearerToken: string
   baseDocument?: string
   notBefore?: number
@@ -387,10 +390,11 @@ export enum EbsiRpcMethod {
   UPDATE_DID_DOCUMENT = 'updateBaseDocument',
   ADD_VERIFICATION_METHOD = 'addVerificationMethod',
   ADD_VERIFICATION_METHOD_RELATIONSHIP = 'addVerificationMethodRelationship',
+  ADD_SERVICE = 'addService',
   SEND_SIGNED_TRANSACTION = 'sendSignedTransaction',
 }
 
-export type EbsiEnvironment = 'pilot' | 'conformance'
+export type EbsiEnvironment = 'pilot' | 'conformance' | 'conformance-test'
 
 export type ApiOpts = { environment?: EbsiEnvironment; version?: string }
 
@@ -400,5 +404,6 @@ export type RPCParams =
   | AddVerificationMethodParams
   | AddVerificationMethodRelationshipParams
   | SendSignedTransactionParams
+  | AddServiceParams
 
-export type EbsiRPCResponse = Response200 | ResponseNot200 | GetDidDocumentsResponse
+export type EbsiRPCResponse = Response200 | ResponseNot200

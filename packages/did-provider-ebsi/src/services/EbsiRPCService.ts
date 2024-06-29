@@ -8,7 +8,7 @@ import {
   RpcMethodArgs,
 } from '../types'
 import { DIDDocument } from 'did-resolver'
-import { getRegistryAPIUrls } from '../functions'
+import { ebsiGetRegistryAPIUrls } from '../functions'
 import fetch from 'cross-fetch'
 
 /**
@@ -24,7 +24,7 @@ import fetch from 'cross-fetch'
 export const callRpcMethod = async (args: RpcMethodArgs): Promise<EbsiRPCResponse> => {
   const { params, rpcId, bearerToken, rpcMethod, apiOpts } = args
   const options = buildFetchOptions({ bearerToken, params, rpcId, rpcMethod })
-  return await (await fetch(getRegistryAPIUrls({ ...apiOpts }).mutate, options)).json()
+  return await (await fetch(ebsiGetRegistryAPIUrls({ ...apiOpts }).mutate, options)).json()
 }
 
 /**
@@ -60,7 +60,7 @@ export const getDidDocument = async (args: { params: GetDidDocumentParams; apiOp
     throw new Error('did parameter is required')
   }
   const query = validAt ? `?valid_at=${validAt}` : ''
-  return await (await fetch(`${getRegistryAPIUrls({ ...apiOpts }).query}/${did}${query}`)).json()
+  return await (await fetch(`${ebsiGetRegistryAPIUrls({ ...apiOpts }).query}/${did}${query}`)).json()
 }
 
 /**
@@ -82,5 +82,5 @@ export const listDidDocuments = async (args: { params: GetDidDocumentsParams; ap
     queryParams.push(`controller=${controller}`)
   }
   const query = `?${queryParams.filter(Boolean).join('&')}`
-  return await (await fetch(`${getRegistryAPIUrls({ ...apiOpts }).query}/${query}`)).json()
+  return await (await fetch(`${ebsiGetRegistryAPIUrls({ ...apiOpts }).query}/${query}`)).json()
 }

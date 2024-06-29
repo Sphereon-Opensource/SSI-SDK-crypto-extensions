@@ -10,6 +10,9 @@
       "path": "../did-resolver-ebsi"
     },
     {
+      "path": "../did-utils"
+    },
+    {
       "path": "../key-utils"
     }
   ]

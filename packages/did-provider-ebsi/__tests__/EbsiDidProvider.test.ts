@@ -35,8 +35,8 @@ const agent = createAgent<IKeyManager & IDIDManager>({
   ],
 })
 
-const PUBLIC_KEY_HEX =
-  '04a23cb4c83901acc2eb0f852599610de0caeac260bf8ed05e7f902eaac0f9c8d74dd4841b94d13424d32af8ec0e9976db9abfa7e3a59e10d565c5d4d901b4be63'
+// const PUBLIC_KEY_HEX =
+//   '04a23cb4c83901acc2eb0f852599610de0caeac260bf8ed05e7f902eaac0f9c8d74dd4841b94d13424d32af8ec0e9976db9abfa7e3a59e10d565c5d4d901b4be63'
 describe('@sphereon/did-provider-ebsi', () => {
   it('should create identifier', async () => {
     const identifier: IIdentifier = await agent.didManagerCreate()
@@ -51,8 +51,12 @@ describe('@sphereon/did-provider-ebsi', () => {
         type: 'Secp256k1',
         publicKeyHex: expect.any(String),
         meta: {
+          ebsi: {
+            anchored: false,
+            controllerKey: true,
+          },
           jwkThumbprint: expect.any(String),
-          algorithms: ['ES256'],
+          algorithms: ['ES256K', 'ES256K-R', 'eth_signTransaction', 'eth_signTypedData', 'eth_signMessage', 'eth_rawSign'],
           purposes: [EbsiPublicKeyPurpose.CapabilityInvocation],
         },
       })
@@ -68,7 +72,7 @@ describe('@sphereon/did-provider-ebsi', () => {
         publicKeyHex: expect.any(String),
         meta: {
           jwkThumbprint: expect.any(String),
-          algorithms: ['ES256K', 'ES256K-R', 'eth_signTransaction', 'eth_signTypedData', 'eth_signMessage', 'eth_rawSign'],
+          algorithms: ['ES256'],
           purposes: [EbsiPublicKeyPurpose.AssertionMethod, EbsiPublicKeyPurpose.Authentication],
         },
       })
@@ -78,7 +82,8 @@ describe('@sphereon/did-provider-ebsi', () => {
 
   it('should create consistent identifier with provided key', async () => {
     const options = {
-      key: {
+      methodSpecificId: 'zhv7pXtkn7DHAcDsn5Qk7tp',
+      secp256k1Key: {
         privateKeyHex: PRIVATE_KEY_HEX,
       },
     }
@@ -92,7 +97,7 @@ describe('@sphereon/did-provider-ebsi', () => {
 
   it('should remove identifier', async () => {
     const options = {
-      key: {
+      secp256k1Key: {
         privateKeyHex: PRIVATE_KEY_HEX,
       },
     }
@@ -108,26 +113,11 @@ describe('@sphereon/did-provider-ebsi', () => {
   it('should import a DID with existing private key', async () => {
     await expect(
       agent.didManagerImport({
-        did: 'did:ebsi:zhv7pXtkn7DHAcDsn5Qk7tp',
+        did: 'did:ebsi:zhv7pXtkn7DHAcDsnaaa7ap',
         provider: 'did:ebsi',
         keys: [{ kms: 'mem', privateKeyHex: PRIVATE_KEY_HEX, type: 'Secp256k1' }],
       })
-    ).resolves.toMatchObject({ did: 'did:ebsi:zhv7pXtkn7DHAcDsn5Qk7tp' })
-  })
-
-  it('should throw error for not implemented add key', async () => {
-    await expect(
-      agent.didManagerAddKey({
-        did: 'did:ebsi:zhv7pXtkn7DHAcDsn5Qk7tp',
-        key: {
-          type: 'Secp256k1',
-          kms: 'mem',
-          kid: 'test',
-          privateKeyHex: PRIVATE_KEY_HEX,
-          publicKeyHex: PUBLIC_KEY_HEX,
-        },
-      })
-    ).rejects.toThrow('Not (yet) implemented for the EBSI did provider')
+    ).resolves.toMatchObject({ did: 'did:ebsi:zhv7pXtkn7DHAcDsnaaa7ap' })
   })
 
   it('should throw error for not implemented remove key', async () => {
@@ -139,18 +129,22 @@ describe('@sphereon/did-provider-ebsi', () => {
     ).rejects.toThrow('Not (yet) implemented for the EBSI did provider')
   })
 
-  it('should throw error for not implemented add service', async () => {
+  it('should succeed for add service', async () => {
+    const service = {
+      type: 'nope',
+      id: 'id',
+      description: 'test',
+      serviceEndpoint: 'https://nope.com',
+    }
     await expect(
       agent.didManagerAddService({
         did: 'did:ebsi:zhv7pXtkn7DHAcDsn5Qk7tp',
-        service: {
-          type: 'nope',
-          id: 'id',
-          description: 'test',
-          serviceEndpoint: 'https://nope.com',
-        },
+        service,
+          options: {
+            bearerToken: 'example'
+          }
       })
-    ).rejects.toThrow('Not (yet) implemented for the EBSI did provider')
+    ).resolves.toBeDefined()
   })
 
   it('should throw error for not implemented remove service', async () => {

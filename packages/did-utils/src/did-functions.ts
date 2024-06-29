@@ -1,6 +1,6 @@
 import { computeAddress } from '@ethersproject/transactions'
 import { UniResolver } from '@sphereon/did-uni-client'
-import { base64ToHex, ENC_KEY_ALGS, hexKeyFromPEMBasedJwk, JwkKeyUse, toJwk } from '@sphereon/ssi-sdk-ext.key-utils'
+import { base64ToHex, ENC_KEY_ALGS, hexKeyFromPEMBasedJwk, JwkKeyUse, TKeyType, toJwk } from '@sphereon/ssi-sdk-ext.key-utils'
 import { base58ToBytes, base64ToBytes, bytesToHex, hexToBytes, multibaseKeyToBytes } from '@sphereon/ssi-sdk.core'
 import { convertPublicKeyToX25519 } from '@stablelib/ed25519'
 import { DIDDocument, DIDDocumentSection, DIDResolutionResult, IAgentContext, IDIDManager, IIdentifier, IKey, IResolver } from '@veramo/core'
@@ -36,6 +36,48 @@ export const getFirstKeyWithRelation = async (
     throw new Error(`Could not find key with relationship ${section} in DID document for ${identifier.did}`)
   }
   return undefined
+}
+
+export const getEthereumAddressFromKey = ({ key }: { key: IKey }) => {
+  if (key.type !== 'Secp256k1') {
+    throw Error(`Can only get ethereum address from a Secp256k1 key. Type is ${key.type} for kid: ${key.kid}`)
+  }
+  const ethereumAddress = key.meta?.ethereumAddress ?? key.meta?.account?.toLowerCase() ?? computeAddress(`0x${key.publicKeyHex}`).toLowerCase()
+  if (!ethereumAddress) {
+    throw Error(`Could not get or generate ethereum address from key  ${key.kid}`)
+  }
+  return ethereumAddress
+}
+
+export const getControllerKey = ({ identifier }: { identifier: IIdentifier }) => {
+  const key = identifier.keys.find((key) => key.kid === identifier.controllerKeyId)
+  if (!key) {
+    throw Error(`Could not get controller key for identifier ${identifier}`)
+  }
+  return key
+}
+
+export const getKeys = ({
+  jwkThumbprint,
+  kms,
+  identifier,
+  kid,
+  keyType,
+  controllerKey,
+}: {
+  identifier: IIdentifier
+  kid?: string
+  keyType?: TKeyType
+  kms?: string
+  jwkThumbprint?: string
+  controllerKey?: boolean
+}) => {
+  return identifier.keys
+    .filter((key) => !keyType || key.type === keyType)
+    .filter((key) => !kms || key.kms === kms)
+    .filter((key) => !kid || key.kid === kid)
+    .filter((key) => !jwkThumbprint || key.meta?.jwkThumbprint === jwkThumbprint)
+    .filter((key) => !controllerKey || identifier.controllerKeyId === key.kid)
 }
 
 //TODO: Move to ssi-sdk/core and create PR upstream
@@ -127,6 +169,7 @@ export function isEvenHexString(hex: string) {
   const lastChar = hex[hex.length - 1].toLowerCase()
   return ['0', '2', '4', '6', '8', 'a', 'c', 'e'].includes(lastChar)
 }
+
 interface LegacyVerificationMethod extends VerificationMethod {
   publicKeyBase64: string
 }
@@ -228,8 +271,8 @@ export async function mapIdentifierKeysToDocWithJwkSupport(
   const extendedKeys: _ExtendedIKey[] = documentKeys
     .map((verificationMethod) => {
       /*if (verificationMethod.type !== 'JsonWebKey2020') {
-                                return null
-                              }*/
+                                      return null
+                                    }*/
       const localKey = localKeys.find(
         (localKey) =>
           localKey.publicKeyHex === verificationMethod.publicKeyHex ||
@@ -333,10 +376,15 @@ export async function getKey(
       throw new Error(`No keys found for verificationMethodSection: ${verificationMethodSection} and did ${identifier.did}`)
     }
     if (keyId) {
-        identifierKey = keys.find((key: _ExtendedIKey) => key.meta.verificationMethod?.id === keyId || (kid && key.meta.verificationMethod?.id?.includes(kid)))
+      identifierKey = keys.find(
+        (key: _ExtendedIKey) => key.meta.verificationMethod?.id === keyId || (kid && key.meta.verificationMethod?.id?.includes(kid))
+      )
     }
     if (!identifierKey) {
-        identifierKey = keys.find((key: _ExtendedIKey) => key.meta.verificationMethod?.type === verificationMethodSection || (key.meta.purposes?.includes(verificationMethodSection)))
+      identifierKey = keys.find(
+        (key: _ExtendedIKey) =>
+          key.meta.verificationMethod?.type === verificationMethodSection || key.meta.purposes?.includes(verificationMethodSection)
+      )
     }
     if (!identifierKey) {
       identifierKey = keys[0]
