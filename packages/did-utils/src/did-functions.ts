@@ -3,7 +3,16 @@ import { UniResolver } from '@sphereon/did-uni-client'
 import { base64ToHex, ENC_KEY_ALGS, hexKeyFromPEMBasedJwk, JwkKeyUse, TKeyType, toJwk } from '@sphereon/ssi-sdk-ext.key-utils'
 import { base58ToBytes, base64ToBytes, bytesToHex, hexToBytes, multibaseKeyToBytes } from '@sphereon/ssi-sdk.core'
 import { convertPublicKeyToX25519 } from '@stablelib/ed25519'
-import { DIDDocument, DIDDocumentSection, DIDResolutionResult, IAgentContext, IDIDManager, IIdentifier, IKey, IResolver } from '@veramo/core'
+import {
+  DIDDocument,
+  DIDDocumentSection,
+  DIDResolutionResult,
+  IAgentContext,
+  IDIDManager,
+  IIdentifier,
+  IKey,
+  IResolver,
+} from '@veramo/core'
 import {
   _ExtendedIKey,
   _ExtendedVerificationMethod,
@@ -14,11 +23,99 @@ import {
   isDefined,
   mapIdentifierKeysToDoc,
 } from '@veramo/utils'
-import { DIDResolutionOptions, Resolvable, VerificationMethod, JsonWebKey } from 'did-resolver'
+import { DIDResolutionOptions, JsonWebKey, Resolvable, VerificationMethod } from 'did-resolver'
 // @ts-ignore
 import elliptic from 'elliptic'
 import * as u8a from 'uint8arrays'
-import { IDIDOptions, IIdentifierOpts } from './types'
+import {
+  CreateIdentifierOpts,
+  CreateOrGetIdentifierOpts,
+  DID_PREFIX,
+  GetOrCreateResult,
+  IdentifierAliasEnum,
+  IdentifierProviderOpts,
+  IDIDOptions,
+  IIdentifierOpts,
+  KeyManagementSystemEnum,
+  SupportedDidMethodEnum,
+} from './types'
+
+
+export const getAuthenticationKey = async (identifier: IIdentifier,
+                                           context: IAgentContext<IResolver & IDIDManager>,
+                                           offlineWhenNoDIDRegistered?: boolean,
+                                           noVerificationMethodFallback?: boolean): Promise<_ExtendedIKey> => {
+
+  let key: _ExtendedIKey | undefined = undefined
+  try {
+    key =
+      (await getFirstKeyWithRelation(identifier, context, 'authentication', false)) ??
+      (noVerificationMethodFallback ? undefined : await getFirstKeyWithRelation(identifier, context, 'verificationMethod', false))
+  } catch (e) {
+    if (e instanceof Error) {
+      if (!e.message.includes('404') || !offlineWhenNoDIDRegistered) {
+        throw e;
+      }
+    } else {
+      throw e;
+    }
+  }
+  if (!key && offlineWhenNoDIDRegistered) {
+    const offlineDID = toDidDocument(identifier)
+    key =
+      (await getFirstKeyWithRelation(identifier, context, 'authentication', false, offlineDID)) ??
+      (noVerificationMethodFallback ? undefined : await getFirstKeyWithRelation(identifier, context, 'verificationMethod', false, offlineDID))
+    if (!key) {
+      key = identifier.keys
+        .map((key) => key as _ExtendedIKey)
+        .find((key) => key.meta.verificationMethod?.type.includes('authentication') || key.meta.purposes?.includes('authentication'))
+    }
+  }
+  if (!key) {
+    throw Error(`Could not find authentication key for DID ${identifier.did}`)
+  }
+  return key
+}
+
+export const getOrCreatePrimaryIdentifier = async (context: IAgentContext<IDIDManager>, opts?: CreateOrGetIdentifierOpts): Promise<GetOrCreateResult<IIdentifier>> => {
+  const primaryIdentifier = await getPrimaryIdentifier(context, opts?.createOpts?.options)
+  if (primaryIdentifier !== undefined) {
+    return {
+      created: false,
+      result: primaryIdentifier,
+    }
+  }
+
+  if (opts?.method === SupportedDidMethodEnum.DID_KEY) {
+    const createOpts = opts?.createOpts ?? {}
+    createOpts.options = { codecName: 'EBSI', type: 'Secp256r1', ...createOpts }
+    opts.createOpts = createOpts
+  }
+  const createdIdentifier = await createIdentifier(context, opts)
+  return {
+    created: true,
+    result: createdIdentifier,
+  }
+}
+
+export const getPrimaryIdentifier = async (context: IAgentContext<IDIDManager>, opts?: IdentifierProviderOpts): Promise<IIdentifier | undefined> => {
+  const identifiers = (await context.agent.didManagerFind(opts?.method ? { provider: `${DID_PREFIX}:${opts?.method}` } : {})).filter(
+    (identifier: IIdentifier) =>
+      opts?.type === undefined || identifier.keys.some((key: IKey) => key.type === opts?.type),
+  )
+
+  return (identifiers && identifiers.length > 0) ? identifiers[0] : undefined
+}
+
+export const createIdentifier = async (context: IAgentContext<IDIDManager>, opts?: CreateIdentifierOpts): Promise<IIdentifier> => {
+  const identifier = await context.agent.didManagerCreate({
+    kms: opts?.createOpts?.kms ?? KeyManagementSystemEnum.LOCAL,
+    ...(opts?.method && { provider: `${DID_PREFIX}:${opts?.method}` }),
+    alias: opts?.createOpts?.alias ?? `${IdentifierAliasEnum.PRIMARY}-${opts?.method}-${opts?.createOpts?.options?.type}-${new Date().toUTCString()}`,
+    options: opts?.createOpts?.options,
+  })
+  return identifier
+}
 
 export const getFirstKeyWithRelation = async (
   identifier: IIdentifier,
