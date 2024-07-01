@@ -496,8 +496,13 @@ export async function getKey(
   return identifierKey
 }
 
+/**
+ * Get the real kid as used in JWTs. This is the kid in the VM or in the JWT, not the kid in the Veramo/Sphereon keystore. That was just a poorly chosen name
+ * @param key
+ * @param idOpts
+ */
 export function determineKid(key: IKey, idOpts: IIdentifierOpts): string {
-  return key.meta?.verificationMethod?.id ?? idOpts.kid ?? key.kid
+  return key.meta?.verificationMethod?.id ?? key.meta?.jwkThumbprint ?? idOpts.kid ?? key.kid
 }
 
 export async function getSupportedDIDMethods(didOpts: IDIDOptions, context: IAgentContext<IDIDManager>) {
