@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.22.0](https://github.com/Sphereon-Opensource/SSI-SDK/compare/v0.21.0...v0.22.0) (2024-07-02)
+
+### Bug Fixes
+
+- Key metadata was switched for Secp256k1 and Secp256r1 keys ([ae174aa](https://github.com/Sphereon-Opensource/SSI-SDK/commit/ae174aa833a4989f921b92f2778bbeb63d867d3b))
+
 # [0.21.0](https://github.com/Sphereon-Opensource/SSI-SDK/compare/v0.20.0...v0.21.0) (2024-06-19)
 
 ### Bug Fixes

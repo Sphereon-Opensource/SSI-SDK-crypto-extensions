@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.22.0](https://github.com/Sphereon-OpenSource/ssi-sdk/compare/v0.21.0...v0.22.0) (2024-07-02)
+
+### Bug Fixes
+
+- our exported JWK depended on another lib, which is not needed. Also was not compatible with Jose, which is heavily used ([8b20d61](https://github.com/Sphereon-OpenSource/ssi-sdk/commit/8b20d616c87a350a42d72bf98ab13311e8f248ee))
+- x5c is an array in a JWK ([58f607f](https://github.com/Sphereon-OpenSource/ssi-sdk/commit/58f607f82194afe1907e0d13909f1fbd9bff7d7f))
+
 # [0.21.0](https://github.com/Sphereon-OpenSource/ssi-sdk/compare/v0.20.0...v0.21.0) (2024-06-19)
 
 ### Bug Fixes
