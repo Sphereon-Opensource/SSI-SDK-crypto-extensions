@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.22.0](https://github.com/Sphereon-OpenSource/ssi-sdk-crypto-extensions/compare/v0.21.0...v0.22.0) (2024-07-02)
+
+### Bug Fixes
+
+- better local DID Document conversion from identifiers ([e332562](https://github.com/Sphereon-OpenSource/ssi-sdk-crypto-extensions/commit/e332562ee79a57bd7a2b57426dcd08373f91195c))
+- determine kid function can have a null verification method which was not taken into account ([d80a945](https://github.com/Sphereon-OpenSource/ssi-sdk-crypto-extensions/commit/d80a9455ae6ff2eccf9a6001e12d371bad8dd742))
+- getKey method was not looking at existing vms or purpose metadata values ([36619d6](https://github.com/Sphereon-OpenSource/ssi-sdk-crypto-extensions/commit/36619d6db64fbb3b071f71a2687d60243fe4bcd6))
+- getKey method was not working well with did#vm or #vm key ids ([b04eb3f](https://github.com/Sphereon-OpenSource/ssi-sdk-crypto-extensions/commit/b04eb3fee9406bc5c550d392fd97c9a31455b9be))
+- kid determination of a key should look for jwk thumbprint as well ([d00e984](https://github.com/Sphereon-OpenSource/ssi-sdk-crypto-extensions/commit/d00e98446601d7a2593db32529ba958629fe4005))
+
+### Features
+
+- Add service and key for EBSI DIDs ([4ec6f18](https://github.com/Sphereon-OpenSource/ssi-sdk-crypto-extensions/commit/4ec6f18e5e8f5b90de09c80eda7c44cf9f748985))
+- Add support to find keys by thumbprint, and not have to resolve to DID resolution in all cases ([d37c772](https://github.com/Sphereon-OpenSource/ssi-sdk-crypto-extensions/commit/d37c772b0eb3ce65a1e0a5f99b97acf641515d6b))
+- Added getAuthenticationKey getPrimaryIdentifier & createIdentifier to did-utils ([7360ab6](https://github.com/Sphereon-OpenSource/ssi-sdk-crypto-extensions/commit/7360ab606b6b22a9c8cd259e1994198a04a4ab3e))
+
 # [0.21.0](https://github.com/Sphereon-OpenSource/ssi-sdk-crypto-extensions/compare/v0.20.0...v0.21.0) (2024-06-19)
 
 ### Bug Fixes
