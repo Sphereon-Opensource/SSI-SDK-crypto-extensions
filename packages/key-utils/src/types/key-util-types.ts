@@ -32,10 +32,39 @@ export enum KeyType {
 export const SIG_KEY_ALGS = ['ES256', 'ES384', 'ES512', 'EdDSA', 'ES256K', 'Ed25519', 'Secp256k1', 'Secp256r1', 'Bls12381G1', 'Bls12381G2']
 export const ENC_KEY_ALGS = ['X25519', 'ECDH_ES_A256KW', 'RSA_OAEP_256']
 
-export interface JWK extends JsonWebKey {
+export interface JWK {
+  alg?: string
+  crv?: string
+  d?: string
+  dp?: string
+  dq?: string
+  e?: string
+  ext?: boolean
+  k?: string
+  key_ops?: string[]
   kid?: string
-  x5c?: string
+  kty?: string
+  n?: string
+  oth?: Array<{
+    d?: string
+    r?: string
+    t?: string
+  }>
+  p?: string
+  q?: string
+  qi?: string
+  use?: string
+  x?: string
+  y?: string
+  /** JWK "x5c" (X.509 Certificate Chain) Parameter. */
+  x5c?: string[]
+  /** JWK "x5t" (X.509 Certificate SHA-1 Thumbprint) Parameter. */
+  x5t?: string
+  /** "x5t#S256" (X.509 Certificate SHA-256 Thumbprint) Parameter. */
+  'x5t#S256'?: string
+  /** JWK "x5u" (X.509 URL) Parameter. */
   x5u?: string
+  [propName: string]: unknown
 }
 
 export type KeyVisibility = 'public' | 'private'

@@ -1,5 +1,6 @@
 // import { blsSign, generateBls12381G2KeyPair } from '@mattrglobal/bbs-signatures'
 import {
+  calculateJwkThumbprint,
   generatePrivateKeyHex,
   hexToPEM,
   jwkToPEM,
@@ -8,6 +9,7 @@ import {
   PEMToJwk,
   RSASigner,
   signAlgorithmToSchemeAndHashAlg,
+  toJwk,
   X509Opts,
 } from '@sphereon/ssi-sdk-ext.key-utils'
 
@@ -175,7 +177,8 @@ export class SphereonKeyManagementSystem extends KeyManagementSystem {
           kid: args.alias ?? publicKeyHex,
           publicKeyHex,
           meta: {
-            algorithms: ['ES256'],
+            jwkThumbprint: calculateJwkThumbprint({ jwk: toJwk(publicKeyHex, 'Secp256k1') }),
+            algorithms: ['ES256K', 'ES256K-R', 'eth_signTransaction', 'eth_signTypedData', 'eth_signMessage', 'eth_rawSign'],
           },
         }
         break
@@ -190,7 +193,8 @@ export class SphereonKeyManagementSystem extends KeyManagementSystem {
           kid: args.alias ?? publicKeyHex,
           publicKeyHex,
           meta: {
-            algorithms: ['ES256K', 'ES256K-R', 'eth_signTransaction', 'eth_signTypedData', 'eth_signMessage', 'eth_rawSign'],
+            jwkThumbprint: calculateJwkThumbprint({ jwk: toJwk(publicKeyHex, 'Secp256r1') }),
+            algorithms: ['ES256'],
           },
         }
         break
