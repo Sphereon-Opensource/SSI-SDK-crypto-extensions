@@ -1,40 +1,68 @@
-import { KeyManager as VeramoKeyManager, AbstractKeyManagementSystem, AbstractKeyStore } from '@veramo/key-manager';
-import { IKey, ManagedKeyInfo, TKeyType } from '@veramo/core';
-import { MusapKms } from './MusapKms'; // Import the newly created MusapKms class
+import { NativeModules } from 'react-native';
+import { IKey, ManagedKeyInfo, MinimalImportableKey, TKeyType } from '@veramo/core';
 
-export class SphereonKeyManager extends VeramoKeyManager {
-  private localStore: AbstractKeyStore;
-  private readonly availableKMSes: Record<string, AbstractKeyManagementSystem>;
-  private musapKms: MusapKms;
+const { MusapModule } = NativeModules;
 
-  constructor(options: { store: AbstractKeyStore; kms: Record<string, AbstractKeyManagementSystem> }) {
-    super({ store: options.store, kms: options.kms });
-    this.localStore = options.store;
-    this.availableKMSes = options.kms;
-    this.musapKms = new MusapKms();
-    const methods = this.methods;
-    methods.keyManagerVerify = this.keyManagerVerify.bind(this);
-    methods.keyManagerListKeys = this.keyManagerListKeys.bind(this);
-  }
-
-  private getAvailableKms(name: string): AbstractKeyManagementSystem {
-    const kms = this.availableKMSes[name];
-    if (!kms) {
-      throw Error(`invalid_argument: This agent has no registered KeyManagementSystem with name='${name}'`);
+export class MusapKeyManagementSystem {
+  async listKeys(): Promise<ManagedKeyInfo[]> {
+    try {
+      const keysJson = await MusapModule.listKeys();
+      const keys: ManagedKeyInfo[] = JSON.parse(keysJson);
+      return keys;
+    } catch (error) {
+      console.error("Failed to list keys:", error);
+      throw new Error(error);
     }
-    return kms;
   }
 
-  async keyManagerSign(args: { keyRef: string; data: string }): Promise<string> {
-    const keyInfo: IKey = (await this.localStore.get({ kid: args.keyRef })) as IKey;
-    const kms = this.getAvailableKms(keyInfo.kms);
-    if (keyInfo.type === KeyType.Bls12381G2) {
-      return await kms.sign({ keyRef: keyInfo, data: Uint8Array.from(Buffer.from(args.data)) });
+  async createKey(args: { type: TKeyType; meta?: any }): Promise<ManagedKeyInfo> {
+    try {
+      const keyJson = await MusapModule.createKey({ sscdType: args.type, meta: args.meta });
+      const key: ManagedKeyInfo = JSON.parse(keyJson);
+      return key;
+    } catch (error) {
+      console.error("Failed to create key:", error);
+      throw new Error(error);
     }
-    return await super.keyManagerSign(args);
   }
 
-  async keyManagerListKeys(): Promise<ManagedKeyInfo[]> {
-    return await this.musapKms.listKeys();
+  async deleteKey(kid: string): Promise<boolean> {
+    try {
+      const result = await MusapModule.deleteKey({ kid });
+      return result;
+    } catch (error) {
+      console.error("Failed to delete key:", error);
+      throw new Error(error);
+    }
+  }
+
+  async sign(args: {
+    keyRef: Pick<IKey, 'kid'>;
+    algorithm?: string;
+    data: Uint8Array;
+    [x: string]: any;
+  }): Promise<string> {
+    try {
+      const result = await MusapModule.sign({
+        keyRef: args.keyRef.kid,
+        algorithm: args.algorithm,
+        data: Array.from(args.data)
+      });
+      return result;
+    } catch (error) {
+      console.error("Failed to sign data:", error);
+      throw new Error(error);
+    }
+  }
+
+  async importKey(args: Omit<MinimalImportableKey, 'kms'> & { privateKeyPEM?: string }): Promise<ManagedKeyInfo> {
+    try {
+      const keyJson = await MusapModule.importKey({ ...args, keyData: Array.from(args.keyData) });
+      const key: ManagedKeyInfo = JSON.parse(keyJson);
+      return key;
+    } catch (error) {
+      console.error("Failed to import key:", error);
+      throw new Error(error);
+    }
   }
 }
