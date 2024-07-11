@@ -44,6 +44,9 @@
   "publishConfig": {
     "access": "public"
   },
+  "dependencies": {
+    "@veramo/core": "4.2.0"
+  },
   "devDependencies": {
     "@types/react": "^18.0.0",
     "@types/react-native": "^0.69.0",
