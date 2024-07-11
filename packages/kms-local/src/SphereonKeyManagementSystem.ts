@@ -1,4 +1,3 @@
-// import { blsSign, generateBls12381G2KeyPair } from '@mattrglobal/bbs-signatures'
 import {
   calculateJwkThumbprint,
   generatePrivateKeyHex,

@@ -1,9 +1,13 @@
 import { DIDDocument, DIDResolutionOptions } from 'did-resolver'
 import { fetch } from 'cross-fetch'
 
-export const EBSI_TEST_REGISTRY = 'https://api-test.ebsi.eu/did-registry/v4/identifiers'
-export const EBSI_PILOT_REGISTRY = 'https://api-pilot.ebsi.eu/did-registry/v4'
-export const EBSI_CONFORMANCE_REGISTRY = 'https://api-conformance.ebsi.eu/did-registry/v4/identifiers'
+export const EBSI_TEST_REGISTRY = 'https://api-test.ebsi.eu/did-registry/v5/identifiers'
+export const EBSI_PILOT_REGISTRY_V5 = 'https://api-pilot.ebsi.eu/did-registry/v5'
+export const EBSI_CONFORMANCE_REGISTRY_V5 = 'https://api-conformance.ebsi.eu/did-registry/v5/identifiers'
+
+export const EBSI_PILOT_REGISTRY_V4 = 'https://api-pilot.ebsi.eu/did-registry/v4'
+export const EBSI_CONFORMANCE_REGISTRY_V4 = 'https://api-conformance.ebsi.eu/did-registry/v4/identifiers'
+
 
 type EBSIResolutionOptions = DIDResolutionOptions & {
   noFallbackRegistries?: boolean
@@ -58,8 +62,10 @@ const determineRegistries = (options: EBSIResolutionOptions): string[] => {
     registries.add(process.env.EBSI_DEFAULT_REGISTRY)
   }
   if (options.noFallbackRegistries !== true) {
-    registries.add(EBSI_PILOT_REGISTRY)
-    registries.add(EBSI_CONFORMANCE_REGISTRY)
+    registries.add(EBSI_PILOT_REGISTRY_V5)
+    registries.add(EBSI_CONFORMANCE_REGISTRY_V5)
+    registries.add(EBSI_PILOT_REGISTRY_V4)
+    registries.add(EBSI_CONFORMANCE_REGISTRY_V4)
     registries.add(EBSI_TEST_REGISTRY)
   }
   if (registries.size === 0) {
