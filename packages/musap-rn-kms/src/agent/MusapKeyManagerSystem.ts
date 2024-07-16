@@ -1,5 +1,5 @@
 import { IKey, ManagedKeyInfo, MinimalImportableKey, TKeyType } from '@veramo/core'
-import { KeyGenReq, MusapKey, MusapModuleType, SignatureReq } from '@sphereon/musap-react-native'
+import { KeyGenReq, MusapKey, MusapModuleType, SignatureAlgorithmType, SignatureFormat, SignatureReq } from '@sphereon/musap-react-native'
 import { SscdType } from '@sphereon/musap-react-native/src/types/musap-types'
 import { KeyManagementSystem } from '@veramo/kms-local'
 import { AbstractPrivateKeyStore } from '@veramo/key-manager'
@@ -22,11 +22,13 @@ export class MusapKeyManagementSystem extends KeyManagementSystem {
     }
   }
 
-  async createKey(args: { type: TKeyType; meta?: { keyMetadata: KeyGenReq } }): Promise<ManagedKeyInfo> {
+  async createKey(args: { type: TKeyType; meta?: { keyGenReq: KeyGenReq } }): Promise<ManagedKeyInfo> {
+    if (!args.meta?.keyGenReq) {
+      throw new Error('KeyGen request is not present.')
+    }
     try {
-      const generatedKey = await this.generateKeyWrapper(args.type as SscdType, args.meta?.keyMetadata)
+      const generatedKey = await this.generateKeyWrapper(args.type as SscdType, args.meta.keyGenReq)
       if (generatedKey) {
-        // Use the generated key
         console.log('Generated key:', generatedKey)
         return this.asMusapKeyInfo(generatedKey)
       } else {
@@ -39,10 +41,10 @@ export class MusapKeyManagementSystem extends KeyManagementSystem {
     }
   }
 
-  async generateKeyWrapper(type: SscdType, keyGenRequest: any): Promise<MusapKey | undefined> {
+  async generateKeyWrapper(type: SscdType, keyGenRequest: KeyGenReq): Promise<MusapKey | undefined> {
     return new Promise((resolve) => {
       //todo: casting to SscdType
-      this.musapKeyStore.generateKey(type, keyGenRequest, (error: any, keyUri: string) => {
+      this.musapKeyStore.generateKey(type, keyGenRequest, (error: any | undefined, keyUri: string | undefined) => {
         if (this.musapKeyStore.listEnabledSscds()[0].sscdInfo.sscdName === 'SE' && error) {
           // Security Enclave handles both error and result in error
           console.log(error)
@@ -52,7 +54,6 @@ export class MusapKeyManagementSystem extends KeyManagementSystem {
           resolve(undefined)
         } else if (keyUri) {
           console.log(`Key successfully generated: ${keyUri}`)
-          // Works on Android
           const key = this.musapKeyStore.getKeyByUri(keyUri) as MusapKey
           resolve(key)
         } else {
@@ -61,6 +62,7 @@ export class MusapKeyManagementSystem extends KeyManagementSystem {
       })
     })
   }
+
   async deleteKey({ kid }: { kid: string }): Promise<boolean> {
     try {
       // TODO: Implement deleteKey logic
@@ -71,43 +73,26 @@ export class MusapKeyManagementSystem extends KeyManagementSystem {
     }
   }
 
-  async sign(args: { keyRef: Pick<IKey, 'kid'>; algorithm?: string; data: Uint8Array; callback?: Function; [x: string]: any }): Promise<string> {
-    if (!args.callback) {
-      throw new Error('Musap callback is missing.')
-    }
-    try {
-      const decoder = new TextDecoder('utf-8')
-      const value = decoder.decode(args.data)
-      const signatureReq: SignatureReq = {
-        key: args.key,
-        data: value,
-        displayText: args.displayText,
-        algorithm: args.algorithm as unknown as
-          | 'SHA256withECDSA'
-          | 'SHA384withECDSA'
-          | 'SHA512withECDSA'
-          | 'NONEwithECDSA'
-          | 'NONEwithEdDSA'
-          | 'SHA256withRSA'
-          | 'SHA384withRSA'
-          | 'SHA512withRSA'
-          | 'NONEwithRSA'
-          | 'SHA256withRSASSA-PSS'
-          | 'SHA384withRSASSA-PSS'
-          | 'SHA512withRSASSA-PSS'
-          | 'NONEwithRSASSA-PSS'
-          | undefined,
-        format: args.format,
-        attributes: args.attributes,
-        transId: args.transId,
+  async sign(args: { keyRef: Pick<IKey, 'kid'>; algorithm?: string; data: Uint8Array; [x: string]: any }): Promise<string> {
+    return new Promise(async (resolve) => {
+      if (!args.keyRef) {
+        throw new Error('key_not_found: No key ref provided')
       }
-      await this.musapKeyStore.sign(signatureReq, args.callback)
-      // TODO: Read the data from the callback
-      return '' as string
-    } catch (error) {
-      console.error('Failed to sign data:', error)
-      throw error
-    }
+      const key: MusapKey = (await this.musapKeyStore.getKeyByUri(args.keyRef as unknown as string)) as MusapKey
+      const decoder = new TextDecoder('utf-8')
+      const signatureReq: SignatureReq = {
+        key,
+        data: decoder.decode(args.data),
+        algorithm: args.algorithm as SignatureAlgorithmType,
+        displayText: args.displayText,
+        transId: args.transId,
+        format: args.format as SignatureFormat,
+        attributes: args.attributes,
+      }
+      await this.musapKeyStore.sign(signatureReq, (error: string | undefined, signed: string | undefined) => {
+        return signed
+      })
+    })
   }
 
   async importKey(args: Omit<MinimalImportableKey, 'kms'> & { privateKeyPEM?: string }): Promise<ManagedKeyInfo> {
