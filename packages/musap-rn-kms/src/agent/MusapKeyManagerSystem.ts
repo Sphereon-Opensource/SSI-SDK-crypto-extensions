@@ -28,8 +28,10 @@ export class MusapKeyManagementSystem extends KeyManagementSystem {
       if (generatedKey) {
         // Use the generated key
         console.log('Generated key:', generatedKey)
+        return this.asMusapKeyInfo(generatedKey)
       } else {
         console.log('Failed to generate key')
+        throw new Error('Failed to generate key')
       }
     } catch (error) {
       console.error('An error occurred:', error)
