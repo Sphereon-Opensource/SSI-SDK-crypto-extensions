@@ -644,12 +644,12 @@ export function toDidDocument(
       ...((opts?.use === undefined || opts?.use?.includes(JwkKeyUse.Signature)) &&
         identifier.keys && {
           assertionMethod: identifier.keys
-            .filter((key) => key?.meta?.purpose === undefined || key?.meta?.purpose === 'assertionMethod')
+            .filter((key) => key?.meta?.purpose === undefined || key?.meta?.purpose === 'assertionMethod' || key?.meta?.purpose?.includes('assertionMethod'))
             .map((key) => {
               return `${did}#${key.kid}`
             }),
           authentication: identifier.keys
-            .filter((key) => key?.meta?.purpose === undefined || key?.meta?.purpose === 'authentication')
+            .filter((key) => key?.meta?.purpose === undefined || key?.meta?.purpose === 'authentication' || key?.meta?.purpose?.includes('authentication'))
             .map((key) => {
               return `${did}#${key.kid}`
             }),
@@ -657,7 +657,7 @@ export function toDidDocument(
       ...((opts?.use === undefined || opts?.use?.includes(JwkKeyUse.Encryption)) &&
         identifier.keys && {
           keyAgreement: identifier.keys
-            .filter((key) => key.type === 'X25519' || key?.meta?.purpose === 'keyAgreement')
+            .filter((key) => key.type === 'X25519' || key?.meta?.purpose === 'keyAgreement'  || key?.meta?.purpose?.includes('keyAgreement'))
             .map((key) => {
               if (key.kid.startsWith(did) && key.kid.includes('#')) {
                 return key.kid
@@ -667,7 +667,7 @@ export function toDidDocument(
         } &&
         identifier.keys && {
           capabilityInvocation: identifier.keys
-            .filter((key) => key.type === 'X25519' || key?.meta?.purpose === 'capabilityInvocation')
+            .filter((key) => key.type === 'X25519' || key?.meta?.purpose === 'capabilityInvocation' || key?.meta?.purpose?.includes('capabilityInvocation'))
             .map((key) => {
               if (key.kid.startsWith(did) && key.kid.includes('#')) {
                 return key.kid
@@ -677,7 +677,7 @@ export function toDidDocument(
         } &&
         identifier.keys && {
           capabilityDelegation: identifier.keys
-            .filter((key) => key.type === 'X25519' || key?.meta?.purpose === 'capabilityDelegation')
+            .filter((key) => key.type === 'X25519' || key?.meta?.purpose === 'capabilityDelegation' || key?.meta?.purpose?.includes('capabilityDelegation'))
             .map((key) => {
               if (key.kid.startsWith(did) && key.kid.includes('#')) {
                 return key.kid
