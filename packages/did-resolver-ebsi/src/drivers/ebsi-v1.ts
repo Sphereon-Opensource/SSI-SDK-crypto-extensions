@@ -8,7 +8,6 @@ export const EBSI_CONFORMANCE_REGISTRY_V5 = 'https://api-conformance.ebsi.eu/did
 export const EBSI_PILOT_REGISTRY_V4 = 'https://api-pilot.ebsi.eu/did-registry/v4'
 export const EBSI_CONFORMANCE_REGISTRY_V4 = 'https://api-conformance.ebsi.eu/did-registry/v4/identifiers'
 
-
 type EBSIResolutionOptions = DIDResolutionOptions & {
   noFallbackRegistries?: boolean
   noEnvVarRegistry?: boolean

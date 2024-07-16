@@ -89,7 +89,7 @@ describe('@sphereon/did-provider-jwk', () => {
     expect(identifier.keys.length).toBe(1)
     expect(identifier.keys[0].type).toBe(Key.Ed25519)
   })
-  
+
   it('should throw error for keys Ed25519 with key usage encryption', async () => {
     const options = {
       type: Key.Ed25519,
