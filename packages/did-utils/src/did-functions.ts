@@ -623,6 +623,7 @@ export function toDidDocument(
   }
 ): DIDDocument | undefined {
   let didDocument: DIDDocument | undefined = undefined
+  // TODO: Introduce jwk thumbprints here
   if (identifier) {
     const did = identifier.did ?? opts?.did
     didDocument = {
@@ -640,20 +641,20 @@ export function toDidDocument(
         }
         return vm
       }),
-      ...((!opts?.use || opts?.use?.includes(JwkKeyUse.Signature)) &&
+      ...((opts?.use === undefined || opts?.use?.includes(JwkKeyUse.Signature)) &&
         identifier.keys && {
           assertionMethod: identifier.keys
-            .filter((key) => key?.meta?.purpose || key?.meta?.purpose === 'assertionMethod')
+            .filter((key) => key?.meta?.purpose === undefined || key?.meta?.purpose === 'assertionMethod')
             .map((key) => {
               return `${did}#${key.kid}`
             }),
           authentication: identifier.keys
-            .filter((key) => key?.meta?.purpose || key?.meta?.purpose === 'authentication')
+            .filter((key) => key?.meta?.purpose === undefined || key?.meta?.purpose === 'authentication')
             .map((key) => {
               return `${did}#${key.kid}`
             }),
         }),
-      ...((!opts?.use || opts?.use?.includes(JwkKeyUse.Encryption)) &&
+      ...((opts?.use === undefined || opts?.use?.includes(JwkKeyUse.Encryption)) &&
         identifier.keys && {
           keyAgreement: identifier.keys
             .filter((key) => key.type === 'X25519' || key?.meta?.purpose === 'keyAgreement')
