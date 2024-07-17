@@ -1,8 +1,17 @@
 import { IKey, ManagedKeyInfo, MinimalImportableKey, TKeyType } from '@veramo/core'
-import { KeyGenReq, MusapKey, MusapModuleType, SignatureAlgorithmType, SignatureFormat, SignatureReq } from '@sphereon/musap-react-native'
+import {
+  KeyAlgorithmType,
+  KeyGenReq,
+  MusapKey,
+  MusapModuleType,
+  SignatureAlgorithmType,
+  SignatureFormat,
+  SignatureReq
+} from '@sphereon/musap-react-native'
 import { SscdType } from '@sphereon/musap-react-native/src/types/musap-types'
 import { KeyManagementSystem } from '@veramo/kms-local'
 import { AbstractPrivateKeyStore } from '@veramo/key-manager'
+import { v4 as uuid } from 'uuid'
 
 export class MusapKeyManagementSystem extends KeyManagementSystem {
   private musapKeyStore: MusapModuleType
@@ -22,12 +31,26 @@ export class MusapKeyManagementSystem extends KeyManagementSystem {
     }
   }
 
-  async createKey(args: { type: TKeyType; meta?: { keyGenReq: KeyGenReq } }): Promise<ManagedKeyInfo> {
-    if (!args.meta?.keyGenReq) {
-      throw new Error('KeyGen request is not present.')
+  async createKey(args: { type: TKeyType; sscdType?: SscdType }): Promise<ManagedKeyInfo> {
+    const sscdType: SscdType = args.sscdType? args.sscdType: 'TEE'
+    const keyGenReq: KeyGenReq = {
+      keyAlgorithm: args.type as KeyAlgorithmType,
+      //todo: do we need the did here
+      did: '',
+      //todo: get the correct value
+      // SIGN | VERIFY
+      keyUsage: 'sign',
+      keyAlias: uuid.toString(),
+      attributes: [
+        {name: 'purpose', value: 'encrypt'},
+        {name: 'purpose', value: 'decrypt'},
+      ],
+      role: 'administrator',
+      //also empty interface in the reference lib
+      //stepUpPolicy: {}
     }
     try {
-      const generatedKey = await this.generateKeyWrapper(args.type as SscdType, args.meta.keyGenReq)
+      const generatedKey = await this.generateKeyWrapper(sscdType, keyGenReq)
       if (generatedKey) {
         console.log('Generated key:', generatedKey)
         return this.asMusapKeyInfo(generatedKey)

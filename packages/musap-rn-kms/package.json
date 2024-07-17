@@ -10,12 +10,13 @@
     "build:clean": "tsc --build --clean && tsc --build"
   },
   "dependencies": {
-    "@sphereon/musap-react-native": "0.0.2-unstable.65",
+    "@sphereon/musap-react-native": "0.0.2-unstable.69",
+    "@types/uuid": "^8.3.4",
     "@veramo/core": "4.2.0",
     "@veramo/key-manager": "4.2.0",
-    "@veramo/kms-local": "4.2.0"
+    "@veramo/kms-local": "4.2.0",
+    "uuid": "^10.0.0"
   },
-  "devDependencies": {},
   "files": [
     "dist/**/*",
     "src/**/*",

@@ -667,8 +667,11 @@ importers:
   packages/musap-rn-kms:
     dependencies:
       '@sphereon/musap-react-native':
-        specifier: 0.0.2-unstable.65
-        version: 0.0.2-unstable.65(@babel/core@7.24.7)(@babel/preset-env@7.24.7)
+        specifier: 0.0.2-unstable.69
+        version: 0.0.2-unstable.69(@babel/core@7.24.7)(@babel/preset-env@7.24.7)
+      '@types/uuid':
+        specifier: ^8.3.4
+        version: 8.3.4
       '@veramo/core':
         specifier: 4.2.0
         version: 4.2.0(patch_hash=c5oempznsz4br5w3tcuk2i2mau)
@@ -678,6 +681,9 @@ importers:
       '@veramo/kms-local':
         specifier: 4.2.0
         version: 4.2.0
+      uuid:
+        specifier: ^10.0.0
+        version: 10.0.0
 
 packages:
 
@@ -4595,8 +4601,8 @@ packages:
       - typescript
     dev: false
 
-  /@sphereon/musap-react-native@0.0.2-unstable.65(@babel/core@7.24.7)(@babel/preset-env@7.24.7):
-    resolution: {integrity: sha512-ZxGIRsuL2r7tef0YfKRABaK7EoPr8VIn9aFC2KZN2PmqLajFIjXNAYDqINgQDEPhJN5g5/MhlOxjxy+VtMuWTg==}
+  /@sphereon/musap-react-native@0.0.2-unstable.69(@babel/core@7.24.7)(@babel/preset-env@7.24.7):
+    resolution: {integrity: sha512-OtC9x0/kjOHMYSlI2NwRBl0ZrkeG8FoWUkuZIzdYp5CyUp7ca+2jiIw10VZzAVISISbEjpOcgyFHWJSF52hpLQ==}
     dependencies:
       react: 18.3.1
       react-native: 0.74.3(@babel/core@7.24.7)(@babel/preset-env@7.24.7)(react@18.3.1)
@@ -5318,7 +5324,6 @@ packages:
 
   /@types/uuid@8.3.4:
     resolution: {integrity: sha512-c/I8ZRb51j+pYGAu5CrFMRxqZ2ke4y2grEBO5AUjgSkSk+qT2Ea+OdWElz/OiMf5MNpn2b17kuVBwZLQJXzihw==}
-    dev: true
 
   /@types/varint@6.0.3:
     resolution: {integrity: sha512-DHukoGWdJ2aYkveZJTB2rN2lp6m7APzVsoJQ7j/qy1fQxyamJTPD5xQzCMoJ2Qtgn0mE3wWeNOpbTyBFvF+dyA==}
@@ -15528,6 +15533,11 @@ packages:
   /utils-merge@1.0.1:
     resolution: {integrity: sha512-pMZTvIkT1d+TFGvDOqodOclx0QWkkgi6Tdoa8gC8ffGAAqz9pzPTZWAybbsHHoED/ztMtkv/VoYTYyShUn81hA==}
     engines: {node: '>= 0.4.0'}
+
+  /uuid@10.0.0:
+    resolution: {integrity: sha512-8XkAphELsDnEGrDxUOHB3RGvXz6TeuYSGEZBOjtTtPm2lwhGBjLgOzLHB63IUWfBpNucQjND6d3AOudO+H3RWQ==}
+    hasBin: true
+    dev: false
 
   /uuid@8.3.2:
     resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
