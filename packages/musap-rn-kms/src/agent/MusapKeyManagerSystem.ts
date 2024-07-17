@@ -65,11 +65,11 @@ export class MusapKeyManagementSystem extends KeyManagementSystem {
 
   async deleteKey({ kid }: { kid: string }): Promise<boolean> {
     try {
-      // TODO: Implement deleteKey logic
+      await this.musapKeyStore.removeKey(kid)
       return true
     } catch (error) {
       console.error('Failed to delete key:', error)
-      throw error
+      return false
     }
   }
 
