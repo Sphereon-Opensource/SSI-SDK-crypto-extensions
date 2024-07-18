@@ -15,9 +15,8 @@
     "@veramo/core": "4.2.0",
     "@veramo/key-manager": "4.2.0",
     "@veramo/kms-local": "4.2.0",
-    "react-native-crypto": "2.2.0",
-    "uuid": "^10.0.0",
-    "react-native-get-random-values": "1.11.0"
+    "uint8arrays": "5.1.0",
+    "uuid": "^10.0.0"
   },
   "files": [
     "dist/**/*",
