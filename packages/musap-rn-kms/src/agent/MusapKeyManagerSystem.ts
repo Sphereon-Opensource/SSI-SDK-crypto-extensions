@@ -13,7 +13,6 @@ import { KeyManagementSystem } from '@veramo/kms-local';
 import { AbstractPrivateKeyStore } from '@veramo/key-manager';
 import { v4 as uuid } from 'uuid';
 
-// Utility function to convert Uint8Array to string
 function uint8ArrayToString(data: Uint8Array): string {
   return String.fromCharCode.apply(null, Array.from(data));
 }
