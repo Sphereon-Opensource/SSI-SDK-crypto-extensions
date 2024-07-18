@@ -12,12 +12,7 @@ import { SscdType } from '@sphereon/musap-react-native/src/types/musap-types';
 import { KeyManagementSystem } from '@veramo/kms-local';
 import { AbstractPrivateKeyStore } from '@veramo/key-manager';
 import { v4 as uuid } from 'uuid';
-import { concat as concatArrays, fromString, toString } from 'uint8arrays'
-
-const u8a = { toString, fromString, concatArrays }
-function uint8ArrayToString(data: Uint8Array): string {
-  return String.fromCharCode.apply(null, Array.from(data));
-}
+import { TextDecoder } from 'text-encoding';
 
 export class MusapKeyManagementSystem extends KeyManagementSystem {
   private musapKeyStore: MusapModuleType;
@@ -102,13 +97,13 @@ export class MusapKeyManagementSystem extends KeyManagementSystem {
         return;
       }
 
-      let data = '';
+      let data = ''
       try {
-        data = u8a.toString(args.data, 'base64url')
-        data = uint8ArrayToString(args.data);
+        data = new TextDecoder().decode(args.data as Uint8Array)
       } catch (e) {
-        console.log('error on converting the Uint8Array data', e);
+        console.log('error on decoding the Uint8Array data', e);
       }
+
       const key: MusapKey = (await this.musapKeyStore.getKeyByUri(args.keyRef.kid)) as MusapKey;
       const signatureReq: SignatureReq = {
         key,

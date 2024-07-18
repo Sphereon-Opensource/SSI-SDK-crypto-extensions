@@ -15,8 +15,11 @@
     "@veramo/core": "4.2.0",
     "@veramo/key-manager": "4.2.0",
     "@veramo/kms-local": "4.2.0",
-    "uint8arrays": "5.1.0",
+    "text-encoding": "^0.7.0",
     "uuid": "^10.0.0"
+  },
+  "devDependencies": {
+    "@types/text-encoding": "0.0.39"
   },
   "files": [
     "dist/**/*",
