@@ -11,6 +11,7 @@ import {
 import { SscdType } from '@sphereon/musap-react-native/src/types/musap-types';
 import { KeyManagementSystem } from '@veramo/kms-local';
 import { AbstractPrivateKeyStore } from '@veramo/key-manager';
+import 'react-native-get-random-values'
 import { v4 as uuid } from 'uuid';
 import { TextDecoder } from 'text-encoding';
 
