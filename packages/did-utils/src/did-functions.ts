@@ -162,7 +162,7 @@ export const getOrCreatePrimaryIdentifier = async (
 }
 
 export const getPrimaryIdentifier = async (context: IAgentContext<IDIDManager>, opts?: IdentifierProviderOpts): Promise<IIdentifier | undefined> => {
-    const identifiers = (await context.agent.didManagerFind(opts?.method ? {provider: `${DID_PREFIX}:${opts?.method}`} : {})).filter(
+    const identifiers = (await context.agent.didManagerFind(opts?.method ? {provider: `${DID_PREFIX}${opts?.method}`} : {})).filter(
         (identifier: IIdentifier) => opts?.type === undefined || identifier.keys.some((key: IKey) => key.type === opts?.type)
     )
 
@@ -172,7 +172,7 @@ export const getPrimaryIdentifier = async (context: IAgentContext<IDIDManager>, 
 export const createIdentifier = async (context: IAgentContext<IDIDManager>, opts?: CreateIdentifierOpts): Promise<IIdentifier> => {
     const identifier = await context.agent.didManagerCreate({
         kms: opts?.createOpts?.kms ?? KeyManagementSystemEnum.LOCAL,
-        ...(opts?.method && {provider: `${DID_PREFIX}:${opts?.method}`}),
+        ...(opts?.method && {provider: `${DID_PREFIX}${opts?.method}`}),
         alias: opts?.createOpts?.alias ?? `${IdentifierAliasEnum.PRIMARY}-${opts?.method}-${opts?.createOpts?.options?.type}-${new Date().toUTCString()}`,
         options: opts?.createOpts?.options,
     })
