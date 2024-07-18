@@ -141,7 +141,7 @@ export const getOrCreatePrimaryIdentifier = async (
     context: IAgentContext<IDIDManager>,
     opts?: CreateOrGetIdentifierOpts
 ): Promise<GetOrCreateResult<IIdentifier>> => {
-    const primaryIdentifier = await getPrimaryIdentifier(context, opts?.createOpts?.options)
+    const primaryIdentifier = await getPrimaryIdentifier(context, {...opts?.createOpts?.options, ...(opts?.method && {method: opts.method})})
     if (primaryIdentifier !== undefined) {
         return {
             created: false,
