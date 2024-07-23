@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.23.0](https://github.com/Sphereon-OpenSource/ssi-sdk/compare/v0.22.0...v0.23.0) (2024-07-23)
+
+**Note:** Version bump only for package @sphereon/ssi-sdk-ext.did-provider-lto
+
 # [0.22.0](https://github.com/Sphereon-OpenSource/ssi-sdk/compare/v0.21.0...v0.22.0) (2024-07-02)
 
 **Note:** Version bump only for package @sphereon/ssi-sdk-ext.did-provider-lto

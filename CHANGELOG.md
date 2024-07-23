@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.23.0](https://github.com/Sphereon-Opensource/veramo-BBS/compare/v0.22.0...v0.23.0) (2024-07-23)
+
+### Bug Fixes
+
+- Did web keys and services options/args were not taken into account ([fb37ba0](https://github.com/Sphereon-Opensource/veramo-BBS/commit/fb37ba070612a5a868916a53b5cbd37d0e7e92dd))
+- did web resolution from identifier was not taking keys into account that had no purpose set ([8447426](https://github.com/Sphereon-Opensource/veramo-BBS/commit/8447426c7be54f81398c77f3a29c029c7250380d))
+- did web resolution from identifier was not taking keys into account that had no purpose set ([980075b](https://github.com/Sphereon-Opensource/veramo-BBS/commit/980075b6ee8702b0a2fa31779aa21420827dda1d))
+- get or create primary identifier was incorrectly constructing the identifier provider from the DID method ([d89542e](https://github.com/Sphereon-Opensource/veramo-BBS/commit/d89542e18e3a48a5ad048000330d97ecf8d861e5))
+- get or create primary identifier was not searching for the correct DID methods ([8b1aad7](https://github.com/Sphereon-Opensource/veramo-BBS/commit/8b1aad7d0f3de534266972023b23c8f3881fd106))
+
+### Features
+
+- generate key when private keys is not provided ([090b8fa](https://github.com/Sphereon-Opensource/veramo-BBS/commit/090b8fa20ee4aa2da4ca68a3b1bbe9bd00925cc0))
+- Make key/vm from identifier/did functions more future proof and add option to search for controller keys and key types ([f691789](https://github.com/Sphereon-Opensource/veramo-BBS/commit/f6917899680c1f39a98a0afbf181e821edadd4a3))
+
 # [0.22.0](https://github.com/Sphereon-Opensource/veramo-BBS/compare/v0.21.0...v0.22.0) (2024-07-02)
 
 ### Bug Fixes
