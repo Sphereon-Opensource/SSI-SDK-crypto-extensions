@@ -29,11 +29,9 @@ export class WebDIDProvider extends AbstractIdentifierProvider {
       // Let's generate a key as no import keys or types are provided
       opts.keys = [{ type: 'Secp256r1', isController: true }]
     }
-    const keyOpts = typeof opts.keys === 'object' ? [opts.keys as IKeyOpts] : opts.keys
+    const keyOpts = Array.isArray(opts.keys) ? opts.keys : [opts.keys as IKeyOpts]
     const keys = await Promise.all(
-      keyOpts.map((keyOpt) =>
-        importProvidedOrGeneratedKey({ kms: kms ?? this.defaultKms, options: Array.isArray(keyOpt) ? keyOpt[0] : keyOpt }, context)
-      )
+      keyOpts.map((keyOpt: IKeyOpts) => importProvidedOrGeneratedKey({ kms: kms ?? this.defaultKms, options: keyOpt }, context))
     )
 
     const controllerIdx = keyOpts.findIndex((opt) => opt.isController)
@@ -42,9 +40,9 @@ export class WebDIDProvider extends AbstractIdentifierProvider {
       did: await asDidWeb(alias),
       controllerKeyId,
       keys,
-      services: args.services ?? [],
+      services: opts.services ?? [],
     }
-    debug('Created', identifier.did)
+    debug('Created', identifier)
     return identifier
   }
 

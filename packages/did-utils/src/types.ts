@@ -43,6 +43,7 @@ export interface IIdentifierOpts {
 export type IdentifierProviderOpts = {
   type?: TKeyType
   use?: string
+  method?: SupportedDidMethodEnum
   [x: string]: any
 }
 

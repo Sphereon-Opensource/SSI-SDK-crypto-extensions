@@ -68,17 +68,15 @@ export async function importProvidedOrGeneratedKey(
     throw new Error(`${type} keys are not valid for encryption`)
   }
 
-  let privateKeyHex: string
+  let privateKeyHex: string | undefined = undefined
   if (key) {
     privateKeyHex = key.privateKeyHex ?? key.meta?.x509?.privateKeyHex
     if ((!privateKeyHex || privateKeyHex.trim() === '') && key?.meta?.x509?.privateKeyPEM) {
       // If we do not have a privateKeyHex but do have a PEM
       privateKeyHex = privateKeyHexFromPEM(key.meta.x509.privateKeyPEM)
     }
-    if (!privateKeyHex && !key.meta?.x509?.privateKeyPEM) {
-      throw new Error(`We need to have a private key in Hex or PEM when importing a key`)
-    }
-  } else {
+  }
+  if (!privateKeyHex) {
     privateKeyHex = await generatePrivateKeyHex(type)
   }
 
@@ -86,7 +84,7 @@ export async function importProvidedOrGeneratedKey(
     ...key,
     kms: args.kms,
     type,
-    privateKeyHex,
+    privateKeyHex: privateKeyHex!,
   })
 }
 

@@ -3,16 +3,7 @@ import { UniResolver } from '@sphereon/did-uni-client'
 import { base64ToHex, ENC_KEY_ALGS, hexKeyFromPEMBasedJwk, JwkKeyUse, TKeyType, toJwk } from '@sphereon/ssi-sdk-ext.key-utils'
 import { base58ToBytes, base64ToBytes, bytesToHex, hexToBytes, multibaseKeyToBytes } from '@sphereon/ssi-sdk.core'
 import { convertPublicKeyToX25519 } from '@stablelib/ed25519'
-import {
-  DIDDocument,
-  DIDDocumentSection,
-  DIDResolutionResult,
-  IAgentContext,
-  IDIDManager,
-  IIdentifier,
-  IKey,
-  IResolver,
-} from '@veramo/core'
+import { DIDDocument, DIDDocumentSection, DIDResolutionResult, IAgentContext, IDIDManager, IIdentifier, IKey, IResolver } from '@veramo/core'
 import {
   _ExtendedIKey,
   _ExtendedVerificationMethod,
@@ -40,34 +31,87 @@ import {
   SupportedDidMethodEnum,
 } from './types'
 
-
-export const getAuthenticationKey = async (identifier: IIdentifier,
-                                           context: IAgentContext<IResolver & IDIDManager>,
-                                           offlineWhenNoDIDRegistered?: boolean,
-                                           noVerificationMethodFallback?: boolean): Promise<_ExtendedIKey> => {
-
+export const getAuthenticationKey = async (
+  {
+    identifier,
+    offlineWhenNoDIDRegistered,
+    noVerificationMethodFallback,
+    keyType,
+    controllerKey,
+  }: {
+    identifier: IIdentifier
+    keyType?: TKeyType
+    offlineWhenNoDIDRegistered?: boolean
+    noVerificationMethodFallback?: boolean
+    controllerKey?: boolean
+  },
+  context: IAgentContext<IResolver & IDIDManager>
+): Promise<_ExtendedIKey> => {
   let key: _ExtendedIKey | undefined = undefined
   try {
     key =
-      (await getFirstKeyWithRelation(identifier, context, 'authentication', false)) ??
-      (noVerificationMethodFallback ? undefined : await getFirstKeyWithRelation(identifier, context, 'verificationMethod', false))
+      (await getFirstKeyWithRelation(
+        {
+          identifier,
+          vmRelationship: 'authentication',
+          errorOnNotFound: false,
+          keyType,
+          controllerKey,
+        },
+        context
+      )) ??
+      (noVerificationMethodFallback
+        ? undefined
+        : await getFirstKeyWithRelation(
+            {
+              identifier,
+              vmRelationship: 'verificationMethod',
+              errorOnNotFound: false,
+              keyType,
+              controllerKey,
+            },
+            context
+          ))
   } catch (e) {
     if (e instanceof Error) {
       if (!e.message.includes('404') || !offlineWhenNoDIDRegistered) {
-        throw e;
+        throw e
       }
     } else {
-      throw e;
+      throw e
     }
   }
   if (!key && offlineWhenNoDIDRegistered) {
     const offlineDID = toDidDocument(identifier)
     key =
-      (await getFirstKeyWithRelation(identifier, context, 'authentication', false, offlineDID)) ??
-      (noVerificationMethodFallback ? undefined : await getFirstKeyWithRelation(identifier, context, 'verificationMethod', false, offlineDID))
+      (await getFirstKeyWithRelation(
+        {
+          identifier,
+          vmRelationship: 'authentication',
+          errorOnNotFound: false,
+          didDocument: offlineDID,
+          keyType,
+          controllerKey,
+        },
+        context
+      )) ??
+      (noVerificationMethodFallback
+        ? undefined
+        : await getFirstKeyWithRelation(
+            {
+              identifier,
+              vmRelationship: 'verificationMethod',
+              errorOnNotFound: false,
+              didDocument: offlineDID,
+              keyType,
+              controllerKey,
+            },
+            context
+          ))
     if (!key) {
       key = identifier.keys
         .map((key) => key as _ExtendedIKey)
+        .filter((key) => keyType === undefined || key.type === keyType || (controllerKey && key.kid === identifier.controllerKeyId))
         .find((key) => key.meta.verificationMethod?.type.includes('authentication') || key.meta.purposes?.includes('authentication'))
     }
   }
@@ -77,8 +121,11 @@ export const getAuthenticationKey = async (identifier: IIdentifier,
   return key
 }
 
-export const getOrCreatePrimaryIdentifier = async (context: IAgentContext<IDIDManager>, opts?: CreateOrGetIdentifierOpts): Promise<GetOrCreateResult<IIdentifier>> => {
-  const primaryIdentifier = await getPrimaryIdentifier(context, opts?.createOpts?.options)
+export const getOrCreatePrimaryIdentifier = async (
+  context: IAgentContext<IDIDManager>,
+  opts?: CreateOrGetIdentifierOpts
+): Promise<GetOrCreateResult<IIdentifier>> => {
+  const primaryIdentifier = await getPrimaryIdentifier(context, { ...opts?.createOpts?.options, ...(opts?.method && { method: opts.method }) })
   if (primaryIdentifier !== undefined) {
     return {
       created: false,
@@ -99,18 +146,17 @@ export const getOrCreatePrimaryIdentifier = async (context: IAgentContext<IDIDMa
 }
 
 export const getPrimaryIdentifier = async (context: IAgentContext<IDIDManager>, opts?: IdentifierProviderOpts): Promise<IIdentifier | undefined> => {
-  const identifiers = (await context.agent.didManagerFind(opts?.method ? { provider: `${DID_PREFIX}:${opts?.method}` } : {})).filter(
-    (identifier: IIdentifier) =>
-      opts?.type === undefined || identifier.keys.some((key: IKey) => key.type === opts?.type),
+  const identifiers = (await context.agent.didManagerFind(opts?.method ? { provider: `${DID_PREFIX}${opts?.method}` } : {})).filter(
+    (identifier: IIdentifier) => opts?.type === undefined || identifier.keys.some((key: IKey) => key.type === opts?.type)
   )
 
-  return (identifiers && identifiers.length > 0) ? identifiers[0] : undefined
+  return identifiers && identifiers.length > 0 ? identifiers[0] : undefined
 }
 
 export const createIdentifier = async (context: IAgentContext<IDIDManager>, opts?: CreateIdentifierOpts): Promise<IIdentifier> => {
   const identifier = await context.agent.didManagerCreate({
     kms: opts?.createOpts?.kms ?? KeyManagementSystemEnum.LOCAL,
-    ...(opts?.method && { provider: `${DID_PREFIX}:${opts?.method}` }),
+    ...(opts?.method && { provider: `${DID_PREFIX}${opts?.method}` }),
     alias: opts?.createOpts?.alias ?? `${IdentifierAliasEnum.PRIMARY}-${opts?.method}-${opts?.createOpts?.options?.type}-${new Date().toUTCString()}`,
     options: opts?.createOpts?.options,
   })
@@ -118,19 +164,37 @@ export const createIdentifier = async (context: IAgentContext<IDIDManager>, opts
 }
 
 export const getFirstKeyWithRelation = async (
-  identifier: IIdentifier,
-  context: IAgentContext<IResolver & IDIDManager>,
-  vmRelationship?: DIDDocumentSection,
-  errorOnNotFound?: boolean,
-  didDocument?: DIDDocument
+  {
+    identifier,
+    vmRelationship = 'verificationMethod',
+    keyType,
+    errorOnNotFound = false,
+    didDocument,
+    controllerKey,
+  }: {
+    identifier: IIdentifier
+    controllerKey?: boolean
+    vmRelationship?: DIDDocumentSection
+    keyType?: TKeyType
+    errorOnNotFound?: boolean
+    didDocument?: DIDDocument
+  },
+  context: IAgentContext<IResolver & IDIDManager>
 ): Promise<_ExtendedIKey | undefined> => {
   const section = vmRelationship ?? 'verificationMethod' // search all VMs in case no relationship is provided
   const matchedKeys = await mapIdentifierKeysToDocWithJwkSupport(identifier, section, context, didDocument)
   if (Array.isArray(matchedKeys) && matchedKeys.length > 0) {
-    return matchedKeys[0]
+    const result = matchedKeys.find(
+      (key) => keyType === undefined || key.type === keyType || (controllerKey && key.kid === identifier.controllerKeyId)
+    )
+    if (result) {
+      return result
+    }
   }
-  if (errorOnNotFound === true) {
-    throw new Error(`Could not find key with relationship ${section} in DID document for ${identifier.did}`)
+  if (errorOnNotFound) {
+    throw new Error(
+      `Could not find key with relationship ${section} in DID document for ${identifier.did}${keyType ? ' and key type: ' + keyType : ''}`
+    )
   }
   return undefined
 }
@@ -368,8 +432,8 @@ export async function mapIdentifierKeysToDocWithJwkSupport(
   const extendedKeys: _ExtendedIKey[] = documentKeys
     .map((verificationMethod) => {
       /*if (verificationMethod.type !== 'JsonWebKey2020') {
-                                      return null
-                                    }*/
+                                                        return null
+                                                      }*/
       const localKey = localKeys.find(
         (localKey) =>
           localKey.publicKeyHex === verificationMethod.publicKeyHex ||
@@ -610,7 +674,7 @@ export class AgentDIDResolver implements Resolvable {
  *
  * We try to do our best, to map keys onto relevant verification methods and relationships, but we simply lack the context
  * of the actual DID method here. Do not relly on this method for DID resolution. It is only handy for offline use cases
- * when no DID Document is cached.
+ * when no DID Document is cached. For DID:WEB it does provide an accurate representation!
  *
  * @param identifier
  * @param opts
@@ -623,6 +687,7 @@ export function toDidDocument(
   }
 ): DIDDocument | undefined {
   let didDocument: DIDDocument | undefined = undefined
+  // TODO: Introduce jwk thumbprints here
   if (identifier) {
     const did = identifier.did ?? opts?.did
     didDocument = {
@@ -640,43 +705,63 @@ export function toDidDocument(
         }
         return vm
       }),
-      ...((!opts?.use || opts?.use?.includes(JwkKeyUse.Signature)) &&
+      ...((opts?.use === undefined || opts?.use?.includes(JwkKeyUse.Signature)) &&
         identifier.keys && {
           assertionMethod: identifier.keys
-            .filter((key) => key?.meta?.purpose || key?.meta?.purpose === 'assertionMethod')
+            .filter(
+              (key) =>
+                key?.meta?.purpose === undefined || key?.meta?.purpose === 'assertionMethod' || key?.meta?.purposes?.includes('assertionMethod')
+            )
             .map((key) => {
-              return `${did}#${key.kid}`
-            }),
-          authentication: identifier.keys
-            .filter((key) => key?.meta?.purpose || key?.meta?.purpose === 'authentication')
-            .map((key) => {
+              if (key.kid.startsWith(did) && key.kid.includes('#')) {
+                return key.kid
+              }
               return `${did}#${key.kid}`
             }),
         }),
-      ...((!opts?.use || opts?.use?.includes(JwkKeyUse.Encryption)) &&
+      ...((opts?.use === undefined || opts?.use?.includes(JwkKeyUse.Signature)) &&
+        identifier.keys && {
+          authentication: identifier.keys
+            .filter(
+              (key) => key?.meta?.purpose === undefined || key?.meta?.purpose === 'authentication' || key?.meta?.purposes?.includes('authentication')
+            )
+            .map((key) => {
+              if (key.kid.startsWith(did) && key.kid.includes('#')) {
+                return key.kid
+              }
+              return `${did}#${key.kid}`
+            }),
+        }),
+      ...((opts?.use === undefined || opts?.use?.includes(JwkKeyUse.Encryption)) &&
         identifier.keys && {
           keyAgreement: identifier.keys
-            .filter((key) => key.type === 'X25519' || key?.meta?.purpose === 'keyAgreement')
+            .filter((key) => key.type === 'X25519' || key?.meta?.purpose === 'keyAgreement' || key?.meta?.purposes?.includes('keyAgreement'))
             .map((key) => {
               if (key.kid.startsWith(did) && key.kid.includes('#')) {
                 return key.kid
               }
               return `${did}#${key.kid}`
             }),
-        } &&
+        }),
+      ...((opts?.use === undefined || opts?.use?.includes(JwkKeyUse.Encryption)) &&
         identifier.keys && {
           capabilityInvocation: identifier.keys
-            .filter((key) => key.type === 'X25519' || key?.meta?.purpose === 'capabilityInvocation')
+            .filter(
+              (key) => key.type === 'X25519' || key?.meta?.purpose === 'capabilityInvocation' || key?.meta?.purposes?.includes('capabilityInvocation')
+            )
             .map((key) => {
               if (key.kid.startsWith(did) && key.kid.includes('#')) {
                 return key.kid
               }
               return `${did}#${key.kid}`
             }),
-        } &&
+        }),
+      ...((opts?.use === undefined || opts?.use?.includes(JwkKeyUse.Encryption)) &&
         identifier.keys && {
           capabilityDelegation: identifier.keys
-            .filter((key) => key.type === 'X25519' || key?.meta?.purpose === 'capabilityDelegation')
+            .filter(
+              (key) => key.type === 'X25519' || key?.meta?.purpose === 'capabilityDelegation' || key?.meta?.purposes?.includes('capabilityDelegation')
+            )
             .map((key) => {
               if (key.kid.startsWith(did) && key.kid.includes('#')) {
                 return key.kid
