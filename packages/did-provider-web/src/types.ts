@@ -59,7 +59,7 @@ export interface IImportX509DIDArg {
 export interface ICreateIdentifierArgs {
   kms?: string
   alias: string
-  options?: { keys?: IKeyOpts | IKeyOpts[], services?: IService[] }
+  options?: { keys?: IKeyOpts | IKeyOpts[]; services?: IService[] }
 }
 
 export type IRequiredContext = IAgentContext<IKeyManager & IDIDManager>

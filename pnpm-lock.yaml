@@ -26,8 +26,8 @@ overrides:
   '@veramo/remote-server': 4.2.0
   '@veramo/selective-disclosure': 4.2.0
   '@veramo/url-handler': 4.2.0
-  '@sphereon/ssi-sdk.core': 0.25.0
-  '@sphereon/ssi-types': 0.25.0
+  '@sphereon/ssi-sdk.core': 0.27.0
+  '@sphereon/ssi-types': 0.27.0
   '@digitalcredentials/ed25519-verification-key-2020': 3.2.2
   '*>@digitalcredentials/ed25519-verification-key-2020': 3.2.2
   did-jwt: 6.11.6
@@ -163,8 +163,8 @@ importers:
         specifier: workspace:*
         version: link:../key-utils
       '@sphereon/ssi-types':
-        specifier: 0.25.0
-        version: 0.25.0
+        specifier: 0.27.0
+        version: 0.27.0
       '@stablelib/ed25519':
         specifier: ^1.0.3
         version: 1.0.3
@@ -252,8 +252,8 @@ importers:
         specifier: workspace:*
         version: link:../kms-local
       '@sphereon/ssi-sdk.dev':
-        specifier: 0.25.0
-        version: 0.25.0(@types/node@18.19.37)
+        specifier: 0.27.0
+        version: 0.27.0(@types/node@18.19.37)
       '@veramo/did-resolver':
         specifier: 4.2.0
         version: 4.2.0
@@ -382,8 +382,8 @@ importers:
   packages/did-resolver-jwk:
     dependencies:
       '@sphereon/ssi-types':
-        specifier: 0.25.0
-        version: 0.25.0
+        specifier: 0.27.0
+        version: 0.27.0
       base64url:
         specifier: ^3.0.1
         version: 3.0.1
@@ -468,8 +468,8 @@ importers:
         specifier: workspace:*
         version: link:../key-utils
       '@sphereon/ssi-sdk.core':
-        specifier: 0.25.0
-        version: 0.25.0
+        specifier: 0.27.0
+        version: 0.27.0
       '@stablelib/ed25519':
         specifier: ^1.0.3
         version: 1.0.3
@@ -511,8 +511,8 @@ importers:
         specifier: workspace:*
         version: link:../key-utils
       '@sphereon/ssi-sdk.dev':
-        specifier: 0.25.0
-        version: 0.25.0(@types/node@18.19.37)
+        specifier: 0.27.0
+        version: 0.27.0(@types/node@18.19.37)
 
   packages/key-utils:
     dependencies:
@@ -606,8 +606,8 @@ importers:
         specifier: 3.3.2-unstable.0
         version: 3.3.2-unstable.0
       '@sphereon/ssi-sdk.dev':
-        specifier: 0.25.0
-        version: 0.25.0(@types/node@18.19.37)
+        specifier: 0.27.0
+        version: 0.27.0(@types/node@18.19.37)
       '@types/elliptic':
         specifier: 6.4.14
         version: 6.4.14
@@ -646,8 +646,8 @@ importers:
         version: 0.3.12(pg@8.12.0)(sqlite3@5.1.7)(ts-node@10.9.2)
     devDependencies:
       '@sphereon/ssi-sdk.dev':
-        specifier: 0.25.0
-        version: 0.25.0(@types/node@18.19.37)
+        specifier: 0.27.0
+        version: 0.27.0(@types/node@18.19.37)
       '@types/bip39':
         specifier: ^3.0.0
         version: 3.0.0
@@ -4056,10 +4056,10 @@ packages:
       - typescript
     dev: false
 
-  /@sphereon/ssi-sdk.core@0.25.0:
-    resolution: {integrity: sha512-Hh66CaTz5XVpMm8NNzBlryC+oEDfIIICxXBC/aTEGIVHpXbUpo4l+iF5rXwJxec4F7i+hvQl2N2TjNP7yU0nxg==}
+  /@sphereon/ssi-sdk.core@0.27.0:
+    resolution: {integrity: sha512-1VdBbdHSSdab8RJLrFiLUIcVjKF/X+HLJWdVZt1Viq77aK/p453bwBfyYXDTRJ9NuwH+sJHzklE2im+mHfYzgA==}
     dependencies:
-      '@sphereon/ssi-types': 0.25.0
+      '@sphereon/ssi-types': 0.27.0
       '@veramo/core': 4.2.0(patch_hash=c5oempznsz4br5w3tcuk2i2mau)
       cross-fetch: 3.1.8
       debug: 4.3.5
@@ -4069,28 +4069,6 @@ packages:
       - encoding
       - supports-color
     dev: false
-
-  /@sphereon/ssi-sdk.dev@0.25.0(@types/node@18.19.37):
-    resolution: {integrity: sha512-kvXgetNC/6SMjwMly8WhhzINRqUxoOyn7szafOzIUE2jldVjM/yFxFjaD4iWctDZ6xCxc6FrAphns5tPOE9ohQ==}
-    hasBin: true
-    dependencies:
-      '@microsoft/api-extractor': 7.47.0(@types/node@18.19.37)
-      '@microsoft/api-extractor-model': 7.29.2(@types/node@18.19.37)
-      commander: 10.0.1
-      copyfiles: 2.4.1
-      inquirer: 9.2.23
-      inquirer-autocomplete-prompt: 3.0.1(inquirer@9.2.23)
-      json-schema: 0.4.0
-      json5: 2.2.3
-      jsonpointer: 5.0.1
-      oas-resolver: 2.5.6
-      openapi-types: 12.1.3
-      ts-json-schema-generator: 1.5.1
-      url-parse: 1.5.10
-      yaml: 2.4.5
-    transitivePeerDependencies:
-      - '@types/node'
-    dev: true
 
   /@sphereon/ssi-sdk.dev@0.26.0(@types/node@18.19.37):
     resolution: {integrity: sha512-IfamneTFraviXmL1BeY9zh7J+17Cp7Vc7IrxsK6vv4qOmTI18p1Fro3BsHN0h8bhB9Jdc+9i+uUUxWCWn1dbWQ==}
@@ -4114,8 +4092,30 @@ packages:
       - '@types/node'
     dev: true
 
-  /@sphereon/ssi-types@0.25.0:
-    resolution: {integrity: sha512-MecJaXkKtrFzjRDgY+VgrJITALmTAeFW9L3VPikwSynwAfGZTtzquR7MMntCp103Oa4+zkjaE8sUxWHFCusuww==}
+  /@sphereon/ssi-sdk.dev@0.27.0(@types/node@18.19.37):
+    resolution: {integrity: sha512-nmbGBmXCOoI+wL98F6Ls0wUXQRtEh2qiKnTR1BpIobupFL8iJETvHFzIbajOEJtFW0CYxw38L6rH8wUADkw6Wg==}
+    hasBin: true
+    dependencies:
+      '@microsoft/api-extractor': 7.47.0(@types/node@18.19.37)
+      '@microsoft/api-extractor-model': 7.29.2(@types/node@18.19.37)
+      commander: 10.0.1
+      copyfiles: 2.4.1
+      inquirer: 9.2.23
+      inquirer-autocomplete-prompt: 3.0.1(inquirer@9.2.23)
+      json-schema: 0.4.0
+      json5: 2.2.3
+      jsonpointer: 5.0.1
+      oas-resolver: 2.5.6
+      openapi-types: 12.1.3
+      ts-json-schema-generator: 1.5.1
+      url-parse: 1.5.10
+      yaml: 2.4.5
+    transitivePeerDependencies:
+      - '@types/node'
+    dev: true
+
+  /@sphereon/ssi-types@0.27.0:
+    resolution: {integrity: sha512-u9x85H0Dr53ArqdtMdNiEDZcR1sr6g6yaiKo+nYVPnPpNfjaL1RvAEcRfigZoK6zP50bQEkCjrxVplxQNF8Mvg==}
     dependencies:
       '@sd-jwt/decode': 0.6.1
       debug: 4.3.5

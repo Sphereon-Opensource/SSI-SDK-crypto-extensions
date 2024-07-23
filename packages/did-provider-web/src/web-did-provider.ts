@@ -31,9 +31,7 @@ export class WebDIDProvider extends AbstractIdentifierProvider {
     }
     const keyOpts = Array.isArray(opts.keys) ? opts.keys : [opts.keys as IKeyOpts]
     const keys = await Promise.all(
-      keyOpts.map((keyOpt: IKeyOpts) =>
-        importProvidedOrGeneratedKey({ kms: kms ?? this.defaultKms, options: keyOpt }, context)
-      )
+      keyOpts.map((keyOpt: IKeyOpts) => importProvidedOrGeneratedKey({ kms: kms ?? this.defaultKms, options: keyOpt }, context))
     )
 
     const controllerIdx = keyOpts.findIndex((opt) => opt.isController)
