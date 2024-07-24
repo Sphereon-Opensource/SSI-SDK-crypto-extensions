@@ -47,10 +47,11 @@ export class MusapKeyManagementSystem extends KeyManagementSystem {
       role: 'administrator'
     };
     try {
-      const generatedKey = await this.generateKeyWrapper(sscdType, keyGenReq);
-      if (generatedKey) {
-        console.log('Generated key:', generatedKey);
-        return this.asMusapKeyInfo(generatedKey);
+      const generatedKeyUri = await this.musapKeyStore.generateKey(sscdType, keyGenReq);
+      if (generatedKeyUri) {
+        console.log('Generated key:', generatedKeyUri);
+        const key = await this.musapKeyStore.getKeyByUri(generatedKeyUri)
+        return this.asMusapKeyInfo(key);
       } else {
         console.log('Failed to generate key');
         throw new Error('Failed to generate key');
@@ -59,26 +60,6 @@ export class MusapKeyManagementSystem extends KeyManagementSystem {
       console.error('An error occurred:', error);
       throw error;
     }
-  }
-
-  async generateKeyWrapper(type: SscdType, keyGenRequest: KeyGenReq): Promise<MusapKey | undefined> {
-    return new Promise((resolve) => {
-      this.musapKeyStore.generateKey(type, keyGenRequest, (error: any | undefined, keyUri: string | undefined) => {
-        if (this.musapKeyStore.listEnabledSscds()[0].sscdInfo.sscdName === 'SE' && error) {
-          console.log(error);
-          resolve(undefined);
-        } else if (error) {
-          console.log(error);
-          resolve(undefined);
-        } else if (keyUri) {
-          console.log(`Key successfully generated: ${keyUri}`);
-          const key = this.musapKeyStore.getKeyByUri(keyUri) as MusapKey;
-          resolve(key);
-        } else {
-          resolve(undefined);
-        }
-      });
-    });
   }
 
   async deleteKey({ kid }: { kid: string }): Promise<boolean> {
@@ -92,10 +73,8 @@ export class MusapKeyManagementSystem extends KeyManagementSystem {
   }
 
   async sign(args: { keyRef: Pick<IKey, 'kid'>; algorithm?: string; data: Uint8Array; [x: string]: any }): Promise<string> {
-    return new Promise(async (resolve, reject) => {
       if (!args.keyRef) {
-        reject(new Error('key_not_found: No key ref provided'));
-        return;
+        throw new Error('key_not_found: No key ref provided');
       }
 
       let data = ''
@@ -105,9 +84,9 @@ export class MusapKeyManagementSystem extends KeyManagementSystem {
         console.log('error on decoding the Uint8Array data', e);
       }
 
-      const key: MusapKey = (await this.musapKeyStore.getKeyByUri(args.keyRef.kid)) as MusapKey;
+      const key: MusapKey = (this.musapKeyStore.getKeyByUri(args.keyRef.kid)) as MusapKey;
       const signatureReq: SignatureReq = {
-        key,
+        keyUri: key.keyUri,
         data,
         algorithm: args.algorithm as SignatureAlgorithmType,
         displayText: args.displayText,
@@ -116,17 +95,7 @@ export class MusapKeyManagementSystem extends KeyManagementSystem {
         attributes: args.attributes
       };
 
-      this.musapKeyStore.sign(signatureReq, (error: string | undefined, signed: string | undefined) => {
-        if (error) {
-          console.error('Failed to sign data:', error);
-          reject(error);
-        } else if (signed) {
-          resolve(signed);
-        } else {
-          reject('Unknown error during signing');
-        }
-      });
-    });
+      return this.musapKeyStore.sign(signatureReq);
   }
 
   async importKey(args: Omit<MinimalImportableKey, 'kms'> & { privateKeyPEM?: string }): Promise<ManagedKeyInfo> {

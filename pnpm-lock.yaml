@@ -667,8 +667,8 @@ importers:
   packages/musap-rn-kms:
     dependencies:
       '@sphereon/musap-react-native':
-        specifier: 0.0.2-unstable.69
-        version: 0.0.2-unstable.69(@babel/core@7.24.7)(@babel/preset-env@7.24.7)
+        specifier: 0.0.1-unstable.106
+        version: 0.0.1-unstable.106(@babel/core@7.24.7)(@babel/preset-env@7.24.7)
       '@types/uuid':
         specifier: ^8.3.4
         version: 8.3.4
@@ -4611,9 +4611,35 @@ packages:
       - typescript
     dev: false
 
-  /@sphereon/musap-react-native@0.0.2-unstable.69(@babel/core@7.24.7)(@babel/preset-env@7.24.7):
-    resolution: {integrity: sha512-OtC9x0/kjOHMYSlI2NwRBl0ZrkeG8FoWUkuZIzdYp5CyUp7ca+2jiIw10VZzAVISISbEjpOcgyFHWJSF52hpLQ==}
+  /@sphereon/musap-native@0.0.1-unstable.106:
+    resolution: {integrity: sha512-pWRnA6NnoFEkmEiWDnTNDEqXYvWkMrwWAyt25azKMFVUyfSVpjzur4MqcGR3QeSSHBYYbEcDFG7xP2waRu7UdQ==}
+    dev: false
+
+  /@sphereon/musap-native@0.0.1-unstable.89:
+    resolution: {integrity: sha512-CyP1xvdPJF1DaDxYvLXirqPTTc9VS8PrvRBN+kNgqBpiXiuY2ta6TL9eZkVKSD5C52m5Asdicx+GGbZ5Ux3c+Q==}
+    dev: false
+
+  /@sphereon/musap-react-native@0.0.1-unstable.106(@babel/core@7.24.7)(@babel/preset-env@7.24.7):
+    resolution: {integrity: sha512-aRvewwrmgyf+4LiV2kTKVx3bDxA1H44mUNpGWn221ROCGgF7SStcoid/zTtpgxC5dg1pScCwv1yny33u65+MQQ==}
     dependencies:
+      '@sphereon/musap-native': 0.0.1-unstable.106
+      '@sphereon/musap-react-native': 0.0.1-unstable.89(@babel/core@7.24.7)(@babel/preset-env@7.24.7)
+      react: 18.3.1
+      react-native: 0.74.3(@babel/core@7.24.7)(@babel/preset-env@7.24.7)(react@18.3.1)
+    transitivePeerDependencies:
+      - '@babel/core'
+      - '@babel/preset-env'
+      - '@types/react'
+      - bufferutil
+      - encoding
+      - supports-color
+      - utf-8-validate
+    dev: false
+
+  /@sphereon/musap-react-native@0.0.1-unstable.89(@babel/core@7.24.7)(@babel/preset-env@7.24.7):
+    resolution: {integrity: sha512-sPMnDXj4XeRDJumc2jb6Jh5jU0FdU3l0Cxbd0KKoaRYmeJtPqKAHTtjwDzvbtdZjbH5kO8B5IuduFrLW/2XovA==}
+    dependencies:
+      '@sphereon/musap-native': 0.0.1-unstable.89
       react: 18.3.1
       react-native: 0.74.3(@babel/core@7.24.7)(@babel/preset-env@7.24.7)(react@18.3.1)
     transitivePeerDependencies:
