@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.23.0](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/compare/v0.22.0...v0.23.0) (2024-07-23)
+
+### Features
+
+- Make key/vm from identifier/did functions more future proof and add option to search for controller keys and key types ([f691789](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/f6917899680c1f39a98a0afbf181e821edadd4a3))
+
 # [0.22.0](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/compare/v0.21.0...v0.22.0) (2024-07-02)
 
 **Note:** Version bump only for package @sphereon/ssi-sdk-ext.did-resolver-ebsi
