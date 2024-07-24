@@ -21,6 +21,7 @@ export class MusapKeyManagementSystem extends KeyManagementSystem {
   constructor(keyStore: MusapModuleType) {
     super(keyStore as unknown as AbstractPrivateKeyStore);
     this.musapKeyStore = keyStore;
+    this.musapKeyStore.enableSscd('TEE')
   }
 
   async listKeys(): Promise<ManagedKeyInfo[]> {
