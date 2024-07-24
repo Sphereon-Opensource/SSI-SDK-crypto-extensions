@@ -85,7 +85,7 @@ export class MusapKeyManagementSystem extends KeyManagementSystem {
         console.log('error on decoding the Uint8Array data', e);
       }
 
-      const key: MusapKey = (this.musapKeyStore.getKeyByUri(args.keyRef.kid)) as MusapKey;
+      const key: MusapKey = (this.musapKeyStore.getKeyById(args.keyRef.kid)) as MusapKey;
       const signatureReq: SignatureReq = {
         keyUri: key.keyUri,
         data,
