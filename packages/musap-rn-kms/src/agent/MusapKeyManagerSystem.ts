@@ -3,11 +3,11 @@ import {
   KeyAlgorithmType,
   KeyGenReq,
   MusapKey,
-  MusapModuleType,
+  MusapModuleType, signatureAlgorithmFromKeyAlgorithm,
   SignatureAlgorithmType,
   SignatureFormat,
-  SignatureReq
-} from '@sphereon/musap-react-native';
+  SignatureReq,
+} from '@sphereon/musap-react-native'
 import { SscdType } from '@sphereon/musap-react-native/src/types/musap-types';
 import { KeyManagementSystem } from '@veramo/kms-local';
 import { AbstractPrivateKeyStore } from '@veramo/key-manager';
@@ -89,14 +89,13 @@ export class MusapKeyManagementSystem extends KeyManagementSystem {
       const signatureReq: SignatureReq = {
         keyUri: key.keyUri,
         data,
-        algorithm: args.algorithm as SignatureAlgorithmType,
+        algorithm: args.algorithm as SignatureAlgorithmType ?? signatureAlgorithmFromKeyAlgorithm(key.algorithm),
         displayText: args.displayText,
         transId: args.transId,
-        format: args.format as SignatureFormat,
+        format: args.format as SignatureFormat ?? 'RAW',
         attributes: args.attributes
-      };
-
-      return this.musapKeyStore.sign(signatureReq);
+      }
+      return this.musapKeyStore.sign(signatureReq)
   }
 
   async importKey(args: Omit<MinimalImportableKey, 'kms'> & { privateKeyPEM?: string }): Promise<ManagedKeyInfo> {
