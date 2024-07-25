@@ -69,16 +69,20 @@ export class SphereonKeyManagementSystem extends KeyManagementSystem {
 
     switch (type) {
       case KeyType.Bls12381G2: {
-        // throw Error('BLS support not available because upstream is not really providing Windows and React-Native support; giving too much headache')
-        // @ts-ignore
-        const mattr = await import('@mattrglobal/bbs-signatures')
-        const keyPairBls12381G2 = await mattr.generateBls12381G2KeyPair()
+        throw Error(
+          'BLS support not available because upstream is not really providing Windows and React-Native support; giving too much headache. We soon will move to @digitalbazaar/bbs-signatures'
+        )
+        /*// @ts-ignore
+        const bbs = await import('@digitalbazaar/bbs-signatures')
+        const keyPairBls12381G2 = await bbs.generateKeyPair({
+          ciphersuite: 'BLS12-381-SHA-256'
+        })
         key = await this.importKey({
           type,
           privateKeyHex: Buffer.from(keyPairBls12381G2.secretKey).toString('hex'),
           publicKeyHex: Buffer.from(keyPairBls12381G2.publicKey).toString('hex'),
         })
-        break
+        break*/
       }
 
       // @ts-ignore
@@ -108,9 +112,11 @@ export class SphereonKeyManagementSystem extends KeyManagementSystem {
     }
 
     if (privateKey.type === KeyType.Bls12381G2) {
-      // throw Error('BLS support not available because upstream is not really providing Windows and React-Native support; giving too much headache')
-      // @ts-ignore
-      const mattr = await import('@mattrglobal/bbs-signatures')
+      throw Error(
+        'BLS support not available because upstream is not really providing Windows and React-Native support; giving too much headache. We soon will move to @digitalbazaar/bbs-signatures'
+      )
+      /*// @ts-ignore
+      const bbs = await import('@digitalbazaar/bbs-signatures')
       if (!data || Array.isArray(data)) {
         throw new Error('Data must be defined and cannot be an array')
       }
@@ -121,7 +127,8 @@ export class SphereonKeyManagementSystem extends KeyManagementSystem {
         },
         messages: [data],
       }
-      return Buffer.from(await mattr.blsSign(keyPair)).toString('hex')
+      const signature = await bbs.sign({secretKey: privateKey, publicKey, header, messages});
+      return signature*/
     } else if (
       // @ts-ignore
       privateKey.type === 'RSA' &&

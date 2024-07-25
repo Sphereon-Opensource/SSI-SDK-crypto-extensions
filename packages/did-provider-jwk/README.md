@@ -25,7 +25,7 @@ The options object when creating an identifier is as follows:
 
 ```typescript
 export interface KeyOpts {
-  key?: MinimalImportableKey // Optional key to import. If not specified a key with random kid will be created
+  key?: MinimalImportableKey // Optional key to import. If not specified a key with random kmsKeyRef will be created
   type?: Key // The key type. Defaults to Secp256k1
   use?: KeyUse // The key use
 }

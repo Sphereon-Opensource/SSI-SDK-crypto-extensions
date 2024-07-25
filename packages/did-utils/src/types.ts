@@ -37,12 +37,13 @@ export interface IDIDOptions {
 export interface IIdentifierOpts {
   identifier: IIdentifier | string
   verificationMethodSection?: DIDDocumentSection
-  kid?: string
+  kmsKeyRef?: string
 }
 
 export type IdentifierProviderOpts = {
   type?: TKeyType
   use?: string
+  method?: SupportedDidMethodEnum
   [x: string]: any
 }
 

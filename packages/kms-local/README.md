@@ -6,11 +6,11 @@
   <br>
 </h1>
 
-A Sphereon KMS implementation that provides Ed25519 and secp256k1 and Bls crypto.
+A Sphereon KMS implementation that provides Ed25519 and secp256k1 and Bls (currently disabled because of continuous problems with a not-well maintained library) crypto.
 
 This module is an extension of [`KeyManagementSystem`](../../node_modules/@veramo/kms-local/src/key-management-system.ts) and
-[`key-manager`](../../node_modules/@veramo/key-manager/src/key-manager.ts) plugin to provide bls functionality to a
-Veramo agent.
+[`key-manager`](../../node_modules/@veramo/key-manager/src/key-manager.ts) plugin to provide RSA, secp256k1 and bls functionality to a
+Sphereon agent.
 
 The keys managed by this module are stored in an implementation
 of [`AbstractPrivateKeyStore`](../key-manager/src/abstract-private-key-store.ts).
