@@ -11,8 +11,7 @@ import {
 } from '@sphereon/musap-react-native'
 import { SscdType } from '@sphereon/musap-react-native/src/types/musap-types';
 import {AbstractKeyManagementSystem} from '@veramo/key-manager';
-import { v4 as uuid } from 'uuid';
-
+import {randomUUID} from 'expo-crypto'
 import { TextDecoder } from 'text-encoding';
 import {Loggers} from "@sphereon/ssi-types";
 
@@ -37,7 +36,7 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
   async createKey(args: { type: TKeyType, keyAlias?: string, [x: string]: any }): Promise<ManagedKeyInfo> {
     const keyAlgorithm = this.mapKeyTypeToAlgorithmType(args.type);
     const attributes = 'attributes' in args? args.attributes : null;
-    const keyAlias = args.keyAlias ? args.keyAlias : uuid();
+    const keyAlias = args.keyAlias ? args.keyAlias : randomUUID()
     const keyGenReq: KeyGenReq = {
       keyAlgorithm: keyAlgorithm,
       keyUsage: 'sign',
