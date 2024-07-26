@@ -1,0 +1,44 @@
+{
+  "name": "@sphereon/ssi-sdk-ext.musap-rn-kms",
+  "description": "Sphereon SSI-SDK react-native plugin for management of keys with musap.",
+  "version": "0.22.0",
+  "source": "src/index.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc --build",
+    "build:clean": "tsc --build --clean && tsc --build"
+  },
+  "dependencies": {
+    "@sphereon/musap-react-native": "0.0.1-next.139",
+    "@types/uuid": "^8.3.4",
+    "@veramo/core": "4.2.0",
+    "@veramo/key-manager": "4.2.0",
+    "@veramo/kms-local": "4.2.0",
+    "react-native-get-random-values": "1.11.0",
+    "text-encoding": "^0.7.0",
+    "uuid": "^10.0.0"
+  },
+  "devDependencies": {
+    "@types/text-encoding": "0.0.39"
+  },
+  "files": [
+    "dist/**/*",
+    "src/**/*",
+    "README.md",
+    "LICENSE"
+  ],
+  "private": false,
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": "git@github.com:Sphereon-OpenSource/SSI-SDK-crypto-extensions.git",
+  "author": "Sphereon <dev@sphereon.com>",
+  "license": "Apache-2.0",
+  "keywords": [
+    "musap",
+    "key-management",
+    "react-native",
+    "Veramo"
+  ]
+}
