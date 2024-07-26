@@ -9,8 +9,7 @@ import {
   SignatureReq,
 } from '@sphereon/musap-react-native'
 import { SscdType } from '@sphereon/musap-react-native/src/types/musap-types';
-import { KeyManagementSystem } from '@veramo/kms-local';
-import { AbstractPrivateKeyStore } from '@veramo/key-manager';
+import {AbstractKeyManagementSystem} from '@veramo/key-manager';
 import 'react-native-get-random-values'
 import { v4 as uuid } from 'uuid';
 import { TextDecoder } from 'text-encoding';
@@ -18,38 +17,31 @@ import Debug from 'debug'
 
 const debug = Debug('sphereon:musap-rn-kms')
 
-export class MusapKeyManagementSystem extends KeyManagementSystem {
+export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
   private musapKeyStore: MusapModuleType;
   private sscdType: SscdType;
 
   constructor(keyStore: MusapModuleType, sscdType?: SscdType) {
-    super(keyStore as unknown as AbstractPrivateKeyStore);
+    super();
     this.musapKeyStore = keyStore;
     this.sscdType = sscdType ? sscdType : 'TEE';
     this.musapKeyStore.enableSscd(this.sscdType)
   }
 
   async listKeys(): Promise<ManagedKeyInfo[]> {
-    try {
-      const keysJson: MusapKey[] = (await this.musapKeyStore.listKeys()) as MusapKey[];
-      return keysJson.map((key) => this.asMusapKeyInfo(key));
-    } catch (error) {
-      throw error;
-    }
+    const keysJson: MusapKey[] = (await this.musapKeyStore.listKeys()) as MusapKey[];
+    return keysJson.map((key) => this.asMusapKeyInfo(key));
   }
 
-  async createKey(args: { type: TKeyType; sscdType?: SscdType }): Promise<ManagedKeyInfo> {
+  async createKey(args: { type: TKeyType, keyAlias?: string, [x: string]: any }): Promise<ManagedKeyInfo> {
     const keyAlgorithm = this.mapKeyTypeToAlgorithmType(args.type);
-
+    const attributes = 'attributes' in args? args.attributes : null;
+    const keyAlias = args.keyAlias ? args.keyAlias : uuid();
     const keyGenReq: KeyGenReq = {
       keyAlgorithm: keyAlgorithm,
-      did: '',
       keyUsage: 'sign',
-      keyAlias: uuid(),
-      attributes: [
-        { name: 'purpose', value: 'encrypt' },
-        { name: 'purpose', value: 'decrypt' }
-      ],
+      keyAlias,
+      ...(attributes && {...attributes}),
       role: 'administrator'
     };
 
@@ -78,6 +70,19 @@ export class MusapKeyManagementSystem extends KeyManagementSystem {
         return 'RSA2K';
       default:
         throw new Error(`Key type ${type} is not supported by MUSAP`);
+    }
+  }
+
+  mapAlgorithmTypeToKeyType = (type: KeyAlgorithmType): TKeyType => {
+    switch (type) {
+      case 'ECCP256K1':
+        return 'Secp256k1';
+      case 'ECCP256R1':
+        return 'Secp256r1';
+      case 'RSA2K':
+        return 'RSA';
+      default:
+        throw new Error(`Key type ${type} is not supported.`);
     }
   }
 
@@ -119,9 +124,13 @@ export class MusapKeyManagementSystem extends KeyManagementSystem {
     return {
       kid: args.keyId,
       kms: args.sscdId,
-      type: args.keyType as unknown as TKeyType,
+      type: this.mapAlgorithmTypeToKeyType(args.keyType),
       publicKeyHex: args.publicKey.toString(),
       keyUri: args.keyUri
     };
+  }
+
+  sharedSecret(args: { myKeyRef: Pick<IKey, "kid">; theirKey: Pick<IKey, "publicKeyHex" | "type"> }): Promise<string> {
+    throw new Error('Not supported.');
   }
 }

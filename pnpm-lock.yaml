@@ -621,8 +621,8 @@ importers:
   packages/musap-rn-kms:
     dependencies:
       '@sphereon/musap-react-native':
-        specifier: 0.0.1-next.139
-        version: 0.0.1-next.139(@babel/core@7.24.9)(@babel/preset-env@7.24.8)
+        specifier: 0.0.1-next.140
+        version: 0.0.1-next.140(@babel/core@7.24.9)(@babel/preset-env@7.24.8)
       '@types/uuid':
         specifier: ^8.3.4
         version: 8.3.4
@@ -4498,14 +4498,14 @@ packages:
     resolution: {integrity: sha512-HurQBvkjAW8t4oZ629sAKTAEi7B/rjYfmSJOquGdyJZeMPT+5R/9DW6i2eQv6kWHWLBa1Iji14zMUvM/NmF8Ew==}
     dev: true
 
-  /@sphereon/musap-native@0.0.1-next.139:
-    resolution: {integrity: sha512-HY5c4TvKR+sww8E3sf4Si9FMP8ZuYxbVDCXPop3k+ZxUi85MaSyfvu12tA4HOBZdtiacGNOlQMioXsw/6+Pxdg==}
+  /@sphereon/musap-native@0.0.1-next.140:
+    resolution: {integrity: sha512-y7hzccBGeFwiNFiBIC4JSl+nr7Ex/tEe0g+Ty1Fa1LITMGF/poZLGKPDw7IjG4NIwNFsa+N3TGjYAtuSb01Vlg==}
     dev: false
 
-  /@sphereon/musap-react-native@0.0.1-next.139(@babel/core@7.24.9)(@babel/preset-env@7.24.8):
-    resolution: {integrity: sha512-SEJzs94dlUxbQaOOg+HkB8wk14bX3gy6HAUDeywCdkDdBguMRGHQO4jaqkE6gaDJcluKbA5ZZLPbOzXDdUy6Pg==}
+  /@sphereon/musap-react-native@0.0.1-next.140(@babel/core@7.24.9)(@babel/preset-env@7.24.8):
+    resolution: {integrity: sha512-iTwFXf6JUSlU8V0EXUpi8IH4TvCNxkVRVGhdqtxW1srLsVKQY7JevtdKJh4tvJuwCCtLrQ+vyMFta0BHXTZZjw==}
     dependencies:
-      '@sphereon/musap-native': 0.0.1-next.139
+      '@sphereon/musap-native': 0.0.1-next.140
       react: 18.3.1
       react-native: 0.74.3(@babel/core@7.24.9)(@babel/preset-env@7.24.8)(react@18.3.1)
     transitivePeerDependencies:
