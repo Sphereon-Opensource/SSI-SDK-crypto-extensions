@@ -14,6 +14,9 @@ import { AbstractPrivateKeyStore } from '@veramo/key-manager';
 import 'react-native-get-random-values'
 import { v4 as uuid } from 'uuid';
 import { TextDecoder } from 'text-encoding';
+import Debug from 'debug'
+
+const debug = Debug('sphereon:musap-rn-kms')
 
 export class MusapKeyManagementSystem extends KeyManagementSystem {
   private musapKeyStore: MusapModuleType;
@@ -31,7 +34,6 @@ export class MusapKeyManagementSystem extends KeyManagementSystem {
       const keysJson: MusapKey[] = (await this.musapKeyStore.listKeys()) as MusapKey[];
       return keysJson.map((key) => this.asMusapKeyInfo(key));
     } catch (error) {
-      console.error('Failed to list keys:', error);
       throw error;
     }
   }
@@ -54,11 +56,10 @@ export class MusapKeyManagementSystem extends KeyManagementSystem {
     try {
       const generatedKeyUri = await this.musapKeyStore.generateKey(this.sscdType, keyGenReq);
       if (generatedKeyUri) {
-        console.log('Generated key:', generatedKeyUri);
+        debug('Generated key:', generatedKeyUri);
         const key = await this.musapKeyStore.getKeyByUri(generatedKeyUri);
         return this.asMusapKeyInfo(key);
       } else {
-        console.log('Failed to generate key');
         throw new Error('Failed to generate key');
       }
     } catch (error) {
@@ -85,7 +86,7 @@ export class MusapKeyManagementSystem extends KeyManagementSystem {
       await this.musapKeyStore.removeKey(kid);
       return true;
     } catch (error) {
-      console.error('Failed to delete key:', error);
+      console.warn('Failed to delete key:', error);
       return false;
     }
   }
@@ -95,12 +96,7 @@ export class MusapKeyManagementSystem extends KeyManagementSystem {
         throw new Error('key_not_found: No key ref provided');
       }
 
-      let data = ''
-      try {
-        data = new TextDecoder().decode(args.data as Uint8Array)
-      } catch (e) {
-        console.log('error on decoding the Uint8Array data', e);
-      }
+      const data = new TextDecoder().decode(args.data as Uint8Array)
 
       const key: MusapKey = (this.musapKeyStore.getKeyById(args.keyRef.kid)) as MusapKey;
       const signatureReq: SignatureReq = {
@@ -116,7 +112,7 @@ export class MusapKeyManagementSystem extends KeyManagementSystem {
   }
 
   async importKey(args: Omit<MinimalImportableKey, 'kms'> & { privateKeyPEM?: string }): Promise<ManagedKeyInfo> {
-    throw new Error('Not implemented.');
+    throw new Error('Not supported; MUSAP is a hardware key-store which cannot import keys.');
   }
 
   private asMusapKeyInfo(args: MusapKey): ManagedKeyInfo & { keyUri?: string } {
