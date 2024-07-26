@@ -3,19 +3,20 @@ import {
   KeyAlgorithmType,
   KeyGenReq,
   MusapKey,
-  MusapModuleType, signatureAlgorithmFromKeyAlgorithm,
+  MusapModuleType,
+  signatureAlgorithmFromKeyAlgorithm,
   SignatureAlgorithmType,
   SignatureFormat,
   SignatureReq,
 } from '@sphereon/musap-react-native'
 import { SscdType } from '@sphereon/musap-react-native/src/types/musap-types';
 import {AbstractKeyManagementSystem} from '@veramo/key-manager';
-import 'react-native-get-random-values'
 import { v4 as uuid } from 'uuid';
-import { TextDecoder } from 'text-encoding';
-import Debug from 'debug'
 
-const debug = Debug('sphereon:musap-rn-kms')
+import { TextDecoder } from 'text-encoding';
+import {Loggers} from "@sphereon/ssi-types";
+
+export const logger = Loggers.DEFAULT.get('sphereon:musap-rn-kms')
 
 export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
   private musapKeyStore: MusapModuleType;
@@ -48,7 +49,7 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
     try {
       const generatedKeyUri = await this.musapKeyStore.generateKey(this.sscdType, keyGenReq);
       if (generatedKeyUri) {
-        debug('Generated key:', generatedKeyUri);
+        logger.debug('Generated key:', generatedKeyUri);
         const key = await this.musapKeyStore.getKeyByUri(generatedKeyUri);
         return this.asMusapKeyInfo(key);
       } else {
@@ -120,14 +121,16 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
     throw new Error('Not implemented.');
   }
 
-  private asMusapKeyInfo(args: MusapKey): ManagedKeyInfo & { keyUri?: string } {
-    return {
+  private asMusapKeyInfo(args: MusapKey): ManagedKeyInfo {
+    const keyInfo: Partial<ManagedKeyInfo> = {
       kid: args.keyId,
-      kms: args.sscdId,
       type: this.mapAlgorithmTypeToKeyType(args.keyType),
       publicKeyHex: args.publicKey.toString(),
-      keyUri: args.keyUri
-    };
+      meta: {
+        ...args
+      }
+    }
+    return keyInfo as ManagedKeyInfo;
   }
 
   sharedSecret(args: { myKeyRef: Pick<IKey, "kid">; theirKey: Pick<IKey, "publicKeyHex" | "type"> }): Promise<string> {
