@@ -17,11 +17,13 @@ import { TextDecoder } from 'text-encoding';
 
 export class MusapKeyManagementSystem extends KeyManagementSystem {
   private musapKeyStore: MusapModuleType;
+  private sscdType: SscdType;
 
-  constructor(keyStore: MusapModuleType) {
+  constructor(keyStore: MusapModuleType, sscdType?: SscdType) {
     super(keyStore as unknown as AbstractPrivateKeyStore);
     this.musapKeyStore = keyStore;
-    this.musapKeyStore.enableSscd('TEE')
+    this.sscdType = sscdType ? sscdType : 'TEE';
+    this.musapKeyStore.enableSscd(this.sscdType)
   }
 
   async listKeys(): Promise<ManagedKeyInfo[]> {
@@ -35,9 +37,10 @@ export class MusapKeyManagementSystem extends KeyManagementSystem {
   }
 
   async createKey(args: { type: TKeyType; sscdType?: SscdType }): Promise<ManagedKeyInfo> {
-    const sscdType: SscdType = args.sscdType ? args.sscdType : 'TEE';
+    const keyAlgorithm = this.mapKeyTypeToAlgorithmType(args.type);
+
     const keyGenReq: KeyGenReq = {
-      keyAlgorithm: args.type as KeyAlgorithmType,
+      keyAlgorithm: keyAlgorithm,
       did: '',
       keyUsage: 'sign',
       keyAlias: uuid(),
@@ -47,11 +50,12 @@ export class MusapKeyManagementSystem extends KeyManagementSystem {
       ],
       role: 'administrator'
     };
+
     try {
-      const generatedKeyUri = await this.musapKeyStore.generateKey(sscdType, keyGenReq);
+      const generatedKeyUri = await this.musapKeyStore.generateKey(this.sscdType, keyGenReq);
       if (generatedKeyUri) {
         console.log('Generated key:', generatedKeyUri);
-        const key = await this.musapKeyStore.getKeyByUri(generatedKeyUri)
+        const key = await this.musapKeyStore.getKeyByUri(generatedKeyUri);
         return this.asMusapKeyInfo(key);
       } else {
         console.log('Failed to generate key');
@@ -60,6 +64,19 @@ export class MusapKeyManagementSystem extends KeyManagementSystem {
     } catch (error) {
       console.error('An error occurred:', error);
       throw error;
+    }
+  }
+
+  mapKeyTypeToAlgorithmType = (type: TKeyType): KeyAlgorithmType => {
+    switch (type) {
+      case 'Secp256k1':
+        return 'ECCP256K1';
+      case 'Secp256r1':
+        return 'ECCP256R1';
+      case 'RSA':
+        return 'RSA2K';
+      default:
+        throw new Error(`Key type ${type} is not supported by MUSAP`);
     }
   }
 
