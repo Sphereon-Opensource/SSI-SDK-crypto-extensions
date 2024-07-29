@@ -37,12 +37,14 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
     const keyAlgorithm = this.mapKeyTypeToAlgorithmType(args.type)
     const attributes = 'attributes' in args ? args.attributes : null
     const keyAlias = args.keyAlias ? args.keyAlias : uuid()
+    const keyUsage = args.keyUsage ? args.keyUsage : 'sign'
+    const role = args.role ? args.role : 'administrator'
     const keyGenReq: KeyGenReq = {
-      keyAlgorithm: keyAlgorithm,
-      keyUsage: 'sign',
+      keyAlgorithm,
+      keyUsage,
       keyAlias,
       ...(attributes && { ...attributes }),
-      role: 'administrator',
+      role,
     }
 
     try {
