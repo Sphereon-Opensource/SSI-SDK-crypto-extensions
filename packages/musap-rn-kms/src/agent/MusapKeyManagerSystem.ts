@@ -1,5 +1,6 @@
 import { IKey, ManagedKeyInfo, MinimalImportableKey, TKeyType } from '@veramo/core'
 import {
+  KeyAlgorithm,
   KeyAlgorithmType,
   KeyGenReq,
   MusapKey,
@@ -76,13 +77,13 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
     }
   }
 
-  mapAlgorithmTypeToKeyType = (type: KeyAlgorithmType): TKeyType => {
+  mapAlgorithmTypeToKeyType = (type: KeyAlgorithm): TKeyType => {
     switch (type) {
-      case 'ECCP256K1':
+      case 'eccp256k1':
         return 'Secp256k1'
-      case 'ECCP256R1':
+      case 'eccp256r1':
         return 'Secp256r1'
-      case 'RSA2K':
+      case 'rsa4k':
         return 'RSA'
       default:
         throw new Error(`Key type ${type} is not supported.`)
@@ -126,7 +127,7 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
   private asMusapKeyInfo(args: MusapKey): ManagedKeyInfo {
     const keyInfo: Partial<ManagedKeyInfo> = {
       kid: args.keyId,
-      type: this.mapAlgorithmTypeToKeyType(args.keyType),
+      type: this.mapAlgorithmTypeToKeyType(args.algorithm),
       publicKeyHex: args.publicKey.toString(),
       meta: {
         ...args,
