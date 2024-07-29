@@ -16,9 +16,11 @@
     "@veramo/core": "4.2.0",
     "@veramo/key-manager": "4.2.0",
     "@veramo/kms-local": "4.2.0",
-    "expo-crypto": "13.0.2",
     "text-encoding": "^0.7.0",
     "uuid": "^10.0.0"
+  },
+  "peerDependencies": {
+    "expo-crypto": "13.0.2"
   },
   "devDependencies": {
     "@types/text-encoding": "0.0.39"
