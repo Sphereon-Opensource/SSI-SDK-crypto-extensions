@@ -20,7 +20,8 @@
     "uuid": "^10.0.0"
   },
   "peerDependencies": {
-    "expo-crypto": "13.0.2"
+    "expo-crypto": "13.0.2",
+    "react-native-get-random-values": "1.11.0"
   },
   "devDependencies": {
     "@types/text-encoding": "0.0.39"
