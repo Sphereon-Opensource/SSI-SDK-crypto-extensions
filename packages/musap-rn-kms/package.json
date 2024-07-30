@@ -10,18 +10,12 @@
     "build:clean": "tsc --build --clean && tsc --build"
   },
   "dependencies": {
-    "@sphereon/ssi-types": "0.28.1-next.39",
-    "@sphereon/musap-react-native": "0.0.1-next.142",
-    "@types/uuid": "^8.3.4",
+    "@sphereon/ssi-types": "0.28.1-next.41",
+    "@sphereon/musap-react-native": "0.0.1-next.143",
     "@veramo/core": "4.2.0",
     "@veramo/key-manager": "4.2.0",
     "@veramo/kms-local": "4.2.0",
-    "text-encoding": "^0.7.0",
-    "uuid": "^10.0.0"
-  },
-  "peerDependencies": {
-    "expo-crypto": "13.0.2",
-    "react-native-get-random-values": "1.11.0"
+    "text-encoding": "^0.7.0"
   },
   "devDependencies": {
     "@types/text-encoding": "0.0.39"

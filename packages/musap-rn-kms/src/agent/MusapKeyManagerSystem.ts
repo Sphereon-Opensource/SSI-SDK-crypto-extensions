@@ -12,8 +12,6 @@ import {
 } from '@sphereon/musap-react-native'
 import { SscdType } from '@sphereon/musap-react-native/src/types/musap-types'
 import { AbstractKeyManagementSystem } from '@veramo/key-manager'
-import 'react-native-get-random-values'
-import { v4 as uuid } from 'uuid'
 import { TextDecoder } from 'text-encoding'
 import { Loggers } from '@sphereon/ssi-types'
 
@@ -35,19 +33,24 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
     return keysJson.map((key) => this.asMusapKeyInfo(key))
   }
 
-  async createKey(args: { type: TKeyType; keyAlias?: string; [x: string]: any }): Promise<ManagedKeyInfo> {
-    const keyAlgorithm = this.mapKeyTypeToAlgorithmType(args.type)
-    const attributes = 'attributes' in args ? args.attributes : null
-    const keyAlias = args.keyAlias ? args.keyAlias : uuid()
-    const keyUsage = args.keyUsage ? args.keyUsage : 'sign'
-    const role = args.role ? args.role : 'administrator'
-    const keyGenReq: KeyGenReq = {
+  async createKey(args: { type: TKeyType; keyAlias: string; [x: string]: any }): Promise<ManagedKeyInfo> {
+    const {
+      type,
+      attributes = null,
+      keyAlias,
+      keyUsage = 'sign',
+      role = 'administrator'
+    } = args;
+
+    const keyAlgorithm = this.mapKeyTypeToAlgorithmType(type);
+
+    const keyGenReq = {
       keyAlgorithm,
       keyUsage,
       keyAlias,
-      ...(attributes && { ...attributes }),
+      ...(attributes && attributes),
       role,
-    }
+    } satisfies KeyGenReq
 
     try {
       const generatedKeyUri = await this.musapKeyStore.generateKey(this.sscdType, keyGenReq)
