@@ -2,8 +2,8 @@
   "name": "@sphereon/ssi-sdk-ext.workspace",
   "private": true,
   "version": "0.11.0",
-  "description": "Sphereon Crypto Extensions (BBS+/EBSI) signature support (Workspace)",
-  "repository": "git@github.com:Sphereon-Opensource/veramo-BBS.git",
+  "description": "Sphereon Crypto Extensions and DID support (Workspace)",
+  "repository": "git@github.com:Sphereon-Opensource/SSI-SDK-crypto-extensions.git",
   "author": "Sphereon <dev@sphereon.com>",
   "license": "Apache-2.0",
   "scripts": {

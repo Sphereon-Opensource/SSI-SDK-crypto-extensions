@@ -66,7 +66,16 @@ export class RSASigner {
     const jws = signature.includes('.') ? signature.split('.')[2] : signature
 
     const input = typeof data == 'string' ? u8a.fromString(data, 'utf-8') : data
-    const verificationResult = await crypto.subtle.verify(this.getImportParams(), await this.getKey(), u8a.fromString(jws, 'base64url'), input)
+
+    let key = await this.getKey()
+    if (!key.usages.includes('verify')) {
+      const verifyJwk = { ...this.jwk }
+      delete verifyJwk.d
+      delete verifyJwk.use
+      delete verifyJwk.key_ops
+      key = await cryptoSubtleImportRSAKey(verifyJwk, this.scheme, this.hashAlgorithm)
+    }
+    const verificationResult = await crypto.subtle.verify(this.getImportParams(), key, u8a.fromString(jws, 'base64url'), input)
     return verificationResult
   }
 }

@@ -8,8 +8,28 @@ export type RSASignatureSchemes = 'RSASSA-PKCS1-V1_5' | 'RSA-PSS'
 export type RSAEncryptionSchemes = 'RSAES-PKCS-v1_5 ' | 'RSAES-OAEP'
 
 const usage = (jwk: JWK): KeyUsage[] => {
+  if (jwk.key_ops && jwk.key_ops.length > 0) {
+    return jwk.key_ops as KeyUsage[]
+  }
+  if (jwk.use) {
+    const usages: KeyUsage[] = []
+    if (jwk.use.includes('sig')) {
+      usages.push('sign', 'verify')
+    } else if (jwk.use.includes('enc')) {
+      usages.push('encrypt', 'decrypt')
+    }
+    if (usages.length > 0) {
+      return usages
+    }
+  }
+  if (jwk.kty === 'RSA') {
+    if (jwk.d) {
+      return jwk.alg?.toUpperCase()?.includes('QAEP') ? ['encrypt'] : ['sign']
+    }
+    return jwk.alg?.toUpperCase()?.includes('QAEP') ? ['decrypt'] : ['verify']
+  }
   // "decrypt" | "deriveBits" | "deriveKey" | "encrypt" | "sign" | "unwrapKey" | "verify" | "wrapKey";
-  return jwk.d ? ['sign', 'decrypt', 'verify', 'encrypt'] : ['verify', 'encrypt']
+  return jwk.d && jwk.kty !== 'RSA' ? ['sign', 'decrypt', 'verify', 'encrypt'] : ['verify']
 }
 
 export const signAlgorithmToSchemeAndHashAlg = (signingAlg: string) => {

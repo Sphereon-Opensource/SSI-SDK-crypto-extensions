@@ -1,6 +1,6 @@
 import { SphereonKeyManager } from '@sphereon/ssi-sdk-ext.key-manager'
 
-import { Key, toJwk } from '@sphereon/ssi-sdk-ext.key-utils'
+import { Key } from '@sphereon/ssi-sdk-ext.key-utils'
 import { SphereonKeyManagementSystem } from '@sphereon/ssi-sdk-ext.kms-local'
 import { createAgent, IIdentifier, IKeyManager } from '@veramo/core'
 import { DIDManager, MemoryDIDStore } from '@veramo/did-manager'
@@ -11,8 +11,8 @@ import { SphereonKeyDidProvider } from '../src'
 const DID_METHOD = 'did:key'
 const PRIVATE_KEY_HEX = '7dd923e40f4615ac496119f7e793cc2899e99b64b88ca8603db986700089532b'
 
-const jwk = toJwk(PRIVATE_KEY_HEX, 'Secp256k1', { isPrivateKey: true })
-console.log(JSON.stringify(jwk, null, 2))
+// const jwk = toJwk(PRIVATE_KEY_HEX, 'Secp256k1', { isPrivateKey: true })
+// console.log(JSON.stringify(jwk, null, 2))
 const keyDIDProvider = new SphereonKeyDidProvider({
   defaultKms: 'mem',
 })
@@ -96,7 +96,7 @@ describe('@sphereon/did-provider-key', () => {
     expect(identifier.keys.length).toBe(1)
     expect(identifier.keys[0].type).toBe(Key.Secp256k1)
 
-    console.log(identifier.did)
+    // console.log(identifier.did)
   })
 
   it('should create EBSI identifier with Secp256r1 key', async () => {
@@ -113,6 +113,6 @@ describe('@sphereon/did-provider-key', () => {
     expect(identifier.keys.length).toBe(1)
     expect(identifier.keys[0].type).toBe(Key.Secp256r1)
 
-    console.log(identifier.did)
+    // console.log(identifier.did)
   })
 })

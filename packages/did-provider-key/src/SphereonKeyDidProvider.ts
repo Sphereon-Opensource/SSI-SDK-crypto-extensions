@@ -57,13 +57,13 @@ export class SphereonKeyDidProvider extends AbstractIdentifierProvider {
       | CodeNameType
       | undefined
     const keyType: TKeyType = options?.type ?? (codecName === JWK_JCS_PUB_NAME ? 'Secp256r1' : 'Secp256k1')
-    console.log(`keytype: ${keyType}, codecName: ${codecName}`)
+    // console.log(`keytype: ${keyType}, codecName: ${codecName}`)
     const privateKeyHex = options?.key?.privateKeyHex ?? (await generatePrivateKeyHex(keyType))
     const key = await context.agent.keyManagerImport({ type: keyType, privateKeyHex, kms: kms ?? this.kms })
     let methodSpecificId: string | undefined
     if (codecName === JWK_JCS_PUB_NAME) {
       const jwk = toJwk(key.publicKeyHex, keyType, { use: JwkKeyUse.Signature, key, noKidThumbprint: true })
-      console.log(`FIXME JWK: ${JSON.stringify(toJwk(privateKeyHex, keyType, { use: JwkKeyUse.Signature, key, isPrivateKey: true }), null, 2)}`)
+      // console.log(`FIXME JWK: ${JSON.stringify(toJwk(privateKeyHex, keyType, { use: JwkKeyUse.Signature, key, isPrivateKey: true }), null, 2)}`)
       methodSpecificId = u8a.toString(
         Multibase.encode('base58btc', Multicodec.addPrefix(u8a.fromString(JWK_JCS_PUB_PREFIX.valueOf().toString(16), 'hex'), jwkJcsEncode(jwk)))
       )
