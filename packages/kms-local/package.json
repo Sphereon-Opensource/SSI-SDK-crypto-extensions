@@ -10,7 +10,6 @@
     "generate-plugin-schema": "sphereon dev generate-plugin-schema"
   },
   "dependencies": {
-    "@sphereon/isomorphic-webcrypto": "2.4.1-unstable.0",
     "@sphereon/ssi-sdk-ext.did-utils": "workspace:*",
     "@sphereon/ssi-sdk-ext.key-utils": "workspace:*",
     "@trust/keyto": "2.0.0-alpha1",

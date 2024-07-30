@@ -102,8 +102,7 @@
     "did-jwt": "6.11.6",
     "did-jwt-vc": "3.1.3",
     "ethr-did": "2.3.9",
-    "jsonld": "npm:@digitalcredentials/jsonld@^5.2.1",
-    "isomorphic-webcrypto": "link:./node_modules/@sphereon/isomorphic-webcrypto"
+    "jsonld": "npm:@digitalcredentials/jsonld@^5.2.1"
   },
   "engines": {
     "node": ">= 18.0.0"

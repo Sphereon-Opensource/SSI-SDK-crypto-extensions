@@ -1,5 +1,4 @@
 import * as u8a from 'uint8arrays'
-import crypto from '@sphereon/isomorphic-webcrypto'
 import { HashAlgorithm } from '../digest-methods'
 import { JWK, KeyVisibility } from '../types'
 import { cryptoSubtleImportRSAKey, RSAEncryptionSchemes, RSASignatureSchemes } from './rsa-key'
