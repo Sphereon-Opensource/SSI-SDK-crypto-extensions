@@ -26,8 +26,8 @@ overrides:
   '@veramo/remote-server': 4.2.0
   '@veramo/selective-disclosure': 4.2.0
   '@veramo/url-handler': 4.2.0
-  '@sphereon/ssi-sdk.core': 0.27.0
-  '@sphereon/ssi-types': 0.27.0
+  '@sphereon/ssi-sdk.core': 0.28.0
+  '@sphereon/ssi-types': 0.28.0
   '@digitalcredentials/ed25519-verification-key-2020': 3.2.2
   '*>@digitalcredentials/ed25519-verification-key-2020': 3.2.2
   did-jwt: 6.11.6
@@ -162,8 +162,8 @@ importers:
         specifier: workspace:*
         version: link:../key-utils
       '@sphereon/ssi-types':
-        specifier: 0.27.0
-        version: 0.27.0
+        specifier: 0.28.0
+        version: 0.28.0
       '@stablelib/ed25519':
         specifier: ^1.0.3
         version: 1.0.3
@@ -218,7 +218,7 @@ importers:
         version: link:../key-utils
       '@transmute/did-key-bls12381':
         specifier: 0.3.0-unstable.10
-        version: 0.3.0-unstable.10
+        version: 0.3.0-unstable.10(expo@51.0.23)(react-native@0.74.4)
       '@veramo/core':
         specifier: 4.2.0
         version: 4.2.0(patch_hash=c5oempznsz4br5w3tcuk2i2mau)
@@ -251,8 +251,8 @@ importers:
         specifier: workspace:*
         version: link:../kms-local
       '@sphereon/ssi-sdk.dev':
-        specifier: 0.27.0
-        version: 0.27.0(@types/node@18.19.42)
+        specifier: 0.28.0
+        version: 0.28.0(@types/node@18.19.42)
       '@veramo/did-resolver':
         specifier: 4.2.0
         version: 4.2.0
@@ -341,8 +341,8 @@ importers:
   packages/did-resolver-jwk:
     dependencies:
       '@sphereon/ssi-types':
-        specifier: 0.27.0
-        version: 0.27.0
+        specifier: 0.28.0
+        version: 0.28.0
       base64url:
         specifier: ^3.0.1
         version: 3.0.1
@@ -427,8 +427,8 @@ importers:
         specifier: workspace:*
         version: link:../key-utils
       '@sphereon/ssi-sdk.core':
-        specifier: 0.27.0
-        version: 0.27.0
+        specifier: 0.28.0
+        version: 0.28.0
       '@stablelib/ed25519':
         specifier: ^1.0.3
         version: 1.0.3
@@ -470,8 +470,8 @@ importers:
         specifier: workspace:*
         version: link:../key-utils
       '@sphereon/ssi-sdk.dev':
-        specifier: 0.27.0
-        version: 0.27.0(@types/node@18.19.42)
+        specifier: 0.28.0
+        version: 0.28.0(@types/node@18.19.42)
 
   packages/key-utils:
     dependencies:
@@ -553,8 +553,8 @@ importers:
         specifier: 3.3.2-unstable.0
         version: 3.3.2-unstable.0
       '@sphereon/ssi-sdk.dev':
-        specifier: 0.27.0
-        version: 0.27.0(@types/node@18.19.42)
+        specifier: 0.28.0
+        version: 0.28.0(@types/node@18.19.42)
       '@types/elliptic':
         specifier: 6.4.14
         version: 6.4.14
@@ -593,8 +593,8 @@ importers:
         version: 0.3.12(pg@8.12.0)(sqlite3@5.1.7)(ts-node@10.9.2)
     devDependencies:
       '@sphereon/ssi-sdk.dev':
-        specifier: 0.27.0
-        version: 0.27.0(@types/node@18.19.42)
+        specifier: 0.28.0
+        version: 0.28.0(@types/node@18.19.42)
       '@types/bip39':
         specifier: ^3.0.0
         version: 3.0.0
@@ -4976,10 +4976,10 @@ packages:
     resolution: {integrity: sha512-HurQBvkjAW8t4oZ629sAKTAEi7B/rjYfmSJOquGdyJZeMPT+5R/9DW6i2eQv6kWHWLBa1Iji14zMUvM/NmF8Ew==}
     dev: true
 
-  /@sphereon/ssi-sdk.core@0.27.0:
-    resolution: {integrity: sha512-1VdBbdHSSdab8RJLrFiLUIcVjKF/X+HLJWdVZt1Viq77aK/p453bwBfyYXDTRJ9NuwH+sJHzklE2im+mHfYzgA==}
+  /@sphereon/ssi-sdk.core@0.28.0:
+    resolution: {integrity: sha512-hB/rWxV1zZXgtYOfmHu8T/YCCFGRYfuvY58paAWbZk4WbQ7/sPRTO9DdcgSjS+tVZ1kI0/ebOi9zeuBa/OmhIA==}
     dependencies:
-      '@sphereon/ssi-types': 0.27.0
+      '@sphereon/ssi-types': 0.28.0
       '@veramo/core': 4.2.0(patch_hash=c5oempznsz4br5w3tcuk2i2mau)
       cross-fetch: 3.1.8
       debug: 4.3.5
@@ -5012,8 +5012,8 @@ packages:
       - '@types/node'
     dev: true
 
-  /@sphereon/ssi-sdk.dev@0.27.0(@types/node@18.19.42):
-    resolution: {integrity: sha512-nmbGBmXCOoI+wL98F6Ls0wUXQRtEh2qiKnTR1BpIobupFL8iJETvHFzIbajOEJtFW0CYxw38L6rH8wUADkw6Wg==}
+  /@sphereon/ssi-sdk.dev@0.28.0(@types/node@18.19.42):
+    resolution: {integrity: sha512-r/nSCiSe1fWQEF6P32BEWLbmSL08xU+7cWPpplkEocuZb4v3fBPcZ5jX/Hlkxw2a6OOB14nsFripvHUMgI+F8w==}
     hasBin: true
     dependencies:
       '@microsoft/api-extractor': 7.47.3(@types/node@18.19.42)
@@ -5034,8 +5034,8 @@ packages:
       - '@types/node'
     dev: true
 
-  /@sphereon/ssi-types@0.27.0:
-    resolution: {integrity: sha512-u9x85H0Dr53ArqdtMdNiEDZcR1sr6g6yaiKo+nYVPnPpNfjaL1RvAEcRfigZoK6zP50bQEkCjrxVplxQNF8Mvg==}
+  /@sphereon/ssi-types@0.28.0:
+    resolution: {integrity: sha512-NkTkrsBoQUZzJutlk5XD3snBxL9kfsxKdQvBbGUEaUDOiW8siTNUoJuQFeA+bI0eJY99up95bmMKdJeDc1VDfg==}
     dependencies:
       '@sd-jwt/decode': 0.6.1
       debug: 4.3.5
@@ -5226,7 +5226,7 @@ packages:
   /@transmute/did-context@0.6.1-unstable.37:
     resolution: {integrity: sha512-p/QnG3QKS4218hjIDgdvJOFATCXsAnZKgy4egqRrJLlo3Y6OaDBg7cA73dixOwUPoEKob0K6rLIGcsCI/L1acw==}
 
-  /@transmute/did-key-bls12381@0.3.0-unstable.10:
+  /@transmute/did-key-bls12381@0.3.0-unstable.10(expo@51.0.23)(react-native@0.74.4):
     resolution: {integrity: sha512-ExSADdvDxrYeCx8RsKXZGMjJmHrOJ9vyYtziZUaJ97K/sn1uVlvIOTp9V4xHa6j9cT1wTzSqJ325euwGFeK+WQ==}
     engines: {node: '>=14'}
     dependencies:
