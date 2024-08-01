@@ -15,7 +15,6 @@ import { AbstractKeyManagementSystem } from '@veramo/key-manager'
 import { TextDecoder } from 'text-encoding'
 //import { Loggers } from '@sphereon/ssi-types'
 import { KeyMetadata } from './index'
-import { meta } from '@typescript-eslint/parser'
 
 //export const logger = Loggers.DEFAULT.get('sphereon:musap-rn-kms')
 
@@ -41,7 +40,7 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
   }
 
   async createKey(args: { type: TKeyType; meta?: KeyMetadata }): Promise<ManagedKeyInfo> {
-    const { type } = args
+    const { type, meta } = args
     if(meta === undefined || !('keyAlias' in meta)) {
       return Promise.reject(Error('a unique keyAlias field is required for MUSAP'))
     }
