@@ -38,7 +38,7 @@
       "path": "mnemonic-seed-manager"
     },
     {
-      "path": "musap-rn-kms"
+      "path": "kms-musap-rn"
     }
   ]
 }

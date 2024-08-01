@@ -1,5 +1,5 @@
 {
-  "name": "@sphereon/ssi-sdk-ext.musap-rn-kms",
+  "name": "@sphereon/ssi-sdk-ext.kms-musap-rn",
   "description": "Sphereon SSI-SDK react-native plugin for management of keys with musap.",
   "version": "0.22.0",
   "source": "src/index.ts",
