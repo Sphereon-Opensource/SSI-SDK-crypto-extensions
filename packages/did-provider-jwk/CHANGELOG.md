@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.24.0](https://github.com/Sphereon-OpenSource/ssi-sdk/compare/v0.23.0...v0.24.0) (2024-08-01)
+
+### Bug Fixes
+
+- Fix key usages for jwks when importing keys ([c473572](https://github.com/Sphereon-OpenSource/ssi-sdk/commit/c473572dc14105fec4626f596b21aebf180079da))
+
+### Features
+
+- Improve kid determination. Rename most `kid` arguments to kmsKeyRef, as these are only the internal KMS kids. Preventing confusion. Improve did functions to accept object args. ([22f465c](https://github.com/Sphereon-OpenSource/ssi-sdk/commit/22f465c9b7bfc5b5f628557c6a0631ae5817d444))
+
 # [0.23.0](https://github.com/Sphereon-OpenSource/ssi-sdk/compare/v0.22.0...v0.23.0) (2024-07-23)
 
 ### Features

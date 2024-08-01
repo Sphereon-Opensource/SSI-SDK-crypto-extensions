@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.24.0](https://github.com/Sphereon-Opensource/SSI-SDK/compare/v0.23.0...v0.24.0) (2024-08-01)
+
+### Bug Fixes
+
+- **breaking:** Remove BLS crypto from Mattr for now. It is not very well maintained, and is proving to be very difficult in both Windows and React-Native environments. Will be replaced later with a different implementation ([e097e25](https://github.com/Sphereon-Opensource/SSI-SDK/commit/e097e2502ce7baa38f78f6afd1924d989f918dea))
+- Fix key usages for jwks when importing keys ([c473572](https://github.com/Sphereon-Opensource/SSI-SDK/commit/c473572dc14105fec4626f596b21aebf180079da))
+
+### Features
+
+- remove isomorphic-webcrypto ([1adc1fe](https://github.com/Sphereon-Opensource/SSI-SDK/commit/1adc1fee3a80c4b7df69eca46e5c7469d6ce9f71))
+
 # [0.23.0](https://github.com/Sphereon-Opensource/SSI-SDK/compare/v0.22.0...v0.23.0) (2024-07-23)
 
 **Note:** Version bump only for package @sphereon/ssi-sdk-ext.kms-local
