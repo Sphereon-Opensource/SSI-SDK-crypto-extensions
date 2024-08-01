@@ -393,8 +393,8 @@ importers:
         specifier: ^9.9.0
         version: 9.9.0
       nist-weierstrauss:
-        specifier: ^1.6.1
-        version: 1.6.1
+        specifier: 1.4.1
+        version: 1.4.1
       uint8arrays:
         specifier: ^3.1.1
         version: 3.1.1
@@ -12919,8 +12919,9 @@ packages:
     resolution: {integrity: sha512-1nh45deeb5olNY7eX82BkPO7SSxR5SSYJiPTrTdFUVYwAl8CKMA5N9PjTYkHiRjisVcxcQ1HXdLhx2qxxJzLNQ==}
     optional: true
 
-  /nist-weierstrauss@1.6.1:
-    resolution: {integrity: sha512-FpjCOnPV/s3ZVIkeldCVSml2K4lruabPbBgoEitpCK1JL0KTVoWb56CFTU6rZn5i6VqAjdwcOp0FDwJACPmeFA==}
+  /nist-weierstrauss@1.4.1:
+    resolution: {integrity: sha512-qbU4JUBnMrwvvMWTnAm1tGd2eqjhVU5zlHcMJjKrdvpq2q7KWMMCsQw+eGOO8jTNWu8k0zA+puddqkHRSBjaYg==}
+    engines: {node: '>=12'}
     dependencies:
       multiformats: 9.9.0
       uint8arrays: 2.1.10
