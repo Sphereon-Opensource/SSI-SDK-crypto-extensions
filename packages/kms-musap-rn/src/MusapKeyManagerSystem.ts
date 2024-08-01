@@ -10,10 +10,12 @@ import {
   SignatureFormat,
   SignatureReq,
 } from '@sphereon/musap-react-native'
-import { SscdType } from '@sphereon/musap-react-native/src/types/musap-types'
+import { SscdType, KeyAttribute } from '@sphereon/musap-react-native/src/types/musap-types'
 import { AbstractKeyManagementSystem } from '@veramo/key-manager'
 import { TextDecoder } from 'text-encoding'
 import { Loggers } from '@sphereon/ssi-types'
+import { KeyMetadata } from './index'
+import { meta } from '@typescript-eslint/parser'
 
 export const logger = Loggers.DEFAULT.get('sphereon:musap-rn-kms')
 
@@ -33,17 +35,18 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
     return keysJson.map((key) => this.asMusapKeyInfo(key))
   }
 
-  async createKey(args: { type: TKeyType; keyAlias: string; [x: string]: any }): Promise<ManagedKeyInfo> {
-    const { type, attributes = null, keyAlias, keyUsage = 'sign', role = 'administrator' } = args
-
-    const keyAlgorithm = this.mapKeyTypeToAlgorithmType(type)
+  async createKey(args: { type: TKeyType; meta?: KeyMetadata }): Promise<ManagedKeyInfo> {
+    const { type } = args
+    if(meta === undefined || !('keyAlias' in meta)) {
+      return Promise.reject(Error('a unique keyAlias field is required for MUSAP'))
+    }
 
     const keyGenReq = {
-      keyAlgorithm,
-      keyUsage,
-      keyAlias,
-      ...(attributes && attributes),
-      role,
+      keyAlgorithm: this.mapKeyTypeToAlgorithmType(type),
+      keyUsage: 'keyUsage' in meta ? meta.keyUsage as string : 'sign',
+      keyAlias: meta.keyAlias as string,
+      attributes:  'attributes' in meta ? meta.attributes as KeyAttribute[] : [],
+      role: 'role' in meta ? meta.role as string : 'administrator',
     } satisfies KeyGenReq
 
     try {
@@ -56,7 +59,7 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
         throw new Error('Failed to generate key')
       }
     } catch (error) {
-      console.error('An error occurred:', error)
+      logger.error('An error occurred:', error)
       throw error
     }
   }
@@ -118,7 +121,7 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
   }
 
   async importKey(args: Omit<MinimalImportableKey, 'kms'> & { privateKeyPEM?: string }): Promise<ManagedKeyInfo> {
-    throw new Error('Not implemented.')
+    throw new Error('importKey is not implemented for MusapKeyManagementSystem.')
   }
 
   private asMusapKeyInfo(args: MusapKey): ManagedKeyInfo {

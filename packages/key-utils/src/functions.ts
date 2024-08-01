@@ -37,6 +37,8 @@ export const generatePrivateKeyHex = async (type: TKeyType): Promise<string> => 
   }
 }
 
+const algorithmsFromKeyType = (type: string): string[] => [type] // TODO BEFORE PR, is correct?
+
 /**
  * We optionally generate and then import our own keys.
  *
@@ -76,15 +78,22 @@ export async function importProvidedOrGeneratedKey(
       privateKeyHex = privateKeyHexFromPEM(key.meta.x509.privateKeyPEM)
     }
   }
-  if (!privateKeyHex) {
-    privateKeyHex = await generatePrivateKeyHex(type)
+  if (privateKeyHex) {
+    return context.agent.keyManagerImport({
+      ...key,
+      kms: args.kms,
+      type,
+      privateKeyHex: privateKeyHex!,
+    })
   }
 
-  return context.agent.keyManagerImport({
-    ...key,
-    kms: args.kms,
+  return context.agent.keyManagerCreate({
     type,
-    privateKeyHex: privateKeyHex!,
+    kms: args.kms,
+    meta: {
+      algorithms: algorithmsFromKeyType(type),
+      keyAlias: args.alias,
+    },
   })
 }
 
