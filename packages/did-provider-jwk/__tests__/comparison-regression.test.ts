@@ -266,7 +266,7 @@ describe('@sphereon/did-provider-jwk comparison ES256', () => {
     })
   })
 
-  it('Creation DID Document from testvector JWK', async () => {
+  /*it('Creation DID Document from testvector JWK', async () => {
     const jwk = {
       kid: 'urn:ietf:params:oauth:jwk-thumbprint:sha-256:T9XxxVUPtvL7tgGL9Y8jTxXCOT1LF7nSesZytwqi5S8',
       kty: 'EC',
@@ -276,9 +276,9 @@ describe('@sphereon/did-provider-jwk comparison ES256', () => {
       y: 's4xcAXRuhCVta6bh_Uss7xNv4gyRDUAnRKcsFRB32oY',
       d: 'DW08IHT19g2-I3UeTKquzq10dZucrNETLkgaXdmHsgE',
     }
-    console.log(jwk)
+    // console.log(jwk)
   })
-
+*/
   it('Creation from privateKeyHex', async () => {
     /*const privateKeyHex = await generatePrivateKeyHex('Secp256r1')
             console.log(privateKeyHex)*/
@@ -291,12 +291,12 @@ describe('@sphereon/did-provider-jwk comparison ES256', () => {
       type: Key.Secp256r1,
     }
     const identifier: IIdentifier = await agent.didManagerCreate({ options })
-    console.log('=============================================================')
+    /*console.log('=============================================================')
     console.log(
       'test against: did:jwk:eyJhbGciOiJFUzI1NiIsInVzZSI6InNpZyIsImt0eSI6IkVDIiwiY3J2IjoiUC0yNTYiLCJ4IjoiOWdnczRDbTRWWGNLT2VQcGprTDlpU3lNQ2EyMnlPamJvLW9VWHB5LWF3MCIsInkiOiJsRVhXN2JfSjdsY2VpVkV0cmZwdHZ1UGVFTnNPSmwtZmh6bXU2NTRHUFI4In0'
     )
     console.log(JSON.stringify(identifier, null, 2))
-    console.log('=============================================================')
+    console.log('=============================================================')*/
     const did =
       'did:jwk:eyJhbGciOiJFUzI1NiIsInVzZSI6InNpZyIsImt0eSI6IkVDIiwiY3J2IjoiUC0yNTYiLCJ4IjoiOWdnczRDbTRWWGNLT2VQcGprTDlpU3lNQ2EyMnlPamJvLW9VWHB5LWF3MCIsInkiOiJsRVhXN2JfSjdsY2VpVkV0cmZwdHZ1UGVFTnNPSmwtZmh6bXU2NTRHUFI4In0'
     expect(identifier.did).toBe(did)
