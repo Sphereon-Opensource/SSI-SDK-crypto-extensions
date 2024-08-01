@@ -25,9 +25,14 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
 
   constructor(keyStore: MusapModuleType, sscdType?: SscdType) {
     super()
-    this.musapKeyStore = keyStore
-    this.sscdType = sscdType ? sscdType : 'TEE'
-    this.musapKeyStore.enableSscd(this.sscdType)
+    try {
+      this.musapKeyStore = keyStore
+      this.sscdType = sscdType ? sscdType : 'TEE'
+      this.musapKeyStore.enableSscd(this.sscdType)
+    } catch (e) {
+      console.error('enableSscd', e)
+      throw Error('enableSscd failed')
+    }
   }
 
   async listKeys(): Promise<ManagedKeyInfo[]> {
