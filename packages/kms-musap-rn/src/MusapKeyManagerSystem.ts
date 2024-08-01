@@ -15,7 +15,7 @@ import { AbstractKeyManagementSystem } from '@veramo/key-manager'
 import { TextDecoder } from 'text-encoding'
 import { Loggers } from '@sphereon/ssi-types'
 import { KeyMetadata } from './index'
-import { PEMToHex } from '@sphereon/ssi-sdk-ext.key-utils'
+import { rawPublicKeyHexFromAsn1Der } from '@sphereon/ssi-sdk-ext.key-utils'
 
 export const logger = Loggers.DEFAULT.get('sphereon:musap-rn-kms')
 
@@ -133,7 +133,7 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
     const keyInfo: Partial<ManagedKeyInfo> = {
       kid: args.keyId,
       type: this.mapAlgorithmTypeToKeyType(args.algorithm),
-      publicKeyHex: PEMToHex( args.publicKey.pem),
+      publicKeyHex: rawPublicKeyHexFromAsn1Der(args.publicKey.der),
       meta: {
         ...args,
       },

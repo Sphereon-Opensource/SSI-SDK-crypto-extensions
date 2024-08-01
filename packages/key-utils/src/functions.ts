@@ -350,3 +350,38 @@ export const padLeft = (args: { data: string; size?: number; padString?: string 
   const length = padString.length
   return padString.repeat((size - data.length) / length) + data
 }
+
+
+/**
+ * This function converts a DER encoded ASN.1 formatted public key to a raw public key
+ * @param derKey
+ */
+export const rawPublicKeyHexFromAsn1Der = (derKey: Uint8Array): string => {
+  if (derKey[0] !== 0x30) {
+    throw new Error('Invalid DER encoding: Expected to start with sequence tag')
+  }
+
+  // Find the start of the bit string containing the public key
+  let index = 2 // Skip sequence tag and length
+  while (index < derKey.length) {
+    if (derKey[index] === 0x03) { // Bit string tag
+      break
+    }
+    index++
+  }
+
+  if (index >= derKey.length) {
+    throw new Error('Invalid DER encoding: Bit string not found')
+  }
+
+  // Skip bit string tag and length
+  index += 2
+
+  // Skip unused bits byte
+  index++
+
+  // Convert the remaining bytes to a hex string
+  return Array.from(derKey.slice(index))
+    .map(byte => byte.toString(16).padStart(2, '0'))
+    .join('')
+}
