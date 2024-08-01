@@ -143,3 +143,11 @@ export function base64ToPEM(cert: string, headerKey?: 'PUBLIC KEY' | 'RSA PRIVAT
   }
   return `-----BEGIN ${key}-----\n${matches.join('\n')}\n-----END ${key}-----\n`
 }
+
+export function PEMToDER(pem: string): Uint8Array {
+  const pemContents = pem.replace(/^[^]*-----BEGIN [^-]+-----/, '')
+    .replace(/-----END [^-]+-----[^]*$/, '')
+    .replace(/\s/g, '')
+
+  return u8a.fromString(pemContents, 'base64pad')
+}
