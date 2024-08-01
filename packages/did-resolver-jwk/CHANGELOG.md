@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.24.0](https://github.com/Sphereon-OpenSource/ssi-sdk-crypto-extensions/compare/v0.23.0...v0.24.0) (2024-08-01)
+
+### Features
+
+- Improve kid determination. Rename most `kid` arguments to kmsKeyRef, as these are only the internal KMS kids. Preventing confusion. Improve did functions to accept object args. ([22f465c](https://github.com/Sphereon-OpenSource/ssi-sdk-crypto-extensions/commit/22f465c9b7bfc5b5f628557c6a0631ae5817d444))
+
 # [0.23.0](https://github.com/Sphereon-OpenSource/ssi-sdk-crypto-extensions/compare/v0.22.0...v0.23.0) (2024-07-23)
 
 **Note:** Version bump only for package @sphereon/ssi-sdk-ext.did-resolver-jwk
