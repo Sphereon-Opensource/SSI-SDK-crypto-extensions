@@ -1,1 +1,1 @@
-export * from './agent/MusapKeyManagerSystem'
+export { MusapKeyManagementSystem } from './MusapKeyManagerSystem'

@@ -34,15 +34,9 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
   }
 
   async createKey(args: { type: TKeyType; keyAlias: string; [x: string]: any }): Promise<ManagedKeyInfo> {
-    const {
-      type,
-      attributes = null,
-      keyAlias,
-      keyUsage = 'sign',
-      role = 'administrator'
-    } = args;
+    const { type, attributes = null, keyAlias, keyUsage = 'sign', role = 'administrator' } = args
 
-    const keyAlgorithm = this.mapKeyTypeToAlgorithmType(type);
+    const keyAlgorithm = this.mapKeyTypeToAlgorithmType(type)
 
     const keyGenReq = {
       keyAlgorithm,
