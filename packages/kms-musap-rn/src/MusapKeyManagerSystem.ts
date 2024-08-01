@@ -13,11 +13,11 @@ import {
 import { SscdType, KeyAttribute } from '@sphereon/musap-react-native/src/types/musap-types'
 import { AbstractKeyManagementSystem } from '@veramo/key-manager'
 import { TextDecoder } from 'text-encoding'
-import { Loggers } from '@sphereon/ssi-types'
+//import { Loggers } from '@sphereon/ssi-types'
 import { KeyMetadata } from './index'
 import { meta } from '@typescript-eslint/parser'
 
-export const logger = Loggers.DEFAULT.get('sphereon:musap-rn-kms')
+//export const logger = Loggers.DEFAULT.get('sphereon:musap-rn-kms')
 
 export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
   private musapKeyStore: MusapModuleType
@@ -57,14 +57,14 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
     try {
       const generatedKeyUri = await this.musapKeyStore.generateKey(this.sscdType, keyGenReq)
       if (generatedKeyUri) {
-        logger.debug('Generated key:', generatedKeyUri)
+        //logger.debug('Generated key:', generatedKeyUri)
         const key = await this.musapKeyStore.getKeyByUri(generatedKeyUri)
         return this.asMusapKeyInfo(key)
       } else {
         throw new Error('Failed to generate key')
       }
     } catch (error) {
-      logger.error('An error occurred:', error)
+      //logger.error('An error occurred:', error)
       throw error
     }
   }
