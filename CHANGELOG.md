@@ -3,6 +3,33 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.24.0](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/compare/v0.23.0...v0.24.0) (2024-08-01)
+
+### Bug Fixes
+
+- added createKey functionality ([fcb9e82](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/fcb9e826072638ea775fd60a65bdc076ec35fed7))
+- added enable sscd to musap react native kms ([da8a411](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/da8a4112d46c652b5681f569ac0069143843ff9c))
+- **breaking:** Remove BLS crypto from Mattr for now. It is not very well maintained, and is proving to be very difficult in both Windows and React-Native environments. Will be replaced later with a different implementation ([e097e25](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/e097e2502ce7baa38f78f6afd1924d989f918dea))
+- Fix key usages for jwks when importing keys ([c473572](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/c473572dc14105fec4626f596b21aebf180079da))
+- fixed the sign function for musap rn kms ([e3318e6](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/e3318e6711148a75973810642c6055a4b860c56b))
+- modified the decoding for sign in the musap module ([8561b0d](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/8561b0d071ef62423e8f99850b443fd2f8e5d764))
+- modified the decoding for sign in the musap module ([64a53c5](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/64a53c5a8222f8f2a879368880ad843e7d4f3c54))
+- modified the decoding for sign in the musap module ([34bba55](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/34bba55c4ea4e3edd78aa0be4b46b95cf2ff4919))
+- modified the decoding for sign in the musap module ([e2a76a7](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/e2a76a7f7bbdd8106815c2e2f35b2dd9783ee9a5))
+- modified the decoding for sign in the musap module ([7b6e68f](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/7b6e68fd26448f4aa1d36ca47e40067356585a94))
+- updated musap kms with recent changes from the musap react native lib ([b1518de](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/b1518de689b28ee1da85337f1b828afb02a41f5d))
+
+### Features
+
+- (WIP) added MusapKeyManagerSystem ([f55926f](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/f55926f788f20ce2ab1ebafbcb305c7b361bb569))
+- (WIP) added MusapKeyManagerSystem ([809846d](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/809846d2a9cacbb084ba2bc7924df33df254b1b7))
+- added build script and android directory to musap-rn-kms module ([9be5fb0](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/9be5fb0d739d457407eccdd1719c397274189206))
+- added delete function ([ab72368](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/ab72368f603258c588d47857b753f42e6bba8390))
+- added mapper function for create key in musap kms and added the option to enable certain sscd's in the constructor ([db5c8d3](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/db5c8d3d60cc00094b91e6c3675d478c16d95555))
+- added sign function ([62dc3ab](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/62dc3ab3d7721255d4ed6b9edf9cc18be69bc402))
+- Improve kid determination. Rename most `kid` arguments to kmsKeyRef, as these are only the internal KMS kids. Preventing confusion. Improve did functions to accept object args. ([22f465c](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/22f465c9b7bfc5b5f628557c6a0631ae5817d444))
+- remove isomorphic-webcrypto ([1adc1fe](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/1adc1fee3a80c4b7df69eca46e5c7469d6ce9f71))
+
 # [0.23.0](https://github.com/Sphereon-Opensource/veramo-BBS/compare/v0.22.0...v0.23.0) (2024-07-23)
 
 ### Bug Fixes
