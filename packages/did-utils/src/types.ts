@@ -37,7 +37,7 @@ export interface IDIDOptions {
 export interface IIdentifierOpts {
   identifier: IIdentifier | string
   verificationMethodSection?: DIDDocumentSection
-  kid?: string
+  kmsKeyRef?: string
 }
 
 export type IdentifierProviderOpts = {

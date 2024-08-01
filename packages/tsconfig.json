@@ -32,9 +32,6 @@
       "path": "did-provider-jwk"
     },
     {
-      "path": "did-provider-lto"
-    },
-    {
       "path": "did-provider-oyd"
     },
     {

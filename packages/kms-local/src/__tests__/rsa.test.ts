@@ -150,6 +150,7 @@ describe('RSA Signer', () => {
     })
     const signature = await signer.sign(u8a.fromString('test123', 'utf-8'))
     expect(signature).toBeDefined()
+
     const result = await signer.verify('test123', signature)
     expect(result).toBeTruthy()
   })

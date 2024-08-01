@@ -2,8 +2,8 @@
   "name": "@sphereon/ssi-sdk-ext.workspace",
   "private": true,
   "version": "0.11.0",
-  "description": "Sphereon Crypto Extensions (BBS+/EBSI) signature support (Workspace)",
-  "repository": "git@github.com:Sphereon-Opensource/veramo-BBS.git",
+  "description": "Sphereon Crypto Extensions and DID support (Workspace)",
+  "repository": "git@github.com:Sphereon-Opensource/SSI-SDK-crypto-extensions.git",
   "author": "Sphereon <dev@sphereon.com>",
   "license": "Apache-2.0",
   "scripts": {
@@ -95,18 +95,17 @@
     "@veramo/remote-server": "4.2.0",
     "@veramo/selective-disclosure": "4.2.0",
     "@veramo/url-handler": "4.2.0",
-    "@sphereon/ssi-sdk.core": "0.27.0",
-    "@sphereon/ssi-types": "0.27.0",
+    "@sphereon/ssi-sdk.core": "0.28.0",
+    "@sphereon/ssi-types": "0.28.0",
     "@digitalcredentials/ed25519-verification-key-2020": "3.2.2",
     "*>@digitalcredentials/ed25519-verification-key-2020": "3.2.2",
     "did-jwt": "6.11.6",
     "did-jwt-vc": "3.1.3",
     "ethr-did": "2.3.9",
-    "jsonld": "npm:@digitalcredentials/jsonld@^5.2.1",
-    "isomorphic-webcrypto": "link:./node_modules/@sphereon/isomorphic-webcrypto"
+    "jsonld": "npm:@digitalcredentials/jsonld@^6.0.0"
   },
   "engines": {
-    "node": ">= 18.0.0"
+    "node": ">= 20.0.0"
   },
   "prettier": {
     "endOfLine": "auto",
