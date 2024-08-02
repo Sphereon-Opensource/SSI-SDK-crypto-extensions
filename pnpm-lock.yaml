@@ -478,6 +478,9 @@ importers:
       '@ethersproject/random':
         specifier: ^5.7.0
         version: 5.7.0
+      '@sphereon/ssi-types':
+        specifier: 0.28.0
+        version: 0.28.0
       '@stablelib/ed25519':
         specifier: ^1.0.3
         version: 1.0.3

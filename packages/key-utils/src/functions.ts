@@ -1,7 +1,6 @@
 import { randomBytes } from '@ethersproject/random'
 import { generateKeyPair as generateSigningKeyPair } from '@stablelib/ed25519'
 import { IAgentContext, IKey, IKeyManager, ManagedKeyInfo, MinimalImportableKey } from '@veramo/core'
-import Debug from 'debug'
 
 import { JsonWebKey } from 'did-resolver'
 import elliptic from 'elliptic'
@@ -9,8 +8,10 @@ import * as u8a from 'uint8arrays'
 import { digestMethodParams } from './digest-methods'
 import { ENC_KEY_ALGS, IImportProvidedOrGeneratedKeyArgs, JWK, JwkKeyUse, KeyCurve, KeyType, SIG_KEY_ALGS, TKeyType } from './types'
 import { generateRSAKeyAsPEM, hexToBase64, hexToPEM, PEMToJwk, privateKeyHexFromPEM } from './x509'
+import { Loggers } from '@sphereon/ssi-types'
 
-const debug = Debug('sphereon:kms:local')
+export const logger = Loggers.DEFAULT.get('sphereon:key-utils')
+
 /**
  * Generates a random Private Hex Key for the specified key type
  * @param type The key type
@@ -245,7 +246,7 @@ const assertProperKeyLength = (keyHex: string, expectedKeyLength: number | numbe
  */
 const toSecp256k1Jwk = (keyHex: string, opts?: { use?: JwkKeyUse; isPrivateKey?: boolean }): JWK => {
   const { use } = opts ?? {}
-  debug(`toSecp256k1Jwk keyHex: ${keyHex}, length: ${keyHex.length}`)
+  logger.debug(`toSecp256k1Jwk keyHex: ${keyHex}, length: ${keyHex.length}`)
   if (opts?.isPrivateKey) {
     assertProperKeyLength(keyHex, [64])
   } else {
@@ -276,7 +277,7 @@ const toSecp256k1Jwk = (keyHex: string, opts?: { use?: JwkKeyUse; isPrivateKey?:
  */
 const toSecp256r1Jwk = (keyHex: string, opts?: { use?: JwkKeyUse; isPrivateKey?: boolean }): JWK => {
   const { use } = opts ?? {}
-  debug(`toSecp256r1Jwk keyHex: ${keyHex}, length: ${keyHex.length}`)
+  logger.debug(`toSecp256r1Jwk keyHex: ${keyHex}, length: ${keyHex.length}`)
   if (opts?.isPrivateKey) {
     assertProperKeyLength(keyHex, [64])
   } else {
@@ -285,7 +286,7 @@ const toSecp256r1Jwk = (keyHex: string, opts?: { use?: JwkKeyUse; isPrivateKey?:
 
   const secp256r1 = new elliptic.ec('p256')
   const keyBytes = u8a.fromString(keyHex, 'base16')
-  debug(`keyBytes length: ${keyBytes}`)
+  logger.debug(`keyBytes length: ${keyBytes}`)
   const keyPair = opts?.isPrivateKey ? secp256r1.keyFromPrivate(keyBytes) : secp256r1.keyFromPublic(keyBytes)
   const pubPoint = keyPair.getPublic()
   return {
@@ -352,36 +353,80 @@ export const padLeft = (args: { data: string; size?: number; padString?: string 
 }
 
 
-/**
- * This function converts a DER encoded ASN.1 formatted public key to a raw public key
- * @param derKey
- */
-export const rawPublicKeyHexFromAsn1Der = (derKey: Uint8Array): string => {
-  if (derKey[0] !== 0x30) {
-    throw new Error('Invalid DER encoding: Expected to start with sequence tag')
+const uint8ArrayToHex = (uint8Array: Uint8Array): string =>
+  Array.from(uint8Array)
+    .map(byte => byte.toString(16).padStart(2, '0'))
+    .join('')
+
+const sanitizeHexString = (hexString: string): string => {
+  let cleanHex = hexString.replace(/[^0-9a-fA-F]/g, '')
+  if (cleanHex.length % 2 !== 0) {
+    cleanHex = '0' + cleanHex
+  }
+  return cleanHex
+}
+
+export const rawPublicKeyHexFromAsn1Der = (derKey: Uint8Array | string): string => {
+  let inputHex: string
+  if (typeof derKey === 'string') {
+    inputHex = sanitizeHexString(derKey)
+  } else {
+    inputHex = sanitizeHexString(uint8ArrayToHex(derKey))
   }
 
-  // Find the start of the bit string containing the public key
-  let index = 2 // Skip sequence tag and length
-  while (index < derKey.length) {
-    if (derKey[index] === 0x03) { // Bit string tag
+  logger.debug("Sanitized Input DER Key (Hex):", inputHex)
+
+  const derBytes = new Uint8Array(inputHex.match(/.{1,2}/g)!.map(byte => parseInt(byte, 16)))
+
+  if (derBytes[0] !== 0x30) {
+    throw new Error("Invalid DER encoding: Expected to start with sequence tag")
+  }
+
+  let index = 2
+  if (derBytes[1] & 0x80) {
+    const lengthBytesCount = derBytes[1] & 0x7F
+    index += lengthBytesCount
+  }
+
+  while (index < derBytes.length) {
+    if (derBytes[index] === 0x03) {
       break
     }
     index++
   }
 
-  if (index >= derKey.length) {
-    throw new Error('Invalid DER encoding: Bit string not found')
+  if (index >= derBytes.length) {
+    throw new Error("Invalid DER encoding: Bit string not found")
   }
 
-  // Skip bit string tag and length
+  // Skip over Bit String tag (0x03) and the length of the Bit String
   index += 2
 
-  // Skip unused bits byte
+  // Extract the number of unused bits in the Bit String
+  const unusedBits = derBytes[index]
+  logger.debug("Unused bits in Bit String:", unusedBits)
   index++
 
-  // Convert the remaining bytes to a hex string
-  return Array.from(derKey.slice(index))
-    .map(byte => byte.toString(16).padStart(2, '0'))
-    .join('')
+  // Extract the raw public key bytes
+  const rawPublicKeyBytes = derBytes.slice(index)
+  const rawPublicKeyHex = uint8ArrayToHex(rawPublicKeyBytes)
+
+  logger.debug("Raw public key starts at index:", index)
+  logger.debug("Output Raw Public Key (Hex):", rawPublicKeyHex)
+
+  // Determine the key type and validate length
+  if (rawPublicKeyHex.length === 130 || rawPublicKeyHex.length === 128) {
+    logger.debug("Detected uncompressed secp256k1 or secp256r1 key")
+    // If it starts with '04', it's the full uncompressed key. Otherwise, we assume it's missing the '04' prefix.
+    return rawPublicKeyHex.startsWith('04') ? rawPublicKeyHex : '04' + rawPublicKeyHex
+  } else if (rawPublicKeyHex.length === 66 || rawPublicKeyHex.length === 64) {
+    logger.debug("Detected compressed secp256k1 or secp256r1 key")
+    // If it starts with '02' or '03', it's the full compressed key. Otherwise, we assume it's missing the prefix.
+    return (rawPublicKeyHex.startsWith('02') || rawPublicKeyHex.startsWith('03')) ? rawPublicKeyHex : '02' + rawPublicKeyHex
+  } else if (rawPublicKeyHex.length === 64) {
+    logger.debug("Detected Ed25519 key")
+    return rawPublicKeyHex
+  } else {
+    throw new Error(`Invalid key length. Got ${rawPublicKeyHex.length} characters. Expected 128, 130 (uncompressed secp256k1/r1), 64, 66 (compressed secp256k1/r1), or 64 (Ed25519). Input: ${rawPublicKeyHex}`)
+  }
 }
