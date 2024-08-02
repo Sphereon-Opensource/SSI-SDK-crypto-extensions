@@ -1,5 +1,6 @@
 import { IKey, ManagedKeyInfo, MinimalImportableKey, TKeyType } from '@veramo/core'
 import {
+  isSignatureAlgorithmType, JWSAlgorithm,
   KeyAlgorithm,
   KeyAlgorithmType,
   KeyGenReq,
@@ -106,6 +107,23 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
     }
   }
 
+  private determineAlgorithm(
+    providedAlgorithm: string | undefined,
+    keyAlgorithm: KeyAlgorithm,
+  ): SignatureAlgorithmType {
+
+    if (providedAlgorithm === undefined) {
+      return signatureAlgorithmFromKeyAlgorithm(keyAlgorithm)
+    }
+
+    if (isSignatureAlgorithmType(providedAlgorithm)) {
+      return providedAlgorithm
+    }
+
+    // Veramo translates TKeyType to JWSAlgorithm
+    return signatureAlgorithmFromKeyAlgorithm(providedAlgorithm as JWSAlgorithm)
+  }
+
   async sign(args: { keyRef: Pick<IKey, 'kid'>; algorithm?: string; data: Uint8Array; [x: string]: any }): Promise<string> {
     if (!args.keyRef) {
       throw new Error('key_not_found: No key ref provided')
@@ -117,7 +135,7 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
     const signatureReq: SignatureReq = {
       keyUri: key.keyUri,
       data,
-      algorithm: (args.algorithm as SignatureAlgorithmType) ?? signatureAlgorithmFromKeyAlgorithm(key.algorithm),
+      algorithm: this.determineAlgorithm(args.algorithm, key.algorithm),
       displayText: args.displayText,
       transId: args.transId,
       format: (args.format as SignatureFormat) ?? 'RAW',
