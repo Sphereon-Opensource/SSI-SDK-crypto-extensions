@@ -28,10 +28,10 @@ yarn add @sphereon/ssi-sdk-ext.kms-musap-rn
 To create a key, you need to specify the key type and provide a keyAlias as part of the metadata. Here is an example of how to create a key:
 
 ```typescript
-import {MusapKey, MusapModule} from "@sphereon/musap-react-native";
-import {MusapKeyManagementSystem} from "@sphereon/ssi-sdk-ext.musap-rn-kms";
+import {MusapKey} from "@sphereon/musap-react-native";
+import {MusapKeyManagementSystem} from "@sphereon/ssi-sdk-ext.kms-musap-rn";
 
-const kms: MusapKeyManagementSystem = new MusapKeyManagementSystem(MusapModule, 'TEE')
+const kms: MusapKeyManagementSystem = new MusapKeyManagementSystem('TEE')
 
 async function createKeyExample() {
     try {
@@ -50,9 +50,8 @@ After creating a key, you can use it to sign data. Here's an example of how to s
 ```typescript
 import {ManagedKeyInfo} from '@veramo/core';
 import {MusapKeyManagementSystem} from '@sphereon/ssi-sdk-ext.kms-musap-rn';
-import {MusapModuleType} from '@sphereon/musap-react-native';
 
-const kms: MusapKeyManagementSystem = new MusapKeyManagementSystem(MusapModule, 'TEE')
+const kms: MusapKeyManagementSystem = new MusapKeyManagementSystem()
 
 async function signDataExample(keyManagedInfo: ManagedKeyInfo, data: Uint8Array) {
     try {
