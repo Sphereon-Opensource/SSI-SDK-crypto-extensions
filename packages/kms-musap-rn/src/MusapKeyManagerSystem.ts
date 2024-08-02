@@ -4,6 +4,7 @@ import {
   KeyAlgorithmType,
   KeyGenReq,
   MusapKey,
+  MusapModule,
   MusapModuleType,
   signatureAlgorithmFromKeyAlgorithm,
   SignatureAlgorithmType,
@@ -23,10 +24,10 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
   private musapKeyStore: MusapModuleType
   private sscdType: SscdType
 
-  constructor(keyStore: MusapModuleType, sscdType?: SscdType) {
+  constructor(sscdType?: SscdType) {
     super()
     try {
-      this.musapKeyStore = keyStore
+      this.musapKeyStore = MusapModule
       this.sscdType = sscdType ? sscdType : 'TEE'
       this.musapKeyStore.enableSscd(this.sscdType)
     } catch (e) {
