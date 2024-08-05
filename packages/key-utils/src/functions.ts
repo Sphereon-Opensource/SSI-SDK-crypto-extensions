@@ -398,16 +398,10 @@ function getTargetOID(keyType: TKeyType) {
       throw new Error(`Unsupported key type: ${keyType}`)
   }
 }
-
-const uint8ArrayToHex = (uint8Array: Uint8Array): string =>
-  Array.from(uint8Array)
-    .map(byte => byte.toString(16).padStart(2, '0'))
-    .join('')
-
-// TODO support for uncompressed keys
 export function rawPublicKeyHexFromAsn1Der(
   derKey: Uint8Array,
-  keyType: TKeyType
+  keyType: TKeyType,
+  compressed: boolean = true
 ): string {
   if (derKey[0] !== 0x30) {
     throw new Error('Invalid DER encoding: Expected to start with sequence tag')
@@ -446,13 +440,17 @@ export function rawPublicKeyHexFromAsn1Der(
     if (rawPublicKeyBytes[0] === 0x04 && rawPublicKeyBytes.length === 65) {
       const xCoordinate = rawPublicKeyBytes.slice(1, 33)
       const yCoordinate = rawPublicKeyBytes.slice(33)
-      const prefix = new Uint8Array([yCoordinate[31] % 2 === 0 ? 0x02 : 0x03])
-      return uint8ArrayToHex(new Uint8Array([...prefix, ...xCoordinate]))
+      if (compressed) {
+        const prefix = new Uint8Array([yCoordinate[31] % 2 === 0 ? 0x02 : 0x03])
+        return u8a.toString(new Uint8Array([...prefix, ...xCoordinate]), 'base16')
+      } else {
+        return u8a.toString(rawPublicKeyBytes, 'base16')
+      }
     } else {
       throw new Error('Invalid uncompressed public key format.')
     }
   } else if (keyType === 'Ed25519') {
-    return uint8ArrayToHex(rawPublicKeyBytes)
+    return u8a.toString(rawPublicKeyBytes, 'base16')
   }
 
   throw new Error(`Invalid key length or unsupported key type. Got ${rawPublicKeyBytes.length} bytes.`)
