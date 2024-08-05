@@ -398,6 +398,7 @@ function getTargetOID(keyType: TKeyType) {
       throw new Error(`Unsupported key type: ${keyType}`)
   }
 }
+
 export function rawPublicKeyHexFromAsn1Der(
   derKey: Uint8Array,
   keyType: TKeyType,
