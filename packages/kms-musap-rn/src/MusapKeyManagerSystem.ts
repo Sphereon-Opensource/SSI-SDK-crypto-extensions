@@ -160,7 +160,7 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
     const keyType = this.mapAlgorithmTypeToKeyType(args.algorithm)
     const pemBinary = PEMToBinary(args.publicKey.pem) // The der is flawed, it's not binary but a string [123, 4567]
     const publicKeyBinary = isAsn1Der(pemBinary) ? asn1DerToRawPublicKey(pemBinary, keyType) : pemBinary
-    const publicKeyHex = isRawCompressedPublicKey(publicKeyBinary)
+    const publicKeyHex = isRawCompressedPublicKey(publicKeyBinary) // TODO In the future I think it's better to have an option in KeyGenReq to specify which public key format we want back. Now it's different in iOS vs Android and we need to handle that inconsistency afterwards
       ? hexStringFromUint8Array(publicKeyBinary)
       : toRawCompressedHexPublicKey(publicKeyBinary, keyType)
     const keyInfo: Partial<ManagedKeyInfo> = {
