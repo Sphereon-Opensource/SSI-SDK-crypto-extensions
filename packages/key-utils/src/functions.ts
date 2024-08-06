@@ -10,6 +10,7 @@ import { ENC_KEY_ALGS, IImportProvidedOrGeneratedKeyArgs, JWK, JwkKeyUse, KeyCur
 import { generateRSAKeyAsPEM, hexToBase64, hexToPEM, PEMToJwk, privateKeyHexFromPEM } from './x509'
 import { Loggers } from '@sphereon/ssi-types'
 
+
 export const logger = Loggers.DEFAULT.get('sphereon:key-utils')
 
 /**
@@ -38,7 +39,7 @@ export const generatePrivateKeyHex = async (type: TKeyType): Promise<string> => 
   }
 }
 
-const algorithmsFromKeyType = (type: string): string[] => [type] // TODO BEFORE PR, is correct?
+const algorithmsFromKeyType = (type: string): string[] => [type]
 
 /**
  * We optionally generate and then import our own keys.
@@ -452,7 +453,9 @@ export const toRawCompressedHexPublicKey = (rawPublicKey: Uint8Array, keyType: T
       const xCoordinate = rawPublicKey.slice(1, 33)
       const yCoordinate = rawPublicKey.slice(33)
       const prefix = new Uint8Array([yCoordinate[31] % 2 === 0 ? 0x02 : 0x03])
-      return u8a.toString(new Uint8Array([...prefix, ...xCoordinate]), 'base16')
+      const resultKey = hexStringFromUint8Array(new Uint8Array([...prefix, ...xCoordinate]))
+      logger.debug(`converted public key ${hexStringFromUint8Array(rawPublicKey)} to ${resultKey}`)
+      return resultKey
     }
     return u8a.toString(rawPublicKey, 'base16')
   } else if (keyType === 'Ed25519') {
