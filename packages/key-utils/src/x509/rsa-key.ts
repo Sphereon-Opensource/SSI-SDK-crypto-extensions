@@ -1,7 +1,7 @@
 import * as u8a from 'uint8arrays'
 import { HashAlgorithm } from '../digest-methods'
 import { JWK } from '../types'
-import { base64ToPEM } from './x509-utils'
+import { derToPEM } from './x509-utils'
 
 export type RSASignatureSchemes = 'RSASSA-PKCS1-V1_5' | 'RSA-PSS'
 
@@ -77,5 +77,5 @@ export const generateRSAKeyAsPEM = async (
   const pkcs8 = await crypto.subtle.exportKey('pkcs8', keypair.privateKey)
 
   const uint8Array = new Uint8Array(pkcs8)
-  return base64ToPEM(u8a.toString(uint8Array, 'base64pad'), 'RSA PRIVATE KEY')
+  return derToPEM(u8a.toString(uint8Array, 'base64pad'), 'RSA PRIVATE KEY')
 }

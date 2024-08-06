@@ -56,7 +56,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 - Key metadata was switched for Secp256k1 and Secp256r1 keys ([ae174aa](https://github.com/Sphereon-Opensource/veramo-BBS/commit/ae174aa833a4989f921b92f2778bbeb63d867d3b))
 - kid determination of a key should look for jwk thumbprint as well ([d00e984](https://github.com/Sphereon-Opensource/veramo-BBS/commit/d00e98446601d7a2593db32529ba958629fe4005))
 - our exported JWK depended on another lib, which is not needed. Also was not compatible with Jose, which is heavily used ([8b20d61](https://github.com/Sphereon-Opensource/veramo-BBS/commit/8b20d616c87a350a42d72bf98ab13311e8f248ee))
-- x5c is an array in a JWK ([58f607f](https://github.com/Sphereon-Opensource/veramo-BBS/commit/58f607f82194afe1907e0d13909f1fbd9bff7d7f))
+- chainDER is an array in a JWK ([58f607f](https://github.com/Sphereon-Opensource/veramo-BBS/commit/58f607f82194afe1907e0d13909f1fbd9bff7d7f))
 
 ### chore
 

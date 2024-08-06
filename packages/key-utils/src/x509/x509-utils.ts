@@ -38,13 +38,20 @@ export function x5cToPemCertChain(x5c: string[], maxDepth?: number): string {
   const length = maxDepth === 0 ? x5c.length : Math.min(maxDepth, x5c.length)
   let pem = ''
   for (let i = 0; i < length; i++) {
-    pem += base64ToPEM(x5c[i], 'CERTIFICATE')
+    pem += derToPEM(x5c[i], 'CERTIFICATE')
   }
   return pem
 }
 
-export const createX509Certificate = (cert: string): x509.X509Certificate => {
-  return new x509.X509Certificate(cert)
+export const pemOrDerToX509Certificate = (cert: string | Uint8Array): x509.X509Certificate => {
+  if (typeof cert !== 'string') {
+    return new x509.X509Certificate(cert)
+  }
+  let DER = cert
+  if (cert.includes('CERTIFICATE')) {
+    DER = PEMToDer(cert)
+  }
+  return new x509.X509Certificate(DER)
 }
 
 export const areCertificatesEqual = async (cert1: x509.X509Certificate, cert2: x509.X509Certificate): Promise<boolean> => {
@@ -135,18 +142,22 @@ export const hexToPEM = (hex: string, type: KeyVisibility): string => {
   const base64 = hexToBase64(hex, 'base64pad')
   const headerKey = type === 'private' ? 'RSA PRIVATE KEY' : 'PUBLIC KEY'
   if (type === 'private') {
-    const pem = base64ToPEM(base64, headerKey)
+    const pem = derToPEM(base64, headerKey)
     try {
       PEMToJwk(pem) // We only use it to test the private key
       return pem
     } catch (error) {
-      return base64ToPEM(base64, 'PRIVATE KEY')
+      return derToPEM(base64, 'PRIVATE KEY')
     }
   }
-  return base64ToPEM(base64, headerKey)
+  return derToPEM(base64, headerKey)
 }
 
-export function base64ToPEM(cert: string, headerKey?: 'PUBLIC KEY' | 'RSA PRIVATE KEY' | 'PRIVATE KEY' | 'CERTIFICATE'): string {
+export function PEMToDer(pem: string): string {
+  return pem.replace(/(-----(BEGIN|END) CERTIFICATE-----|[\n\r])/g, '')
+}
+
+export function derToPEM(cert: string, headerKey?: 'PUBLIC KEY' | 'RSA PRIVATE KEY' | 'PRIVATE KEY' | 'CERTIFICATE'): string {
   const key = headerKey ?? 'CERTIFICATE'
   const matches = cert.match(/.{1,64}/g)
   if (!matches) {
