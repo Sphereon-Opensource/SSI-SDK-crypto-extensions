@@ -2,6 +2,7 @@ import * as u8a from 'uint8arrays'
 // @ts-ignore
 import keyto from '@trust/keyto'
 import { JWK, KeyVisibility } from '../types'
+import * as x509 from '@peculiar/x509'
 
 // Based on (MIT licensed):
 // https://github.com/hildjj/node-posh/blob/master/lib/index.js
@@ -40,6 +41,17 @@ export function x5cToPemCertChain(x5c: string[], maxDepth?: number): string {
     pem += base64ToPEM(x5c[i], 'CERTIFICATE')
   }
   return pem
+}
+
+export const createX509Certificate = (cert: string): x509.X509Certificate => {
+  return new x509.X509Certificate(cert)
+}
+
+export const areCertificatesEqual = async (cert1: x509.X509Certificate, cert2: x509.X509Certificate): Promise<boolean> => {
+  const thumbprint1 = await cert1.getThumbprint()
+  const thumbprint2 = await cert2.getThumbprint()
+  return new Uint8Array(thumbprint1)
+    .every((value, index) => value === new Uint8Array(thumbprint2)[index])
 }
 
 export const toKeyObject = (PEM: string, visibility: KeyVisibility = 'public') => {
