@@ -365,7 +365,8 @@ const OID: Record<OIDType, Uint8Array> = {
   [OIDType.Ed25519]: new Uint8Array([0x06, 0x03, 0x2B, 0x65, 0x70])
 }
 
-function compareUint8Arrays(a: Uint8Array, b: Uint8Array): boolean {
+
+const compareUint8Arrays = (a: Uint8Array, b: Uint8Array): boolean => {
   if (a.length !== b.length) {
     return false
   }
@@ -377,7 +378,7 @@ function compareUint8Arrays(a: Uint8Array, b: Uint8Array): boolean {
   return true
 }
 
-function findSubarray(haystack: Uint8Array, needle: Uint8Array): number {
+const findSubarray = (haystack: Uint8Array, needle: Uint8Array): number => {
   for (let i = 0; i <= haystack.length - needle.length; i++) {
     if (compareUint8Arrays(haystack.subarray(i, i + needle.length), needle)) {
       return i
@@ -386,7 +387,7 @@ function findSubarray(haystack: Uint8Array, needle: Uint8Array): number {
   return -1
 }
 
-function getTargetOID(keyType: TKeyType) {
+const getTargetOID = (keyType: TKeyType) => {
   switch (keyType) {
     case 'Secp256k1':
       return  OID[OIDType.Secp256k1]
@@ -399,12 +400,13 @@ function getTargetOID(keyType: TKeyType) {
   }
 }
 
-export function rawPublicKeyHexFromAsn1Der(
+export const isAsn1Der = (key: Uint8Array): boolean => key[0] === 0x30
+
+export const asn1DerToRawPublicKey = (
   derKey: Uint8Array,
-  keyType: TKeyType,
-  compressed: boolean = true
-): string {
-  if (derKey[0] !== 0x30) {
+  keyType: TKeyType
+): Uint8Array => {
+  if (!isAsn1Der(derKey)) {
     throw new Error('Invalid DER encoding: Expected to start with sequence tag')
   }
 
@@ -435,24 +437,31 @@ export function rawPublicKeyHexFromAsn1Der(
   // Skip the unused bits count byte
   index++
 
-  const rawPublicKeyBytes = derKey.slice(index)
+  return derKey.slice(index)
+}
 
-  if (keyType === 'Secp256k1' || keyType === 'Secp256r1') {
-    if (rawPublicKeyBytes[0] === 0x04 && rawPublicKeyBytes.length === 65) {
-      const xCoordinate = rawPublicKeyBytes.slice(1, 33)
-      const yCoordinate = rawPublicKeyBytes.slice(33)
-      if (compressed) {
-        const prefix = new Uint8Array([yCoordinate[31] % 2 === 0 ? 0x02 : 0x03])
-        return u8a.toString(new Uint8Array([...prefix, ...xCoordinate]), 'base16')
-      } else {
-        return u8a.toString(rawPublicKeyBytes, 'base16')
-      }
-    } else {
-      throw new Error('Invalid uncompressed public key format.')
-    }
-  } else if (keyType === 'Ed25519') {
-    return u8a.toString(rawPublicKeyBytes, 'base16')
+export const isRawCompressedPublicKey = (key: Uint8Array): boolean => key.length === 33 && (key[0] === 0x02 || key[0] === 0x03)
+
+export const rawToCompressedHexPublicKey = (rawPublicKey: Uint8Array, keyType: TKeyType): string => {
+  if (!isRawCompressedPublicKey(rawPublicKey)) {
+    throw new Error('Invalid public key format, an uncompressed raw public key is required as input')
   }
 
-  throw new Error(`Invalid key length or unsupported key type. Got ${rawPublicKeyBytes.length} bytes.`)
+  if (keyType === 'Secp256k1' || keyType === 'Secp256r1') {
+    if (rawPublicKey[0] === 0x04 && rawPublicKey.length === 65) {
+      const xCoordinate = rawPublicKey.slice(1, 33)
+      const yCoordinate = rawPublicKey.slice(33)
+      const prefix = new Uint8Array([yCoordinate[31] % 2 === 0 ? 0x02 : 0x03])
+      return u8a.toString(new Uint8Array([...prefix, ...xCoordinate]), 'base16')
+    }
+    return u8a.toString(rawPublicKey, 'base16')
+  } else if (keyType === 'Ed25519') {
+    // Ed25519 keys are always in compressed form
+    return u8a.toString(rawPublicKey, 'base16')
+  }
+
+  throw new Error(`Unsupported key type: ${keyType}`)
 }
+
+
+export const hexStringFromUint8Array = (value: Uint8Array): string => u8a.toString(value, 'base16')
