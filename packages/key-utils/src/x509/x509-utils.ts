@@ -48,10 +48,9 @@ export const createX509Certificate = (cert: string): x509.X509Certificate => {
 }
 
 export const areCertificatesEqual = async (cert1: x509.X509Certificate, cert2: x509.X509Certificate): Promise<boolean> => {
-  const thumbprint1 = await cert1.getThumbprint()
-  const thumbprint2 = await cert2.getThumbprint()
-  return new Uint8Array(thumbprint1)
-    .every((value, index) => value === new Uint8Array(thumbprint2)[index])
+  const thumbprint1 = new Uint8Array(await cert1.getThumbprint())
+  const thumbprint2 = new Uint8Array(await cert2.getThumbprint())
+  return thumbprint1.every((value, index) => value === thumbprint2[index])
 }
 
 export const toKeyObject = (PEM: string, visibility: KeyVisibility = 'public') => {
