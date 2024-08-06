@@ -443,8 +443,8 @@ export const asn1DerToRawPublicKey = (
 export const isRawCompressedPublicKey = (key: Uint8Array): boolean => key.length === 33 && (key[0] === 0x02 || key[0] === 0x03)
 
 export const toRawCompressedHexPublicKey = (rawPublicKey: Uint8Array, keyType: TKeyType): string => {
-  if (!isRawCompressedPublicKey(rawPublicKey)) {
-    throw new Error('Invalid public key format, an uncompressed raw public key is required as input')
+  if (isRawCompressedPublicKey(rawPublicKey)) {
+    throw new Error('Invalid public key format, an uncompressed raw public key is required as input, not a raw')
   }
 
   if (keyType === 'Secp256k1' || keyType === 'Secp256r1') {
