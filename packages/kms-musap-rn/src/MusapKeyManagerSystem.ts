@@ -19,7 +19,7 @@ import { Loggers } from '@sphereon/ssi-types'
 import { KeyMetadata } from './index'
 import { PEMToBinary } from '@sphereon/ssi-sdk-ext.key-utils'
 import {
-  rawToCompressedHexPublicKey, hexStringFromUint8Array,
+  toRawCompressedHexPublicKey, hexStringFromUint8Array,
   isRawCompressedPublicKey,
   asn1DerToRawPublicKey, isAsn1Der,
 } from '@sphereon/ssi-sdk-ext.key-utils/dist'
@@ -156,11 +156,13 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
   private asMusapKeyInfo(args: MusapKey): ManagedKeyInfo {
     const keyType = this.mapAlgorithmTypeToKeyType(args.algorithm)
     const pemBinary = PEMToBinary(args.publicKey.pem) // The der is flawed, it's not binary but a string [123, 4567]
+    logger.info("isAsn1Der", isAsn1Der(pemBinary) ) // TODO remove
     const publicKeyBinary = isAsn1Der(pemBinary) ? asn1DerToRawPublicKey(pemBinary, keyType) : pemBinary
+    logger.info("isRawCompressedPublicKey", isRawCompressedPublicKey(publicKeyBinary)) // TODO remove
     const publicKeyHex = isRawCompressedPublicKey(publicKeyBinary)
-      ? rawToCompressedHexPublicKey(publicKeyBinary, keyType)
-      : hexStringFromUint8Array(publicKeyBinary)
-
+      ? hexStringFromUint8Array(publicKeyBinary)
+      : toRawCompressedHexPublicKey(publicKeyBinary, keyType)
+    logger.info("publicKeyHex",publicKeyHex) // TODO remove
     const keyInfo: Partial<ManagedKeyInfo> = {
       kid: args.keyId,
       type: keyType,
