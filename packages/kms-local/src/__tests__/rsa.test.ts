@@ -5,15 +5,15 @@ import { MemoryPrivateKeyStore } from '@veramo/key-manager'
 import * as u8a from 'uint8arrays'
 import {
   digestMethodParams,
-  pemCertChainTox5c,
-  PEMToJwk,
-  privateKeyHexFromPEM,
-  publicKeyHexFromPEM,
-  RSASigner,
-  toKeyObject,
   X509Opts,
-  x5cToPemCertChain,
 } from '@sphereon/ssi-sdk-ext.key-utils'
+import {
+  pemCertChainTox5c,
+  PEMToJwk, privateKeyHexFromPEM,
+  publicKeyHexFromPEM, RSASigner,
+  toKeyObject,
+  x5cToPemCertChain
+} from '@sphereon/ssi-sdk-ext.x509-utils'
 
 describe('X509 PEMs', () => {
   it('should get public key from private key', () => {

@@ -5,6 +5,9 @@
       "path": "key-utils"
     },
     {
+      "path": "x509-utils"
+    },
+    {
       "path": "did-utils"
     },
     {

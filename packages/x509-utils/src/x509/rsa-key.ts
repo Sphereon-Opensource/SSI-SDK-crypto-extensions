@@ -1,13 +1,13 @@
 import * as u8a from 'uint8arrays'
-import { HashAlgorithm } from '../digest-methods'
-import { JWK } from '../types'
+import { HashAlgorithm } from '../types'
+
 import { derToPEM } from './x509-utils'
 
 export type RSASignatureSchemes = 'RSASSA-PKCS1-V1_5' | 'RSA-PSS'
 
 export type RSAEncryptionSchemes = 'RSAES-PKCS-v1_5 ' | 'RSAES-OAEP'
 
-const usage = (jwk: JWK): KeyUsage[] => {
+const usage = (jwk: JsonWebKey): KeyUsage[] => {
   if (jwk.key_ops && jwk.key_ops.length > 0) {
     return jwk.key_ops as KeyUsage[]
   }
@@ -48,7 +48,7 @@ export const signAlgorithmToSchemeAndHashAlg = (signingAlg: string) => {
 }
 
 export const cryptoSubtleImportRSAKey = async (
-  jwk: JWK,
+  jwk: JsonWebKey,
   scheme: RSAEncryptionSchemes | RSASignatureSchemes,
   hashAlgorithm?: HashAlgorithm
 ): Promise<CryptoKey> => {

@@ -1,8 +1,8 @@
+import { Certificate } from 'pkijs'
 import * as u8a from 'uint8arrays'
 // @ts-ignore
 import keyto from '@trust/keyto'
-import { JWK, KeyVisibility } from '../types'
-import * as x509 from '@peculiar/x509'
+import { KeyVisibility } from '../types'
 
 // Based on (MIT licensed):
 // https://github.com/hildjj/node-posh/blob/master/lib/index.js
@@ -43,21 +43,19 @@ export function x5cToPemCertChain(x5c: string[], maxDepth?: number): string {
   return pem
 }
 
-export const pemOrDerToX509Certificate = (cert: string | Uint8Array): x509.X509Certificate => {
+export const pemOrDerToX509Certificate = (cert: string | Uint8Array): Certificate => {
   if (typeof cert !== 'string') {
-    return new x509.X509Certificate(cert)
+    return Certificate.fromBER(cert)
   }
   let DER = cert
   if (cert.includes('CERTIFICATE')) {
     DER = PEMToDer(cert)
   }
-  return new x509.X509Certificate(DER)
+  return Certificate.fromBER(u8a.fromString(DER, 'base64pad'))
 }
 
-export const areCertificatesEqual = async (cert1: x509.X509Certificate, cert2: x509.X509Certificate): Promise<boolean> => {
-  const thumbprint1 = new Uint8Array(await cert1.getThumbprint())
-  const thumbprint2 = new Uint8Array(await cert2.getThumbprint())
-  return thumbprint1.every((value, index) => value === thumbprint2[index])
+export const areCertificatesEqual = (cert1: Certificate, cert2: Certificate): boolean => {
+  return cert1.signatureValue.isEqual(cert2.signatureValue)
 }
 
 export const toKeyObject = (PEM: string, visibility: KeyVisibility = 'public') => {
@@ -73,18 +71,18 @@ export const toKeyObject = (PEM: string, visibility: KeyVisibility = 'public') =
   }
 }
 
-export const jwkToPEM = (jwk: JWK, visibility: KeyVisibility = 'public'): string => {
+export const jwkToPEM = (jwk: JsonWebKey, visibility: KeyVisibility = 'public'): string => {
   return keyto.from(jwk, 'jwk').toString('pem', visibility === 'public' ? 'public_pkcs8' : 'private_pkcs8')
 }
 
-export const PEMToJwk = (pem: string, visibility: KeyVisibility = 'public'): JWK => {
+export const PEMToJwk = (pem: string, visibility: KeyVisibility = 'public'): JsonWebKey => {
   return keyto.from(pem, 'pem').toJwk(visibility)
 }
 export const privateKeyHexFromPEM = (PEM: string) => {
   return PEMToHex(PEM)
 }
 
-export const hexKeyFromPEMBasedJwk = (jwk: JWK, visibility: KeyVisibility = 'public'): string => {
+export const hexKeyFromPEMBasedJwk = (jwk: JsonWebKey, visibility: KeyVisibility = 'public'): string => {
   if (visibility === 'private') {
     return privateKeyHexFromPEM(jwkToPEM(jwk, 'private'))
   } else {

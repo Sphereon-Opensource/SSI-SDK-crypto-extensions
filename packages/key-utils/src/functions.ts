@@ -1,4 +1,5 @@
 import { randomBytes } from '@ethersproject/random'
+import { PEMToJwk, generateRSAKeyAsPEM, hexToBase64, privateKeyHexFromPEM, hexToPEM } from '@sphereon/ssi-sdk-ext.x509-utils'
 import { generateKeyPair as generateSigningKeyPair } from '@stablelib/ed25519'
 import { IAgentContext, IKey, IKeyManager, ManagedKeyInfo, MinimalImportableKey } from '@veramo/core'
 import Debug from 'debug'
@@ -8,7 +9,6 @@ import elliptic from 'elliptic'
 import * as u8a from 'uint8arrays'
 import { digestMethodParams } from './digest-methods'
 import { ENC_KEY_ALGS, IImportProvidedOrGeneratedKeyArgs, JWK, JwkKeyUse, KeyCurve, KeyType, SIG_KEY_ALGS, TKeyType } from './types'
-import { generateRSAKeyAsPEM, hexToBase64, hexToPEM, PEMToJwk, privateKeyHexFromPEM } from './x509'
 
 const debug = Debug('sphereon:kms:local')
 /**

@@ -4,10 +4,7 @@
  *
  * @packageDocumentation
  */
-export * from './x509'
 export * from './functions'
 export * from './jwk-jcs'
 export * from './types'
-export * from './x509/x509-utils'
-export * from './x509/validator'
 export * from './digest-methods'
