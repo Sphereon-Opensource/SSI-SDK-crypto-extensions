@@ -29,7 +29,7 @@ export const validateX5cCertificateChain = async (
     return false
   }
 
-  // When trustedCertificates suppliued, check if the chain ends with a trusted certificate
+  // When trustedCertificates supplied, check if the chain ends with a trusted certificate
   if (trustedCertificates) {
     const rootCert = chain[chain.length - 1]
     const isTrusted = await Promise.all(trustedCertificates.map(async trustedCert => {
