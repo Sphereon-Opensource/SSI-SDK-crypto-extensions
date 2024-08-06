@@ -3,16 +3,15 @@ import { PEM_CERT, PEM_CHAIN, PEM_FULL_CHAIN, PEM_PRIV_KEY } from './certs'
 import { SphereonKeyManagementSystem } from '../SphereonKeyManagementSystem'
 import { MemoryPrivateKeyStore } from '@veramo/key-manager'
 import * as u8a from 'uint8arrays'
-import {
-  digestMethodParams,
-  X509Opts,
-} from '@sphereon/ssi-sdk-ext.key-utils'
+import { digestMethodParams, X509Opts } from '@sphereon/ssi-sdk-ext.key-utils'
 import {
   pemCertChainTox5c,
-  PEMToJwk, privateKeyHexFromPEM,
-  publicKeyHexFromPEM, RSASigner,
+  PEMToJwk,
+  privateKeyHexFromPEM,
+  publicKeyHexFromPEM,
+  RSASigner,
   toKeyObject,
-  x5cToPemCertChain
+  x5cToPemCertChain,
 } from '@sphereon/ssi-sdk-ext.x509-utils'
 
 describe('X509 PEMs', () => {

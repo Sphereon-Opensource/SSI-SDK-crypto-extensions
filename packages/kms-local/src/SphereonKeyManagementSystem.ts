@@ -1,9 +1,4 @@
-import {
-  calculateJwkThumbprint,
-  generatePrivateKeyHex,
-  toJwk,
-  X509Opts,
-} from '@sphereon/ssi-sdk-ext.key-utils'
+import { calculateJwkThumbprint, generatePrivateKeyHex, toJwk, X509Opts } from '@sphereon/ssi-sdk-ext.key-utils'
 
 import { IKey, ManagedKeyInfo, MinimalImportableKey, TKeyType } from '@veramo/core'
 import { AbstractPrivateKeyStore, ManagedPrivateKey } from '@veramo/key-manager'
@@ -19,7 +14,7 @@ import {
   PEMToHex,
   PEMToJwk,
   RSASigner,
-  signAlgorithmToSchemeAndHashAlg
+  signAlgorithmToSchemeAndHashAlg,
 } from '@sphereon/ssi-sdk-ext.x509-utils'
 
 const debug = Debug('sphereon:kms:bls:local')
