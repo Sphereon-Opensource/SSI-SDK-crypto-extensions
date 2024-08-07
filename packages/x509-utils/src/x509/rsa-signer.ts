@@ -33,7 +33,6 @@ export class RSASigner {
     if (this.scheme === 'RSA-PSS') {
       return { name: this.scheme, saltLength: 32 }
     }
-    // console.log({ name: this.scheme /*, hash: this.hashAlgorithm*/ })
     return { name: this.scheme /*, hash: this.hashAlgorithm*/ }
   }
 
