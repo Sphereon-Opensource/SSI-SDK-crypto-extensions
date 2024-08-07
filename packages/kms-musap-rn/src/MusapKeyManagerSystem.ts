@@ -1,3 +1,4 @@
+import { PEMToBinary } from '@sphereon/ssi-sdk-ext.x509-utils'
 import { IKey, ManagedKeyInfo, MinimalImportableKey, TKeyType } from '@veramo/core'
 import {
   isSignatureAlgorithmType,
@@ -13,7 +14,7 @@ import {
   SignatureFormat,
   SignatureReq,
 } from '@sphereon/musap-react-native'
-import { KeyAttribute, SscdType } from '@sphereon/musap-react-native/src/types/musap-types'
+import { KeyAttribute, SscdType } from '@sphereon/musap-react-native'
 import { AbstractKeyManagementSystem } from '@veramo/key-manager'
 import { TextDecoder } from 'text-encoding'
 import { Loggers } from '@sphereon/ssi-types'
@@ -23,7 +24,6 @@ import {
   hexStringFromUint8Array,
   isAsn1Der,
   isRawCompressedPublicKey,
-  PEMToBinary,
   toRawCompressedHexPublicKey,
 } from '@sphereon/ssi-sdk-ext.key-utils'
 
@@ -52,16 +52,16 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
 
   async createKey(args: { type: TKeyType; meta?: KeyMetadata }): Promise<ManagedKeyInfo> {
     const { type, meta } = args
-    if(meta === undefined || !('keyAlias' in meta)) {
+    if (meta === undefined || !('keyAlias' in meta)) {
       return Promise.reject(Error('a unique keyAlias field is required for MUSAP'))
     }
 
     const keyGenReq = {
       keyAlgorithm: this.mapKeyTypeToAlgorithmType(type),
-      keyUsage: 'keyUsage' in meta ? meta.keyUsage as string : 'sign',
+      keyUsage: 'keyUsage' in meta ? (meta.keyUsage as string) : 'sign',
       keyAlias: meta.keyAlias as string,
-      attributes:  'attributes' in meta ? meta.attributes as KeyAttribute[] : [],
-      role: 'role' in meta ? meta.role as string : 'administrator',
+      attributes: 'attributes' in meta ? (meta.attributes as KeyAttribute[]) : [],
+      role: 'role' in meta ? (meta.role as string) : 'administrator',
     } satisfies KeyGenReq
 
     try {
@@ -71,7 +71,7 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
         const key = await this.musapKeyStore.getKeyByUri(generatedKeyUri)
         return this.asMusapKeyInfo(key)
       } else {
-        throw new Error('Failed to generate key')
+        return Promise.reject(new Error('Failed to generate key. No key URI'))
       }
     } catch (error) {
       logger.error('An error occurred:', error)
@@ -115,11 +115,7 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
     }
   }
 
-  private determineAlgorithm(
-    providedAlgorithm: string | undefined,
-    keyAlgorithm: KeyAlgorithm,
-  ): SignatureAlgorithmType {
-
+  private determineAlgorithm(providedAlgorithm: string | undefined, keyAlgorithm: KeyAlgorithm): SignatureAlgorithmType {
     if (providedAlgorithm === undefined) {
       return signatureAlgorithmFromKeyAlgorithm(keyAlgorithm)
     }

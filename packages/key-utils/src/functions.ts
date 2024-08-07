@@ -351,19 +351,17 @@ export const padLeft = (args: { data: string; size?: number; padString?: string 
   return padString.repeat((size - data.length) / length) + data
 }
 
-
 enum OIDType {
   Secp256k1,
   Secp256r1,
-  Ed25519
+  Ed25519,
 }
 
 const OID: Record<OIDType, Uint8Array> = {
-  [OIDType.Secp256k1]: new Uint8Array([0x06, 0x07, 0x2A, 0x86, 0x48, 0xCE, 0x3D, 0x02, 0x01]),
-  [OIDType.Secp256r1]: new Uint8Array([0x06, 0x08, 0x2A, 0x86, 0x48, 0xCE, 0x3D, 0x03, 0x01, 0x07]),
-  [OIDType.Ed25519]: new Uint8Array([0x06, 0x03, 0x2B, 0x65, 0x70])
+  [OIDType.Secp256k1]: new Uint8Array([0x06, 0x07, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x02, 0x01]),
+  [OIDType.Secp256r1]: new Uint8Array([0x06, 0x08, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x03, 0x01, 0x07]),
+  [OIDType.Ed25519]: new Uint8Array([0x06, 0x03, 0x2b, 0x65, 0x70]),
 }
-
 
 const compareUint8Arrays = (a: Uint8Array, b: Uint8Array): boolean => {
   if (a.length !== b.length) {
@@ -389,9 +387,9 @@ const findSubarray = (haystack: Uint8Array, needle: Uint8Array): number => {
 const getTargetOID = (keyType: TKeyType) => {
   switch (keyType) {
     case 'Secp256k1':
-      return  OID[OIDType.Secp256k1]
+      return OID[OIDType.Secp256k1]
     case 'Secp256r1':
-      return  OID[OIDType.Secp256r1]
+      return OID[OIDType.Secp256r1]
     case 'Ed25519':
       return OID[OIDType.Ed25519]
     default:
@@ -401,17 +399,14 @@ const getTargetOID = (keyType: TKeyType) => {
 
 export const isAsn1Der = (key: Uint8Array): boolean => key[0] === 0x30
 
-export const asn1DerToRawPublicKey = (
-  derKey: Uint8Array,
-  keyType: TKeyType
-): Uint8Array => {
+export const asn1DerToRawPublicKey = (derKey: Uint8Array, keyType: TKeyType): Uint8Array => {
   if (!isAsn1Der(derKey)) {
     throw new Error('Invalid DER encoding: Expected to start with sequence tag')
   }
 
   let index = 2
   if (derKey[1] & 0x80) {
-    const lengthBytesCount = derKey[1] & 0x7F
+    const lengthBytesCount = derKey[1] & 0x7f
     index += lengthBytesCount
   }
   const targetOid = getTargetOID(keyType)
@@ -463,6 +458,5 @@ export const toRawCompressedHexPublicKey = (rawPublicKey: Uint8Array, keyType: T
 
   throw new Error(`Unsupported key type: ${keyType}`)
 }
-
 
 export const hexStringFromUint8Array = (value: Uint8Array): string => u8a.toString(value, 'base16')

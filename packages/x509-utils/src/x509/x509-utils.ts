@@ -119,7 +119,8 @@ export const PEMToHex = (PEM: string, headerKey?: string): string => {
 }
 
 export function PEMToBinary(pem: string): Uint8Array {
-  const pemContents = pem.replace(/^[^]*-----BEGIN [^-]+-----/, '')
+  const pemContents = pem
+    .replace(/^[^]*-----BEGIN [^-]+-----/, '')
     .replace(/-----END [^-]+-----[^]*$/, '')
     .replace(/\s/g, '')
 

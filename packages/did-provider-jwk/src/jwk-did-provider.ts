@@ -25,7 +25,7 @@ export class JwkDIDProvider extends AbstractIdentifierProvider {
       {
         kms: args.kms ?? this.defaultKms,
         alias: args.alias,
-        options: args.options
+        options: args.options,
       },
       context
     )
