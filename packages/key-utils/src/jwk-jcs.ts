@@ -1,7 +1,6 @@
 import { TextDecoder, TextEncoder } from 'web-encoding'
 import isPlainObject from 'lodash.isplainobject'
 import type { ByteView } from 'multiformats/codecs/interface'
-import type { JsonWebKey } from 'did-resolver'
 
 const textEncoder = new TextEncoder()
 const textDecoder = new TextDecoder()

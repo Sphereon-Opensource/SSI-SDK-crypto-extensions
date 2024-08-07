@@ -4,9 +4,7 @@
  *
  * @packageDocumentation
  */
-export * from './x509'
 export * from './functions'
 export * from './jwk-jcs'
 export * from './types'
-export * from './x509/x509-utils'
 export * from './digest-methods'
