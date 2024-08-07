@@ -1,37 +1,33 @@
 {
-  "name": "@sphereon/ssi-sdk-ext.kms-local",
-  "description": "Sphereon Local Key Management System with support for BLS/BBS+, RSA keys",
+  "name": "@sphereon/ssi-sdk-ext.kms-musap-rn",
+  "description": "Sphereon SSI-SDK react-native plugin for management of keys with musap.",
   "version": "0.24.0",
   "source": "src/index.ts",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc --build",
-    "generate-plugin-schema": "sphereon dev generate-plugin-schema"
+    "build:clean": "tsc --build --clean && tsc --build"
   },
   "dependencies": {
-    "@sphereon/ssi-sdk-ext.did-utils": "workspace:*",
+    "@sphereon/ssi-types": "0.28.1-next.60",
     "@sphereon/ssi-sdk-ext.key-utils": "workspace:*",
-    "@trust/keyto": "2.0.0-alpha1",
+    "@sphereon/musap-react-native": "0.0.1-next.154",
     "@veramo/core": "4.2.0",
     "@veramo/key-manager": "4.2.0",
     "@veramo/kms-local": "4.2.0",
-    "elliptic": "^6.5.4",
-    "uint8arrays": "3.1.1"
+    "text-encoding": "^0.7.0"
   },
   "devDependencies": {
-    "@sphereon/jsencrypt": "3.3.2-unstable.0",
-    "@sphereon/ssi-sdk.dev": "0.28.0",
-    "@types/elliptic": "6.4.14",
-    "@veramo/cli": "4.2.0"
+    "@types/text-encoding": "0.0.39"
   },
   "files": [
     "dist/**/*",
     "src/**/*",
-    "plugin.schema.json",
     "README.md",
     "LICENSE"
   ],
+  "private": false,
   "publishConfig": {
     "access": "public"
   },
@@ -39,8 +35,9 @@
   "author": "Sphereon <dev@sphereon.com>",
   "license": "Apache-2.0",
   "keywords": [
-    "SSI",
-    "kms",
+    "musap",
+    "key-management",
+    "react-native",
     "Veramo"
   ]
 }

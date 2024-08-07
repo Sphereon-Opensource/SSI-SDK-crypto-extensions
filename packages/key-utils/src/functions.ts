@@ -1,7 +1,6 @@
 import { randomBytes } from '@ethersproject/random'
 import { generateKeyPair as generateSigningKeyPair } from '@stablelib/ed25519'
 import { IAgentContext, IKey, IKeyManager, ManagedKeyInfo, MinimalImportableKey } from '@veramo/core'
-import Debug from 'debug'
 
 import { JsonWebKey } from 'did-resolver'
 import elliptic from 'elliptic'
@@ -9,8 +8,11 @@ import * as u8a from 'uint8arrays'
 import { digestMethodParams } from './digest-methods'
 import { ENC_KEY_ALGS, IImportProvidedOrGeneratedKeyArgs, JWK, JwkKeyUse, KeyCurve, KeyType, SIG_KEY_ALGS, TKeyType } from './types'
 import { generateRSAKeyAsPEM, hexToBase64, hexToPEM, PEMToJwk, privateKeyHexFromPEM } from './x509'
+import { Loggers } from '@sphereon/ssi-types'
 
-const debug = Debug('sphereon:kms:local')
+
+export const logger = Loggers.DEFAULT.get('sphereon:key-utils')
+
 /**
  * Generates a random Private Hex Key for the specified key type
  * @param type The key type
@@ -36,6 +38,8 @@ export const generatePrivateKeyHex = async (type: TKeyType): Promise<string> => 
       throw Error(`not_supported: Key type ${type} not yet supported for this did:jwk implementation`)
   }
 }
+
+const algorithmsFromKeyType = (type: string): string[] => [type]
 
 /**
  * We optionally generate and then import our own keys.
@@ -76,15 +80,22 @@ export async function importProvidedOrGeneratedKey(
       privateKeyHex = privateKeyHexFromPEM(key.meta.x509.privateKeyPEM)
     }
   }
-  if (!privateKeyHex) {
-    privateKeyHex = await generatePrivateKeyHex(type)
+  if (privateKeyHex) {
+    return context.agent.keyManagerImport({
+      ...key,
+      kms: args.kms,
+      type,
+      privateKeyHex: privateKeyHex!,
+    })
   }
 
-  return context.agent.keyManagerImport({
-    ...key,
-    kms: args.kms,
+  return context.agent.keyManagerCreate({
     type,
-    privateKeyHex: privateKeyHex!,
+    kms: args.kms,
+    meta: {
+      algorithms: algorithmsFromKeyType(type),
+      keyAlias: args.alias,
+    },
   })
 }
 
@@ -236,7 +247,7 @@ const assertProperKeyLength = (keyHex: string, expectedKeyLength: number | numbe
  */
 const toSecp256k1Jwk = (keyHex: string, opts?: { use?: JwkKeyUse; isPrivateKey?: boolean }): JWK => {
   const { use } = opts ?? {}
-  debug(`toSecp256k1Jwk keyHex: ${keyHex}, length: ${keyHex.length}`)
+  logger.debug(`toSecp256k1Jwk keyHex: ${keyHex}, length: ${keyHex.length}`)
   if (opts?.isPrivateKey) {
     assertProperKeyLength(keyHex, [64])
   } else {
@@ -267,7 +278,7 @@ const toSecp256k1Jwk = (keyHex: string, opts?: { use?: JwkKeyUse; isPrivateKey?:
  */
 const toSecp256r1Jwk = (keyHex: string, opts?: { use?: JwkKeyUse; isPrivateKey?: boolean }): JWK => {
   const { use } = opts ?? {}
-  debug(`toSecp256r1Jwk keyHex: ${keyHex}, length: ${keyHex.length}`)
+  logger.debug(`toSecp256r1Jwk keyHex: ${keyHex}, length: ${keyHex.length}`)
   if (opts?.isPrivateKey) {
     assertProperKeyLength(keyHex, [64])
   } else {
@@ -276,7 +287,7 @@ const toSecp256r1Jwk = (keyHex: string, opts?: { use?: JwkKeyUse; isPrivateKey?:
 
   const secp256r1 = new elliptic.ec('p256')
   const keyBytes = u8a.fromString(keyHex, 'base16')
-  debug(`keyBytes length: ${keyBytes}`)
+  logger.debug(`keyBytes length: ${keyBytes}`)
   const keyPair = opts?.isPrivateKey ? secp256r1.keyFromPrivate(keyBytes) : secp256r1.keyFromPublic(keyBytes)
   const pubPoint = keyPair.getPublic()
   return {
@@ -341,3 +352,119 @@ export const padLeft = (args: { data: string; size?: number; padString?: string 
   const length = padString.length
   return padString.repeat((size - data.length) / length) + data
 }
+
+
+enum OIDType {
+  Secp256k1,
+  Secp256r1,
+  Ed25519
+}
+
+const OID: Record<OIDType, Uint8Array> = {
+  [OIDType.Secp256k1]: new Uint8Array([0x06, 0x07, 0x2A, 0x86, 0x48, 0xCE, 0x3D, 0x02, 0x01]),
+  [OIDType.Secp256r1]: new Uint8Array([0x06, 0x08, 0x2A, 0x86, 0x48, 0xCE, 0x3D, 0x03, 0x01, 0x07]),
+  [OIDType.Ed25519]: new Uint8Array([0x06, 0x03, 0x2B, 0x65, 0x70])
+}
+
+
+const compareUint8Arrays = (a: Uint8Array, b: Uint8Array): boolean => {
+  if (a.length !== b.length) {
+    return false
+  }
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) {
+      return false
+    }
+  }
+  return true
+}
+
+const findSubarray = (haystack: Uint8Array, needle: Uint8Array): number => {
+  for (let i = 0; i <= haystack.length - needle.length; i++) {
+    if (compareUint8Arrays(haystack.subarray(i, i + needle.length), needle)) {
+      return i
+    }
+  }
+  return -1
+}
+
+const getTargetOID = (keyType: TKeyType) => {
+  switch (keyType) {
+    case 'Secp256k1':
+      return  OID[OIDType.Secp256k1]
+    case 'Secp256r1':
+      return  OID[OIDType.Secp256r1]
+    case 'Ed25519':
+      return OID[OIDType.Ed25519]
+    default:
+      throw new Error(`Unsupported key type: ${keyType}`)
+  }
+}
+
+export const isAsn1Der = (key: Uint8Array): boolean => key[0] === 0x30
+
+export const asn1DerToRawPublicKey = (
+  derKey: Uint8Array,
+  keyType: TKeyType
+): Uint8Array => {
+  if (!isAsn1Der(derKey)) {
+    throw new Error('Invalid DER encoding: Expected to start with sequence tag')
+  }
+
+  let index = 2
+  if (derKey[1] & 0x80) {
+    const lengthBytesCount = derKey[1] & 0x7F
+    index += lengthBytesCount
+  }
+  const targetOid = getTargetOID(keyType)
+  const oidIndex = findSubarray(derKey, targetOid)
+  if (oidIndex === -1) {
+    throw new Error(`OID for ${keyType} not found in DER encoding`)
+  }
+
+  index = oidIndex + targetOid.length
+
+  while (index < derKey.length && derKey[index] !== 0x03) {
+    index++
+  }
+
+  if (index >= derKey.length) {
+    throw new Error('Invalid DER encoding: Bit string not found')
+  }
+
+  // Skip the bit string tag (0x03) and length byte
+  index += 2
+
+  // Skip the unused bits count byte
+  index++
+
+  return derKey.slice(index)
+}
+
+export const isRawCompressedPublicKey = (key: Uint8Array): boolean => key.length === 33 && (key[0] === 0x02 || key[0] === 0x03)
+
+export const toRawCompressedHexPublicKey = (rawPublicKey: Uint8Array, keyType: TKeyType): string => {
+  if (isRawCompressedPublicKey(rawPublicKey)) {
+    throw new Error('Invalid public key format, an uncompressed raw public key is required as input, not a raw')
+  }
+
+  if (keyType === 'Secp256k1' || keyType === 'Secp256r1') {
+    if (rawPublicKey[0] === 0x04 && rawPublicKey.length === 65) {
+      const xCoordinate = rawPublicKey.slice(1, 33)
+      const yCoordinate = rawPublicKey.slice(33)
+      const prefix = new Uint8Array([yCoordinate[31] % 2 === 0 ? 0x02 : 0x03])
+      const resultKey = hexStringFromUint8Array(new Uint8Array([...prefix, ...xCoordinate]))
+      logger.debug(`converted public key ${hexStringFromUint8Array(rawPublicKey)} to ${resultKey}`)
+      return resultKey
+    }
+    return u8a.toString(rawPublicKey, 'base16')
+  } else if (keyType === 'Ed25519') {
+    // Ed25519 keys are always in compressed form
+    return u8a.toString(rawPublicKey, 'base16')
+  }
+
+  throw new Error(`Unsupported key type: ${keyType}`)
+}
+
+
+export const hexStringFromUint8Array = (value: Uint8Array): string => u8a.toString(value, 'base16')

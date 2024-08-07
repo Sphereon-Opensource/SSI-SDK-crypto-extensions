@@ -79,6 +79,7 @@ export interface X509Opts {
 
 export interface IImportProvidedOrGeneratedKeyArgs {
   kms?: string
+  alias?: string
   options?: IKeyOpts
 }
 export interface IKeyOpts {
