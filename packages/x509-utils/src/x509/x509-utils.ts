@@ -118,6 +118,14 @@ export const PEMToHex = (PEM: string, headerKey?: string): string => {
   return base64ToHex(strippedPem, 'base64pad')
 }
 
+export function PEMToBinary(pem: string): Uint8Array {
+  const pemContents = pem.replace(/^[^]*-----BEGIN [^-]+-----/, '')
+    .replace(/-----END [^-]+-----[^]*$/, '')
+    .replace(/\s/g, '')
+
+  return u8a.fromString(pemContents, 'base64pad')
+}
+
 /**
  * Converts a base64 encoded string to hex string, removing any non-base64 characters, including newlines
  * @param input The input in base64, with optional newlines

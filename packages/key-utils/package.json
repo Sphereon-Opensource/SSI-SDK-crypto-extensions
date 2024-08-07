@@ -14,8 +14,10 @@
     "@stablelib/ed25519": "^1.0.3",
     "@stablelib/sha256": "^1.0.1",
     "@stablelib/sha512": "^1.0.1",
+    "@trust/keyto": "^1.0.1",
     "@veramo/core": "4.2.0",
     "@sphereon/ssi-sdk-ext.x509-utils": "workspace:*",
+    "@sphereon/ssi-types": "0.29.1-next.46",
     "base64url": "^3.0.1",
     "debug": "^4.3.4",
     "did-resolver": "^4.1.0",
@@ -39,7 +41,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "repository": "git@github.com:Sphereon-OpenSource/ssi-sdk.git",
+  "repository": "git@github.com:Sphereon-OpenSource/SSI-SDK-crypto-extensions.git",
   "author": "Sphereon <dev@sphereon.com>",
   "license": "Apache-2.0",
   "keywords": [
