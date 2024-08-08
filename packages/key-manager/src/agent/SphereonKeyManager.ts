@@ -1,8 +1,9 @@
 import { KeyManager as VeramoKeyManager, AbstractKeyManagementSystem, AbstractKeyStore } from '@veramo/key-manager'
 
-import { IKey, ManagedKeyInfo, TKeyType } from '@veramo/core'
+import { IKey, IKeyManagerGetArgs, ManagedKeyInfo, TKeyType } from '@veramo/core'
 import { KeyType, SphereonKeyManagementSystem } from '@sphereon/ssi-sdk-ext.kms-local'
 import { ISphereonKeyManager, ISphereonKeyManagerSignArgs, ISphereonKeyManagerVerifyArgs } from '../types/ISphereonKeyManager'
+import { calculateJwkThumbprintForKey } from '@sphereon/ssi-sdk-ext.key-utils'
 
 export const sphereonKeyManagerMethods: Array<string> = [
   'keyManagerCreate',
@@ -57,5 +58,25 @@ export class SphereonKeyManager extends VeramoKeyManager {
 
   async keyManagerListKeys(): Promise<ManagedKeyInfo[]> {
     return this.localStore.list({}) // FIXME there are no args it seems
+  }
+
+  async keyManagerGet({ kid }: IKeyManagerGetArgs): Promise<IKey> {
+    try {
+      const key = await this.localStore.get({ kid })
+      return key
+    } catch (e) {
+      const keys: ManagedKeyInfo[] = await this.keyManagerListKeys()
+      const foundKey = keys.find(
+        (key) =>
+          key.publicKeyHex === kid ||
+          key.meta?.jwkThumbprint === kid ||
+          (key.meta?.jwkThumbprint == null && calculateJwkThumbprintForKey({ key }) === kid)
+      )
+      if (foundKey) {
+        return foundKey as IKey
+      } else {
+        throw new Error(`Key with kid ${kid} not found`)
+      }
+    }
   }
 }

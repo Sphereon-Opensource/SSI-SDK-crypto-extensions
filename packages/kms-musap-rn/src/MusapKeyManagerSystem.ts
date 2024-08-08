@@ -20,6 +20,7 @@ import { Loggers } from '@sphereon/ssi-types'
 import { KeyMetadata } from './index'
 import {
   asn1DerToRawPublicKey,
+  calculateJwkThumbprintForKey,
   hexStringFromUint8Array,
   isAsn1Der,
   isRawCompressedPublicKey,
@@ -52,16 +53,16 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
 
   async createKey(args: { type: TKeyType; meta?: KeyMetadata }): Promise<ManagedKeyInfo> {
     const { type, meta } = args
-    if(meta === undefined || !('keyAlias' in meta)) {
+    if (meta === undefined || !('keyAlias' in meta)) {
       return Promise.reject(Error('a unique keyAlias field is required for MUSAP'))
     }
 
     const keyGenReq = {
       keyAlgorithm: this.mapKeyTypeToAlgorithmType(type),
-      keyUsage: 'keyUsage' in meta ? meta.keyUsage as string : 'sign',
+      keyUsage: 'keyUsage' in meta ? (meta.keyUsage as string) : 'sign',
       keyAlias: meta.keyAlias as string,
-      attributes:  'attributes' in meta ? meta.attributes as KeyAttribute[] : [],
-      role: 'role' in meta ? meta.role as string : 'administrator',
+      attributes: 'attributes' in meta ? (meta.attributes as KeyAttribute[]) : [],
+      role: 'role' in meta ? (meta.role as string) : 'administrator',
     } satisfies KeyGenReq
 
     try {
@@ -115,11 +116,7 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
     }
   }
 
-  private determineAlgorithm(
-    providedAlgorithm: string | undefined,
-    keyAlgorithm: KeyAlgorithm,
-  ): SignatureAlgorithmType {
-
+  private determineAlgorithm(providedAlgorithm: string | undefined, keyAlgorithm: KeyAlgorithm): SignatureAlgorithmType {
     if (providedAlgorithm === undefined) {
       return signatureAlgorithmFromKeyAlgorithm(keyAlgorithm)
     }
@@ -157,6 +154,7 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
   }
 
   private asMusapKeyInfo(args: MusapKey): ManagedKeyInfo {
+    const { keyId, publicKey, ...metadata }: KeyMetadata = { ...args }
     const keyType = this.mapAlgorithmTypeToKeyType(args.algorithm)
     const pemBinary = PEMToBinary(args.publicKey.pem) // The der is flawed, it's not binary but a string [123, 4567]
     const publicKeyBinary = isAsn1Der(pemBinary) ? asn1DerToRawPublicKey(pemBinary, keyType) : pemBinary
@@ -164,13 +162,14 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
       ? hexStringFromUint8Array(publicKeyBinary)
       : toRawCompressedHexPublicKey(publicKeyBinary, keyType)
     const keyInfo: Partial<ManagedKeyInfo> = {
-      kid: args.keyId,
+      kid: keyId,
       type: keyType,
-      publicKeyHex: publicKeyHex,
-      meta: {
-        ...args,
-      },
+      publicKeyHex,
+      meta: metadata,
     }
+
+    const jwkThumbprint = calculateJwkThumbprintForKey({ key: keyInfo as ManagedKeyInfo })
+    keyInfo.meta!.jwkThumbprint = jwkThumbprint
     return keyInfo as ManagedKeyInfo
   }
 
