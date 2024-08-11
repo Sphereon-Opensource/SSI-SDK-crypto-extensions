@@ -1,5 +1,6 @@
 import { randomBytes } from '@ethersproject/random'
-import { PEMToJwk, generateRSAKeyAsPEM, hexToBase64, privateKeyHexFromPEM, hexToPEM } from '@sphereon/ssi-sdk-ext.x509-utils'
+import { generateRSAKeyAsPEM, hexToBase64, hexToPEM, PEMToJwk, privateKeyHexFromPEM } from '@sphereon/ssi-sdk-ext.x509-utils'
+import { Loggers } from '@sphereon/ssi-types'
 import { generateKeyPair as generateSigningKeyPair } from '@stablelib/ed25519'
 import { IAgentContext, IKey, IKeyManager, ManagedKeyInfo, MinimalImportableKey } from '@veramo/core'
 
@@ -7,8 +8,20 @@ import { JsonWebKey } from 'did-resolver'
 import elliptic from 'elliptic'
 import * as u8a from 'uint8arrays'
 import { digestMethodParams } from './digest-methods'
-import { ENC_KEY_ALGS, IImportProvidedOrGeneratedKeyArgs, JWK, JwkKeyUse, KeyCurve, KeyType, SIG_KEY_ALGS, TKeyType } from './types'
-import { Loggers } from '@sphereon/ssi-types'
+import {
+  ENC_KEY_ALGS,
+  IImportProvidedOrGeneratedKeyArgs,
+  JWK,
+  JwkKeyUse,
+  KeyCurve,
+  KeyType,
+  KeyTypeFromCryptographicSuiteArgs,
+  SIG_KEY_ALGS,
+  SignatureAlgorithmFromKeyArgs,
+  SignatureAlgorithmFromKeyTypeArgs,
+  TKeyType,
+} from './types'
+
 export const logger = Loggers.DEFAULT.get('sphereon:key-utils')
 
 /**
@@ -37,7 +50,22 @@ export const generatePrivateKeyHex = async (type: TKeyType): Promise<string> => 
   }
 }
 
-const algorithmsFromKeyType = (type: string): string[] => [type]
+const keyMetaAlgorithmsFromKeyType = (type: string | TKeyType) => {
+  switch (type) {
+    case 'Ed25519':
+      return ['Ed25519', 'EdDSA']
+    case 'ES256K':
+    case 'Secp256k1':
+      return ['ES256K', 'ES256K-R', 'eth_signTransaction', 'eth_signTypedData', 'eth_signMessage', 'eth_rawSign']
+    case 'Secp256r1':
+      return ['ES256']
+    case 'X25519':
+      return ['ECDH', 'ECDH-ES', 'ECDH-1PU']
+    case 'RSA':
+      return ['RS256', 'RS512', 'PS256', 'PS512']
+  }
+  return [type]
+}
 
 /**
  * We optionally generate and then import our own keys.
@@ -91,7 +119,8 @@ export async function importProvidedOrGeneratedKey(
     type,
     kms: args.kms,
     meta: {
-      algorithms: algorithmsFromKeyType(type),
+      ...key?.meta,
+      algorithms: keyMetaAlgorithmsFromKeyType(type),
       keyAlias: args.alias,
     },
   })
@@ -460,3 +489,49 @@ export const toRawCompressedHexPublicKey = (rawPublicKey: Uint8Array, keyType: T
 }
 
 export const hexStringFromUint8Array = (value: Uint8Array): string => u8a.toString(value, 'base16')
+
+export const signatureAlgorithmFromKey = async (args: SignatureAlgorithmFromKeyArgs): Promise<SignatureAlgorithmEnum> => {
+  const { key } = args
+  return signatureAlgorithmFromKeyType({ type: key.type })
+}
+
+export const signatureAlgorithmFromKeyType = (args: SignatureAlgorithmFromKeyTypeArgs): SignatureAlgorithmEnum => {
+  const { type } = args
+  switch (type) {
+    case 'Ed25519':
+    case 'X25519':
+      return SignatureAlgorithmEnum.EdDSA
+    case 'Secp256r1':
+      return SignatureAlgorithmEnum.ES256
+    case 'Secp256k1':
+      return SignatureAlgorithmEnum.ES256K
+    default:
+      throw new Error(`Key type '${type}' not supported`)
+  }
+}
+
+// TODO improve this conversion for jwt and jsonld, not a fan of current structure
+export const keyTypeFromCryptographicSuite = (args: KeyTypeFromCryptographicSuiteArgs): TKeyType => {
+  const { suite } = args
+  switch (suite) {
+    case 'EdDSA':
+    case 'Ed25519Signature2018':
+    case 'Ed25519Signature2020':
+    case 'JcsEd25519Signature2020':
+      return 'Ed25519'
+    case 'JsonWebSignature2020':
+    case 'ES256':
+      return 'Secp256r1'
+    case 'EcdsaSecp256k1Signature2019':
+    case 'ES256K':
+      return 'Secp256k1'
+    default:
+      throw new Error(`Cryptographic suite '${suite}' not supported`)
+  }
+}
+
+export enum SignatureAlgorithmEnum {
+  EdDSA = 'EdDSA',
+  ES256 = 'ES256',
+  ES256K = 'ES256K',
+}

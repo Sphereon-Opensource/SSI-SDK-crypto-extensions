@@ -1,6 +1,6 @@
 import { computeAddress } from '@ethersproject/transactions'
 import { UniResolver } from '@sphereon/did-uni-client'
-import { ENC_KEY_ALGS, JwkKeyUse, TKeyType, toJwk } from '@sphereon/ssi-sdk-ext.key-utils'
+import { ENC_KEY_ALGS, JwkKeyUse, signatureAlgorithmFromKey, TKeyType, toJwk } from '@sphereon/ssi-sdk-ext.key-utils'
 import { base64ToHex, hexKeyFromPEMBasedJwk } from '@sphereon/ssi-sdk-ext.x509-utils'
 import { base58ToBytes, base64ToBytes, bytesToHex, hexToBytes, multibaseKeyToBytes } from '@sphereon/ssi-sdk.core'
 import { convertPublicKeyToX25519 } from '@stablelib/ed25519'
@@ -15,6 +15,7 @@ import {
   isDefined,
   mapIdentifierKeysToDoc,
 } from '@veramo/utils'
+import { createJWT, Signer } from 'did-jwt'
 import { DIDResolutionOptions, JsonWebKey, Resolvable, VerificationMethod } from 'did-resolver'
 // @ts-ignore
 import elliptic from 'elliptic'
@@ -24,11 +25,13 @@ import {
   CreateOrGetIdentifierOpts,
   DID_PREFIX,
   GetOrCreateResult,
+  GetSignerArgs,
   IdentifierAliasEnum,
   IdentifierProviderOpts,
   IDIDOptions,
   IIdentifierOpts,
   KeyManagementSystemEnum,
+  SignJwtArgs,
   SupportedDidMethodEnum,
 } from './types'
 
@@ -877,4 +880,31 @@ export async function asDidWeb(hostnameOrDID: string): Promise<string> {
     return did
   }
   return `did:web:${did.replace(/https?:\/\/([^/?#]+).*/i, '$1').toLowerCase()}`
+}
+
+export const signDidJWT = async (args: SignJwtArgs): Promise<string> => {
+  const { idOpts, header, payload, context, options } = args
+  const jwtOptions = {
+    ...options,
+    signer: await getDidSigner({ idOpts, context }),
+  }
+
+  return createJWT(payload, jwtOptions, header)
+}
+
+export const getDidSigner = async (args: GetSignerArgs): Promise<Signer> => {
+  const { idOpts, context } = args
+
+  const identifier = await getIdentifier(idOpts, context)
+  const key = await getKey({ identifier, vmRelationship: idOpts.verificationMethodSection, kmsKeyRef: idOpts.kmsKeyRef }, context)
+  const algorithm = await signatureAlgorithmFromKey({ key })
+
+  return async (data: string | Uint8Array): Promise<string> => {
+    const input = data instanceof Object.getPrototypeOf(Uint8Array) ? new TextDecoder().decode(data as Uint8Array) : (data as string)
+    return await context.agent.keyManagerSign({
+      keyRef: key.kid,
+      algorithm,
+      data: input,
+    })
+  }
 }
