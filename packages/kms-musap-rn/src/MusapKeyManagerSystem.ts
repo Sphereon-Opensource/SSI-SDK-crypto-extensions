@@ -79,7 +79,7 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
     }
   }
 
-  mapKeyTypeToAlgorithmType = (type: TKeyType): KeyAlgorithmType => {
+  private mapKeyTypeToAlgorithmType = (type: TKeyType): KeyAlgorithmType => {
     switch (type) {
       case 'Secp256k1':
         return 'ECCP256K1'
@@ -92,7 +92,7 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
     }
   }
 
-  mapAlgorithmTypeToKeyType = (type: KeyAlgorithm): TKeyType => {
+  private mapAlgorithmTypeToKeyType = (type: KeyAlgorithm): TKeyType => {
     switch (type) {
       case 'eccp256k1':
         return 'Secp256k1'
@@ -107,7 +107,7 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
 
   async deleteKey({ kid }: { kid: string }): Promise<boolean> {
     try {
-      await this.musapKeyStore.removeKey(kid)
+      this.musapKeyStore.removeKey(kid)
       return true
     } catch (error) {
       console.warn('Failed to delete key:', error)
