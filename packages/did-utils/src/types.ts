@@ -2,6 +2,7 @@ import { JWTHeader, JWTPayload, JWTVerifyOptions } from 'did-jwt'
 import { Resolvable } from 'did-resolver'
 import { DIDDocumentSection, IAgentContext, IDIDManager, IIdentifier, IKeyManager, IResolver } from '@veramo/core'
 import { TKeyType } from '@sphereon/ssi-sdk-ext.key-utils'
+import {IdentifierType} from "./did-functions";
 
 export enum SupportedDidMethodEnum {
   DID_ETHR = 'ethr',
@@ -35,8 +36,15 @@ export interface IDIDOptions {
 }
 
 export interface IIdentifierOpts {
+  type: IdentifierType
   identifier: IIdentifier | string
-  verificationMethodSection?: DIDDocumentSection
+  didOpts?: {
+    keyType?: TKeyType
+    offlineWhenNoDIDRegistered?: boolean
+    noVerificationMethodFallback?: boolean
+    controllerKey?: boolean
+    vmRelationship: DIDDocumentSection
+  }
   kmsKeyRef?: string
 }
 
