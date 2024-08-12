@@ -3,6 +3,7 @@ import { IKey, KeyMetadata, ManagedKeyInfo } from '@veramo/core'
 import { AbstractKeyManagementSystem, AbstractKeyStore, KeyManager as VeramoKeyManager } from '@veramo/key-manager'
 import {
   hasKeyOptions,
+  IKeyManagerGetArgs,
   ISphereonKeyManager,
   ISphereonKeyManagerCreateArgs,
   ISphereonKeyManagerHandleExpirationsArgs,
@@ -12,6 +13,7 @@ import {
 
 export const sphereonKeyManagerMethods: Array<string> = [
   'keyManagerCreate',
+  'keyManagerGet',
   'keyManagerImport',
   'keyManagerSign',
   'keyManagerVerify',
@@ -106,5 +108,26 @@ export class SphereonKeyManager extends VeramoKeyManager {
       throw Error(`invalid_argument: This agent has no registered KeyManagementSystem with name='${name}'`)
     }
     return kms
+  }
+
+  //todo https://sphereon.atlassian.net/browse/SDK-28 improve the logic for keyManagerGet in sphereon-key-manager
+  async keyManagerGet({ kid }: IKeyManagerGetArgs): Promise<IKey> {
+    try {
+      const key = await this.localStore.get({ kid })
+      return key
+    } catch (e) {
+      const keys: ManagedKeyInfo[] = await this.keyManagerListKeys()
+      const foundKey = keys.find(
+        (key) =>
+          key.publicKeyHex === kid ||
+          key.meta?.jwkThumbprint === kid ||
+          (key.meta?.jwkThumbprint == null && calculateJwkThumbprintForKey({ key }) === kid)
+      )
+      if (foundKey) {
+        return foundKey as IKey
+      } else {
+        throw new Error(`Key with kid ${kid} not found`)
+      }
+    }
   }
 }
