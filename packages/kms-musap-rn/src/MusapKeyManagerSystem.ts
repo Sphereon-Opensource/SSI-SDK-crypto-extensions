@@ -21,6 +21,7 @@ import { Loggers } from '@sphereon/ssi-types'
 import { KeyMetadata } from './index'
 import {
   asn1DerToRawPublicKey,
+  calculateJwkThumbprintForKey,
   hexStringFromUint8Array,
   isAsn1Der,
   isRawCompressedPublicKey,
@@ -153,6 +154,7 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
   }
 
   private asMusapKeyInfo(args: MusapKey): ManagedKeyInfo {
+    const { keyId, publicKey, ...metadata }: KeyMetadata = { ...args }
     const keyType = this.mapAlgorithmTypeToKeyType(args.algorithm)
     const pemBinary = PEMToBinary(args.publicKey.pem) // The der is flawed, it's not binary but a string [123, 4567]
     const publicKeyBinary = isAsn1Der(pemBinary) ? asn1DerToRawPublicKey(pemBinary, keyType) : pemBinary
@@ -160,13 +162,14 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
       ? hexStringFromUint8Array(publicKeyBinary)
       : toRawCompressedHexPublicKey(publicKeyBinary, keyType)
     const keyInfo: Partial<ManagedKeyInfo> = {
-      kid: args.keyId,
+      kid: keyId,
       type: keyType,
-      publicKeyHex: publicKeyHex,
-      meta: {
-        ...args,
-      },
+      publicKeyHex,
+      meta: metadata,
     }
+
+    const jwkThumbprint = calculateJwkThumbprintForKey({ key: keyInfo as ManagedKeyInfo })
+    keyInfo.meta = {...keyInfo.meta, jwkThumbprint }
     return keyInfo as ManagedKeyInfo
   }
 
