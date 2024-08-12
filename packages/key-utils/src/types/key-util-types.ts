@@ -1,4 +1,4 @@
-import { MinimalImportableKey } from '@veramo/core'
+import { IKey, MinimalImportableKey } from '@veramo/core'
 
 export const JWK_JCS_PUB_NAME = 'jwk_jcs-pub' as const
 export const JWK_JCS_PUB_PREFIX = 0xeb51
@@ -93,3 +93,15 @@ export interface IKeyOpts {
 type WithRequiredProperty<Type, Key extends keyof Type> = Type & {
   [Property in Key]-?: Type[Property]
 }*/
+
+export type SignatureAlgorithmFromKeyArgs = {
+  key: IKey
+}
+
+export type SignatureAlgorithmFromKeyTypeArgs = {
+  type: TKeyType
+}
+
+export type KeyTypeFromCryptographicSuiteArgs = {
+  suite: string
+}

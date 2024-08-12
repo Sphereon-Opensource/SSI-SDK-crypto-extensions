@@ -1,6 +1,6 @@
-import { JWTVerifyOptions } from 'did-jwt'
+import { JWTHeader, JWTPayload, JWTVerifyOptions } from 'did-jwt'
 import { Resolvable } from 'did-resolver'
-import { DIDDocumentSection, IIdentifier } from '@veramo/core'
+import { DIDDocumentSection, IAgentContext, IDIDManager, IIdentifier, IKeyManager, IResolver } from '@veramo/core'
 import { TKeyType } from '@sphereon/ssi-sdk-ext.key-utils'
 
 export enum SupportedDidMethodEnum {
@@ -69,3 +69,18 @@ export interface GetOrCreateResult<T> {
   created: boolean
   result: T
 }
+
+export type SignJwtArgs = {
+  idOpts: IIdentifierOpts
+  header: Partial<JWTHeader>
+  payload: Partial<JWTPayload>
+  options: { issuer: string; expiresIn?: number; canonicalize?: boolean }
+  context: IRequiredSignAgentContext
+}
+
+export type GetSignerArgs = {
+  idOpts: IIdentifierOpts
+  context: IRequiredSignAgentContext
+}
+
+export type IRequiredSignAgentContext = IAgentContext<IKeyManager & IDIDManager & IResolver>

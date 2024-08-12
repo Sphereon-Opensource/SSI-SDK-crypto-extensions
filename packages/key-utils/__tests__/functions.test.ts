@@ -1,5 +1,4 @@
-import { generatePrivateKeyHex, padLeft } from '../src'
-import { Key } from '../src'
+import { generatePrivateKeyHex, Key, padLeft } from '../src'
 
 describe('functions: key generator', () => {
   it('Secp256k1 should generate random keys', async () => {

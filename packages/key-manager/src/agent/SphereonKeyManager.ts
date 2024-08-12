@@ -1,9 +1,14 @@
-import { KeyManager as VeramoKeyManager, AbstractKeyManagementSystem, AbstractKeyStore } from '@veramo/key-manager'
-
-import { IKey, IKeyManagerGetArgs, ManagedKeyInfo, TKeyType } from '@veramo/core'
-import { KeyType, SphereonKeyManagementSystem } from '@sphereon/ssi-sdk-ext.kms-local'
-import { ISphereonKeyManager, ISphereonKeyManagerSignArgs, ISphereonKeyManagerVerifyArgs } from '../types/ISphereonKeyManager'
 import { calculateJwkThumbprintForKey } from '@sphereon/ssi-sdk-ext.key-utils'
+import { IKey, KeyMetadata, ManagedKeyInfo } from '@veramo/core'
+import { AbstractKeyManagementSystem, AbstractKeyStore, KeyManager as VeramoKeyManager } from '@veramo/key-manager'
+import {
+  hasKeyOptions,
+  ISphereonKeyManager,
+  ISphereonKeyManagerCreateArgs,
+  ISphereonKeyManagerHandleExpirationsArgs,
+  ISphereonKeyManagerSignArgs,
+  ISphereonKeyManagerVerifyArgs,
+} from '../types/ISphereonKeyManager'
 
 export const sphereonKeyManagerMethods: Array<string> = [
   'keyManagerCreate',
@@ -11,9 +16,11 @@ export const sphereonKeyManagerMethods: Array<string> = [
   'keyManagerSign',
   'keyManagerVerify',
   'keyManagerListKeys',
+  'keyManagerHandleExpirations',
 ]
 
 export class SphereonKeyManager extends VeramoKeyManager {
+  // local store reference, given the superclass store is private, and we need additional functions/calls
   private localStore: AbstractKeyStore
   private readonly availableKMSes: Record<string, AbstractKeyManagementSystem>
   readonly localMethods: ISphereonKeyManager
@@ -28,28 +35,44 @@ export class SphereonKeyManager extends VeramoKeyManager {
     this.localMethods = <ISphereonKeyManager>(<unknown>methods)
   }
 
-  private getAvailableKms(name: string): AbstractKeyManagementSystem {
-    const kms = this.availableKMSes[name]
-    if (!kms) {
-      throw Error(`invalid_argument: This agent has no registered KeyManagementSystem with name='${name}'`)
+  override async keyManagerCreate(args: ISphereonKeyManagerCreateArgs): Promise<ManagedKeyInfo> {
+    const kms = this.getKmsByName(args.kms)
+    const meta: KeyMetadata = { ...args.meta, ...(args.opts && { opts: args.opts }) }
+    if (hasKeyOptions(meta) && meta.opts?.ephemeral && !meta.opts.expiration?.removalDate) {
+      // Make sure we set a delete date on an ephemeral key
+      meta.opts = {
+        ...meta.opts,
+        expiration: { ...meta.opts?.expiration, removalDate: new Date(Date.now() + 5 * 60 * 1000) },
+      }
     }
-    return kms
+    const partialKey = await kms.createKey({ type: args.type, meta })
+    const key: IKey = { ...partialKey, kms: args.kms }
+    key.meta = { ...meta, ...key.meta }
+    key.meta.jwkThumbprint = key.meta.jwkThumbprint ?? calculateJwkThumbprintForKey({ key })
+
+    await this.localStore.import(key)
+    if (key.privateKeyHex) {
+      // Make sure to not export the private key
+      delete key.privateKeyHex
+    }
+    return key
   }
 
   //FIXME extend the IKeyManagerSignArgs.data to be a string or array of strings
+
   async keyManagerSign(args: ISphereonKeyManagerSignArgs): Promise<string> {
     const keyInfo: IKey = (await this.localStore.get({ kid: args.keyRef })) as IKey
-    const kms = this.getAvailableKms(keyInfo.kms)
-    if (keyInfo.type === <TKeyType>KeyType.Bls12381G2) {
+    const kms = this.getKmsByName(keyInfo.kms)
+    if (keyInfo.type === 'Bls12381G2') {
       return await kms.sign({ keyRef: keyInfo, data: Uint8Array.from(Buffer.from(args.data)) })
     }
-    // @ts-ignore
+    // @ts-ignore // we can pass in uint8arrays as well, which the super also can handle but does not expose in its types
     return await super.keyManagerSign(args)
   }
 
   async keyManagerVerify(args: ISphereonKeyManagerVerifyArgs): Promise<boolean> {
-    const kms = this.getAvailableKms(args.kms)
-    if (('verify' in kms && typeof kms.verify === 'function') || kms instanceof SphereonKeyManagementSystem) {
+    const kms = this.getKmsByName(args.kms)
+    if ('verify' in kms && typeof kms.verify === 'function') {
       // @ts-ignore
       return await kms.verify(args)
     }
@@ -57,7 +80,32 @@ export class SphereonKeyManager extends VeramoKeyManager {
   }
 
   async keyManagerListKeys(): Promise<ManagedKeyInfo[]> {
-    return this.localStore.list({}) // FIXME there are no args it seems
+    return this.localStore.list({})
+  }
+
+  async keyManagerHandleExpirations(args: ISphereonKeyManagerHandleExpirationsArgs): Promise<Array<ManagedKeyInfo>> {
+    const keys = await this.keyManagerListKeys()
+    const expiredKeys = keys
+      .filter((key) => hasKeyOptions(key.meta))
+      .filter((key) => {
+        if (hasKeyOptions(key.meta) && key.meta?.opts?.expiration) {
+          const expiration = key.meta.opts.expiration
+          return !(expiration.expiryDate && expiration.expiryDate.getMilliseconds() > Date.now())
+        }
+        return false
+      })
+    if (args.skipRemovals !== true) {
+      await Promise.all(expiredKeys.map((key) => this.keyManagerDelete({ kid: key.kid })))
+    }
+    return keys
+  }
+
+  private getKmsByName(name: string): AbstractKeyManagementSystem {
+    const kms = this.availableKMSes[name]
+    if (!kms) {
+      throw Error(`invalid_argument: This agent has no registered KeyManagementSystem with name='${name}'`)
+    }
+    return kms
   }
 
   async keyManagerGet({ kid }: IKeyManagerGetArgs): Promise<IKey> {

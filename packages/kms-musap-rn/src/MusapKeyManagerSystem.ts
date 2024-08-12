@@ -1,3 +1,4 @@
+import { PEMToBinary } from '@sphereon/ssi-sdk-ext.x509-utils'
 import { IKey, ManagedKeyInfo, MinimalImportableKey, TKeyType } from '@veramo/core'
 import {
   isSignatureAlgorithmType,
@@ -13,7 +14,7 @@ import {
   SignatureFormat,
   SignatureReq,
 } from '@sphereon/musap-react-native'
-import { KeyAttribute, SscdType } from '@sphereon/musap-react-native/src/types/musap-types'
+import { KeyAttribute, SscdType } from '@sphereon/musap-react-native'
 import { AbstractKeyManagementSystem } from '@veramo/key-manager'
 import { TextDecoder } from 'text-encoding'
 import { Loggers } from '@sphereon/ssi-types'
@@ -24,7 +25,6 @@ import {
   hexStringFromUint8Array,
   isAsn1Der,
   isRawCompressedPublicKey,
-  PEMToBinary,
   toRawCompressedHexPublicKey,
 } from '@sphereon/ssi-sdk-ext.key-utils'
 
@@ -72,7 +72,7 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
         const key = await this.musapKeyStore.getKeyByUri(generatedKeyUri)
         return this.asMusapKeyInfo(key)
       } else {
-        throw new Error('Failed to generate key')
+        return Promise.reject(new Error('Failed to generate key. No key URI'))
       }
     } catch (error) {
       logger.error('An error occurred:', error)
@@ -80,7 +80,7 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
     }
   }
 
-  mapKeyTypeToAlgorithmType = (type: TKeyType): KeyAlgorithmType => {
+  private mapKeyTypeToAlgorithmType = (type: TKeyType): KeyAlgorithmType => {
     switch (type) {
       case 'Secp256k1':
         return 'ECCP256K1'
@@ -93,7 +93,7 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
     }
   }
 
-  mapAlgorithmTypeToKeyType = (type: KeyAlgorithm): TKeyType => {
+  private mapAlgorithmTypeToKeyType = (type: KeyAlgorithm): TKeyType => {
     switch (type) {
       case 'eccp256k1':
         return 'Secp256k1'
@@ -108,7 +108,7 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
 
   async deleteKey({ kid }: { kid: string }): Promise<boolean> {
     try {
-      await this.musapKeyStore.removeKey(kid)
+      this.musapKeyStore.removeKey(kid)
       return true
     } catch (error) {
       console.warn('Failed to delete key:', error)

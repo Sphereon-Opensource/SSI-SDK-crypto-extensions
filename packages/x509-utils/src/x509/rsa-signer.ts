@@ -1,12 +1,11 @@
 import * as u8a from 'uint8arrays'
-import { HashAlgorithm } from '../digest-methods'
-import { JWK, KeyVisibility } from '../types'
+import { HashAlgorithm, KeyVisibility } from '../types'
 import { cryptoSubtleImportRSAKey, RSAEncryptionSchemes, RSASignatureSchemes } from './rsa-key'
 import { PEMToJwk } from './x509-utils'
 
 export class RSASigner {
   private readonly hashAlgorithm: HashAlgorithm
-  private readonly jwk: JWK
+  private readonly jwk: JsonWebKey
 
   private key: CryptoKey | undefined
   private readonly scheme: RSAEncryptionSchemes | RSASignatureSchemes
@@ -17,7 +16,7 @@ export class RSASigner {
    * @param opts The algorithm and signature/encryption schemes
    */
   constructor(
-    key: string | JWK,
+    key: string | JsonWebKey,
     opts?: { hashAlgorithm?: HashAlgorithm; scheme?: RSAEncryptionSchemes | RSASignatureSchemes; visibility?: KeyVisibility }
   ) {
     if (typeof key === 'string') {
@@ -34,7 +33,6 @@ export class RSASigner {
     if (this.scheme === 'RSA-PSS') {
       return { name: this.scheme, saltLength: 32 }
     }
-    // console.log({ name: this.scheme /*, hash: this.hashAlgorithm*/ })
     return { name: this.scheme /*, hash: this.hashAlgorithm*/ }
   }
 

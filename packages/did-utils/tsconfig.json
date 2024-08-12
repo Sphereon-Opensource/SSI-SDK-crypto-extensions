@@ -7,6 +7,9 @@
   "references": [
     {
       "path": "../key-utils"
+    },
+    {
+      "path": "../x509-utils"
     }
   ]
 }

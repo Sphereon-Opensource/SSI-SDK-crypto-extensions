@@ -4,7 +4,7 @@ import { ManagedKeyInfo } from '@veramo/core'
 export type PartialKey = ManagedKeyInfo & { privateKeyHex: string }
 
 export interface ISphereonKeyManager extends IKeyManager, IPluginMethodMap {
-  keyManagerCreate(args: IKeyManagerCreateArgs): Promise<PartialKey>
+  keyManagerCreate(args: ISphereonKeyManagerCreateArgs): Promise<PartialKey>
 
   keyManagerImport(key: MinimalImportableKey): Promise<PartialKey>
 
@@ -19,13 +19,34 @@ export interface ISphereonKeyManager extends IKeyManager, IPluginMethodMap {
   keyManagerVerify(args: ISphereonKeyManagerVerifyArgs): Promise<boolean>
 
   keyManagerListKeys(): Promise<Array<ManagedKeyInfo>>
+
+  /**
+   * Set keys to expired and remove keys eligible for deletion.
+   * @param args
+   */
+  keyManagerHandleExpirations(args: ISphereonKeyManagerHandleExpirationsArgs): Promise<Array<ManagedKeyInfo>>
+}
+
+export interface IkeyOptions {
+  /**
+   * Is this a temporary key?
+   */
+  ephemeral?: boolean
+
+  /**
+   * Expiration and remove the key
+   */
+  expiration?: {
+    expiryDate?: Date
+    removalDate?: Date
+  }
 }
 
 /**
  * Input arguments for {@link ISphereonKeyManager.keyManagerCreate | keyManagerCreate}
  * @public
  */
-export interface IKeyManagerCreateArgs {
+export interface ISphereonKeyManagerCreateArgs {
   /**
    * Key type
    */
@@ -37,9 +58,18 @@ export interface IKeyManagerCreateArgs {
   kms: string
 
   /**
+   * Key options
+   */
+  opts?: IkeyOptions
+
+  /**
    * Optional. Key meta data
    */
   meta?: KeyMetadata
+}
+
+export function hasKeyOptions(object: any): object is { opts?: IkeyOptions } {
+  return object!! && 'opts' in object && ('ephemeral' in object.opts || 'expiration' in object.opts)
 }
 
 /**
@@ -76,6 +106,10 @@ export interface ISphereonKeyManagerSignArgs extends IKeyManagerSignArgs {
   data: string | Uint8Array
 }
 
+export interface ISphereonKeyManagerHandleExpirationsArgs {
+  skipRemovals?: boolean
+}
+
 export interface ISphereonKeyManagerVerifyArgs {
   kms: string
   publicKeyHex: string
@@ -84,3 +118,5 @@ export interface ISphereonKeyManagerVerifyArgs {
   data: Uint8Array
   signature: string
 }
+
+export const isDefined = <T extends unknown>(object: T | undefined): object is T => object !== undefined
