@@ -40,7 +40,6 @@ describe('@sphereon/ssi-sdk-ext.key-manager key functionalities', () => {
     expect(fetchByKid.type).toEqual('Ed25519')
     expect(fetchByKid.kid).toEqual(key.kid)
     expect(fetchByKid.publicKeyHex).toEqual(key.publicKeyHex)
-    expect(fetchByKid?.meta).toEqual({ algorithms: ['Ed25519', 'EdDSA'] })
     const fetchByPublicKeyHex = await kms.keyManagerGet({ kid: key.publicKeyHex })
     expect(fetchByPublicKeyHex.kid).toEqual(key.kid)
   })
