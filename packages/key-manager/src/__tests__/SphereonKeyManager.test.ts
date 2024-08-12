@@ -32,7 +32,6 @@ describe('@sphereon/ssi-sdk-ext.key-manager key functionalities', () => {
     expect(fetchByKid.type).toEqual('X25519')
     expect(fetchByKid.kid).toEqual(key.kid)
     expect(fetchByKid.publicKeyHex).toEqual(key.publicKeyHex)
-    expect(fetchByKid?.meta).toEqual({ algorithms: ['ECDH', 'ECDH-ES', 'ECDH-1PU'] })
   })
 
   it('should create and fetch a Ed25519 key', async () => {

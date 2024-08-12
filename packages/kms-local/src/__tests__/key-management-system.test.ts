@@ -21,7 +21,6 @@ describe('Key creation', () => {
   it('should create a X25519 key', async () => {
     const kms = new SphereonKeyManagementSystem(new MemoryPrivateKeyStore())
     const key: ManagedKeyInfo = await kms.createKey({ type: 'X25519' })
-    console.log(key)
     expect(key.type).toEqual('X25519')
     expect(key.meta).toEqual({ algorithms: ['ECDH', 'ECDH-ES', 'ECDH-1PU'] })
   })
