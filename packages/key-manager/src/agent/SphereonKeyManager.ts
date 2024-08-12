@@ -3,6 +3,7 @@ import { IKey, KeyMetadata, ManagedKeyInfo } from '@veramo/core'
 import { AbstractKeyManagementSystem, AbstractKeyStore, KeyManager as VeramoKeyManager } from '@veramo/key-manager'
 import {
   hasKeyOptions,
+  IKeyManagerGetArgs,
   ISphereonKeyManager,
   ISphereonKeyManagerCreateArgs,
   ISphereonKeyManagerHandleExpirationsArgs,
@@ -12,6 +13,7 @@ import {
 
 export const sphereonKeyManagerMethods: Array<string> = [
   'keyManagerCreate',
+  'keyManagerGet',
   'keyManagerImport',
   'keyManagerSign',
   'keyManagerVerify',
@@ -108,6 +110,7 @@ export class SphereonKeyManager extends VeramoKeyManager {
     return kms
   }
 
+  //todo https://sphereon.atlassian.net/browse/SDK-28 improve the logic for keyManagerGet in sphereon-key-manager
   async keyManagerGet({ kid }: IKeyManagerGetArgs): Promise<IKey> {
     try {
       const key = await this.localStore.get({ kid })

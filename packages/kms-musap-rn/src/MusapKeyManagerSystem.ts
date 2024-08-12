@@ -169,7 +169,7 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
     }
 
     const jwkThumbprint = calculateJwkThumbprintForKey({ key: keyInfo as ManagedKeyInfo })
-    keyInfo.meta!.jwkThumbprint = jwkThumbprint
+    keyInfo.meta = {...keyInfo.meta, jwkThumbprint }
     return keyInfo as ManagedKeyInfo
   }
 
