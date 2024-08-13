@@ -15,8 +15,8 @@
     "generate-plugin-schema": "sphereon dev generate-plugin-schema"
   },
   "dependencies": {
-    "@sphereon/ssi-sdk.agent-config": "0.29.1-unstable.73",
-    "@sphereon/ssi-types": "0.29.1-unstable.73",
+    "@sphereon/ssi-sdk.agent-config": "0.29.1-unstable.75",
+    "@sphereon/ssi-types": "0.29.1-unstable.75",
     "@sphereon/ssi-sdk-ext.key-utils": "workspace:*",
     "@sphereon/ssi-sdk-ext.did-utils": "workspace:*",
     "@sphereon/ssi-sdk-ext.x509-utils": "workspace:*",
@@ -27,15 +27,17 @@
     "debug": "^4.3.4"
   },
   "devDependencies": {
-    "@sphereon/ssi-sdk.dev": "0.29.1-unstable.73",
+    "@sphereon/ssi-sdk.dev": "0.29.1-unstable.75",
     "@sphereon/ssi-sdk-ext.kms-local": "workspace:*",
     "@sphereon/ssi-sdk-ext.key-manager": "workspace:*",
+    "@sphereon/ssi-sdk-ext.did-provider-jwk": "workspace:*",
+    "@sphereon/ssi-sdk-ext.did-resolver-jwk": "workspace:*",
     "did-resolver": "^4.1.0",
     "@veramo/key-manager": "4.2.0",
     "@veramo/kms-local": "4.2.0",
     "@veramo/data-store": "4.2.0",
     "@veramo/did-manager": "4.2.0",
-    "@sphereon/ssi-sdk-ext.did-provider-jwk": "workspace:*",
+    "@veramo/did-resolver": "4.2.0",
     "@veramo/remote-client": "4.2.0",
     "@veramo/remote-server": "4.2.0",
     "typeorm": "0.3.20"

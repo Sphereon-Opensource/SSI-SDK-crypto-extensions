@@ -25,7 +25,7 @@
   "devDependencies": {
     "@sphereon/ssi-sdk-ext.key-manager": "workspace:*",
     "@sphereon/ssi-sdk-ext.kms-local": "workspace:*",
-    "@sphereon/ssi-sdk.dev": "0.29.1-unstable.73",
+    "@sphereon/ssi-sdk.dev": "0.29.1-unstable.75",
     "@veramo/did-resolver": "4.2.0",
     "@veramo/key-manager": "4.2.0"
   },

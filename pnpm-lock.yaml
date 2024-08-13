@@ -26,9 +26,9 @@ overrides:
   '@veramo/remote-server': 4.2.0
   '@veramo/selective-disclosure': 4.2.0
   '@veramo/url-handler': 4.2.0
-  '@sphereon/ssi-sdk.agent-config': 0.29.1-unstable.73
-  '@sphereon/ssi-sdk.core': 0.29.1-unstable.73
-  '@sphereon/ssi-types': 0.29.1-unstable.73
+  '@sphereon/ssi-sdk.agent-config': 0.29.1-unstable.75
+  '@sphereon/ssi-sdk.core': 0.29.1-unstable.75
+  '@sphereon/ssi-types': 0.29.1-unstable.75
   '@digitalcredentials/ed25519-verification-key-2020': 3.2.2
   '*>@digitalcredentials/ed25519-verification-key-2020': 3.2.2
   did-jwt: 6.11.6
@@ -163,8 +163,8 @@ importers:
         specifier: workspace:*
         version: link:../key-utils
       '@sphereon/ssi-types':
-        specifier: 0.29.1-unstable.73
-        version: 0.29.1-unstable.73
+        specifier: 0.29.1-unstable.75
+        version: 0.29.1-unstable.75
       '@stablelib/ed25519':
         specifier: ^1.0.3
         version: 1.0.3
@@ -219,7 +219,7 @@ importers:
         version: link:../key-utils
       '@transmute/did-key-bls12381':
         specifier: 0.3.0-unstable.10
-        version: 0.3.0-unstable.10(expo@51.0.26)(react-native@0.74.5)
+        version: 0.3.0-unstable.10
       '@veramo/core':
         specifier: 4.2.0
         version: 4.2.0(patch_hash=c5oempznsz4br5w3tcuk2i2mau)
@@ -252,8 +252,8 @@ importers:
         specifier: workspace:*
         version: link:../kms-local
       '@sphereon/ssi-sdk.dev':
-        specifier: 0.29.1-unstable.73
-        version: 0.29.1-unstable.73(@types/node@18.19.44)
+        specifier: 0.29.1-unstable.75
+        version: 0.29.1-unstable.75(@types/node@18.19.44)
       '@veramo/did-resolver':
         specifier: 4.2.0
         version: 4.2.0
@@ -342,8 +342,8 @@ importers:
   packages/did-resolver-jwk:
     dependencies:
       '@sphereon/ssi-types':
-        specifier: 0.29.1-unstable.73
-        version: 0.29.1-unstable.73
+        specifier: 0.29.1-unstable.75
+        version: 0.29.1-unstable.75
       base64url:
         specifier: ^3.0.1
         version: 3.0.1
@@ -431,11 +431,11 @@ importers:
         specifier: workspace:*
         version: link:../x509-utils
       '@sphereon/ssi-sdk.agent-config':
-        specifier: 0.29.1-unstable.73
-        version: 0.29.1-unstable.73(ts-node@10.9.2)
+        specifier: 0.29.1-unstable.75
+        version: 0.29.1-unstable.75(ts-node@10.9.2)
       '@sphereon/ssi-sdk.core':
-        specifier: 0.29.1-unstable.73
-        version: 0.29.1-unstable.73
+        specifier: 0.29.1-unstable.75
+        version: 0.29.1-unstable.75
       '@stablelib/ed25519':
         specifier: ^1.0.3
         version: 1.0.3
@@ -470,11 +470,11 @@ importers:
         specifier: workspace:*
         version: link:../x509-utils
       '@sphereon/ssi-sdk.agent-config':
-        specifier: 0.29.1-unstable.73
-        version: 0.29.1-unstable.73(ts-node@10.9.2)
+        specifier: 0.29.1-unstable.75
+        version: 0.29.1-unstable.75(ts-node@10.9.2)
       '@sphereon/ssi-types':
-        specifier: 0.29.1-unstable.73
-        version: 0.29.1-unstable.73
+        specifier: 0.29.1-unstable.75
+        version: 0.29.1-unstable.75
       '@veramo/core':
         specifier: 4.2.0
         version: 4.2.0(patch_hash=c5oempznsz4br5w3tcuk2i2mau)
@@ -494,6 +494,9 @@ importers:
       '@sphereon/ssi-sdk-ext.did-provider-jwk':
         specifier: workspace:*
         version: link:../did-provider-jwk
+      '@sphereon/ssi-sdk-ext.did-resolver-jwk':
+        specifier: workspace:*
+        version: link:../did-resolver-jwk
       '@sphereon/ssi-sdk-ext.key-manager':
         specifier: workspace:*
         version: link:../key-manager
@@ -501,12 +504,15 @@ importers:
         specifier: workspace:*
         version: link:../kms-local
       '@sphereon/ssi-sdk.dev':
-        specifier: 0.29.1-unstable.73
-        version: 0.29.1-unstable.73(@types/node@18.19.44)
+        specifier: 0.29.1-unstable.75
+        version: 0.29.1-unstable.75(@types/node@18.19.44)
       '@veramo/data-store':
         specifier: 4.2.0
         version: 4.2.0(pg@8.12.0)(sqlite3@5.1.7)(ts-node@10.9.2)
       '@veramo/did-manager':
+        specifier: 4.2.0
+        version: 4.2.0
+      '@veramo/did-resolver':
         specifier: 4.2.0
         version: 4.2.0
       '@veramo/key-manager':
@@ -547,8 +553,8 @@ importers:
         specifier: workspace:*
         version: link:../kms-local
       '@sphereon/ssi-sdk.dev':
-        specifier: 0.29.1-unstable.73
-        version: 0.29.1-unstable.73(@types/node@18.19.44)
+        specifier: 0.29.1-unstable.75
+        version: 0.29.1-unstable.75(@types/node@18.19.44)
 
   packages/key-utils:
     dependencies:
@@ -559,8 +565,8 @@ importers:
         specifier: workspace:*
         version: link:../x509-utils
       '@sphereon/ssi-types':
-        specifier: 0.29.1-unstable.73
-        version: 0.29.1-unstable.73
+        specifier: 0.29.1-unstable.75
+        version: 0.29.1-unstable.75
       '@stablelib/ed25519':
         specifier: ^1.0.3
         version: 1.0.3
@@ -642,8 +648,8 @@ importers:
         specifier: 3.3.2-unstable.0
         version: 3.3.2-unstable.0
       '@sphereon/ssi-sdk.dev':
-        specifier: 0.29.1-unstable.73
-        version: 0.29.1-unstable.73(@types/node@18.19.44)
+        specifier: 0.29.1-unstable.75
+        version: 0.29.1-unstable.75(@types/node@18.19.44)
       '@types/elliptic':
         specifier: 6.4.14
         version: 6.4.14
@@ -663,8 +669,8 @@ importers:
         specifier: workspace:*
         version: link:../x509-utils
       '@sphereon/ssi-types':
-        specifier: 0.29.1-unstable.73
-        version: 0.29.1-unstable.73
+        specifier: 0.29.1-unstable.75
+        version: 0.29.1-unstable.75
       '@veramo/core':
         specifier: 4.2.0
         version: 4.2.0(patch_hash=c5oempznsz4br5w3tcuk2i2mau)
@@ -713,8 +719,8 @@ importers:
         version: 0.3.20(pg@8.12.0)(sqlite3@5.1.7)(ts-node@10.9.2)
     devDependencies:
       '@sphereon/ssi-sdk.dev':
-        specifier: 0.29.1-unstable.73
-        version: 0.29.1-unstable.73(@types/node@18.19.44)
+        specifier: 0.29.1-unstable.75
+        version: 0.29.1-unstable.75(@types/node@18.19.44)
       '@types/bip39':
         specifier: ^3.0.0
         version: 3.0.0
@@ -4987,8 +4993,8 @@ packages:
       react-native: 0.74.5(@babel/core@7.25.2)(@babel/preset-env@7.25.3)(react@18.3.1)
     dev: false
 
-  /@sphereon/ssi-sdk.agent-config@0.29.1-unstable.73(ts-node@10.9.2):
-    resolution: {integrity: sha512-9WNBi8fYY5pcKx7LfBk+vx+U7WkVnENt8MEHt6bzS7SZkKC0u7K7EXzpux1JAURMzQxEv31F5cXuJCq8l6k3mQ==}
+  /@sphereon/ssi-sdk.agent-config@0.29.1-unstable.75(ts-node@10.9.2):
+    resolution: {integrity: sha512-E+iUuDa6TuXclkY3n6CWp0F1HK8CVisx0vfGXJdBZiutvCp2ncbsdvPKSO4iFT1McuyMrreIiXzJ7Wlp/MPdtA==}
     dependencies:
       '@veramo/core': 4.2.0(patch_hash=c5oempznsz4br5w3tcuk2i2mau)
       debug: 4.3.6
@@ -5017,10 +5023,10 @@ packages:
       - typeorm-aurora-data-api-driver
     dev: false
 
-  /@sphereon/ssi-sdk.core@0.29.1-unstable.73:
-    resolution: {integrity: sha512-j2yZhujJcaN9nQmfYynDFjPXaLldDEgMoZMJOnvUX65zqcx4WWx0vbifSJUNiccgT7Y/3IIFNwX7bFeoGPWmjg==}
+  /@sphereon/ssi-sdk.core@0.29.1-unstable.75:
+    resolution: {integrity: sha512-PpVjHABFGePc8Rdbg+UcwVrdV5DmDZ9SjJrhs1UItizbFn/l0jdPNOH88QTlAkjithMnqAsBplosrhzyShVBmg==}
     dependencies:
-      '@sphereon/ssi-types': 0.29.1-unstable.73
+      '@sphereon/ssi-types': 0.29.1-unstable.75
       '@veramo/core': 4.2.0(patch_hash=c5oempznsz4br5w3tcuk2i2mau)
       cross-fetch: 3.1.8
       debug: 4.3.6
@@ -5053,8 +5059,8 @@ packages:
       - '@types/node'
     dev: true
 
-  /@sphereon/ssi-sdk.dev@0.29.1-unstable.73(@types/node@18.19.44):
-    resolution: {integrity: sha512-xcvdpT6vaD8jErZNxOBpeUgx3NRXOc9AkXARg2YzoJAmpsK37bQyLXIyX877a7th3n0r84h/0e2eJIy7lNWU0w==}
+  /@sphereon/ssi-sdk.dev@0.29.1-unstable.75(@types/node@18.19.44):
+    resolution: {integrity: sha512-wOgbsSpIC1g818Q31jjLX3qqge95B3FjG+737vW0P1pZ+jwQ6ViJPICBxLdCv52svX6SGx42pVcsOo4SZs8z+Q==}
     hasBin: true
     dependencies:
       '@microsoft/api-extractor': 7.47.5(@types/node@18.19.44)
@@ -5075,8 +5081,8 @@ packages:
       - '@types/node'
     dev: true
 
-  /@sphereon/ssi-types@0.29.1-unstable.73:
-    resolution: {integrity: sha512-bDuvDVCEPAhgj4dXNbJLXabHm4r5o6GgIetPkTQbDGoLTN0g/WRL1CfEuAMyiIs2q5aUj8beKXhP3CIGCKctfg==}
+  /@sphereon/ssi-types@0.29.1-unstable.75:
+    resolution: {integrity: sha512-CEkiOIdRY5s44bUZEC7/MXzeR3lONRWtjjWa9gFAn3QGTjGyLk7SC+9aUc9WAZgJcj4w7AMng1ZX0JFVXet3JA==}
     dependencies:
       '@sd-jwt/decode': 0.6.1
       debug: 4.3.6
@@ -5267,7 +5273,7 @@ packages:
   /@transmute/did-context@0.6.1-unstable.37:
     resolution: {integrity: sha512-p/QnG3QKS4218hjIDgdvJOFATCXsAnZKgy4egqRrJLlo3Y6OaDBg7cA73dixOwUPoEKob0K6rLIGcsCI/L1acw==}
 
-  /@transmute/did-key-bls12381@0.3.0-unstable.10(expo@51.0.26)(react-native@0.74.5):
+  /@transmute/did-key-bls12381@0.3.0-unstable.10:
     resolution: {integrity: sha512-ExSADdvDxrYeCx8RsKXZGMjJmHrOJ9vyYtziZUaJ97K/sn1uVlvIOTp9V4xHa6j9cT1wTzSqJ325euwGFeK+WQ==}
     engines: {node: '>=14'}
     dependencies:

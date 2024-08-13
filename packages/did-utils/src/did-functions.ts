@@ -456,10 +456,10 @@ export type DidDocumentJwks = Record<Exclude<DIDDocumentSection, 'publicKey' | '
 
 export function didDocumentToJwks(didDocument: DIDDocument): DidDocumentJwks {
   return {
-    verificationMethod: {
-      ...(didDocumentSectionToJwks('verificationMethod', didDocument.verificationMethod, didDocument.verificationMethod).jwks &&
-        didDocumentSectionToJwks('publicKey', didDocument.publicKey, didDocument.verificationMethod).jwks),
-    },
+    verificationMethod: [
+      ...didDocumentSectionToJwks('publicKey', didDocument.publicKey, didDocument.verificationMethod).jwks, // legacy support
+      ...didDocumentSectionToJwks('verificationMethod', didDocument.verificationMethod, didDocument.verificationMethod).jwks,
+    ],
     assertionMethod: didDocumentSectionToJwks('assertionMethod', didDocument.assertionMethod, didDocument.verificationMethod).jwks,
     authentication: didDocumentSectionToJwks('authentication', didDocument.authentication, didDocument.verificationMethod).jwks,
     keyAgreement: didDocumentSectionToJwks('keyAgreement', didDocument.keyAgreement, didDocument.verificationMethod).jwks,
@@ -520,8 +520,8 @@ export async function mapIdentifierKeysToDocWithJwkSupport(
   const extendedKeys: _ExtendedIKey[] = documentKeys
     .map((verificationMethod) => {
       /*if (verificationMethod.type !== 'JsonWebKey2020') {
-                                                                                      return null
-                                                                                    }*/
+                                                                                            return null
+                                                                                          }*/
       const localKey = localKeys.find(
         (localKey) =>
           localKey.publicKeyHex === verificationMethod.publicKeyHex ||
