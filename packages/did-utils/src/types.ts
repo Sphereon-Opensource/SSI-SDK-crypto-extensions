@@ -33,7 +33,7 @@ export interface ResolveOpts {
  */
 export interface IDIDOptions {
   resolveOpts?: ResolveOpts
-  identifierOpts: LegacyIIdentifierOpts
+  idOpts: LegacyIIdentifierOpts
   supportedDIDMethods?: string[]
 }
 

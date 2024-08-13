@@ -520,8 +520,8 @@ export async function mapIdentifierKeysToDocWithJwkSupport(
   const extendedKeys: _ExtendedIKey[] = documentKeys
     .map((verificationMethod) => {
       /*if (verificationMethod.type !== 'JsonWebKey2020') {
-                                                                                            return null
-                                                                                          }*/
+                                                                                                  return null
+                                                                                                }*/
       const localKey = localKeys.find(
         (localKey) =>
           localKey.publicKeyHex === verificationMethod.publicKeyHex ||
@@ -571,11 +571,11 @@ export async function getAgentDIDMethods(context: IAgentContext<IDIDManager>) {
   return (await context.agent.didManagerGetProviders()).map((provider) => provider.toLowerCase().replace('did:', ''))
 }
 
-export function getDID(identifierOpts: { identifier: IIdentifier | string }): string {
-  if (typeof identifierOpts.identifier === 'string') {
-    return identifierOpts.identifier
-  } else if (typeof identifierOpts.identifier === 'object') {
-    return identifierOpts.identifier.did
+export function getDID(idOpts: { identifier: IIdentifier | string }): string {
+  if (typeof idOpts.identifier === 'string') {
+    return idOpts.identifier
+  } else if (typeof idOpts.identifier === 'object') {
+    return idOpts.identifier.did
   }
   throw Error(`Cannot get DID from identifier value`)
 }
@@ -961,7 +961,20 @@ export const signDidJWT = async (args: SignJwtArgs): Promise<string> => {
  */
 export const getDidSigner = async (
   args: GetSignerArgs & {
-    idOpts: { identifier: IIdentifier | string; verificationMethodSection?: DIDDocumentSection; kmsKeyRef?: string }
+    idOpts: {
+      /**
+       * @deprecated
+       */
+      identifier: IIdentifier | string
+      /**
+       * @deprecated
+       */
+      verificationMethodSection?: DIDDocumentSection
+      /**
+       * @deprecated
+       */
+      kmsKeyRef?: string
+    }
   }
 ): Promise<Signer> => {
   const { idOpts, context } = args
