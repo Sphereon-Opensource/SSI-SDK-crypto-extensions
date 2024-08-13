@@ -45,8 +45,8 @@ export class IdentifierResolution implements IAgentPlugin {
   /**
    * TODO: Add a cache, as we are retrieving the same keys/info quite often
    */
-  constructor({ crypto: cryptoArg = global.crypto }: { crypto?: Crypto }) {
-    this._crypto = cryptoArg
+  constructor(opts?: { crypto?: Crypto }) {
+    this._crypto = opts?.crypto ?? global.crypto
   }
 
   /**
