@@ -5,4 +5,4 @@
  * @packageDocumentation
  */
 export * from './types'
-export { WebDIDProvider } from './web-did-provider.js'
+export { WebDIDProvider } from './web-did-provider'

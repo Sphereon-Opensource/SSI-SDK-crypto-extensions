@@ -1,8 +1,7 @@
+import { TKeyType } from '@sphereon/ssi-sdk-ext.key-utils'
+import { IAgentContext, IDIDManager, IIdentifier, IKeyManager, IResolver } from '@veramo/core'
 import { JWTHeader, JWTPayload, JWTVerifyOptions } from 'did-jwt'
 import { Resolvable } from 'did-resolver'
-import { DIDDocumentSection, IAgentContext, IDIDManager, IIdentifier, IKeyManager, IResolver } from '@veramo/core'
-import { TKeyType } from '@sphereon/ssi-sdk-ext.key-utils'
-import {IdentifierType} from "./did-functions";
 
 export enum SupportedDidMethodEnum {
   DID_ETHR = 'ethr',
@@ -29,23 +28,13 @@ export interface ResolveOpts {
   subjectSyntaxTypesSupported?: string[]
 }
 
+/**
+ * @deprecated Replaced by the identifier resolution service
+ */
 export interface IDIDOptions {
   resolveOpts?: ResolveOpts
-  identifierOpts: IIdentifierOpts
+  identifierOpts: LegacyIIdentifierOpts
   supportedDIDMethods?: string[]
-}
-
-export interface IIdentifierOpts {
-  type: IdentifierType
-  identifier: IIdentifier | string
-  didOpts?: {
-    keyType?: TKeyType
-    offlineWhenNoDIDRegistered?: boolean
-    noVerificationMethodFallback?: boolean
-    controllerKey?: boolean
-    vmRelationship: DIDDocumentSection
-  }
-  kmsKeyRef?: string
 }
 
 export type IdentifierProviderOpts = {
@@ -78,17 +67,29 @@ export interface GetOrCreateResult<T> {
   result: T
 }
 
+/**
+ * @deprecated Replaced by new signer
+ */
 export type SignJwtArgs = {
-  idOpts: IIdentifierOpts
+  idOpts: LegacyIIdentifierOpts
   header: Partial<JWTHeader>
   payload: Partial<JWTPayload>
   options: { issuer: string; expiresIn?: number; canonicalize?: boolean }
   context: IRequiredSignAgentContext
 }
 
+/**
+ * @deprecated Replaced by new signer
+ */
 export type GetSignerArgs = {
-  idOpts: IIdentifierOpts
+  idOpts: LegacyIIdentifierOpts
   context: IRequiredSignAgentContext
 }
 
+/**
+ * @deprecated Replaced by the identifier resolution service
+ */
+type LegacyIIdentifierOpts = {
+  identifier: IIdentifier | string
+}
 export type IRequiredSignAgentContext = IAgentContext<IKeyManager & IDIDManager & IResolver>

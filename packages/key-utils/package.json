@@ -17,7 +17,7 @@
     "@trust/keyto": "^1.0.1",
     "@veramo/core": "4.2.0",
     "@sphereon/ssi-sdk-ext.x509-utils": "workspace:*",
-    "@sphereon/ssi-types": "0.29.1-next.46",
+    "@sphereon/ssi-types": "0.29.1-unstable.73",
     "base64url": "^3.0.1",
     "debug": "^4.3.4",
     "did-resolver": "^4.1.0",

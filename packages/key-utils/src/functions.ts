@@ -188,6 +188,11 @@ export const calculateJwkThumbprint = (args: { jwk: JWK; digestAlgorithm?: 'sha2
     : digestMethodParams('SHA-256').digestMethod(data, 'base64url')
 }
 
+export const toJwkFromKey = (key: IKey | MinimalImportableKey | ManagedKeyInfo, opts?: { use?: JwkKeyUse; noKidThumbprint?: boolean }): JWK => {
+  const isPrivateKey = 'privateKeyHex' in key
+  return toJwk(key.publicKeyHex!, key.type, { ...opts, key, isPrivateKey })
+}
+
 /**
  * Converts a public key in hex format to a JWK
  * @param publicKeyHex public key in hex
