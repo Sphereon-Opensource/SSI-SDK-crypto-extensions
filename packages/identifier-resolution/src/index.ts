@@ -7,5 +7,5 @@ export { schema }
  * @public
  */
 export { IdentifierResolution } from './agent/IdentifierResolution'
-export * from './types/IIdentifierResolution'
 export * from './functions'
+export * from './types'
