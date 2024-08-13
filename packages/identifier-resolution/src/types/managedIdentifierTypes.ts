@@ -16,6 +16,8 @@ export type ManagedIdentifierOptsBase = {
   method?: ManagedIdentifierMethod // If provided always takes precedences otherwise it will be inferred from the identifier
   identifier: ManagedIdentifierType
   kmsKeyRef?: string
+  issuer?: string // can be used when a specific issuer needs to end up, for instance when signing JWTs. Will be returned or inferred if not provided
+  kid?: string // can be used when a specific kid value needs to be used. For instance when signing JWTs. Will be returned or inferred if not provided
 }
 
 export type ManagedIdentifierDidOpts = Omit<ManagedIdentifierOptsBase, 'method'> & {
@@ -70,6 +72,8 @@ export interface ManagedJwkInfo extends JwkInfo {
 export interface IManagedIdentifierResultBase extends ManagedJwkInfo {
   method: ManagedIdentifierMethod
   key: IKey
+  kid?: string
+  issuer?: string
 }
 
 export function isManagedIdentifierDidResult(object: IManagedIdentifierResultBase): object is ManagedIdentifierDidResult {
@@ -95,7 +99,9 @@ export interface ManagedIdentifierDidResult extends IManagedIdentifierResultBase
   // key: IKey // The key associated with the requested did method sections. Controller key in case of no DID method section requested
   keys: Array<IKey> // If there is more than one key for the VM relationship.
   verificationMethodSection?: DIDDocumentSection
-  controllerKeyId: string
+  controllerKeyId?: string
+  issuer: string
+  kid: string
 }
 
 export interface ManagedIdentifierJwkResult extends IManagedIdentifierResultBase {
@@ -104,6 +110,8 @@ export interface ManagedIdentifierJwkResult extends IManagedIdentifierResultBase
 
 export interface ManagedIdentifierKidResult extends IManagedIdentifierResultBase {
   method: 'kid'
+  issuer: string
+  kid: string
 }
 
 export interface ManagedIdentifierX5cResult extends IManagedIdentifierResultBase {
@@ -114,8 +122,5 @@ export interface ManagedIdentifierX5cResult extends IManagedIdentifierResultBase
 
 export type ManagedIdentifierMethod = 'did' | 'jwk' | 'x5c' | 'kid'
 
-export type ManagedIdentifierResult =
-  | ManagedIdentifierX5cResult
-  | ManagedIdentifierDidResult
-  | ManagedIdentifierJwkResult
-  | ManagedIdentifierKidResult
+export type ManagedIdentifierResult = IManagedIdentifierResultBase &
+  (ManagedIdentifierX5cResult | ManagedIdentifierDidResult | ManagedIdentifierJwkResult | ManagedIdentifierKidResult)
