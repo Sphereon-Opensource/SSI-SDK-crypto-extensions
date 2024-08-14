@@ -33,6 +33,7 @@ export const SIG_KEY_ALGS = ['ES256', 'ES384', 'ES512', 'EdDSA', 'ES256K', 'Ed25
 export const ENC_KEY_ALGS = ['X25519', 'ECDH_ES_A256KW', 'RSA_OAEP_256']
 
 export interface JWK {
+  kty: string
   alg?: string
   crv?: string
   d?: string
@@ -43,7 +44,6 @@ export interface JWK {
   k?: string
   key_ops?: string[]
   kid?: string
-  kty?: string
   n?: string
   oth?: Array<{
     d?: string

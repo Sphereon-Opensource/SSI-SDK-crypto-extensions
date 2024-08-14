@@ -42,6 +42,9 @@
     },
     {
       "path": "kms-musap-rn"
+    },
+    {
+      "path": "identifier-resolution"
     }
   ]
 }

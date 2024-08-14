@@ -7,7 +7,7 @@ export type DNInfo = {
 }
 
 export type CertInfo = {
-  certificate?: Certificate
+  certificate?: any // We need to fix the schema generator for this to be Certificate(Json) from pkijs
   notBefore: Date
   notAfter: Date
   publicKeyJWK?: any
