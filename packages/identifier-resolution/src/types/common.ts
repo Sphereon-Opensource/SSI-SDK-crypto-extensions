@@ -1,5 +1,5 @@
 import { JWK } from '@sphereon/ssi-sdk-ext.key-utils'
-import { IIdentifier } from '@veramo/core'
+import { IIdentifier, IKey } from '@veramo/core'
 import { ExternalIdentifierType } from './externalIdentifierTypes'
 import { ManagedIdentifierType } from './managedIdentifierTypes'
 
@@ -30,6 +30,16 @@ export function isJwksUrlIdentifier(identifier: ManagedIdentifierType | External
 
 export function isKidIdentifier(identifier: ManagedIdentifierType | ExternalIdentifierType): identifier is string {
   return typeof identifier === 'string' && !identifier.startsWith('did:')
+}
+
+export function isKeyIdentifier(identifier: ManagedIdentifierType): identifier is IKey {
+  return (
+    typeof identifier === 'string' &&
+    !Array.isArray(identifier) &&
+    typeof identifier === 'object' &&
+    `kid` in identifier &&
+    'publicKeyHex' in identifier
+  )
 }
 
 export function isX5cIdentifier(identifier: ManagedIdentifierType | ExternalIdentifierType): identifier is string[] {

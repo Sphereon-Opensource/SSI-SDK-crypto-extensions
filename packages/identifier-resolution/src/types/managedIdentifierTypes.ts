@@ -1,21 +1,27 @@
 import { JWK } from '@sphereon/ssi-sdk-ext.key-utils'
 import { DIDDocumentSection, IIdentifier, IKey, TKeyType } from '@veramo/core'
-import { isDidIdentifier, isJwkIdentifier, isKidIdentifier, isX5cIdentifier, JwkInfo } from './common'
+import { isDidIdentifier, isJwkIdentifier, isKeyIdentifier, isKidIdentifier, isX5cIdentifier, JwkInfo } from './common'
 
 /**
  * Use whenever we need to pass in an identifier. We can pass in kids, DIDs, IIdentifier objects and x5chains
  *
- * The functions below can be used to check the type, and they also provide the proper runtime types
+ * The functions below can be used to check the type, and they also provide the proper 'runtime' types
  */
-export type ManagedIdentifierType = IIdentifier /*did*/ | string /*did or kid*/ | string[] /*x5c*/ | JWK
+export type ManagedIdentifierType = IIdentifier /*did*/ | string /*did or kid*/ | string[] /*x5c*/ | JWK | IKey
 
-export type ManagedIdentifierOpts = (ManagedIdentifierJwkOpts | ManagedIdentifierX5cOpts | ManagedIdentifierDidOpts | ManagedIdentifierKidOpts) &
+export type ManagedIdentifierOpts = (
+  | ManagedIdentifierJwkOpts
+  | ManagedIdentifierX5cOpts
+  | ManagedIdentifierDidOpts
+  | ManagedIdentifierKidOpts
+  | ManagedIdentifierKeyOpts
+) &
   ManagedIdentifierOptsBase
 
 export type ManagedIdentifierOptsBase = {
   method?: ManagedIdentifierMethod // If provided always takes precedences otherwise it will be inferred from the identifier
   identifier: ManagedIdentifierType
-  kmsKeyRef?: string
+  kmsKeyRef?: string // The key reference for the KMS system. If provided this value will be used to determine the appropriate key. Otherwise it will be inferred
   issuer?: string // can be used when a specific issuer needs to end up, for instance when signing JWTs. Will be returned or inferred if not provided
   kid?: string // can be used when a specific kid value needs to be used. For instance when signing JWTs. Will be returned or inferred if not provided
 }
@@ -43,6 +49,16 @@ export type ManagedIdentifierKidOpts = Omit<ManagedIdentifierOptsBase, 'method'>
 export function isManagedIdentifierKidOpts(opts: ManagedIdentifierOptsBase): opts is ManagedIdentifierKidOpts {
   const { identifier } = opts
   return ('method' in opts && opts.method === 'kid') || isKidIdentifier(identifier)
+}
+
+export type ManagedIdentifierKeyOpts = Omit<ManagedIdentifierOptsBase, 'method'> & {
+  method?: 'key'
+  identifier: IKey
+}
+
+export function isManagedIdentifierKeyOpts(opts: ManagedIdentifierOptsBase): opts is ManagedIdentifierKidOpts {
+  const { identifier } = opts
+  return ('method' in opts && opts.method === 'key') || isKeyIdentifier(identifier)
 }
 
 export type ManagedIdentifierJwkOpts = Omit<ManagedIdentifierOptsBase, 'method'> & {
@@ -80,7 +96,7 @@ export function isManagedIdentifierDidResult(object: IManagedIdentifierResultBas
   return object!! && typeof object === 'object' && 'method' in object && object.method === 'did'
 }
 
-export function isManagedIdentifierX5cResult(object: IManagedIdentifierResultBase): object is ManagedIdentifierDidResult {
+export function isManagedIdentifierX5cResult(object: IManagedIdentifierResultBase): object is ManagedIdentifierX5cResult {
   return object!! && typeof object === 'object' && 'method' in object && object.method === 'x5c'
 }
 
@@ -90,6 +106,10 @@ export function isManagedIdentifierJwkResult(object: IManagedIdentifierResultBas
 
 export function isManagedIdentifierKidResult(object: IManagedIdentifierResultBase): object is ManagedIdentifierKidResult {
   return object!! && typeof object === 'object' && 'method' in object && object.method === 'kid'
+}
+
+export function isManagedIdentifierKeyResult(object: IManagedIdentifierResultBase): object is ManagedIdentifierKeyResult {
+  return object!! && typeof object === 'object' && 'method' in object && object.method === 'key'
 }
 
 export interface ManagedIdentifierDidResult extends IManagedIdentifierResultBase {
@@ -114,13 +134,19 @@ export interface ManagedIdentifierKidResult extends IManagedIdentifierResultBase
   kid: string
 }
 
+export interface ManagedIdentifierKeyResult extends IManagedIdentifierResultBase {
+  method: 'key'
+  issuer: string
+  kid: string
+}
+
 export interface ManagedIdentifierX5cResult extends IManagedIdentifierResultBase {
   method: 'x5c'
   x5c: string[]
   certificate: any // Certificate(JSON_, but trips schema generator. Probably want to create our own DTO
 }
 
-export type ManagedIdentifierMethod = 'did' | 'jwk' | 'x5c' | 'kid'
+export type ManagedIdentifierMethod = 'did' | 'jwk' | 'x5c' | 'kid' | 'key'
 
 export type ManagedIdentifierResult = IManagedIdentifierResultBase &
-  (ManagedIdentifierX5cResult | ManagedIdentifierDidResult | ManagedIdentifierJwkResult | ManagedIdentifierKidResult)
+  (ManagedIdentifierX5cResult | ManagedIdentifierDidResult | ManagedIdentifierJwkResult | ManagedIdentifierKidResult | ManagedIdentifierKeyResult)

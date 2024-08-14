@@ -45,6 +45,9 @@
     },
     {
       "path": "identifier-resolution"
+    },
+    {
+      "path": "jwt-service"
     }
   ]
 }

@@ -12,6 +12,8 @@ import {
   ManagedIdentifierDidResult,
   ManagedIdentifierJwkOpts,
   ManagedIdentifierJwkResult,
+  ManagedIdentifierKeyOpts,
+  ManagedIdentifierKeyResult,
   ManagedIdentifierKidOpts,
   ManagedIdentifierKidResult,
   ManagedIdentifierOpts,
@@ -26,6 +28,8 @@ import {
 export interface IIdentifierResolution extends IPluginMethodMap {
   /**
    * Main method for managed identifiers. We always go through this method (also the others) as we want to integrate a plugin for anomaly detection. Having a single method helps
+   *
+   * The end result of all these methods is a common baseline response that allows to use a key from the registered KMS systems. It also provides kid and iss(uer) values that can be used in a JWT/JWS for instance
    * @param args
    * @param context
    * @public
@@ -39,6 +43,10 @@ export interface IIdentifierResolution extends IPluginMethodMap {
   identifierManagedGetByJwk(args: ManagedIdentifierJwkOpts, context: IAgentContext<IKeyManager>): Promise<ManagedIdentifierJwkResult>
 
   identifierManagedGetByX5c(args: ManagedIdentifierX5cOpts, context: IAgentContext<IKeyManager>): Promise<ManagedIdentifierX5cResult>
+
+  identifierManagedGetByKey(args: ManagedIdentifierKeyOpts, context: IAgentContext<IKeyManager>): Promise<ManagedIdentifierKeyResult>
+
+  // TODO: We can create a custom managed identifier method allowing developers to register a callback function to get their implementation hooked up. Needs more investigation as it would also impact the KMS
 
   /**
    * Main method for external identifiers. We always go through this method (also the others) as we want to integrate a plugin for anomaly detection. Having a single method helps
