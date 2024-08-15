@@ -13,13 +13,13 @@ export default (testContext: {
     // let key: IKey
 
 
-    const ietfJwk = {
-        kty: 'EC',
-        crv: 'P-256',
-        x: 'f83OJ3D2xF1Bg8vub9tLe1gHMzV76e8Tus9uPHvRVEU',
-        y: 'x_FEzRu9m36HLN_tue659LNpXW6pCyStikYjKIWI5a0',
-        d: 'jpsQnnGQmL-YBIffH1136cspYG6-0iY7X1fCE9-E9LI',
-    }
+    // const ietfJwk = {
+    //     kty: 'EC',
+    //     crv: 'P-256',
+    //     x: 'f83OJ3D2xF1Bg8vub9tLe1gHMzV76e8Tus9uPHvRVEU',
+    //     y: 'x_FEzRu9m36HLN_tue659LNpXW6pCyStikYjKIWI5a0',
+    //     d: 'jpsQnnGQmL-YBIffH1136cspYG6-0iY7X1fCE9-E9LI',
+    // }
     // tbe above key as hex
     const privateKeyHex = "8E9B109E719098BF980487DF1F5D77E9CB29606EBED2263B5F57C213DF84F4B2".toLowerCase()
     const publicKeyHex = "037fcdce2770f6c45d4183cbee6fdb4b7b580733357be9ef13bacf6e3c7bd15445"
