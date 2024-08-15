@@ -1,11 +1,11 @@
-import { IRequiredContext } from '@sphereon/ssi-sdk-ext.did-provider-jwk'
-import { getFirstKeyWithRelation } from '@sphereon/ssi-sdk-ext.did-utils'
-import { calculateJwkThumbprint, JWK, toJwk } from '@sphereon/ssi-sdk-ext.key-utils'
-import { pemOrDerToX509Certificate } from '@sphereon/ssi-sdk-ext.x509-utils'
-import { contextHasDidManager, contextHasKeyManager } from '@sphereon/ssi-sdk.agent-config'
-import { IAgentContext, IIdentifier, IKey, IKeyManager } from '@veramo/core'
-import { CryptoEngine, setEngine } from 'pkijs'
+import {getFirstKeyWithRelation} from '@sphereon/ssi-sdk-ext.did-utils'
+import {calculateJwkThumbprint, JWK, toJwk} from '@sphereon/ssi-sdk-ext.key-utils'
+import {pemOrDerToX509Certificate} from '@sphereon/ssi-sdk-ext.x509-utils'
+import {contextHasDidManager, contextHasKeyManager} from '@sphereon/ssi-sdk.agent-config'
+import {IAgentContext, IIdentifier, IKey, IKeyManager} from '@veramo/core'
+import {CryptoEngine, setEngine} from 'pkijs'
 import {
+  IIdentifierResolution,
   isManagedIdentifierDidOpts,
   isManagedIdentifierDidResult,
   isManagedIdentifierJwkOpts,
@@ -59,9 +59,9 @@ export async function getManagedKidIdentifier(
  */
 export async function ensureManagedIdentifierResult(
   identifier: ManagedIdentifierOptsOrResult,
-  context: IRequiredContext
+  context: IAgentContext<IIdentifierResolution>
 ): Promise<ManagedIdentifierResult> {
-  return 'key' in identifier && 'kmsKeyRef' in identifier && 'method' in identifier && !('identifier' in identifier)
+  return 'key' in identifier && 'kmsKeyRef' in identifier && 'method' in identifier && 'opts' in identifier
     ? identifier
     : await context.agent.identifierManagedGet(identifier)
 }
