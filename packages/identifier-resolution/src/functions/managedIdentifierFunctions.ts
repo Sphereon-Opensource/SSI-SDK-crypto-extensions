@@ -1,15 +1,17 @@
-import {getFirstKeyWithRelation} from '@sphereon/ssi-sdk-ext.did-utils'
-import {calculateJwkThumbprint, JWK, toJwk} from '@sphereon/ssi-sdk-ext.key-utils'
-import {pemOrDerToX509Certificate} from '@sphereon/ssi-sdk-ext.x509-utils'
-import {contextHasDidManager, contextHasKeyManager} from '@sphereon/ssi-sdk.agent-config'
-import {IAgentContext, IIdentifier, IKey, IKeyManager} from '@veramo/core'
-import {CryptoEngine, setEngine} from 'pkijs'
+import { getFirstKeyWithRelation } from '@sphereon/ssi-sdk-ext.did-utils'
+import { calculateJwkThumbprint, JWK, toJwk } from '@sphereon/ssi-sdk-ext.key-utils'
+import { pemOrDerToX509Certificate } from '@sphereon/ssi-sdk-ext.x509-utils'
+import { contextHasDidManager, contextHasKeyManager } from '@sphereon/ssi-sdk.agent-config'
+import { IAgentContext, IIdentifier, IKey, IKeyManager } from '@veramo/core'
+import { CryptoEngine, setEngine } from 'pkijs'
 import {
   IIdentifierResolution,
   isManagedIdentifierDidOpts,
   isManagedIdentifierDidResult,
   isManagedIdentifierJwkOpts,
+  isManagedIdentifierJwkResult,
   isManagedIdentifierKeyOpts,
+  isManagedIdentifierKeyResult,
   isManagedIdentifierKidOpts,
   isManagedIdentifierX5cOpts,
   ManagedIdentifierDidOpts,
@@ -232,4 +234,32 @@ export async function getManagedIdentifier(
     return Promise.reject(`Cannot find identifier ${opts.identifier}`)
   }
   return resolutionResult
+}
+
+export async function managedIdentifierToKeyResult(
+  identifier: ManagedIdentifierOptsOrResult,
+  context: IAgentContext<IIdentifierResolution>
+): Promise<ManagedIdentifierKeyResult> {
+  const resolved = await ensureManagedIdentifierResult(identifier, context)
+  if (isManagedIdentifierKeyResult(resolved)) {
+    return resolved
+  }
+  return {
+    ...resolved,
+    method: 'key',
+  } satisfies ManagedIdentifierKeyResult
+}
+
+export async function managedIdentifierToJwk(
+  identifier: ManagedIdentifierOptsOrResult,
+  context: IAgentContext<IIdentifierResolution>
+): Promise<ManagedIdentifierJwkResult> {
+  const resolved = await ensureManagedIdentifierResult(identifier, context)
+  if (isManagedIdentifierJwkResult(resolved)) {
+    return resolved
+  }
+  return {
+    ...resolved,
+    method: 'jwk',
+  } satisfies ManagedIdentifierJwkResult
 }

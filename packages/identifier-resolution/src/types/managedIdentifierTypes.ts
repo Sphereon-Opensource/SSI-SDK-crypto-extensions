@@ -131,14 +131,11 @@ export interface ManagedIdentifierJwkResult extends IManagedIdentifierResultBase
 
 export interface ManagedIdentifierKidResult extends IManagedIdentifierResultBase {
   method: 'kid'
-  issuer: string
   kid: string
 }
 
 export interface ManagedIdentifierKeyResult extends IManagedIdentifierResultBase {
   method: 'key'
-  issuer: string
-  kid: string
 }
 
 export interface ManagedIdentifierX5cResult extends IManagedIdentifierResultBase {
