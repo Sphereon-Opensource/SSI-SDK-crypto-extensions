@@ -35,7 +35,7 @@ export const prepareJwsObject = async (args: CreateJwsJsonArgs, context: IRequir
     if (!combinedHeader.alg) {
         return Promise.reject(`No 'alg' key present in the JWS header`)
     }
-    const identifier = await context.agent.identifierManagedGet(issuer)
+    const identifier: ManagedIdentifierResult = 'key' in issuer && 'kmsKeyRef' in issuer && 'method' in issuer ? issuer : await context.agent.identifierManagedGet(issuer)
     await checkAndUpdateJwtHeader({mode, identifier, noIdentifierInHeader, header: protectedHeader}, context)
 
     const isBytes = payload instanceof Uint8Array
@@ -60,7 +60,6 @@ export const prepareJwsObject = async (args: CreateJwsJsonArgs, context: IRequir
             protectedHeader: base64urlHeader,
             payload: base64urlPayload,
         },
-        issuer,
         identifier,
     }
 }

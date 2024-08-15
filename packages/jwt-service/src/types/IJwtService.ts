@@ -52,7 +52,6 @@ export interface JwsJsonGeneral {
 export interface PreparedJwsObject {
   jws: PreparedJws
   b64: { payload: string; protectedHeader: string } // header is always json, as it can only be used in JwsJson
-  issuer: ManagedIdentifierOpts
   identifier: ManagedIdentifierResult
 }
 
@@ -91,7 +90,7 @@ export type CreateJwsMode = 'x5c' | 'kid' | 'jwk' | 'did' | 'auto'
 
 export type CreateJwsArgs = {
   mode?: CreateJwsMode
-  issuer: ManagedIdentifierOpts & { noIssPayloadUpdate?: boolean, noIdentifierInHeader?: boolean }
+  issuer: (ManagedIdentifierOpts | ManagedIdentifierResult) & { noIssPayloadUpdate?: boolean, noIdentifierInHeader?: boolean }
   protectedHeader: JwtHeader
   payload: JwtPayload | Uint8Array | string
 }
