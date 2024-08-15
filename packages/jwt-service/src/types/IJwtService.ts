@@ -1,11 +1,7 @@
-import {
-  IIdentifierResolution,
-  ManagedIdentifierOpts,
-  ManagedIdentifierResult
-} from '@sphereon/ssi-sdk-ext.identifier-resolution'
-import {ISphereonKeyManager} from '@sphereon/ssi-sdk-ext.key-manager'
-import {JWK, SignatureAlgorithmJwa} from '@sphereon/ssi-sdk-ext.key-utils'
-import {IAgentContext, IPluginMethodMap} from '@veramo/core'
+import { IIdentifierResolution, ManagedIdentifierOptsOrResult, ManagedIdentifierResult } from '@sphereon/ssi-sdk-ext.identifier-resolution'
+import { ISphereonKeyManager } from '@sphereon/ssi-sdk-ext.key-manager'
+import { JWK, SignatureAlgorithmJwa } from '@sphereon/ssi-sdk-ext.key-utils'
+import { IAgentContext, IPluginMethodMap } from '@veramo/core'
 
 export type IRequiredContext = IAgentContext<IIdentifierResolution & ISphereonKeyManager> // could we still interop with Veramo?
 export interface IJwtService extends IPluginMethodMap {
@@ -56,18 +52,18 @@ export interface PreparedJwsObject {
 }
 
 export interface BaseJwtHeader {
-  typ?: string;
-  alg?: string;
-  kid?: string;
+  typ?: string
+  alg?: string
+  kid?: string
 }
 export interface BaseJwtPayload {
-  iss?: string;
-  sub?: string;
-  aud?: string[] | string;
-  exp?: number;
-  nbf?: number;
-  iat?: number;
-  jti?: string;
+  iss?: string
+  sub?: string
+  aud?: string[] | string
+  exp?: number
+  nbf?: number
+  iat?: number
+  jti?: string
 }
 
 export interface JwtHeader extends BaseJwtHeader {
@@ -90,7 +86,7 @@ export type CreateJwsMode = 'x5c' | 'kid' | 'jwk' | 'did' | 'auto'
 
 export type CreateJwsArgs = {
   mode?: CreateJwsMode
-  issuer: (ManagedIdentifierOpts | ManagedIdentifierResult) & { noIssPayloadUpdate?: boolean, noIdentifierInHeader?: boolean }
+  issuer: ManagedIdentifierOptsOrResult & { noIssPayloadUpdate?: boolean; noIdentifierInHeader?: boolean }
   protectedHeader: JwtHeader
   payload: JwtPayload | Uint8Array | string
 }
@@ -111,7 +107,7 @@ export type CreateJwsJsonArgs = CreateJwsArgs & {
  * @public
  */
 export interface JwsCompactResult {
-  jwt: JwsCompact;
+  jwt: JwsCompact
 }
 
 // export const COMPACT_JWS_REGEX = /^([a-zA-Z0-9_=-]+)\.([a-zA-Z0-9_=-]+)?\.([a-zA-Z0-9_=-]+)$/

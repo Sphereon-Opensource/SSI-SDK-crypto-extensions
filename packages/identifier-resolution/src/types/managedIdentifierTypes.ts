@@ -87,6 +87,7 @@ export interface ManagedJwkInfo extends JwkInfo {
 
 export interface IManagedIdentifierResultBase extends ManagedJwkInfo {
   method: ManagedIdentifierMethod
+  opts: ManagedIdentifierOpts
   key: IKey
   kid?: string
   issuer?: string
@@ -150,6 +151,5 @@ export type ManagedIdentifierMethod = 'did' | 'jwk' | 'x5c' | 'kid' | 'key'
 
 export type ManagedIdentifierResult = IManagedIdentifierResultBase &
   (ManagedIdentifierX5cResult | ManagedIdentifierDidResult | ManagedIdentifierJwkResult | ManagedIdentifierKidResult | ManagedIdentifierKeyResult)
-
 
 export type ManagedIdentifierOptsOrResult = ManagedIdentifierResult | ManagedIdentifierOpts

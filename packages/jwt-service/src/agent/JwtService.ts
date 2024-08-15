@@ -1,4 +1,4 @@
-import {IAgentPlugin} from '@veramo/core'
+import { IAgentPlugin } from '@veramo/core'
 import {
   createJwsCompact,
   CreateJwsCompactArgs,
@@ -7,14 +7,14 @@ import {
   createJwsJsonFlattened,
   createJwsJsonGeneral,
   IJwtService,
-  IRequiredContext, JwsCompactResult,
+  IRequiredContext,
+  JwsCompactResult,
   JwsJsonFlattened,
   JwsJsonGeneral,
   PreparedJwsObject,
   prepareJwsObject,
   schema,
 } from '..'
-
 
 /**
  * @public
@@ -40,10 +40,7 @@ export class JwtService implements IAgentPlugin {
     return await createJwsJsonFlattened(args, context)
   }
 
-  private async jwtCreateJwsCompactSignature(
-    args: CreateJwsCompactArgs,
-    context: IRequiredContext
-  ): Promise<JwsCompactResult> {
+  private async jwtCreateJwsCompactSignature(args: CreateJwsCompactArgs, context: IRequiredContext): Promise<JwsCompactResult> {
     // We wrap it in a json object for remote REST calls
     return { jwt: await createJwsCompact(args, context) }
   }
