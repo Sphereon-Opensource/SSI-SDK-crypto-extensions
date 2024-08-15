@@ -25,7 +25,7 @@ import jwtServiceTests from './shared/jwtServiceTest'
 jest.setTimeout(30000)
 
 const databaseFile = ':memory:'
-const port = 13212
+const port = 13213
 const basePath = '/agent'
 
 const DID_METHOD = 'did:jwk'

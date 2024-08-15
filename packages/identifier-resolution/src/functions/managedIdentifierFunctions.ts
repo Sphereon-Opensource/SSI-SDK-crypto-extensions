@@ -113,7 +113,12 @@ export async function getManagedDidIdentifier(opts: ManagedIdentifierDidOpts, co
     const controllerKeyId = identifier.controllerKeyId
     const jwk = toJwk(key.publicKeyHex, key.type, {key})
     const jwkThumbprint = key.meta?.jwkThumbprint ?? calculateJwkThumbprint({jwk})
-    const kid = opts.kid ?? extendedKey.meta?.verificationMethod?.id
+    let kid = opts.kid ?? extendedKey.meta?.verificationMethod?.id
+    if (!kid.startsWith(did)) {
+        // Make sure we create a fully qualified kid
+        const hash = kid.startsWith('#') ? '' : '#'
+        kid = `${did}${hash}${kid}`
+    }
     const issuer = opts.issuer ?? did
     return {
         method,
