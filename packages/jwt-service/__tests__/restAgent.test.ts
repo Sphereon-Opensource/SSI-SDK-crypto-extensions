@@ -1,5 +1,6 @@
 import { JwkDIDProvider } from '@sphereon/ssi-sdk-ext.did-provider-jwk'
 import { getDidJwkResolver } from '@sphereon/ssi-sdk-ext.did-resolver-jwk'
+import { IdentifierResolution, IIdentifierResolution } from '@sphereon/ssi-sdk-ext.identifier-resolution'
 import { SphereonKeyManager } from '@sphereon/ssi-sdk-ext.key-manager'
 import { SphereonKeyManagementSystem } from '@sphereon/ssi-sdk-ext.kms-local'
 
@@ -18,13 +19,13 @@ import express from 'express'
 import { Server } from 'http'
 import { DataSource } from 'typeorm'
 
-import { IdentifierResolution, IIdentifierResolution } from '../src'
-import identifierResolution from './shared/identifierResolution'
+import { IJwtService, JwtService } from '../src'
+import jwtServiceTests from './shared/jwtServiceTest'
 
 jest.setTimeout(30000)
 
 const databaseFile = ':memory:'
-const port = 14312
+const port = 13213
 const basePath = '/agent'
 
 const DID_METHOD = 'did:jwk'
@@ -35,7 +36,7 @@ const jwkDIDProvider = new JwkDIDProvider({
 })
 
 let serverAgent: IAgent
-let clientAgent: TAgent<IKeyManager & IDIDManager & IIdentifierResolution>
+let clientAgent: TAgent<IKeyManager & IDIDManager & IIdentifierResolution & IJwtService>
 let restServer: Server
 let dbConnection: OrPromise<DataSource>
 
@@ -46,7 +47,7 @@ const getAgent = (options?: IAgentOptions) => {
     throw Error('Server agent not available yet (missed await?)')
   }
   if (!clientAgent) {
-    clientAgent = createAgent<IIdentifierResolution & IKeyManager & IDIDManager>({
+    clientAgent = createAgent<IIdentifierResolution & IKeyManager & IDIDManager & IJwtService>({
       ...options,
       plugins: [
         new AgentRestClient({
@@ -77,7 +78,7 @@ const setup = async (): Promise<boolean> => {
 
   const secretBox = new SecretBox(KMS_SECRET_KEY)
 
-  const agent = createAgent<IKeyManager & IDIDManager & IIdentifierResolution>({
+  const agent = createAgent<IKeyManager & IDIDManager & IIdentifierResolution & IJwtService>({
     plugins: [
       new SphereonKeyManager({
         store: new KeyStore(db),
@@ -95,7 +96,8 @@ const setup = async (): Promise<boolean> => {
         defaultProvider: DID_METHOD,
         store: new MemoryDIDStore(),
       }),
-      new IdentifierResolution({ crypto: global.crypto }),
+      new IdentifierResolution(),
+      new JwtService(),
     ],
   })
 
@@ -128,5 +130,5 @@ const tearDown = async (): Promise<boolean> => {
 const testContext = { getAgent, setup, tearDown }
 
 describe('REST integration tests', () => {
-  identifierResolution(testContext)
+  jwtServiceTests(testContext)
 })

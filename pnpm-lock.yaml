@@ -219,7 +219,7 @@ importers:
         version: link:../key-utils
       '@transmute/did-key-bls12381':
         specifier: 0.3.0-unstable.10
-        version: 0.3.0-unstable.10
+        version: 0.3.0-unstable.10(expo@51.0.26)(react-native@0.74.5)
       '@veramo/core':
         specifier: 4.2.0
         version: 4.2.0(patch_hash=c5oempznsz4br5w3tcuk2i2mau)
@@ -530,6 +530,88 @@ importers:
       did-resolver:
         specifier: ^4.1.0
         version: 4.1.0
+      typeorm:
+        specifier: 0.3.20
+        version: 0.3.20(pg@8.12.0)(sqlite3@5.1.7)(ts-node@10.9.2)
+
+  packages/jwt-service:
+    dependencies:
+      '@sphereon/ssi-sdk-ext.did-utils':
+        specifier: workspace:*
+        version: link:../did-utils
+      '@sphereon/ssi-sdk-ext.identifier-resolution':
+        specifier: workspace:*
+        version: link:../identifier-resolution
+      '@sphereon/ssi-sdk-ext.key-manager':
+        specifier: workspace:*
+        version: link:../key-manager
+      '@sphereon/ssi-sdk-ext.key-utils':
+        specifier: workspace:*
+        version: link:../key-utils
+      '@sphereon/ssi-sdk-ext.x509-utils':
+        specifier: workspace:*
+        version: link:../x509-utils
+      '@sphereon/ssi-sdk.agent-config':
+        specifier: 0.29.1-unstable.75
+        version: 0.29.1-unstable.75(ts-node@10.9.2)
+      '@sphereon/ssi-types':
+        specifier: 0.29.1-unstable.75
+        version: 0.29.1-unstable.75
+      '@veramo/core':
+        specifier: 4.2.0
+        version: 4.2.0(patch_hash=c5oempznsz4br5w3tcuk2i2mau)
+      '@veramo/utils':
+        specifier: 4.2.0
+        version: 4.2.0
+      debug:
+        specifier: ^4.3.4
+        version: 4.3.6
+      jwt-decode:
+        specifier: ^4.0.0
+        version: 4.0.0
+      uint8arrays:
+        specifier: ^3.1.1
+        version: 3.1.1
+    devDependencies:
+      '@sphereon/ssi-sdk-ext.did-provider-jwk':
+        specifier: workspace:*
+        version: link:../did-provider-jwk
+      '@sphereon/ssi-sdk-ext.did-resolver-jwk':
+        specifier: workspace:*
+        version: link:../did-resolver-jwk
+      '@sphereon/ssi-sdk-ext.kms-local':
+        specifier: workspace:*
+        version: link:../kms-local
+      '@sphereon/ssi-sdk.dev':
+        specifier: 0.29.1-unstable.75
+        version: 0.29.1-unstable.75(@types/node@18.19.44)
+      '@veramo/data-store':
+        specifier: 4.2.0
+        version: 4.2.0(pg@8.12.0)(sqlite3@5.1.7)(ts-node@10.9.2)
+      '@veramo/did-manager':
+        specifier: 4.2.0
+        version: 4.2.0
+      '@veramo/did-resolver':
+        specifier: 4.2.0
+        version: 4.2.0
+      '@veramo/key-manager':
+        specifier: 4.2.0
+        version: 4.2.0
+      '@veramo/kms-local':
+        specifier: 4.2.0
+        version: 4.2.0
+      '@veramo/remote-client':
+        specifier: 4.2.0
+        version: 4.2.0
+      '@veramo/remote-server':
+        specifier: 4.2.0
+        version: 4.2.0(express@4.19.2)
+      did-resolver:
+        specifier: ^4.1.0
+        version: 4.1.0
+      js-crypto-key-utils:
+        specifier: ^1.0.7
+        version: 1.0.7
       typeorm:
         specifier: 0.3.20
         version: 0.3.20(pg@8.12.0)(sqlite3@5.1.7)(ts-node@10.9.2)
@@ -5273,7 +5355,7 @@ packages:
   /@transmute/did-context@0.6.1-unstable.37:
     resolution: {integrity: sha512-p/QnG3QKS4218hjIDgdvJOFATCXsAnZKgy4egqRrJLlo3Y6OaDBg7cA73dixOwUPoEKob0K6rLIGcsCI/L1acw==}
 
-  /@transmute/did-key-bls12381@0.3.0-unstable.10:
+  /@transmute/did-key-bls12381@0.3.0-unstable.10(expo@51.0.26)(react-native@0.74.5):
     resolution: {integrity: sha512-ExSADdvDxrYeCx8RsKXZGMjJmHrOJ9vyYtziZUaJ97K/sn1uVlvIOTp9V4xHa6j9cT1wTzSqJ325euwGFeK+WQ==}
     engines: {node: '>=14'}
     dependencies:
@@ -7449,7 +7531,6 @@ packages:
 
   /charenc@0.0.2:
     resolution: {integrity: sha512-yrLQ/yVUFXkzg7EDQsPieE/53+0RlaWTs+wBrvW36cyilJ2SaDWfl4Yj7MtLTXleV9uEKefbAGUPv2/iWSooRA==}
-    optional: true
 
   /chokidar@3.6.0:
     resolution: {integrity: sha512-7VT13fmjotKpGipCW9JEQAusEPE+Ei8nl6/g4FBAmIm0GOOLMua9NDDo/DWp0ZAxCr3cPq5ZpBqmPAQgDda2Pw==}
@@ -8144,7 +8225,6 @@ packages:
 
   /crypt@0.0.2:
     resolution: {integrity: sha512-mCxBlsHFYh9C+HVpiEacem8FEBnMXgU9gy4zmNC+SXAZNB/1idgp/aulFJ4FgCi7GPEVbfyng092GqL2k2rmow==}
-    optional: true
 
   /crypto-ld@6.0.0:
     resolution: {integrity: sha512-XWL1LslqggNoaCI/m3I7HcvaSt9b2tYzdrXO+jHLUj9G1BvRfvV7ZTFDVY5nifYuIGAPdAGu7unPxLRustw3VA==}
@@ -8365,6 +8445,13 @@ packages:
 
   /deprecation@2.3.1:
     resolution: {integrity: sha512-xmHIy4F3scKVwMsQ4WnVaS8bHOx0DmVwRywosKhaILI0ywMDWPtBSku2HNxRvF7jtwDRsoEwYQSfbxj8b7RlJQ==}
+    dev: true
+
+  /des.js@1.1.0:
+    resolution: {integrity: sha512-r17GxjhUCjSRy8aiJpr8/UadFIzMzJGexI3Nmz4ADi9LYSFx4gTBp80+NaX/YsXWWLhpZ7v/v/ubEc/bCNfKwg==}
+    dependencies:
+      inherits: 2.0.4
+      minimalistic-assert: 1.0.1
     dev: true
 
   /destroy@1.2.0:
@@ -10676,7 +10763,6 @@ packages:
 
   /is-buffer@1.1.6:
     resolution: {integrity: sha512-NcdALwpXkTm5Zvvbk7owOUSvVvBKDgKP5/ewfXEznmQFfs4ZRmanOeKBTjRVjka3QFoN6XJ+9F3USqfHqTaU5w==}
-    optional: true
 
   /is-callable@1.2.7:
     resolution: {integrity: sha512-1BC0BVFhS/p0qtw6enp8e+8OD0UrK0oFLztSjNzhcKA3WDuJxxAPXzPuPtKkjEY9UUoEWlX/8fgKeu2S8i9JTA==}
@@ -11493,6 +11579,66 @@ packages:
     resolution: {integrity: sha512-7rCnleh0z2CkXhH67J8K1Ytz0b2Y+yxTPL+/KOJoa20hfnVQ/3/T6W/KflYI4bRHRagNeXeU2bkNGI3v1oS/lw==}
     dev: false
 
+  /js-crypto-aes@1.0.6:
+    resolution: {integrity: sha512-E2hu9z5+YtpDg9Un/bDfmH+I5dv/8aN+ozxv9L0ybZldcQ9T5iYDbBKdlKGBUKI3IvzoWSBSdnZnhwZaRIN46w==}
+    dependencies:
+      js-crypto-env: 1.0.5
+    dev: true
+
+  /js-crypto-env@1.0.5:
+    resolution: {integrity: sha512-8/UNN3sG8J+yMzqwSNVaobaWhIz4MqZFoOg5OB0DFXqS8eFjj2YvdmLJqIWXPl57Yw10SvYx0DQOtkfsWIV9Aw==}
+    dev: true
+
+  /js-crypto-hash@1.0.7:
+    resolution: {integrity: sha512-GdbcVKjplbXJdR9oF2ks8+sBCLD7BUZ144Bc+Ie8OJuBHSIiHyMzdg2eD+ZYf87awTsKckNn1xIv+31+V2ewcA==}
+    dependencies:
+      buffer: 6.0.3
+      hash.js: 1.1.7
+      js-crypto-env: 1.0.5
+      md5: 2.3.0
+      sha3: 2.1.4
+    dev: true
+
+  /js-crypto-hmac@1.0.7:
+    resolution: {integrity: sha512-OVn2wjAuOV7ToQYvRKY2VoElCHoRW7BepycPPuH73xbLygDczkef41YsXMpKLnVAyS5kdwMJQy9qlMR9touHTg==}
+    dependencies:
+      js-crypto-env: 1.0.5
+      js-crypto-hash: 1.0.7
+    dev: true
+
+  /js-crypto-key-utils@1.0.7:
+    resolution: {integrity: sha512-8/y/hpKevnAgr5EXz2x4IXMfqjzYZAzzXXc9OnAyI5JNdUtAufJkGfwlmZ+o40lTHv3k1egCiP/6pG/dZiqiEA==}
+    dependencies:
+      asn1.js: 5.4.1
+      buffer: 6.0.3
+      des.js: 1.1.0
+      elliptic: 6.5.6
+      js-crypto-aes: 1.0.6
+      js-crypto-hash: 1.0.7
+      js-crypto-pbkdf: 1.0.7
+      js-crypto-random: 1.0.5
+      js-encoding-utils: 0.7.3
+      lodash.clonedeep: 4.5.0
+    dev: true
+
+  /js-crypto-pbkdf@1.0.7:
+    resolution: {integrity: sha512-FGs1PZeqGWM8k8k5JlAhHbBhLYtls+iVmeJEC22DUJ98Q3qo9Ki4cu3i0oxhjA2VpZ8V4MmV1DJHDTFYY4iOwg==}
+    dependencies:
+      js-crypto-hash: 1.0.7
+      js-crypto-hmac: 1.0.7
+      js-encoding-utils: 0.7.3
+    dev: true
+
+  /js-crypto-random@1.0.5:
+    resolution: {integrity: sha512-WydEQ5rrWLzgSkX1QNsuGinkv7z57UkYnDGo5f5oGtBe9QeUWUehdmPNNG4a4Sf8xGkjZBOhKaZqT1ACnyYCBA==}
+    dependencies:
+      js-crypto-env: 1.0.5
+    dev: true
+
+  /js-encoding-utils@0.7.3:
+    resolution: {integrity: sha512-cfjcyPOzkZ2esMAi6eAjuto7GiT6YpPan5xIeQyN/CFqFHTt1sdqP0PJPgzi3HqAqXKN9j9hduynkgwk+AAJOw==}
+    dev: true
+
   /js-sha3@0.8.0:
     resolution: {integrity: sha512-gF1cRrHhIzNfToc802P800N8PpXS+evLLXfsVpowqmAFR9uwbi89WvXg2QspOmXL8QL86J4T1EpFu+yUkwJY3Q==}
 
@@ -11696,6 +11842,11 @@ packages:
 
   /jwt-decode@3.1.2:
     resolution: {integrity: sha512-UfpWE/VZn0iP50d8cz9NrZLM9lSWhcJ+0Gt/nm4by88UL+J1SiKN8/5dkjMmbEzwL2CAe+67GsegCbIKtbp75A==}
+    dev: false
+
+  /jwt-decode@4.0.0:
+    resolution: {integrity: sha512-+KJGIyHgkGuIq3IEBNftfhW/LfWhXUIY6OmyVWjliu5KH1y0fw7VQ8YndE2O4qZdMSd9SqbnC8GOcZEy0Om7sA==}
+    engines: {node: '>=18'}
     dev: false
 
   /keyv@4.5.4:
@@ -12044,6 +12195,10 @@ packages:
     resolution: {integrity: sha512-kZzYOKspf8XVX5AvmQF94gQW0lejFVgb80G85bU4ZWzoJ6C03PQg3coYAUpSTpQWelrZELd3XWgHzw4Ck5kaIw==}
     dev: true
 
+  /lodash.clonedeep@4.5.0:
+    resolution: {integrity: sha512-H5ZhCF25riFd9uB5UCkVKo61m3S/xZk1x4wA6yp/L3RFP6Z/eHH1ymQcGLo7J3GMPfm0V/7m1tryHuGVxpqEBQ==}
+    dev: true
+
   /lodash.debounce@4.0.8:
     resolution: {integrity: sha512-FT1yDzDYEoYWhnSGnpE/4Kj1fLZkDFyqRb7fNt6FdYOSxlUWAtp42Eh6Wb0rGIv/m9Bgo7x4GhQbm5Ys4SG5ow==}
 
@@ -12302,7 +12457,6 @@ packages:
       charenc: 0.0.2
       crypt: 0.0.2
       is-buffer: 1.1.6
-    optional: true
 
   /md5hex@1.0.0:
     resolution: {integrity: sha512-c2YOUbp33+6thdCUi34xIyOU/a7bvGKj/3DB1iaPMTuPHf/Q2d5s4sn1FaCOO43XkXggnb08y5W2PU8UNYNLKQ==}
@@ -15300,6 +15454,12 @@ packages:
     dependencies:
       inherits: 2.0.4
       safe-buffer: 5.2.1
+
+  /sha3@2.1.4:
+    resolution: {integrity: sha512-S8cNxbyb0UGUM2VhRD4Poe5N58gJnJsLJ5vC7FYWGUmGhcsj4++WaIOBFVDxlG0W3To6xBuiRh+i0Qp2oNCOtg==}
+    dependencies:
+      buffer: 6.0.3
+    dev: true
 
   /shallow-clone@3.0.1:
     resolution: {integrity: sha512-/6KqX+GVUdqPuPPd2LxDDxzX6CAbjJehAAOKlNpqqUpAqPM6HeL8f+o3a+JsyGjn2lv0WY8UsTgUJjU9Ok55NA==}

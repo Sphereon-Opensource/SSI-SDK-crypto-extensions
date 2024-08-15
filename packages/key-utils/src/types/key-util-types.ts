@@ -32,19 +32,30 @@ export enum KeyType {
 export const SIG_KEY_ALGS = ['ES256', 'ES384', 'ES512', 'EdDSA', 'ES256K', 'Ed25519', 'Secp256k1', 'Secp256r1', 'Bls12381G1', 'Bls12381G2']
 export const ENC_KEY_ALGS = ['X25519', 'ECDH_ES_A256KW', 'RSA_OAEP_256']
 
-export interface JWK {
-  kty: string
-  alg?: string
-  crv?: string
+export enum SignatureAlgorithmJwa {
+  // todo: Compare to spec and to kmp lib
+
+  EdDSA = 'EdDSA',
+  ES256 = 'ES256',
+  ES384 = 'ES384',
+  ES512 = 'ES512',
+  ES256K = 'ES256K',
+  RS256 = 'RS256',
+  RS384 = 'RS384',
+  RS512 = 'RS512',
+  PS256 = 'PS256',
+  PS384 = 'PS384',
+  PS512 = 'PS512',
+}
+
+export interface JWK extends BaseJWK {
   d?: string
   dp?: string
   dq?: string
-  e?: string
   ext?: boolean
   k?: string
   key_ops?: string[]
   kid?: string
-  n?: string
   oth?: Array<{
     d?: string
     r?: string
@@ -54,8 +65,6 @@ export interface JWK {
   q?: string
   qi?: string
   use?: string
-  x?: string
-  y?: string
   /** JWK "x5c" (X.509 Certificate Chain) Parameter. */
   x5c?: string[]
   /** JWK "x5t" (X.509 Certificate SHA-1 Thumbprint) Parameter. */
@@ -65,6 +74,15 @@ export interface JWK {
   /** JWK "x5u" (X.509 URL) Parameter. */
   x5u?: string
   [propName: string]: unknown
+}
+
+export interface BaseJWK {
+  kty: string
+  crv?: string
+  x?: string
+  y?: string
+  e?: string
+  n?: string
 }
 
 export type KeyVisibility = 'public' | 'private'

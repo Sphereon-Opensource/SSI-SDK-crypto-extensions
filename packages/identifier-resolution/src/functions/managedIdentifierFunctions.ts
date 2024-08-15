@@ -1,22 +1,27 @@
+import { IRequiredContext } from '@sphereon/ssi-sdk-ext.did-provider-jwk'
 import { getFirstKeyWithRelation } from '@sphereon/ssi-sdk-ext.did-utils'
 import { calculateJwkThumbprint, JWK, toJwk } from '@sphereon/ssi-sdk-ext.key-utils'
 import { pemOrDerToX509Certificate } from '@sphereon/ssi-sdk-ext.x509-utils'
 import { contextHasDidManager, contextHasKeyManager } from '@sphereon/ssi-sdk.agent-config'
-import { IAgentContext, IIdentifier, IKeyManager } from '@veramo/core'
+import { IAgentContext, IIdentifier, IKey, IKeyManager } from '@veramo/core'
 import { CryptoEngine, setEngine } from 'pkijs'
 import {
   isManagedIdentifierDidOpts,
   isManagedIdentifierDidResult,
   isManagedIdentifierJwkOpts,
+  isManagedIdentifierKeyOpts,
   isManagedIdentifierKidOpts,
   isManagedIdentifierX5cOpts,
   ManagedIdentifierDidOpts,
   ManagedIdentifierDidResult,
   ManagedIdentifierJwkOpts,
   ManagedIdentifierJwkResult,
+  ManagedIdentifierKeyOpts,
+  ManagedIdentifierKeyResult,
   ManagedIdentifierKidOpts,
   ManagedIdentifierKidResult,
   ManagedIdentifierOpts,
+  ManagedIdentifierOptsOrResult,
   ManagedIdentifierResult,
   ManagedIdentifierX5cOpts,
   ManagedIdentifierX5cResult,
@@ -43,7 +48,49 @@ export async function getManagedKidIdentifier(
     kid,
     issuer,
     kmsKeyRef: key.kid,
+    opts,
   } satisfies ManagedIdentifierKidResult
+}
+
+/**
+ * Allows to get a managed identifier result in case identifier options are passed in, but returns the identifier directly in case results are passed in. This means resolution can have happened before, or happens in this method
+ * @param identifier
+ * @param context
+ */
+export async function ensureManagedIdentifierResult(
+  identifier: ManagedIdentifierOptsOrResult,
+  context: IRequiredContext
+): Promise<ManagedIdentifierResult> {
+  return 'key' in identifier && 'kmsKeyRef' in identifier && 'method' in identifier && !('identifier' in identifier)
+    ? identifier
+    : await context.agent.identifierManagedGet(identifier)
+}
+
+/**
+ * This function is just a convenience function to get a common result. The user already apparently had a key, so could have called the kid version as well
+ * @param opts
+ * @param _context
+ */
+export async function getManagedKeyIdentifier(opts: ManagedIdentifierKeyOpts, _context?: IAgentContext<any>): Promise<ManagedIdentifierKeyResult> {
+  const method = 'key'
+  const key: IKey = opts.identifier
+  if (opts.kmsKeyRef && opts.kmsKeyRef !== key.kid) {
+    return Promise.reject(Error(`Cannot get a managed key object by providing a key and a kmsKeyRef that are different.}`))
+  }
+  const jwk = toJwk(key.publicKeyHex, key.type, { key })
+  const jwkThumbprint = (key.meta?.jwkThumbprint as string) ?? calculateJwkThumbprint({ jwk })
+  const kid = opts.kid ?? (key.meta?.verificationMethod?.id as string) ?? jwkThumbprint
+  const issuer = opts.issuer ?? kid // The different identifiers should set the value. Defaults to the kid
+  return {
+    method,
+    key,
+    jwk,
+    jwkThumbprint,
+    kid,
+    issuer,
+    kmsKeyRef: key.kid,
+    opts,
+  } satisfies ManagedIdentifierKeyResult
 }
 
 export async function getManagedDidIdentifier(opts: ManagedIdentifierDidOpts, context: IAgentContext<any>): Promise<ManagedIdentifierDidResult> {
@@ -73,7 +120,12 @@ export async function getManagedDidIdentifier(opts: ManagedIdentifierDidOpts, co
   const controllerKeyId = identifier.controllerKeyId
   const jwk = toJwk(key.publicKeyHex, key.type, { key })
   const jwkThumbprint = key.meta?.jwkThumbprint ?? calculateJwkThumbprint({ jwk })
-  const kid = opts.kid ?? extendedKey.meta?.verificationMethod?.id
+  let kid = opts.kid ?? extendedKey.meta?.verificationMethod?.id
+  if (!kid.startsWith(did)) {
+    // Make sure we create a fully qualified kid
+    const hash = kid.startsWith('#') ? '' : '#'
+    kid = `${did}${hash}${kid}`
+  }
   const issuer = opts.issuer ?? did
   return {
     method,
@@ -87,6 +139,7 @@ export async function getManagedDidIdentifier(opts: ManagedIdentifierDidOpts, co
     keys,
     issuer,
     identifier,
+    opts,
   }
 }
 
@@ -111,6 +164,7 @@ export async function getManagedJwkIdentifier(
     jwkThumbprint,
     kid,
     issuer,
+    opts,
   } satisfies ManagedIdentifierJwkResult
 }
 
@@ -148,6 +202,7 @@ export async function getManagedX5cIdentifier(
     kmsKeyRef: key.kid,
     kid,
     issuer,
+    opts,
   } satisfies ManagedIdentifierX5cResult
 }
 
@@ -166,6 +221,8 @@ export async function getManagedIdentifier(
     resolutionResult = await getManagedJwkIdentifier(opts, context)
   } else if (isManagedIdentifierX5cOpts(opts)) {
     resolutionResult = await getManagedX5cIdentifier(opts, context)
+  } else if (isManagedIdentifierKeyOpts(opts)) {
+    resolutionResult = await getManagedKeyIdentifier(opts, context)
   } else {
     return Promise.reject(Error(`Could not determine identifier method. Please provide explicitly`))
   }

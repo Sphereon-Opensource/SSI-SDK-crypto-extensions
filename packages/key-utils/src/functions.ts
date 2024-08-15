@@ -19,6 +19,7 @@ import {
   SIG_KEY_ALGS,
   SignatureAlgorithmFromKeyArgs,
   SignatureAlgorithmFromKeyTypeArgs,
+  SignatureAlgorithmJwa,
   TKeyType,
 } from './types'
 
@@ -495,21 +496,21 @@ export const toRawCompressedHexPublicKey = (rawPublicKey: Uint8Array, keyType: T
 
 export const hexStringFromUint8Array = (value: Uint8Array): string => u8a.toString(value, 'base16')
 
-export const signatureAlgorithmFromKey = async (args: SignatureAlgorithmFromKeyArgs): Promise<SignatureAlgorithmEnum> => {
+export const signatureAlgorithmFromKey = async (args: SignatureAlgorithmFromKeyArgs): Promise<SignatureAlgorithmJwa> => {
   const { key } = args
   return signatureAlgorithmFromKeyType({ type: key.type })
 }
 
-export const signatureAlgorithmFromKeyType = (args: SignatureAlgorithmFromKeyTypeArgs): SignatureAlgorithmEnum => {
+export const signatureAlgorithmFromKeyType = (args: SignatureAlgorithmFromKeyTypeArgs): SignatureAlgorithmJwa => {
   const { type } = args
   switch (type) {
     case 'Ed25519':
     case 'X25519':
-      return SignatureAlgorithmEnum.EdDSA
+      return SignatureAlgorithmJwa.EdDSA
     case 'Secp256r1':
-      return SignatureAlgorithmEnum.ES256
+      return SignatureAlgorithmJwa.ES256
     case 'Secp256k1':
-      return SignatureAlgorithmEnum.ES256K
+      return SignatureAlgorithmJwa.ES256K
     default:
       throw new Error(`Key type '${type}' not supported`)
   }
@@ -533,10 +534,4 @@ export const keyTypeFromCryptographicSuite = (args: KeyTypeFromCryptographicSuit
     default:
       throw new Error(`Cryptographic suite '${suite}' not supported`)
   }
-}
-
-export enum SignatureAlgorithmEnum {
-  EdDSA = 'EdDSA',
-  ES256 = 'ES256',
-  ES256K = 'ES256K',
 }

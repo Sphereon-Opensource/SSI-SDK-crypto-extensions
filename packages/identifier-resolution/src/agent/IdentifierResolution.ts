@@ -1,5 +1,5 @@
 import { IAgentContext, IAgentPlugin, IDIDManager, IKeyManager } from '@veramo/core'
-import { schema } from '..'
+import { ManagedIdentifierKeyOpts, ManagedIdentifierKeyResult, schema } from '..'
 import { getManagedIdentifier, resolveExternalIdentifier } from '../functions'
 import {
   ExternalIdentifierDidOpts,
@@ -34,6 +34,7 @@ export class IdentifierResolution implements IAgentPlugin {
     identifierManagedGetByKid: this.identifierGetManagedByKid.bind(this),
     identifierManagedGetByJwk: this.identifierGetManagedByJwk.bind(this),
     identifierManagedGetByX5c: this.identifierGetManagedByX5c.bind(this),
+    identifierManagedGetByKey: this.identifierGetManagedByKey.bind(this),
 
     identifierExternalResolve: this.identifierResolveExternal.bind(this),
     identifierExternalResolveByDid: this.identifierExternalResolveByDid.bind(this),
@@ -50,7 +51,8 @@ export class IdentifierResolution implements IAgentPlugin {
   }
 
   /**
-   * Main method for managed identifiers. We always go through this method (also the others) as we want to integrate a plugin for anomaly detection. Having a single method helps
+   * Main method for managed identifiers. We always go through this method (also the other methods below) as we want to
+   * integrate a plugin for anomaly detection. Having a single method helps
    * @param args
    * @param context
    * @private
@@ -68,6 +70,10 @@ export class IdentifierResolution implements IAgentPlugin {
 
   private async identifierGetManagedByKid(args: ManagedIdentifierKidOpts, context: IAgentContext<IKeyManager>): Promise<ManagedIdentifierKidResult> {
     return (await this.identifierGetManaged({ ...args, method: 'kid' }, context)) as ManagedIdentifierKidResult
+  }
+
+  private async identifierGetManagedByKey(args: ManagedIdentifierKeyOpts, context: IAgentContext<IKeyManager>): Promise<ManagedIdentifierKeyResult> {
+    return (await this.identifierGetManaged({ ...args, method: 'key' }, context)) as ManagedIdentifierKeyResult
   }
 
   private async identifierGetManagedByJwk(args: ManagedIdentifierJwkOpts, context: IAgentContext<IKeyManager>): Promise<ManagedIdentifierJwkResult> {
