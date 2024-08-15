@@ -2,7 +2,7 @@ import {
     isManagedIdentifierDidResult,
     isManagedIdentifierX5cResult,
     ManagedIdentifierMethod,
-    ManagedIdentifierResult, toManagedIdentifierResult,
+    ManagedIdentifierResult, ensureManagedIdentifierResult,
 } from '@sphereon/ssi-sdk-ext.identifier-resolution'
 import {bytesToBase64url, encodeJoseBlob} from '@veramo/utils'
 import * as u8a from 'uint8arrays'
@@ -35,7 +35,7 @@ export const prepareJwsObject = async (args: CreateJwsJsonArgs, context: IRequir
     if (!combinedHeader.alg) {
         return Promise.reject(`No 'alg' key present in the JWS header`)
     }
-    const identifier = await toManagedIdentifierResult(issuer, context)
+    const identifier = await ensureManagedIdentifierResult(issuer, context)
     await checkAndUpdateJwtHeader({mode, identifier, noIdentifierInHeader, header: protectedHeader}, context)
 
     const isBytes = payload instanceof Uint8Array

@@ -24,7 +24,7 @@ import identifierResolution from './shared/identifierResolution'
 jest.setTimeout(30000)
 
 const databaseFile = ':memory:'
-const port = 13212
+const port = 14312
 const basePath = '/agent'
 
 const DID_METHOD = 'did:jwk'
