@@ -1,3 +1,4 @@
+import {IRequiredContext} from "@sphereon/ssi-sdk-ext.did-provider-jwk";
 import { getFirstKeyWithRelation } from '@sphereon/ssi-sdk-ext.did-utils'
 import { calculateJwkThumbprint, JWK, toJwk } from '@sphereon/ssi-sdk-ext.key-utils'
 import { pemOrDerToX509Certificate } from '@sphereon/ssi-sdk-ext.x509-utils'
@@ -47,6 +48,16 @@ export async function getManagedKidIdentifier(
     issuer,
     kmsKeyRef: key.kid,
   } satisfies ManagedIdentifierKidResult
+}
+
+
+/**
+ * Allows to get a managed identifier result in case opts are passed in, but returns the identifier directly in case results are passed in
+ * @param identifier
+ * @param context
+ */
+export async function toManagedIdentifierResult(identifier: ManagedIdentifierResult | ManagedIdentifierOpts, context: IRequiredContext): Promise<ManagedIdentifierResult> {
+  return 'key' in identifier && 'kmsKeyRef' in identifier && 'method' in identifier && !('identifier' in identifier) ? identifier : await context.agent.identifierManagedGet(identifier)
 }
 
 /**
