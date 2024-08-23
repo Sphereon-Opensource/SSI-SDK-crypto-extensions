@@ -60,10 +60,13 @@ export async function getManagedKidIdentifier(
  * @param context
  */
 export async function ensureManagedIdentifierResult(
-  identifier: ManagedIdentifierOptsOrResult,
+  identifier: ManagedIdentifierOptsOrResult  & {
+    crypto?: Crypto
+  },
   context: IAgentContext<IIdentifierResolution>
 ): Promise<ManagedIdentifierResult> {
-  return 'key' in identifier && 'kmsKeyRef' in identifier && 'method' in identifier && 'opts' in identifier
+  const {lazyDisabled = false} = identifier
+  return !lazyDisabled && 'key' in identifier && 'kmsKeyRef' in identifier && 'method' in identifier && 'opts' in identifier
     ? identifier
     : await context.agent.identifierManagedGet(identifier)
 }

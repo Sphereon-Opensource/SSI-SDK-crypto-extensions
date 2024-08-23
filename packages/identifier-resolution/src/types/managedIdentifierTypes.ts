@@ -149,4 +149,4 @@ export type ManagedIdentifierMethod = 'did' | 'jwk' | 'x5c' | 'kid' | 'key'
 export type ManagedIdentifierResult = IManagedIdentifierResultBase &
   (ManagedIdentifierX5cResult | ManagedIdentifierDidResult | ManagedIdentifierJwkResult | ManagedIdentifierKidResult | ManagedIdentifierKeyResult)
 
-export type ManagedIdentifierOptsOrResult = ManagedIdentifierResult | ManagedIdentifierOpts
+export type ManagedIdentifierOptsOrResult = (ManagedIdentifierResult | ManagedIdentifierOpts) & {lazyDisabled?: boolean}
