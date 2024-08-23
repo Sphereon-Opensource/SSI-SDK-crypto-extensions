@@ -17,6 +17,7 @@ import {
   ManagedIdentifierKidOpts,
   ManagedIdentifierKidResult,
   ManagedIdentifierOpts,
+  ManagedIdentifierOptsOrResult,
   ManagedIdentifierResult,
   ManagedIdentifierX5cOpts,
   ManagedIdentifierX5cResult,
@@ -33,6 +34,7 @@ export const identifierResolutionContextMethods: Array<string> = [
   'identifierExternalResolve',
   'identifierExternalResolveByDid',
   'identifierExternalResolveByX5c',
+  'identifierManagedLazyResult',
 ]
 
 /**
@@ -58,6 +60,16 @@ export interface IIdentifierResolution extends IPluginMethodMap {
   identifierManagedGetByX5c(args: ManagedIdentifierX5cOpts, context: IAgentContext<IKeyManager>): Promise<ManagedIdentifierX5cResult>
 
   identifierManagedGetByKey(args: ManagedIdentifierKeyOpts, context: IAgentContext<IKeyManager>): Promise<ManagedIdentifierKeyResult>
+
+  /**
+   * Allows to get a managed identifier result in case identifier options are passed in, but returns the identifier directly in case results are passed in. This means resolution can have happened before, or happens in this method
+   *
+   * We use the opts or result type almost everywhere, as it allows for just in time resolution whenever this method is called and afterwards we have the result, so resolution doesn't have to hit the DB, or external endpoints.
+   * Also use this method in the local agent, not using REST. If case the identifier needs to be resolved, you can always have the above methods using REST
+   * @param identifier
+   * @param context
+   */
+  identifierManagedLazyResult(identifier: ManagedIdentifierOptsOrResult, context: IAgentContext<IIdentifierResolution>): Promise<ManagedIdentifierResult>
 
   // TODO: We can create a custom managed identifier method allowing developers to register a callback function to get their implementation hooked up. Needs more investigation as it would also impact the KMS
 

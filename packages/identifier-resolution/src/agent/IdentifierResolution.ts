@@ -1,5 +1,5 @@
 import { IAgentContext, IAgentPlugin, IDIDManager, IKeyManager } from '@veramo/core'
-import { ManagedIdentifierKeyOpts, ManagedIdentifierKeyResult, schema } from '..'
+import { ensureManagedIdentifierResult, ManagedIdentifierKeyOpts, ManagedIdentifierKeyResult, ManagedIdentifierOptsOrResult, schema } from '..'
 import { getManagedIdentifier, resolveExternalIdentifier } from '../functions'
 import {
   ExternalIdentifierDidOpts,
@@ -35,6 +35,7 @@ export class IdentifierResolution implements IAgentPlugin {
     identifierManagedGetByJwk: this.identifierGetManagedByJwk.bind(this),
     identifierManagedGetByX5c: this.identifierGetManagedByX5c.bind(this),
     identifierManagedGetByKey: this.identifierGetManagedByKey.bind(this),
+    identifierManagedLazyResult: this.identifierManagedLazyResult.bind(this),
 
     identifierExternalResolve: this.identifierResolveExternal.bind(this),
     identifierExternalResolveByDid: this.identifierExternalResolveByDid.bind(this),
@@ -82,6 +83,13 @@ export class IdentifierResolution implements IAgentPlugin {
 
   private async identifierGetManagedByX5c(args: ManagedIdentifierX5cOpts, context: IAgentContext<IKeyManager>): Promise<ManagedIdentifierX5cResult> {
     return (await this.identifierGetManaged({ ...args, method: 'x5c' }, context)) as ManagedIdentifierX5cResult
+  }
+
+  private async identifierManagedLazyResult(
+    identifier: ManagedIdentifierOptsOrResult,
+    context: IAgentContext<IIdentifierResolution>
+  ): Promise<ManagedIdentifierResult> {
+    return await ensureManagedIdentifierResult(identifier, context)
   }
 
   private async identifierResolveExternal(args: ExternalIdentifierOpts, context: IAgentContext<IKeyManager>): Promise<ExternalIdentifierResult> {
