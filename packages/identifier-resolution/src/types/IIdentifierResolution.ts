@@ -22,6 +22,19 @@ import {
   ManagedIdentifierX5cResult,
 } from './managedIdentifierTypes'
 
+// Exposing the methods here for any REST implementation
+export const identifierResolutionContextMethods: Array<string> = [
+  'identifierManagedGet',
+  'identifierManagedGetByDid',
+  'identifierManagedGetByKid',
+  'identifierManagedGetByJwk',
+  'identifierManagedGetByX5c',
+  'identifierManagedGetByKey',
+  'identifierExternalResolve',
+  'identifierExternalResolveByDid',
+  'identifierExternalResolveByX5c',
+]
+
 /**
  * @public
  */

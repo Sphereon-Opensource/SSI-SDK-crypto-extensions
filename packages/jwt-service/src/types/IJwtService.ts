@@ -4,6 +4,14 @@ import { JWK, SignatureAlgorithmJwa } from '@sphereon/ssi-sdk-ext.key-utils'
 import { IAgentContext, IPluginMethodMap } from '@veramo/core'
 
 export type IRequiredContext = IAgentContext<IIdentifierResolution & ISphereonKeyManager> // could we still interop with Veramo?
+
+export const jwtServiceContextMethods: Array<string> = [
+  'jwtPrepareJws',
+  'jwtCreateJwsJsonGeneralSignature',
+  'jwtCreateJwsJsonFlattenedSignature',
+  'jwtCreateJwsCompactSignature',
+  'jwtVerifyJwsCompactSignature',
+]
 export interface IJwtService extends IPluginMethodMap {
   jwtPrepareJws(args: CreateJwsJsonArgs, context: IRequiredContext): Promise<PreparedJwsObject>
 
