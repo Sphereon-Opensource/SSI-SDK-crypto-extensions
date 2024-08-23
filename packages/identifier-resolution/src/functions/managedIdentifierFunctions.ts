@@ -22,7 +22,6 @@ import {
   ManagedIdentifierKeyResult,
   ManagedIdentifierKidOpts,
   ManagedIdentifierKidResult,
-  ManagedIdentifierOpts,
   ManagedIdentifierOptsOrResult,
   ManagedIdentifierResult,
   ManagedIdentifierX5cOpts,
@@ -45,6 +44,7 @@ export async function getManagedKidIdentifier(
   return {
     method,
     key,
+    identifier: opts.identifier,
     jwk,
     jwkThumbprint,
     kid,
@@ -54,21 +54,23 @@ export async function getManagedKidIdentifier(
   } satisfies ManagedIdentifierKidResult
 }
 
+function isManagedIdentifierResult(identifier: ManagedIdentifierOptsOrResult & { crypto?: Crypto }): identifier is ManagedIdentifierResult {
+  return 'key' in identifier && 'kmsKeyRef' in identifier && 'method' in identifier && 'opts' in identifier
+}
+
 /**
  * Allows to get a managed identifier result in case identifier options are passed in, but returns the identifier directly in case results are passed in. This means resolution can have happened before, or happens in this method
  * @param identifier
  * @param context
  */
 export async function ensureManagedIdentifierResult(
-  identifier: ManagedIdentifierOptsOrResult  & {
+  identifier: ManagedIdentifierOptsOrResult & {
     crypto?: Crypto
   },
-  context: IAgentContext<IIdentifierResolution>
+  context: IAgentContext<IKeyManager>
 ): Promise<ManagedIdentifierResult> {
-  const {lazyDisabled = false} = identifier
-  return !lazyDisabled && 'key' in identifier && 'kmsKeyRef' in identifier && 'method' in identifier && 'opts' in identifier
-    ? identifier
-    : await context.agent.identifierManagedGet(identifier)
+  const { lazyDisabled = false } = identifier
+  return !lazyDisabled && isManagedIdentifierResult(identifier) ? identifier : await getManagedIdentifier(identifier, context)
 }
 
 /**
@@ -89,6 +91,7 @@ export async function getManagedKeyIdentifier(opts: ManagedIdentifierKeyOpts, _c
   return {
     method,
     key,
+    identifier: key,
     jwk,
     jwkThumbprint,
     kid,
@@ -165,6 +168,7 @@ export async function getManagedJwkIdentifier(
     method,
     key,
     kmsKeyRef: key.kid,
+    identifier: jwk,
     jwk,
     jwkThumbprint,
     kid,
@@ -200,6 +204,7 @@ export async function getManagedX5cIdentifier(
   return {
     method,
     x5c,
+    identifier: x5c,
     certificate,
     jwk,
     jwkThumbprint,
@@ -212,12 +217,15 @@ export async function getManagedX5cIdentifier(
 }
 
 export async function getManagedIdentifier(
-  opts: ManagedIdentifierOpts & {
+  opts: ManagedIdentifierOptsOrResult & {
     crypto?: Crypto
   },
   context: IAgentContext<IKeyManager>
 ): Promise<ManagedIdentifierResult> {
   let resolutionResult: ManagedIdentifierResult
+  if (isManagedIdentifierResult(opts)) {
+    opts
+  }
   if (isManagedIdentifierKidOpts(opts)) {
     resolutionResult = await getManagedKidIdentifier(opts, context)
   } else if (isManagedIdentifierDidOpts(opts)) {
@@ -241,7 +249,7 @@ export async function getManagedIdentifier(
 
 export async function managedIdentifierToKeyResult(
   identifier: ManagedIdentifierOptsOrResult,
-  context: IAgentContext<IIdentifierResolution>
+  context: IAgentContext<IIdentifierResolution & IKeyManager>
 ): Promise<ManagedIdentifierKeyResult> {
   const resolved = await ensureManagedIdentifierResult(identifier, context)
   if (isManagedIdentifierKeyResult(resolved)) {
@@ -250,12 +258,13 @@ export async function managedIdentifierToKeyResult(
   return {
     ...resolved,
     method: 'key',
+    identifier: resolved.key,
   } satisfies ManagedIdentifierKeyResult
 }
 
 export async function managedIdentifierToJwk(
   identifier: ManagedIdentifierOptsOrResult,
-  context: IAgentContext<IIdentifierResolution>
+  context: IAgentContext<IIdentifierResolution & IKeyManager>
 ): Promise<ManagedIdentifierJwkResult> {
   const resolved = await ensureManagedIdentifierResult(identifier, context)
   if (isManagedIdentifierJwkResult(resolved)) {
@@ -264,5 +273,6 @@ export async function managedIdentifierToJwk(
   return {
     ...resolved,
     method: 'jwk',
+    identifier: resolved.jwk,
   } satisfies ManagedIdentifierJwkResult
 }

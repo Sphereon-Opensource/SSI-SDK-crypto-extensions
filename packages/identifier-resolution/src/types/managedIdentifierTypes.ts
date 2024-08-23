@@ -91,6 +91,7 @@ export interface IManagedIdentifierResultBase extends ManagedJwkInfo {
   key: IKey
   kid?: string
   issuer?: string
+  identifier: ManagedIdentifierType
 }
 
 export function isManagedIdentifierDidResult(object: IManagedIdentifierResultBase): object is ManagedIdentifierDidResult {
@@ -126,20 +127,24 @@ export interface ManagedIdentifierDidResult extends IManagedIdentifierResultBase
 }
 
 export interface ManagedIdentifierJwkResult extends IManagedIdentifierResultBase {
+  identifier: JWK
   method: 'jwk'
 }
 
 export interface ManagedIdentifierKidResult extends IManagedIdentifierResultBase {
   method: 'kid'
+  identifier: string
   kid: string
 }
 
 export interface ManagedIdentifierKeyResult extends IManagedIdentifierResultBase {
   method: 'key'
+  identifier: IKey
 }
 
 export interface ManagedIdentifierX5cResult extends IManagedIdentifierResultBase {
   method: 'x5c'
+  identifier: string[]
   x5c: string[]
   certificate: any // Certificate(JSON_, but trips schema generator. Probably want to create our own DTO
 }
@@ -149,4 +154,4 @@ export type ManagedIdentifierMethod = 'did' | 'jwk' | 'x5c' | 'kid' | 'key'
 export type ManagedIdentifierResult = IManagedIdentifierResultBase &
   (ManagedIdentifierX5cResult | ManagedIdentifierDidResult | ManagedIdentifierJwkResult | ManagedIdentifierKidResult | ManagedIdentifierKeyResult)
 
-export type ManagedIdentifierOptsOrResult = (ManagedIdentifierResult | ManagedIdentifierOpts) & {lazyDisabled?: boolean}
+export type ManagedIdentifierOptsOrResult = (ManagedIdentifierResult | ManagedIdentifierOpts) & { lazyDisabled?: boolean }

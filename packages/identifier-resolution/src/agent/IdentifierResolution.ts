@@ -1,12 +1,6 @@
-import {IAgentContext, IAgentPlugin, IDIDManager, IKeyManager} from '@veramo/core'
-import {
-  ensureManagedIdentifierResult,
-  ManagedIdentifierKeyOpts,
-  ManagedIdentifierKeyResult,
-  ManagedIdentifierOptsOrResult,
-  schema
-} from '..'
-import {resolveExternalIdentifier} from '../functions'
+import { IAgentContext, IAgentPlugin, IDIDManager, IKeyManager } from '@veramo/core'
+import { ensureManagedIdentifierResult, ManagedIdentifierKeyOpts, ManagedIdentifierKeyResult, ManagedIdentifierOptsOrResult, schema } from '..'
+import { resolveExternalIdentifier } from '../functions'
 import {
   ExternalIdentifierDidOpts,
   ExternalIdentifierDidResult,
@@ -62,7 +56,10 @@ export class IdentifierResolution implements IAgentPlugin {
    * @param context
    * @private
    */
-  private async identifierGetManaged(args: ManagedIdentifierOptsOrResult, context: IAgentContext<IKeyManager & IIdentifierResolution>): Promise<ManagedIdentifierResult> {
+  private async identifierGetManaged(
+    args: ManagedIdentifierOptsOrResult,
+    context: IAgentContext<IKeyManager & IIdentifierResolution>
+  ): Promise<ManagedIdentifierResult> {
     return await ensureManagedIdentifierResult({ ...args, crypto: this._crypto }, context)
   }
 
@@ -73,19 +70,31 @@ export class IdentifierResolution implements IAgentPlugin {
     return (await this.identifierGetManaged({ ...args, method: 'did' }, context)) as ManagedIdentifierDidResult
   }
 
-  private async identifierGetManagedByKid(args: ManagedIdentifierKidOpts, context: IAgentContext<IKeyManager & IIdentifierResolution>): Promise<ManagedIdentifierKidResult> {
+  private async identifierGetManagedByKid(
+    args: ManagedIdentifierKidOpts,
+    context: IAgentContext<IKeyManager & IIdentifierResolution>
+  ): Promise<ManagedIdentifierKidResult> {
     return (await this.identifierGetManaged({ ...args, method: 'kid' }, context)) as ManagedIdentifierKidResult
   }
 
-  private async identifierGetManagedByKey(args: ManagedIdentifierKeyOpts, context: IAgentContext<IKeyManager & IIdentifierResolution>): Promise<ManagedIdentifierKeyResult> {
+  private async identifierGetManagedByKey(
+    args: ManagedIdentifierKeyOpts,
+    context: IAgentContext<IKeyManager & IIdentifierResolution>
+  ): Promise<ManagedIdentifierKeyResult> {
     return (await this.identifierGetManaged({ ...args, method: 'key' }, context)) as ManagedIdentifierKeyResult
   }
 
-  private async identifierGetManagedByJwk(args: ManagedIdentifierJwkOpts, context: IAgentContext<IKeyManager & IIdentifierResolution>): Promise<ManagedIdentifierJwkResult> {
+  private async identifierGetManagedByJwk(
+    args: ManagedIdentifierJwkOpts,
+    context: IAgentContext<IKeyManager & IIdentifierResolution>
+  ): Promise<ManagedIdentifierJwkResult> {
     return (await this.identifierGetManaged({ ...args, method: 'jwk' }, context)) as ManagedIdentifierJwkResult
   }
 
-  private async identifierGetManagedByX5c(args: ManagedIdentifierX5cOpts, context: IAgentContext<IKeyManager & IIdentifierResolution>): Promise<ManagedIdentifierX5cResult> {
+  private async identifierGetManagedByX5c(
+    args: ManagedIdentifierX5cOpts,
+    context: IAgentContext<IKeyManager & IIdentifierResolution>
+  ): Promise<ManagedIdentifierX5cResult> {
     return (await this.identifierGetManaged({ ...args, method: 'x5c' }, context)) as ManagedIdentifierX5cResult
   }
 
