@@ -54,8 +54,8 @@ export async function getManagedKidIdentifier(
   } satisfies ManagedIdentifierKidResult
 }
 
-function isManagedIdentifierResult(identifier: ManagedIdentifierOptsOrResult & { crypto?: Crypto }): identifier is ManagedIdentifierResult {
-  return 'key' in identifier && 'kmsKeyRef' in identifier && 'method' in identifier && 'opts' in identifier
+export function isManagedIdentifierResult(identifier: ManagedIdentifierOptsOrResult & { crypto?: Crypto }): identifier is ManagedIdentifierResult {
+  return 'key' in identifier && 'kmsKeyRef' in identifier && 'method' in identifier && 'opts' in identifier && 'jwkThumbprint' in identifier
 }
 
 /**
