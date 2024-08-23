@@ -166,6 +166,10 @@ export function PEMToDer(pem: string): string {
 
 export function derToPEM(cert: string, headerKey?: 'PUBLIC KEY' | 'RSA PRIVATE KEY' | 'PRIVATE KEY' | 'CERTIFICATE'): string {
   const key = headerKey ?? 'CERTIFICATE'
+  if (cert.includes(key)) {
+    // Was already in PEM it seems
+    return cert
+  }
   const matches = cert.match(/.{1,64}/g)
   if (!matches) {
     throw Error('Invalid cert input value supplied')

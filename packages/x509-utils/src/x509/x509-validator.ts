@@ -1,5 +1,16 @@
-import { AttributeTypeAndValue, Certificate, CertificateChainValidationEngine, CryptoEngine, getCrypto, setEngine } from 'pkijs'
-import { pemOrDerToX509Certificate } from './x509-utils'
+import x509 from 'js-x509-utils'
+import {
+  AltName,
+  AttributeTypeAndValue,
+  Certificate,
+  CertificateChainValidationEngine,
+  CryptoEngine,
+  getCrypto,
+  id_SubjectAltName,
+  setEngine,
+} from 'pkijs'
+import * as u8a from 'uint8arrays'
+import { derToPEM, pemOrDerToX509Certificate } from './x509-utils'
 
 export type DNInfo = {
   DN: string
@@ -16,6 +27,7 @@ export type CertInfo = {
   }
   subject: {
     dn: DNInfo
+    subjectAlternativeNames: SubjectAlternativeName[]
   }
 }
 
@@ -46,6 +58,27 @@ const defaultCryptoEngine = () => {
     setEngine(name, new CryptoEngine({ name, crypto: crypto }))
   }
 }
+
+export const getCertInfo = async (
+  certificate: Certificate,
+  opts?: {
+    sanTypeFilter: SubjectAlternativeGeneralName | SubjectAlternativeGeneralName[]
+  }
+): Promise<CertInfo> => {
+  const publicKeyJWK = await getCertificateSubjectPublicKeyJWK(certificate)
+  return {
+    issuer: { dn: getIssuerDN(certificate) },
+    subject: {
+      dn: getSubjectDN(certificate),
+      subjectAlternativeNames: getSubjectAlternativeNames(certificate, { typeFilter: opts?.sanTypeFilter }),
+    },
+    publicKeyJWK: publicKeyJWK,
+    notBefore: certificate.notBefore.value,
+    notAfter: certificate.notAfter.value,
+    // certificate
+  } satisfies CertInfo
+}
+
 /**
  *
  * @param pemOrDerChain The order must be that the Certs signing another cert must come one after another. So first the signing cert, then any cert signing that cert and so on
@@ -57,14 +90,26 @@ export const validateX509CertificateChain = async ({
   chain: pemOrDerChain,
   trustAnchors,
   verificationTime = new Date(),
-  opts = { trustRootWhenNoAnchors: false },
+  opts = {
+    trustRootWhenNoAnchors: false,
+    allowSingleNoCAChainElement: true,
+    blindlyTrustedAnchors: [],
+  },
 }: {
   chain: (Uint8Array | string)[]
   trustAnchors?: string[]
   verificationTime?: Date
-  opts?: { trustRootWhenNoAnchors: boolean }
+  opts?: {
+    // Trust the supplied root from the chain, when no anchors are being passed in.
+    trustRootWhenNoAnchors?: boolean
+    // Do not perform a chain validation check if the chain only has a single value. This means only the certificate itself will be validated. No chain checks for CA certs will be performed. Only used when the cert has no issuer
+    allowSingleNoCAChainElement?: boolean
+    // WARNING: Do not use in production
+    // Similar to regular trust anchors, but no validation is performed whatsover. Do not use in production settings! Can be handy with self generated certificates as we perform many validations, making it hard to test with self-signed certs. Only applied in case a chain with 1 element is passed in to really make sure people do not abuse this option
+    blindlyTrustedAnchors?: string[]
+  }
 }): Promise<X509ValidationResult> => {
-  const { trustRootWhenNoAnchors = false } = opts
+  const { trustRootWhenNoAnchors = false, allowSingleNoCAChainElement = true, blindlyTrustedAnchors = [] } = opts
   const trustedPEMs = trustRootWhenNoAnchors && !trustAnchors ? [pemOrDerChain[pemOrDerChain.length - 1]] : trustAnchors
 
   if (pemOrDerChain.length === 0) {
@@ -80,42 +125,70 @@ export const validateX509CertificateChain = async ({
   const trustedCerts = trustedPEMs ? trustedPEMs.map(pemOrDerToX509Certificate) : undefined
   defaultCryptoEngine()
 
+  if (pemOrDerChain.length === 1) {
+    const singleCert = typeof pemOrDerChain[0] === 'string' ? pemOrDerChain[0] : u8a.toString(pemOrDerChain[0], 'base64pad')
+    const cert = pemOrDerToX509Certificate(singleCert)
+    if (blindlyTrustedAnchors.includes(singleCert)) {
+      console.log(`Certificate chain validation success as single cert if blindly trusted. WARNING: ONLY USE FOR TESTING PURPOSES.`)
+      return {
+        error: false,
+        critical: true,
+        message: `Certificate chain validation success as single cert if blindly trusted. WARNING: ONLY USE FOR TESTING PURPOSES.`,
+        verificationTime,
+        certificateChain: [await getCertInfo(cert)],
+      }
+    }
+    if (allowSingleNoCAChainElement) {
+      const subjectDN = getSubjectDN(cert).DN
+      if (!getIssuerDN(cert).DN || getIssuerDN(cert).DN === subjectDN) {
+        const passed = await cert.verify()
+        return {
+          error: !passed,
+          critical: true,
+          message: `Certificate chain validation for ${subjectDN}: ${passed ? 'successful' : 'failed'}.`,
+          verificationTime,
+          certificateChain: [await getCertInfo(cert)],
+        }
+      }
+    }
+  }
+
   const validationEngine = new CertificateChainValidationEngine({
     certs /*crls: [crl1],   ocsps: [ocsp1], */,
     checkDate: verificationTime,
     trustedCerts,
   })
 
-  const verification = await validationEngine.verify()
-  if (!verification.result || !verification.certificatePath) {
+  try {
+    const verification = await validationEngine.verify()
+    if (!verification.result || !verification.certificatePath) {
+      return {
+        error: true,
+        critical: true,
+        message: verification.resultMessage !== '' ? verification.resultMessage : `Certificate chain validation failed.`,
+        verificationTime,
+      }
+    }
+    const certPath = verification.certificatePath
+    const certInfos: Array<CertInfo> = await Promise.all(
+      certPath.map(async (certificate) => {
+        return getCertInfo(certificate)
+      })
+    )
+    return {
+      error: false,
+      critical: false,
+      message: `Certificate chain was valid`,
+      verificationTime,
+      certificateChain: certInfos,
+    }
+  } catch (error: any) {
     return {
       error: true,
       critical: true,
-      message: verification.resultMessage !== '' ? verification.resultMessage : `Certificate chain validation failed.`,
+      message: `Certificate chain was invalid, ${error.message ?? '<unknown error>'}`,
       verificationTime,
     }
-  }
-  const subtle = getCrypto(true).subtle
-  const certPath = verification.certificatePath
-  const certInfos: Array<CertInfo> = await Promise.all(
-    certPath.map(async (certificate) => {
-      const pk = await certificate.getPublicKey()
-      return {
-        issuer: { dn: getIssuerDN(certificate) },
-        subject: { dn: getSubjectDN(certificate) },
-        publicKeyJWK: await subtle.exportKey('jwk', pk),
-        notBefore: certificate.notBefore.value,
-        notAfter: certificate.notAfter.value,
-        // certificate
-      } satisfies CertInfo
-    })
-  )
-  return {
-    error: false,
-    critical: false,
-    message: `Certificate chain was valid`,
-    verificationTime,
-    certificateChain: certInfos,
   }
 }
 
@@ -159,4 +232,69 @@ const getDNString = (typesAndValues: AttributeTypeAndValue[]): string => {
   return Object.entries(getDNObject(typesAndValues))
     .map(([key, value]) => `${key}=${value}`)
     .join(',')
+}
+
+export const getCertificateSubjectPublicKeyJWK = async (pemOrDerCert: string | Uint8Array | Certificate): Promise<JsonWebKey> => {
+  const pemOrDerStr =
+    typeof pemOrDerCert === 'string'
+      ? pemOrDerCert
+      : pemOrDerCert instanceof Uint8Array
+      ? u8a.toString(pemOrDerCert, 'base64pad')
+      : pemOrDerCert.toString('base64')
+  const pem = derToPEM(pemOrDerStr)
+  const certificate = pemOrDerToX509Certificate(pem)
+  try {
+    const subtle = getCrypto(true).subtle
+    const pk = await certificate.getPublicKey()
+    return await subtle.exportKey('jwk', pk)
+  } catch (error: any) {
+    console.log(`Error in primary get JWK from cert:`, error?.message)
+  }
+  return await x509.toJwk(pem, 'pem')
+}
+
+/**
+ *  otherName                       [0]     OtherName,
+ *         rfc822Name                      [1]     IA5String,
+ *         dNSName                         [2]     IA5String,
+ *         x400Address                     [3]     ORAddress,
+ *         directoryName                   [4]     Name,
+ *         ediPartyName                    [5]     EDIPartyName,
+ *         uniformResourceIdentifier       [6]     IA5String,
+ *         iPAddress                       [7]     OCTET STRING,
+ *         registeredID                    [8]     OBJECT IDENTIFIER }
+ */
+export enum SubjectAlternativeGeneralName {
+  rfc822Name = 1, // email
+  dnsName = 2,
+  uniformResourceIdentifier = 6,
+  ipAddress = 7,
+}
+
+export interface SubjectAlternativeName {
+  value: string
+  type: SubjectAlternativeGeneralName
+}
+
+export const getSubjectAlternativeNames = (
+  certificate: Certificate,
+  opts?: {
+    typeFilter?: SubjectAlternativeGeneralName | SubjectAlternativeGeneralName[]
+  }
+): SubjectAlternativeName[] => {
+  const typeFilter = opts?.typeFilter
+    ? Array.isArray(opts.typeFilter)
+      ? opts.typeFilter
+      : [opts.typeFilter]
+    : [SubjectAlternativeGeneralName.dnsName, SubjectAlternativeGeneralName.uniformResourceIdentifier]
+  const parsedValue = certificate.extensions?.find((ext) => ext.extnID === id_SubjectAltName)?.parsedValue as AltName
+  if (!parsedValue) {
+    return []
+  }
+  const altNames = parsedValue.toJSON().altNames
+  return altNames
+    .filter((altName) => typeFilter.includes(altName.type))
+    .map((altName) => {
+      return { type: altName.type, value: altName.value } satisfies SubjectAlternativeName
+    })
 }

@@ -1,4 +1,4 @@
-import { validateX509CertificateChain } from '../src'
+import { getCertInfo, pemOrDerToX509Certificate, validateX509CertificateChain } from '../src'
 
 const sphereonCA =
   '-----BEGIN CERTIFICATE-----\n' +
@@ -93,6 +93,9 @@ const funkeTestIssuer =
   'MIICdDCCAhugAwIBAgIBAjAKBggqhkjOPQQDAjCBiDELMAkGA1UEBhMCREUxDzANBgNVBAcMBkJlcmxpbjEdMBsGA1UECgwUQnVuZGVzZHJ1Y2tlcmVpIEdtYkgxETAPBgNVBAsMCFQgQ1MgSURFMTYwNAYDVQQDDC1TUFJJTkQgRnVua2UgRVVESSBXYWxsZXQgUHJvdG90eXBlIElzc3VpbmcgQ0EwHhcNMjQwNTMxMDgxMzE3WhcNMjUwNzA1MDgxMzE3WjBsMQswCQYDVQQGEwJERTEdMBsGA1UECgwUQnVuZGVzZHJ1Y2tlcmVpIEdtYkgxCjAIBgNVBAsMAUkxMjAwBgNVBAMMKVNQUklORCBGdW5rZSBFVURJIFdhbGxldCBQcm90b3R5cGUgSXNzdWVyMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEOFBq4YMKg4w5fTifsytwBuJf/7E7VhRPXiNm52S3q1ETIgBdXyDK3kVxGxgeHPivLP3uuMvS6iDEc7qMxmvduKOBkDCBjTAdBgNVHQ4EFgQUiPhCkLErDXPLW2/J0WVeghyw+mIwDAYDVR0TAQH/BAIwADAOBgNVHQ8BAf8EBAMCB4AwLQYDVR0RBCYwJIIiZGVtby5waWQtaXNzdWVyLmJ1bmRlc2RydWNrZXJlaS5kZTAfBgNVHSMEGDAWgBTUVhjAiTjoDliEGMl2Yr+ru8WQvjAKBggqhkjOPQQDAgNHADBEAiAbf5TzkcQzhfWoIoyi1VN7d8I9BsFKm1MWluRph2byGQIgKYkdrNf2xXPjVSbjW/U/5S5vAEC5XxcOanusOBroBbU=\n' +
   '-----END CERTIFICATE-----'
 
+const animoFunkeDER =
+  'MIH6MIGhoAMCAQICEDlbxpcN1V1PRbmc2TtPjNQwCgYIKoZIzj0EAwIwADAeFw03MDAxMDEwMDAwMDBaFw0yNTExMjIwODIyMTJaMAAwOTATBgcqhkjOPQIBBggqhkjOPQMBBwMiAALcD1XzKepFxWMAOqV+ln1fybBt7DRO5CV0f9A6mRp2xaMdMBswGQYDVR0RBBIwEIIOZnVua2UuYW5pbW8uaWQwCgYIKoZIzj0EAwIDSAAwRQIhAIFd2jlrZAzLTLsXdUE7O+CRuxuzk04lGo1eVYIbgT8iAiAQhR/FonhoLLTFjU/3tn5rPyB2DaOl3W18W5ugLWHjhQ=='
+
 describe('functions: validateX5cCertificateChain', () => {
   const validChain = [walletPEM, sphereonCA]
 
@@ -109,6 +112,25 @@ describe('functions: validateX5cCertificateChain', () => {
       message: 'Certificate chain was valid',
     })
   })
+  it('should validate a single certificate in the chain that is not signed by a CA and blindly trusted', async () => {
+    const result = await validateX509CertificateChain({
+      chain: [animoFunkeDER],
+      trustAnchors: [sphereonCA, funkeTestCA],
+      opts: {
+        trustRootWhenNoAnchors: true,
+        allowSingleNoCAChainElement: true,
+        blindlyTrustedAnchors: [animoFunkeDER],
+      },
+    })
+    expect(result).toMatchObject({
+      critical: true,
+      error: false,
+      message: 'Certificate chain validation success as single cert if blindly trusted. WARNING: ONLY USE FOR TESTING PURPOSES.',
+    })
+
+    const certInfo = await getCertInfo(pemOrDerToX509Certificate(animoFunkeDER))
+    expect('funke.animo.id').toEqual(certInfo.subject.subjectAlternativeNames[0].value)
+  })
 
   it('should validate a valid certificate chain without providing a CA as trust anchor, but with trustRoot enabled', async () => {
     const result = await validateX509CertificateChain({
@@ -123,7 +145,11 @@ describe('functions: validateX5cCertificateChain', () => {
   })
 
   it('should validate a valid chain without providing trust anchor in chain, but one that is resolvable and specified as its trustanchor', async () => {
-    const result = await validateX509CertificateChain({ chain: [sphereonTest], opts: { trustRootWhenNoAnchors: false }, trustAnchors: [sphereonCA] })
+    const result = await validateX509CertificateChain({
+      chain: [sphereonTest],
+      opts: { trustRootWhenNoAnchors: false },
+      trustAnchors: [sphereonCA],
+    })
     expect(result).toMatchObject({
       critical: false,
       error: false,
@@ -132,7 +158,10 @@ describe('functions: validateX5cCertificateChain', () => {
   })
 
   it('should validate Funke certificate chain', async () => {
-    const result = await validateX509CertificateChain({ chain: [funkeTestIssuer, funkeTestCA], trustAnchors: [funkeTestCA] })
+    const result = await validateX509CertificateChain({
+      chain: [funkeTestIssuer, funkeTestCA],
+      trustAnchors: [funkeTestCA],
+    })
     expect(result).toMatchObject({
       critical: false,
       error: false,
