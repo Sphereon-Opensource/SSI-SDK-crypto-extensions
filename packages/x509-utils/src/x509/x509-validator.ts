@@ -17,7 +17,7 @@ export type DNInfo = {
   attributes: Record<string, string>
 }
 
-export type CertInfo = {
+export type CertificateInfo = {
   certificate?: any // We need to fix the schema generator for this to be Certificate(Json) from pkijs
   notBefore: Date
   notAfter: Date
@@ -36,7 +36,7 @@ export type X509ValidationResult = {
   critical: boolean
   message: string
   verificationTime: Date
-  certificateChain?: Array<CertInfo>
+  certificateChain?: Array<CertificateInfo>
 }
 
 const defaultCryptoEngine = () => {
@@ -59,12 +59,12 @@ const defaultCryptoEngine = () => {
   }
 }
 
-export const getCertInfo = async (
+export const getCertificateInfo = async (
   certificate: Certificate,
   opts?: {
     sanTypeFilter: SubjectAlternativeGeneralName | SubjectAlternativeGeneralName[]
   }
-): Promise<CertInfo> => {
+): Promise<CertificateInfo> => {
   const publicKeyJWK = await getCertificateSubjectPublicKeyJWK(certificate)
   return {
     issuer: { dn: getIssuerDN(certificate) },
@@ -76,7 +76,7 @@ export const getCertInfo = async (
     notBefore: certificate.notBefore.value,
     notAfter: certificate.notAfter.value,
     // certificate
-  } satisfies CertInfo
+  } satisfies CertificateInfo
 }
 
 /**
@@ -135,7 +135,7 @@ export const validateX509CertificateChain = async ({
         critical: true,
         message: `Certificate chain validation success as single cert if blindly trusted. WARNING: ONLY USE FOR TESTING PURPOSES.`,
         verificationTime,
-        certificateChain: [await getCertInfo(cert)],
+        certificateChain: [await getCertificateInfo(cert)],
       }
     }
     if (allowSingleNoCAChainElement) {
@@ -147,7 +147,7 @@ export const validateX509CertificateChain = async ({
           critical: true,
           message: `Certificate chain validation for ${subjectDN}: ${passed ? 'successful' : 'failed'}.`,
           verificationTime,
-          certificateChain: [await getCertInfo(cert)],
+          certificateChain: [await getCertificateInfo(cert)],
         }
       }
     }
@@ -170,9 +170,9 @@ export const validateX509CertificateChain = async ({
       }
     }
     const certPath = verification.certificatePath
-    const certInfos: Array<CertInfo> = await Promise.all(
+    const certInfos: Array<CertificateInfo> = await Promise.all(
       certPath.map(async (certificate) => {
-        return getCertInfo(certificate)
+        return getCertificateInfo(certificate)
       })
     )
     return {

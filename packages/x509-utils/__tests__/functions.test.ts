@@ -1,4 +1,4 @@
-import { getCertInfo, pemOrDerToX509Certificate, validateX509CertificateChain } from '../src'
+import { getCertificateInfo, pemOrDerToX509Certificate, validateX509CertificateChain } from '../src'
 
 const sphereonCA =
   '-----BEGIN CERTIFICATE-----\n' +
@@ -128,7 +128,7 @@ describe('functions: validateX5cCertificateChain', () => {
       message: 'Certificate chain validation success as single cert if blindly trusted. WARNING: ONLY USE FOR TESTING PURPOSES.',
     })
 
-    const certInfo = await getCertInfo(pemOrDerToX509Certificate(animoFunkeDER))
+    const certInfo = await getCertificateInfo(pemOrDerToX509Certificate(animoFunkeDER))
     expect('funke.animo.id').toEqual(certInfo.subject.subjectAlternativeNames[0].value)
   })
 
