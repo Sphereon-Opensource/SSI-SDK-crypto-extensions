@@ -1,4 +1,4 @@
-import { getCertificateInfo, pemOrDerToX509Certificate, validateX509CertificateChain } from '../src'
+import { assertCertificateMatchesClientIdScheme, getCertificateInfo, pemOrDerToX509Certificate, validateX509CertificateChain } from '../src'
 
 const sphereonCA =
   '-----BEGIN CERTIFICATE-----\n' +
@@ -136,6 +136,12 @@ describe('functions: validateX5cCertificateChain', () => {
     const result = await validateX509CertificateChain({
       chain: [walletPEM, sphereonCA],
       trustAnchors: [sphereonCA],
+      opts: {
+        client: {
+          clientId: 'wallet.test.sphereon.com',
+          clientIdScheme: 'x509_san_dns',
+        },
+      },
     })
     expect(result).toMatchObject({
       critical: false,
@@ -244,5 +250,17 @@ describe('functions: validateX5cCertificateChain', () => {
       error: true,
       message: 'The certificate is either not yet valid or expired',
     })
+  })
+
+  it('should validate with client id scheme x509_san_dns and san_uri', async () => {
+    expect(() =>
+      assertCertificateMatchesClientIdScheme(pemOrDerToX509Certificate(sphereonTest), 'test123.test.sphereon.com', 'x509_san_dns')
+    ).not.toThrow()
+    expect(() => assertCertificateMatchesClientIdScheme(pemOrDerToX509Certificate(sphereonTest), 'nope.test.sphereon.com', 'x509_san_dns')).toThrow()
+
+    // The extension san_uri is not in the cert, so should throw error in case the above validating clientid for san_dns is used but now for san_uri
+    expect(() =>
+      assertCertificateMatchesClientIdScheme(pemOrDerToX509Certificate(sphereonTest), 'test123.test.sphereon.com', 'x509_san_uri')
+    ).toThrow()
   })
 })

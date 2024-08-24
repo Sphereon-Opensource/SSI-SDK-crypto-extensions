@@ -1,25 +1,49 @@
+import { jwkTtoPublicKeyHex } from '@sphereon/ssi-sdk-ext.did-utils'
 import {
+  ensureManagedIdentifierResult,
+  ExternalIdentifierDidOpts,
+  ExternalIdentifierX5cOpts,
+  IIdentifierResolution,
   isManagedIdentifierDidResult,
   isManagedIdentifierX5cResult,
   ManagedIdentifierMethod,
   ManagedIdentifierResult,
-  ensureManagedIdentifierResult,
+  resolveExternalJwkIdentifier,
 } from '@sphereon/ssi-sdk-ext.identifier-resolution'
-import { bytesToBase64url, encodeJoseBlob } from '@veramo/utils'
+import { keyTypeFromCryptographicSuite, verifySignatureWithSubtle } from '@sphereon/ssi-sdk-ext.key-utils'
+import { contextHasPlugin } from '@sphereon/ssi-sdk.agent-config'
+import { JWK } from '@sphereon/ssi-types'
+import { IAgentContext } from '@veramo/core'
+import { bytesToBase64url, decodeJoseBlob, encodeJoseBlob } from '@veramo/utils'
+import { base64ToBytes } from '@veramo/utils'
 import * as u8a from 'uint8arrays'
 import {
   CreateJwsCompactArgs,
   CreateJwsFlattenedArgs,
   CreateJwsJsonArgs,
-  CreateJwsMode,
+  IJwsValidationResult,
   IRequiredContext,
+  isJwsCompact,
+  isJwsJsonFlattened,
+  isJwsJsonGeneral,
+  Jws,
   JwsCompact,
+  JwsIdentifierMode,
   JwsJsonFlattened,
   JwsJsonGeneral,
+  JwsJsonGeneralWithIdentifiers,
   JwsJsonSignature,
   JwtHeader,
+  JwtPayload,
   PreparedJwsObject,
+  VerifyJwsArgs,
 } from '../types/IJwtService'
+
+const payloadToBytes = (payload: string | JwtPayload | Uint8Array): Uint8Array => {
+  const isBytes = payload instanceof Uint8Array
+  const isString = typeof payload === 'string'
+  return isBytes ? payload : isString ? u8a.fromString(payload, 'base64url') : u8a.fromString(JSON.stringify(payload), 'utf-8')
+}
 
 export const prepareJwsObject = async (args: CreateJwsJsonArgs, context: IRequiredContext): Promise<PreparedJwsObject> => {
   const { existingSignatures, protectedHeader, unprotectedHeader, issuer, payload, mode = 'auto' } = args
@@ -31,7 +55,6 @@ export const prepareJwsObject = async (args: CreateJwsJsonArgs, context: IRequir
   }
   const identifier = await ensureManagedIdentifierResult(issuer, context)
   await checkAndUpdateJwtHeader({ mode, identifier, noIdentifierInHeader, header: protectedHeader }, context)
-
   const isBytes = payload instanceof Uint8Array
   const isString = typeof payload === 'string'
   if (!isBytes && !isString) {
@@ -39,7 +62,7 @@ export const prepareJwsObject = async (args: CreateJwsJsonArgs, context: IRequir
       payload.iss = identifier.issuer
     }
   }
-  const payloadBytes = isBytes ? payload : isString ? u8a.fromString(payload, 'base64url') : u8a.fromString(JSON.stringify(payload), 'utf-8')
+  const payloadBytes = payloadToBytes(payload)
   const base64urlHeader = encodeJoseBlob(protectedHeader)
   const base64urlPayload = bytesToBase64url(payloadBytes)
 
@@ -120,24 +143,24 @@ export const checkAndUpdateJwtHeader = async (
     header,
     noIdentifierInHeader = false,
   }: {
-    mode?: CreateJwsMode
+    mode?: JwsIdentifierMode
     identifier: ManagedIdentifierResult
     noIdentifierInHeader?: boolean
     header: JwtHeader
   },
   context: IRequiredContext
 ) => {
-  if (isMode(mode, identifier.method, 'did')) {
+  if (isIdentifierMode(mode, identifier.method, 'did')) {
     // kid is VM of the DID
     // @see https://datatracker.ietf.org/doc/html/rfc7515#section-4.1.4
     await checkAndUpdateDidHeader({ header, identifier, noIdentifierInHeader }, context)
-  } else if (isMode(mode, identifier.method, 'x5c')) {
+  } else if (isIdentifierMode(mode, identifier.method, 'x5c')) {
     // Include the x5c in the header. No kid
     // @see https://datatracker.ietf.org/doc/html/rfc7515#section-4.1.6
     await checkAndUpdateX5cHeader({ header, identifier, noIdentifierInHeader }, context)
-  } else if (isMode(mode, identifier.method, 'kid', false)) {
+  } else if (isIdentifierMode(mode, identifier.method, 'kid', false)) {
     await checkAndUpdateKidHeader({ header, identifier, noIdentifierInHeader }, context)
-  } else if (isMode(mode, identifier.method, 'jwk', false)) {
+  } else if (isIdentifierMode(mode, identifier.method, 'jwk', false)) {
     // Include the JWK in the header as well as its kid if present
     // @see https://datatracker.ietf.org/doc/html/rfc7515#section-4.1.3
     // @see https://datatracker.ietf.org/doc/html/rfc7515#section-4.1.4
@@ -262,7 +285,7 @@ const checkAndUpdateKidHeader = async (
   }
 }
 
-const isMode = (mode: CreateJwsMode, identifierMethod: ManagedIdentifierMethod, checkMode: CreateJwsMode, loose = true) => {
+const isIdentifierMode = (mode: JwsIdentifierMode, identifierMethod: ManagedIdentifierMethod, checkMode: JwsIdentifierMode, loose = true) => {
   if (loose && (checkMode === 'jwk' || checkMode === 'kid')) {
     // we always have the kid and jwk at hand no matter the identifier method, so we are okay with that
     // todo: check the impact on the above expressions, as this will now always return true for the both of them
@@ -276,4 +299,131 @@ const isMode = (mode: CreateJwsMode, identifierMethod: ManagedIdentifierMethod, 
   }
   // we always have the kid and jwk at hand no matter the identifier method, so we are okay with that
   return mode === 'auto' && identifierMethod === checkMode
+}
+
+export const verifyJws = async (args: VerifyJwsArgs, context: IAgentContext<IIdentifierResolution>): Promise<IJwsValidationResult> => {
+  const jws = await toJwsJsonGeneralWithIdentifiers(args, context)
+
+  let errorMessages: string[] = []
+  let index = 0
+  await Promise.all(
+    jws.signatures.map(async (sigWithId) => {
+      // If we have a specific KMS agent plugin that can do the verification prefer that over the generic verification
+      index++
+      let valid: boolean
+      const data = u8a.fromString(`${sigWithId.protected}.${jws.payload}`, 'utf-8')
+      const jwkInfo = sigWithId.identifier.jwks[0]
+      if (sigWithId.header?.alg === 'RSA' && contextHasPlugin(context, 'keyManagerVerify')) {
+        const publicKeyHex = jwkTtoPublicKeyHex(jwkInfo.jwk)
+        valid = await context.agent.keyManagerVerify({
+          signature: sigWithId.signature,
+          data,
+          publicKeyHex,
+          type: keyTypeFromCryptographicSuite({ suite: jwkInfo.jwk.crv ?? 'ES256' }),
+          // no kms arg, as the current key manager needs a bit more work
+        })
+      } else {
+        const signature = base64ToBytes(sigWithId.signature)
+        valid = await verifySignatureWithSubtle({ data, signature, key: jwkInfo.jwk })
+      }
+      if (!valid) {
+        errorMessages.push(`Signature ${index} was not valid`)
+      }
+
+      return {
+        sigWithId,
+        valid,
+      }
+    })
+  )
+  const error = errorMessages.length !== 0
+  return {
+    name: 'jws',
+    jws,
+    error,
+    critical: error,
+    message: error ? errorMessages.join(', ') : 'Signature validated',
+    verificationTime: new Date(),
+  } satisfies IJwsValidationResult
+}
+export const toJwsJsonGeneral = async ({ jws }: { jws: Jws }, context: IAgentContext<any>): Promise<JwsJsonGeneral> => {
+  let payload: string
+  let signatures: JwsJsonSignature[] = []
+
+  if (isJwsCompact(jws)) {
+    const split = jws.split('.')
+    payload = split[1]
+    signatures[0] = {
+      protected: split[0],
+      signature: split[2],
+    } satisfies JwsJsonSignature
+  } else if (isJwsJsonGeneral(jws)) {
+    payload = jws.payload
+    signatures = jws.signatures
+  } else if (isJwsJsonFlattened(jws)) {
+    const { payload: _payload, ...signature } = jws
+    payload = _payload
+    signatures = [signature]
+  } else {
+    return Promise.reject(Error(`Invalid JWS supplied`))
+  }
+  return {
+    payload,
+    signatures,
+  }
+}
+
+async function resolveExternalIdentifierFromJwsHeader(
+  protectedHeader: JwtHeader,
+  context: IAgentContext<IIdentifierResolution>,
+  args: {
+    jws: Jws
+    opts?: { x5c?: Omit<ExternalIdentifierX5cOpts, 'identifier'>; did?: Omit<ExternalIdentifierDidOpts, 'identifier'> }
+  }
+) {
+  if (protectedHeader.x5c) {
+    const x5c = protectedHeader.x5c
+    return await context.agent.identifierExternalResolveByX5c({
+      ...args.opts?.x5c,
+      identifier: x5c,
+      verify: true,
+    })
+  } else if (protectedHeader.jwk) {
+    const jwk = protectedHeader.jwk
+    const x5c = jwk.x5c // todo resolve x5u
+    return await context.agent.identifierExternalResolveByJwk({
+      identifier: protectedHeader.jwk,
+      ...(x5c && {
+        x5c: {
+          ...args?.opts?.x5c,
+          identifier: x5c,
+        },
+      }),
+    })
+  } else if (protectedHeader.kid && protectedHeader.kid.startsWith('did:')) {
+    return await context.agent.identifierExternalResolveByDid({ ...args?.opts?.did, identifier: protectedHeader.kid })
+  } else {
+    return Promise.reject(Error(`We can only process DIDs, X.509 certificate chains and JWKs for signature validation at present`))
+  }
+}
+
+export const toJwsJsonGeneralWithIdentifiers = async (
+  args: {
+    jws: Jws
+    jwk?: JWK
+    opts?: { x5c?: Omit<ExternalIdentifierX5cOpts, 'identifier'>; did?: Omit<ExternalIdentifierDidOpts, 'identifier'> }
+  },
+  context: IAgentContext<IIdentifierResolution>
+): Promise<JwsJsonGeneralWithIdentifiers> => {
+  const jws = await toJwsJsonGeneral(args, context)
+  const signatures = await Promise.all(
+    jws.signatures.map(async (signature) => {
+      const protectedHeader: JwtHeader = decodeJoseBlob(signature.protected)
+      const identifier = args.jwk
+        ? await resolveExternalJwkIdentifier({ identifier: args.jwk }, context)
+        : await resolveExternalIdentifierFromJwsHeader(protectedHeader, context, args)
+      return { ...signature, identifier }
+    })
+  )
+  return { payload: jws.payload, signatures }
 }

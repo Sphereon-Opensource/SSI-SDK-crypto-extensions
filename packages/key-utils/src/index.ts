@@ -5,6 +5,7 @@
  * @packageDocumentation
  */
 export * from './functions'
+export * from './conversion'
 export * from './jwk-jcs'
 export * from './types'
 export * from './digest-methods'

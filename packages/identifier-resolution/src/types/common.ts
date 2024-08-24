@@ -1,4 +1,4 @@
-import { JWK } from '@sphereon/ssi-sdk-ext.key-utils'
+import { ICoseKeyJson, JWK } from '@sphereon/ssi-types'
 import { IIdentifier, IKey } from '@veramo/core'
 import { ExternalIdentifierType } from './externalIdentifierTypes'
 import { ManagedIdentifierType } from './managedIdentifierTypes'
@@ -40,6 +40,10 @@ export function isKeyIdentifier(identifier: ManagedIdentifierType): identifier i
     `kid` in identifier &&
     'publicKeyHex' in identifier
   )
+}
+
+export function isCoseKeyIdentifier(identifier: ManagedIdentifierType): identifier is ICoseKeyJson {
+  return typeof identifier === 'object' && `kty` in identifier && ('baseIV' in identifier || 'x5chain' in identifier) && !('x5c' in identifier)
 }
 
 export function isX5cIdentifier(identifier: ManagedIdentifierType | ExternalIdentifierType): identifier is string[] {

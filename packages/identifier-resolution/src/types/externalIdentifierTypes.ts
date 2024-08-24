@@ -1,9 +1,18 @@
 import { DidDocumentJwks } from '@sphereon/ssi-sdk-ext.did-utils'
-import { JWK } from '@sphereon/ssi-sdk-ext.key-utils'
-import { X509ValidationResult } from '@sphereon/ssi-sdk-ext.x509-utils'
+import { ICoseKeyJson, JWK } from '@sphereon/ssi-types'
+import { X509CertificateChainValidationOpts, X509ValidationResult } from '@sphereon/ssi-sdk-ext.x509-utils'
 import { IParsedDID } from '@sphereon/ssi-types'
 import { DIDDocument, DIDDocumentSection, DIDResolutionResult } from '@veramo/core'
-import { isDidIdentifier, isJwkIdentifier, isJwksUrlIdentifier, isKidIdentifier, isOidcDiscoveryIdentifier, isX5cIdentifier, JwkInfo } from './common'
+import {
+  isCoseKeyIdentifier,
+  isDidIdentifier,
+  isJwkIdentifier,
+  isJwksUrlIdentifier,
+  isKidIdentifier,
+  isOidcDiscoveryIdentifier,
+  isX5cIdentifier,
+  JwkInfo,
+} from './common'
 
 /**
  * Use whenever we need to resolve an external identifier. We can pass in kids, DIDs, and x5chains
@@ -32,7 +41,13 @@ export function isExternalIdentifierDidOpts(opts: ExternalIdentifierOptsBase): o
   return ('method' in opts && opts.method === 'did') || isDidIdentifier(identifier)
 }
 
-export type ExternalIdentifierOpts = (ExternalIdentifierJwkOpts | ExternalIdentifierX5cOpts | ExternalIdentifierDidOpts | ExternalIdentifierKidOpts) &
+export type ExternalIdentifierOpts = (
+  | ExternalIdentifierJwkOpts
+  | ExternalIdentifierX5cOpts
+  | ExternalIdentifierDidOpts
+  | ExternalIdentifierKidOpts
+  | ExternalIdentifierCoseKeyOpts
+) &
   ExternalIdentifierOptsBase
 
 export type ExternalIdentifierKidOpts = Omit<ExternalIdentifierOptsBase, 'method'> & {
@@ -48,11 +63,22 @@ export function isExternalIdentifierKidOpts(opts: ExternalIdentifierOptsBase): o
 export type ExternalIdentifierJwkOpts = Omit<ExternalIdentifierOptsBase, 'method'> & {
   method?: 'jwk'
   identifier: JWK
+  x5c?: ExternalIdentifierX5cOpts
 }
 
 export function isExternalIdentifierJwkOpts(opts: ExternalIdentifierOptsBase): opts is ExternalIdentifierJwkOpts {
   const { identifier } = opts
   return ('method' in opts && opts.method === 'jwk') || isJwkIdentifier(identifier)
+}
+
+export type ExternalIdentifierCoseKeyOpts = Omit<ExternalIdentifierOptsBase, 'method'> & {
+  method?: 'cose_key'
+  identifier: ICoseKeyJson
+}
+
+export function isExternalIdentifierCoseKeyOpts(opts: ExternalIdentifierOptsBase): opts is ExternalIdentifierCoseKeyOpts {
+  const { identifier } = opts
+  return ('method' in opts && opts.method === 'cose_key') || isCoseKeyIdentifier(identifier)
 }
 
 export type ExternalIdentifierOidcDiscoveryOpts = Omit<ExternalIdentifierOptsBase, 'method'> & {
@@ -75,26 +101,40 @@ export function isExternalIdentifierJwksUrlOpts(opts: ExternalIdentifierOptsBase
   return ('method' in opts && opts.method === 'oidc-discovery') || isJwksUrlIdentifier(identifier)
 }
 
-export type ExternalIdentifierX5cOpts = Omit<ExternalIdentifierOptsBase, 'method'> & {
-  method?: 'x5c'
-  identifier: string[]
-  verify?: boolean // defaults to true
-  verificationTime?: Date
-  trustAnchors?: string[]
-}
+export type ExternalIdentifierX5cOpts = Omit<ExternalIdentifierOptsBase, 'method'> &
+  X509CertificateChainValidationOpts & {
+    method?: 'x5c'
+    identifier: string[]
+    verify?: boolean // defaults to true
+    verificationTime?: Date
+    trustAnchors?: string[]
+  }
 
 export function isExternalIdentifierX5cOpts(opts: ExternalIdentifierOptsBase): opts is ExternalIdentifierX5cOpts {
   const { identifier } = opts
   return ('method' in opts && opts.method === 'x5c') || isX5cIdentifier(identifier)
 }
 
-export type ExternalIdentifierMethod = 'did' | 'jwk' | 'x5c' | 'kid' | 'oidc-discovery' | 'jwks-url' | 'oid4vci-issuer'
+export type ExternalIdentifierMethod = 'did' | 'jwk' | 'x5c' | 'kid' | 'cose_key' | 'oidc-discovery' | 'jwks-url' | 'oid4vci-issuer'
 
-export type ExternalIdentifierResult = ExternalIdentifierDidResult | ExternalIdentifierX5cResult
+export type ExternalIdentifierResult = IExternalIdentifierResultBase &
+  (ExternalIdentifierDidResult | ExternalIdentifierX5cResult | ExternalIdentifierJwkResult | ExternalIdentifierCoseKeyResult)
 
 export interface IExternalIdentifierResultBase {
   method: ExternalIdentifierMethod
   jwks: Array<ExternalJwkInfo>
+}
+
+export interface ExternalIdentifierJwkResult extends IExternalIdentifierResultBase {
+  method: 'jwk'
+  jwk: JWK
+  x5c?: ExternalIdentifierX5cResult
+}
+
+export interface ExternalIdentifierCoseKeyResult extends IExternalIdentifierResultBase {
+  method: 'cose_key'
+  coseKey: ICoseKeyJson
+  x5c?: ExternalIdentifierX5cResult
 }
 
 export interface ExternalIdentifierX5cResult extends IExternalIdentifierResultBase {
@@ -107,6 +147,7 @@ export interface ExternalIdentifierX5cResult extends IExternalIdentifierResultBa
 
 export interface ExternalJwkInfo extends JwkInfo {
   kid?: string
+  publicKeyHex: string
 }
 
 export interface ExternalIdentifierDidResult extends IExternalIdentifierResultBase {

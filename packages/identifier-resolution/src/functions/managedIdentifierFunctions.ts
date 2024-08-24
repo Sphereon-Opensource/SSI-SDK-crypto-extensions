@@ -1,11 +1,13 @@
 import { getFirstKeyWithRelation } from '@sphereon/ssi-sdk-ext.did-utils'
-import { calculateJwkThumbprint, JWK, toJwk } from '@sphereon/ssi-sdk-ext.key-utils'
+import { calculateJwkThumbprint, coseKeyToJwk, toJwk } from '@sphereon/ssi-sdk-ext.key-utils'
 import { pemOrDerToX509Certificate } from '@sphereon/ssi-sdk-ext.x509-utils'
 import { contextHasDidManager, contextHasKeyManager } from '@sphereon/ssi-sdk.agent-config'
+import { ICoseKeyJson, JWK } from '@sphereon/ssi-types'
 import { IAgentContext, IIdentifier, IKey, IKeyManager } from '@veramo/core'
 import { CryptoEngine, setEngine } from 'pkijs'
 import {
   IIdentifierResolution,
+  isManagedIdentifierCoseKeyOpts,
   isManagedIdentifierDidOpts,
   isManagedIdentifierDidResult,
   isManagedIdentifierJwkOpts,
@@ -14,6 +16,8 @@ import {
   isManagedIdentifierKeyResult,
   isManagedIdentifierKidOpts,
   isManagedIdentifierX5cOpts,
+  ManagedIdentifierCoseKeyOpts,
+  ManagedIdentifierCoseKeyResult,
   ManagedIdentifierDidOpts,
   ManagedIdentifierDidResult,
   ManagedIdentifierJwkOpts,
@@ -35,6 +39,8 @@ export async function getManagedKidIdentifier(
   const method = 'kid'
   if (!contextHasKeyManager(context)) {
     return Promise.reject(Error(`Cannot get Key/JWK identifier if KeyManager plugin is not enabled!`))
+  } else if (opts.identifier.startsWith('did:')) {
+    return Promise.reject(Error(`managed kid resolution called but a did url was passed in. Please call the did resolution method`))
   }
   const key = await context.agent.keyManagerGet({ kid: opts.kmsKeyRef ?? opts.identifier })
   const jwk = toJwk(key.publicKeyHex, key.type, { key })
@@ -54,7 +60,11 @@ export async function getManagedKidIdentifier(
   } satisfies ManagedIdentifierKidResult
 }
 
-export function isManagedIdentifierResult(identifier: ManagedIdentifierOptsOrResult & { crypto?: Crypto }): identifier is ManagedIdentifierResult {
+export function isManagedIdentifierResult(
+  identifier: ManagedIdentifierOptsOrResult & {
+    crypto?: Crypto
+  }
+): identifier is ManagedIdentifierResult {
   return 'key' in identifier && 'kmsKeyRef' in identifier && 'method' in identifier && 'opts' in identifier && 'jwkThumbprint' in identifier
 }
 
@@ -99,6 +109,38 @@ export async function getManagedKeyIdentifier(opts: ManagedIdentifierKeyOpts, _c
     kmsKeyRef: key.kid,
     opts,
   } satisfies ManagedIdentifierKeyResult
+}
+
+/**
+ * This function is just a convenience function to get a common result. The user already apparently had a key, so could have called the kid version as well
+ * @param opts
+ * @param context
+ */
+export async function getManagedCoseKeyIdentifier(
+  opts: ManagedIdentifierCoseKeyOpts,
+  context: IAgentContext<any>
+): Promise<ManagedIdentifierCoseKeyResult> {
+  const method = 'cose_key'
+  const coseKey: ICoseKeyJson = opts.identifier
+  if (!contextHasKeyManager(context)) {
+    return Promise.reject(Error(`Cannot get Cose Key identifier if KeyManager plugin is not enabled!`))
+  }
+  const jwk = coseKeyToJwk(coseKey)
+  const jwkThumbprint = calculateJwkThumbprint({ jwk })
+  const key = await context.agent.keyManagerGet({ kid: opts.kmsKeyRef ?? jwkThumbprint })
+  const kid = opts.kid ?? coseKey.kid ?? jwkThumbprint
+  const issuer = opts.issuer
+  return {
+    method,
+    key,
+    identifier: opts.identifier,
+    jwk,
+    jwkThumbprint,
+    kid,
+    issuer,
+    kmsKeyRef: key.kid,
+    opts,
+  } satisfies ManagedIdentifierCoseKeyResult
 }
 
 export async function getManagedDidIdentifier(opts: ManagedIdentifierDidOpts, context: IAgentContext<any>): Promise<ManagedIdentifierDidResult> {
@@ -236,6 +278,8 @@ export async function getManagedIdentifier(
     resolutionResult = await getManagedX5cIdentifier(opts, context)
   } else if (isManagedIdentifierKeyOpts(opts)) {
     resolutionResult = await getManagedKeyIdentifier(opts, context)
+  } else if (isManagedIdentifierCoseKeyOpts(opts)) {
+    resolutionResult = await getManagedCoseKeyIdentifier(opts, context)
   } else {
     return Promise.reject(Error(`Could not determine identifier method. Please provide explicitly`))
   }

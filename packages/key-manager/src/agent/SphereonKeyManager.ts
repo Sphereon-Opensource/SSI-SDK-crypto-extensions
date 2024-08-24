@@ -1,4 +1,4 @@
-import { calculateJwkThumbprintForKey } from '@sphereon/ssi-sdk-ext.key-utils'
+import { calculateJwkThumbprintForKey, toJwk, verifySignatureWithSubtle } from '@sphereon/ssi-sdk-ext.key-utils'
 import { IKey, KeyMetadata, ManagedKeyInfo } from '@veramo/core'
 import { AbstractKeyManagementSystem, AbstractKeyStore, KeyManager as VeramoKeyManager } from '@veramo/key-manager'
 import {
@@ -10,6 +10,8 @@ import {
   ISphereonKeyManagerSignArgs,
   ISphereonKeyManagerVerifyArgs,
 } from '../types/ISphereonKeyManager'
+
+import * as u8a from 'uint8arrays'
 
 export const sphereonKeyManagerMethods: Array<string> = [
   'keyManagerCreate',
@@ -73,12 +75,18 @@ export class SphereonKeyManager extends VeramoKeyManager {
   }
 
   async keyManagerVerify(args: ISphereonKeyManagerVerifyArgs): Promise<boolean> {
-    const kms = this.getKmsByName(args.kms)
-    if ('verify' in kms && typeof kms.verify === 'function') {
-      // @ts-ignore
-      return await kms.verify(args)
+    if (args.kms) {
+      const kms = this.getKmsByName(args.kms)
+      if (kms && 'verify' in kms && typeof kms.verify === 'function') {
+        // @ts-ignore
+        return await kms.verify(args)
+      }
     }
-    throw Error(`KMS ${kms} does not support verification`)
+    return await verifySignatureWithSubtle({
+      key: toJwk(args.publicKeyHex, args.type),
+      data: args.data,
+      signature: u8a.fromString(args.signature, 'utf-8'),
+    })
   }
 
   async keyManagerListKeys(): Promise<ManagedKeyInfo[]> {

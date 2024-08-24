@@ -6,6 +6,7 @@ import {
   CreateJwsJsonArgs,
   createJwsJsonFlattened,
   createJwsJsonGeneral,
+  IJwsValidationResult,
   IJwtService,
   IRequiredContext,
   JwsCompactResult,
@@ -14,18 +15,21 @@ import {
   PreparedJwsObject,
   prepareJwsObject,
   schema,
+  verifyJws,
+  VerifyJwsArgs,
 } from '..'
 
 /**
  * @public
  */
 export class JwtService implements IAgentPlugin {
-  readonly schema = schema.IMnemonicInfoGenerator
+  readonly schema = schema.IJwtService
   readonly methods: IJwtService = {
     jwtPrepareJws: this.jwtPrepareJws.bind(this),
     jwtCreateJwsJsonGeneralSignature: this.jwtCreateJwsJsonGeneralSignature.bind(this),
     jwtCreateJwsJsonFlattenedSignature: this.jwtCreateJwsJsonFlattenedSignature.bind(this),
     jwtCreateJwsCompactSignature: this.jwtCreateJwsCompactSignature.bind(this),
+    jwtVerifyJwsSignature: this.jwtVerifyJwsSignature.bind(this),
   }
 
   private async jwtPrepareJws(args: CreateJwsJsonArgs, context: IRequiredContext): Promise<PreparedJwsObject> {
@@ -43,5 +47,9 @@ export class JwtService implements IAgentPlugin {
   private async jwtCreateJwsCompactSignature(args: CreateJwsCompactArgs, context: IRequiredContext): Promise<JwsCompactResult> {
     // We wrap it in a json object for remote REST calls
     return { jwt: await createJwsCompact(args, context) }
+  }
+
+  private async jwtVerifyJwsSignature(args: VerifyJwsArgs, context: IRequiredContext): Promise<IJwsValidationResult> {
+    return await verifyJws(args, context)
   }
 }

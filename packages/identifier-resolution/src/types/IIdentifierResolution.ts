@@ -1,13 +1,19 @@
 import { IAgentContext, IDIDManager, IKeyManager, IPluginMethodMap } from '@veramo/core'
 import {
+  ExternalIdentifierCoseKeyOpts,
+  ExternalIdentifierCoseKeyResult,
   ExternalIdentifierDidOpts,
   ExternalIdentifierDidResult,
+  ExternalIdentifierJwkOpts,
+  ExternalIdentifierJwkResult,
   ExternalIdentifierOpts,
   ExternalIdentifierResult,
   ExternalIdentifierX5cOpts,
   ExternalIdentifierX5cResult,
 } from './externalIdentifierTypes'
 import {
+  ManagedIdentifierCoseKeyOpts,
+  ManagedIdentifierCoseKeyResult,
   ManagedIdentifierDidOpts,
   ManagedIdentifierDidResult,
   ManagedIdentifierJwkOpts,
@@ -30,9 +36,12 @@ export const identifierResolutionContextMethods: Array<string> = [
   'identifierManagedGetByJwk',
   'identifierManagedGetByX5c',
   'identifierManagedGetByKey',
+  'identifierGetManagedByCoseKey',
   'identifierExternalResolve',
   'identifierExternalResolveByDid',
   'identifierExternalResolveByX5c',
+  'identifierExternalResolveByJwk',
+  'identifierExternalResolveByCoseKey',
 ]
 
 /**
@@ -63,6 +72,11 @@ export interface IIdentifierResolution extends IPluginMethodMap {
 
   identifierManagedGetByKey(args: ManagedIdentifierKeyOpts, context: IAgentContext<IKeyManager>): Promise<ManagedIdentifierKeyResult>
 
+  identifierManagedGetByCoseKey(
+    args: ManagedIdentifierCoseKeyOpts,
+    context: IAgentContext<IKeyManager & IIdentifierResolution>
+  ): Promise<ManagedIdentifierCoseKeyResult>
+
   // TODO: We can create a custom managed identifier method allowing developers to register a callback function to get their implementation hooked up. Needs more investigation as it would also impact the KMS
 
   /**
@@ -74,6 +88,10 @@ export interface IIdentifierResolution extends IPluginMethodMap {
   identifierExternalResolve(args: ExternalIdentifierOpts, context: IAgentContext<any>): Promise<ExternalIdentifierResult>
 
   identifierExternalResolveByDid(args: ExternalIdentifierDidOpts, context: IAgentContext<any>): Promise<ExternalIdentifierDidResult>
+
+  identifierExternalResolveByJwk(args: ExternalIdentifierJwkOpts, context: IAgentContext<any>): Promise<ExternalIdentifierJwkResult>
+
+  identifierExternalResolveByCoseKey(args: ExternalIdentifierCoseKeyOpts, context: IAgentContext<any>): Promise<ExternalIdentifierCoseKeyResult>
 
   identifierExternalResolveByX5c(args: ExternalIdentifierX5cOpts, context: IAgentContext<any>): Promise<ExternalIdentifierX5cResult>
 }

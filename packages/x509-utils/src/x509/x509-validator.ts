@@ -37,6 +37,11 @@ export type X509ValidationResult = {
   message: string
   verificationTime: Date
   certificateChain?: Array<CertificateInfo>
+  client?: {
+    // In case client id and scheme were passed in we return them for easy access. It means they are validated
+    clientId: string
+    clientIdScheme: ClientIdScheme
+  }
 }
 
 const defaultCryptoEngine = () => {
@@ -79,6 +84,22 @@ export const getCertificateInfo = async (
   } satisfies CertificateInfo
 }
 
+export type X509CertificateChainValidationOpts = {
+  // Trust the supplied root from the chain, when no anchors are being passed in.
+  trustRootWhenNoAnchors?: boolean
+  // Do not perform a chain validation check if the chain only has a single value. This means only the certificate itself will be validated. No chain checks for CA certs will be performed. Only used when the cert has no issuer
+  allowSingleNoCAChainElement?: boolean
+  // WARNING: Do not use in production
+  // Similar to regular trust anchors, but no validation is performed whatsoever. Do not use in production settings! Can be handy with self generated certificates as we perform many validations, making it hard to test with self-signed certs. Only applied in case a chain with 1 element is passed in to really make sure people do not abuse this option
+  blindlyTrustedAnchors?: string[]
+
+  client?: {
+    // If provided both are required. Validates the leaf certificate against the clientId and scheme
+    clientId: string
+    clientIdScheme: ClientIdScheme
+  }
+}
+
 /**
  *
  * @param pemOrDerChain The order must be that the Certs signing another cert must come one after another. So first the signing cert, then any cert signing that cert and so on
@@ -99,17 +120,9 @@ export const validateX509CertificateChain = async ({
   chain: (Uint8Array | string)[]
   trustAnchors?: string[]
   verificationTime?: Date
-  opts?: {
-    // Trust the supplied root from the chain, when no anchors are being passed in.
-    trustRootWhenNoAnchors?: boolean
-    // Do not perform a chain validation check if the chain only has a single value. This means only the certificate itself will be validated. No chain checks for CA certs will be performed. Only used when the cert has no issuer
-    allowSingleNoCAChainElement?: boolean
-    // WARNING: Do not use in production
-    // Similar to regular trust anchors, but no validation is performed whatsover. Do not use in production settings! Can be handy with self generated certificates as we perform many validations, making it hard to test with self-signed certs. Only applied in case a chain with 1 element is passed in to really make sure people do not abuse this option
-    blindlyTrustedAnchors?: string[]
-  }
+  opts?: X509CertificateChainValidationOpts
 }): Promise<X509ValidationResult> => {
-  const { trustRootWhenNoAnchors = false, allowSingleNoCAChainElement = true, blindlyTrustedAnchors = [] } = opts
+  const { trustRootWhenNoAnchors = false, allowSingleNoCAChainElement = true, blindlyTrustedAnchors = [], client } = opts
   const trustedPEMs = trustRootWhenNoAnchors && !trustAnchors ? [pemOrDerChain[pemOrDerChain.length - 1]] : trustAnchors
 
   if (pemOrDerChain.length === 0) {
@@ -128,6 +141,12 @@ export const validateX509CertificateChain = async ({
   if (pemOrDerChain.length === 1) {
     const singleCert = typeof pemOrDerChain[0] === 'string' ? pemOrDerChain[0] : u8a.toString(pemOrDerChain[0], 'base64pad')
     const cert = pemOrDerToX509Certificate(singleCert)
+    if (client) {
+      const validation = await validateCertificateChainMatchesClientIdScheme(cert, client.clientId, client.clientIdScheme)
+      if (validation.error) {
+        return validation
+      }
+    }
     if (blindlyTrustedAnchors.includes(singleCert)) {
       console.log(`Certificate chain validation success as single cert if blindly trusted. WARNING: ONLY USE FOR TESTING PURPOSES.`)
       return {
@@ -136,6 +155,7 @@ export const validateX509CertificateChain = async ({
         message: `Certificate chain validation success as single cert if blindly trusted. WARNING: ONLY USE FOR TESTING PURPOSES.`,
         verificationTime,
         certificateChain: [await getCertificateInfo(cert)],
+        ...(client && { client }),
       }
     }
     if (allowSingleNoCAChainElement) {
@@ -148,6 +168,7 @@ export const validateX509CertificateChain = async ({
           message: `Certificate chain validation for ${subjectDN}: ${passed ? 'successful' : 'failed'}.`,
           verificationTime,
           certificateChain: [await getCertificateInfo(cert)],
+          ...(client && { client }),
         }
       }
     }
@@ -167,9 +188,16 @@ export const validateX509CertificateChain = async ({
         critical: true,
         message: verification.resultMessage !== '' ? verification.resultMessage : `Certificate chain validation failed.`,
         verificationTime,
+        ...(client && { client }),
       }
     }
     const certPath = verification.certificatePath
+    if (client) {
+      const clientIdValidation = await validateCertificateChainMatchesClientIdScheme(certs[0], client.clientId, client.clientIdScheme)
+      if (clientIdValidation.error) {
+        return clientIdValidation
+      }
+    }
     const certInfos: Array<CertificateInfo> = await Promise.all(
       certPath.map(async (certificate) => {
         return getCertificateInfo(certificate)
@@ -181,6 +209,7 @@ export const validateX509CertificateChain = async ({
       message: `Certificate chain was valid`,
       verificationTime,
       certificateChain: certInfos,
+      ...(client && { client }),
     }
   } catch (error: any) {
     return {
@@ -188,6 +217,7 @@ export const validateX509CertificateChain = async ({
       critical: true,
       message: `Certificate chain was invalid, ${error.message ?? '<unknown error>'}`,
       verificationTime,
+      ...(client && { client }),
     }
   }
 }
@@ -276,17 +306,65 @@ export interface SubjectAlternativeName {
   type: SubjectAlternativeGeneralName
 }
 
+export type ClientIdScheme = 'x509_san_dns' | 'x509_san_uri'
+
+export const assertCertificateMatchesClientIdScheme = (certificate: Certificate, clientId: string, clientIdScheme: ClientIdScheme): void => {
+  const sans = getSubjectAlternativeNames(certificate, { clientIdSchemeFilter: clientIdScheme })
+  const clientIdMatches = sans.find((san) => san.value === clientId)
+  if (!clientIdMatches) {
+    throw Error(
+      `Client id scheme ${clientIdScheme} used had no matching subject alternative names in certificate with DN ${
+        getSubjectDN(certificate).DN
+      }. SANS: ${sans.map((san) => san.value).join(',')}`
+    )
+  }
+}
+
+export const validateCertificateChainMatchesClientIdScheme = async (
+  certificate: Certificate,
+  clientId: string,
+  clientIdScheme: ClientIdScheme
+): Promise<X509ValidationResult> => {
+  const result = {
+    error: true,
+    critical: true,
+    message: `Client Id ${clientId} was not present in certificate using scheme ${clientIdScheme}`,
+    client: {
+      clientId,
+      clientIdScheme,
+    },
+    certificateChain: [await getCertificateInfo(certificate)],
+    verificationTime: new Date(),
+  }
+  try {
+    assertCertificateMatchesClientIdScheme(certificate, clientId, clientIdScheme)
+  } catch (error) {
+    return result
+  }
+  result.error = false
+  result.message = `Client Id ${clientId} was present in certificate using scheme ${clientIdScheme}`
+  return result
+}
+
 export const getSubjectAlternativeNames = (
   certificate: Certificate,
   opts?: {
     typeFilter?: SubjectAlternativeGeneralName | SubjectAlternativeGeneralName[]
+    // When a clientIdchemeFilter is passed in it will always override the above type filter
+    clientIdSchemeFilter?: ClientIdScheme
   }
 ): SubjectAlternativeName[] => {
-  const typeFilter = opts?.typeFilter
-    ? Array.isArray(opts.typeFilter)
-      ? opts.typeFilter
-      : [opts.typeFilter]
-    : [SubjectAlternativeGeneralName.dnsName, SubjectAlternativeGeneralName.uniformResourceIdentifier]
+  let typeFilter: SubjectAlternativeGeneralName[]
+  if (opts?.clientIdSchemeFilter) {
+    typeFilter =
+      opts.clientIdSchemeFilter === 'x509_san_dns'
+        ? [SubjectAlternativeGeneralName.dnsName]
+        : [SubjectAlternativeGeneralName.uniformResourceIdentifier]
+  } else if (opts?.typeFilter) {
+    typeFilter = Array.isArray(opts.typeFilter) ? opts.typeFilter : [opts.typeFilter]
+  } else {
+    typeFilter = [SubjectAlternativeGeneralName.dnsName, SubjectAlternativeGeneralName.uniformResourceIdentifier]
+  }
   const parsedValue = certificate.extensions?.find((ext) => ext.extnID === id_SubjectAltName)?.parsedValue as AltName
   if (!parsedValue) {
     return []

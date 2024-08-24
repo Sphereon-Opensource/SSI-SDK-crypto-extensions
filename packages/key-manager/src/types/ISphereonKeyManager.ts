@@ -111,7 +111,7 @@ export interface ISphereonKeyManagerHandleExpirationsArgs {
 }
 
 export interface ISphereonKeyManagerVerifyArgs {
-  kms: string
+  kms?: string
   publicKeyHex: string
   type: TKeyType
   algorithm?: string

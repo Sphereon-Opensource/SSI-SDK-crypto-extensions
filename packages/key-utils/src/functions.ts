@@ -1,6 +1,6 @@
 import { randomBytes } from '@ethersproject/random'
 import { generateRSAKeyAsPEM, hexToBase64, hexToPEM, PEMToJwk, privateKeyHexFromPEM } from '@sphereon/ssi-sdk-ext.x509-utils'
-import { Loggers } from '@sphereon/ssi-types'
+import { JoseCurve, JoseSignatureAlgorithm, JwkKeyType, JWK, Loggers } from '@sphereon/ssi-types'
 import { generateKeyPair as generateSigningKeyPair } from '@stablelib/ed25519'
 import { IAgentContext, IKey, IKeyManager, ManagedKeyInfo, MinimalImportableKey } from '@veramo/core'
 
@@ -11,15 +11,11 @@ import { digestMethodParams } from './digest-methods'
 import {
   ENC_KEY_ALGS,
   IImportProvidedOrGeneratedKeyArgs,
-  JWK,
   JwkKeyUse,
-  KeyCurve,
-  KeyType,
   KeyTypeFromCryptographicSuiteArgs,
   SIG_KEY_ALGS,
   SignatureAlgorithmFromKeyArgs,
   SignatureAlgorithmFromKeyTypeArgs,
-  SignatureAlgorithmJwa,
   TKeyType,
 } from './types'
 
@@ -189,7 +185,13 @@ export const calculateJwkThumbprint = (args: { jwk: JWK; digestAlgorithm?: 'sha2
     : digestMethodParams('SHA-256').digestMethod(data, 'base64url')
 }
 
-export const toJwkFromKey = (key: IKey | MinimalImportableKey | ManagedKeyInfo, opts?: { use?: JwkKeyUse; noKidThumbprint?: boolean }): JWK => {
+export const toJwkFromKey = (
+  key: IKey | MinimalImportableKey | ManagedKeyInfo,
+  opts?: {
+    use?: JwkKeyUse
+    noKidThumbprint?: boolean
+  }
+): JWK => {
   const isPrivateKey = 'privateKeyHex' in key
   return toJwk(key.publicKeyHex!, key.type, { ...opts, key, isPrivateKey })
 }
@@ -213,10 +215,10 @@ export const toJwk = (
   let jwk: JWK
   switch (type) {
     case 'Ed25519':
-      jwk = toEd25519OrX25519Jwk(publicKeyHex, { ...opts, crv: KeyCurve.Ed25519 })
+      jwk = toEd25519OrX25519Jwk(publicKeyHex, { ...opts, crv: JoseCurve.Ed25519 })
       break
     case 'X25519':
-      jwk = toEd25519OrX25519Jwk(publicKeyHex, { ...opts, crv: KeyCurve.X25519 })
+      jwk = toEd25519OrX25519Jwk(publicKeyHex, { ...opts, crv: JoseCurve.X25519 })
       break
     case 'Secp256k1':
       jwk = toSecp256k1Jwk(publicKeyHex, opts)
@@ -293,10 +295,10 @@ const toSecp256k1Jwk = (keyHex: string, opts?: { use?: JwkKeyUse; isPrivateKey?:
   const pubPoint = keyPair.getPublic()
 
   return {
-    alg: 'ES256K',
+    alg: JoseSignatureAlgorithm.ES256K,
     ...(use !== undefined && { use }),
-    kty: KeyType.EC,
-    crv: KeyCurve.Secp256k1,
+    kty: JwkKeyType.EC,
+    crv: JoseCurve.secp256k1,
     x: hexToBase64(pubPoint.getX().toString('hex'), 'base64url'),
     y: hexToBase64(pubPoint.getY().toString('hex'), 'base64url'),
     ...(opts?.isPrivateKey && { d: hexToBase64(keyPair.getPrivate('hex'), 'base64url') }),
@@ -324,10 +326,10 @@ const toSecp256r1Jwk = (keyHex: string, opts?: { use?: JwkKeyUse; isPrivateKey?:
   const keyPair = opts?.isPrivateKey ? secp256r1.keyFromPrivate(keyBytes) : secp256r1.keyFromPublic(keyBytes)
   const pubPoint = keyPair.getPublic()
   return {
-    alg: 'ES256',
+    alg: JoseSignatureAlgorithm.ES256,
     ...(use !== undefined && { use }),
-    kty: KeyType.EC,
-    crv: KeyCurve.P_256,
+    kty: JwkKeyType.EC,
+    crv: JoseCurve.P_256,
     x: hexToBase64(pubPoint.getX().toString('hex'), 'base64url'),
     y: hexToBase64(pubPoint.getY().toString('hex'), 'base64url'),
     ...(opts?.isPrivateKey && { d: hexToBase64(keyPair.getPrivate('hex'), 'base64url') }),
@@ -337,23 +339,23 @@ const toSecp256r1Jwk = (keyHex: string, opts?: { use?: JwkKeyUse; isPrivateKey?:
 /**
  * Generates a JWK from an Ed25519/X25519 public key
  * @param publicKeyHex Ed25519/X25519 public key in hex
- * @param use The use for the key
+ * @param opts
  * @return The JWK
  */
 const toEd25519OrX25519Jwk = (
   publicKeyHex: string,
   opts: {
     use?: JwkKeyUse
-    crv: KeyCurve.Ed25519 | KeyCurve.X25519
+    crv: JoseCurve.Ed25519 | JoseCurve.X25519
   }
 ): JWK => {
   assertProperKeyLength(publicKeyHex, 64)
   const { use } = opts ?? {}
   return {
-    alg: 'EdDSA',
+    alg: JoseSignatureAlgorithm.EdDSA,
     ...(use !== undefined && { use }),
-    kty: KeyType.OKP,
-    crv: opts?.crv ?? KeyCurve.Ed25519,
+    kty: JwkKeyType.OKP,
+    crv: opts?.crv ?? JoseCurve.Ed25519,
     x: hexToBase64(publicKeyHex, 'base64url'),
   }
 }
@@ -364,11 +366,11 @@ const toRSAJwk = (publicKeyHex: string, opts?: { use?: JwkKeyUse; key?: IKey | M
   // assertProperKeyLength(publicKey, [2048, 3072, 4096])
 
   if (key?.meta?.publicKeyJwk) {
-    return key.meta.publicKeyJwk as JsonWebKey
+    return key.meta.publicKeyJwk as JWK
   }
 
   const publicKeyPEM = key?.meta?.publicKeyPEM ?? hexToPEM(publicKeyHex, 'public')
-  return PEMToJwk(publicKeyPEM, 'public') as JsonWebKey
+  return PEMToJwk(publicKeyPEM, 'public') as JWK
 }
 
 export const padLeft = (args: { data: string; size?: number; padString?: string }): string => {
@@ -496,21 +498,21 @@ export const toRawCompressedHexPublicKey = (rawPublicKey: Uint8Array, keyType: T
 
 export const hexStringFromUint8Array = (value: Uint8Array): string => u8a.toString(value, 'base16')
 
-export const signatureAlgorithmFromKey = async (args: SignatureAlgorithmFromKeyArgs): Promise<SignatureAlgorithmJwa> => {
+export const signatureAlgorithmFromKey = async (args: SignatureAlgorithmFromKeyArgs): Promise<JoseSignatureAlgorithm> => {
   const { key } = args
   return signatureAlgorithmFromKeyType({ type: key.type })
 }
 
-export const signatureAlgorithmFromKeyType = (args: SignatureAlgorithmFromKeyTypeArgs): SignatureAlgorithmJwa => {
+export const signatureAlgorithmFromKeyType = (args: SignatureAlgorithmFromKeyTypeArgs): JoseSignatureAlgorithm => {
   const { type } = args
   switch (type) {
     case 'Ed25519':
     case 'X25519':
-      return SignatureAlgorithmJwa.EdDSA
+      return JoseSignatureAlgorithm.EdDSA
     case 'Secp256r1':
-      return SignatureAlgorithmJwa.ES256
+      return JoseSignatureAlgorithm.ES256
     case 'Secp256k1':
-      return SignatureAlgorithmJwa.ES256K
+      return JoseSignatureAlgorithm.ES256K
     default:
       throw new Error(`Key type '${type}' not supported`)
   }
@@ -527,6 +529,7 @@ export const keyTypeFromCryptographicSuite = (args: KeyTypeFromCryptographicSuit
       return 'Ed25519'
     case 'JsonWebSignature2020':
     case 'ES256':
+    case 'ECDSA':
       return 'Secp256r1'
     case 'EcdsaSecp256k1Signature2019':
     case 'ES256K':
@@ -534,4 +537,43 @@ export const keyTypeFromCryptographicSuite = (args: KeyTypeFromCryptographicSuit
     default:
       throw new Error(`Cryptographic suite '${suite}' not supported`)
   }
+}
+
+export async function verifySignatureWithSubtle({
+  data,
+  signature,
+  key,
+  crypto: cryptoArg,
+}: {
+  data: Uint8Array
+  signature: Uint8Array
+  key: JsonWebKey
+  crypto?: Crypto
+}) {
+  let { alg, crv } = key
+  if (alg === 'ES256' || !alg) {
+    alg = 'ECDSA'
+  }
+
+  const subtle = cryptoArg?.subtle ?? crypto.subtle
+  const publicKey = await subtle.importKey(
+    'jwk',
+    key,
+    {
+      name: alg,
+      namedCurve: crv,
+    } as EcKeyImportParams,
+    true,
+    ['verify']
+  )
+
+  return subtle.verify(
+    {
+      name: alg as string,
+      hash: 'SHA-256', // fixme; make arg
+    },
+    publicKey,
+    signature,
+    data
+  )
 }

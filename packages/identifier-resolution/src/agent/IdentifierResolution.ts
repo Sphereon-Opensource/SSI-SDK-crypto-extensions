@@ -1,5 +1,15 @@
 import { IAgentContext, IAgentPlugin, IDIDManager, IKeyManager } from '@veramo/core'
-import { ensureManagedIdentifierResult, ManagedIdentifierKeyOpts, ManagedIdentifierKeyResult, ManagedIdentifierOptsOrResult, schema } from '..'
+import {
+  ensureManagedIdentifierResult,
+  ExternalIdentifierCoseKeyOpts,
+  ExternalIdentifierCoseKeyResult,
+  ExternalIdentifierJwkOpts,
+  ExternalIdentifierJwkResult,
+  ManagedIdentifierKeyOpts,
+  ManagedIdentifierKeyResult,
+  ManagedIdentifierOptsOrResult,
+  schema,
+} from '..'
 import { resolveExternalIdentifier } from '../functions'
 import {
   ExternalIdentifierDidOpts,
@@ -9,6 +19,8 @@ import {
   ExternalIdentifierX5cOpts,
   ExternalIdentifierX5cResult,
   IIdentifierResolution,
+  ManagedIdentifierCoseKeyOpts,
+  ManagedIdentifierCoseKeyResult,
   ManagedIdentifierDidOpts,
   ManagedIdentifierDidResult,
   ManagedIdentifierJwkOpts,
@@ -34,10 +46,13 @@ export class IdentifierResolution implements IAgentPlugin {
     identifierManagedGetByJwk: this.identifierGetManagedByJwk.bind(this),
     identifierManagedGetByX5c: this.identifierGetManagedByX5c.bind(this),
     identifierManagedGetByKey: this.identifierGetManagedByKey.bind(this),
+    identifierManagedGetByCoseKey: this.identifierGetManagedByCoseKey.bind(this),
 
     identifierExternalResolve: this.identifierResolveExternal.bind(this),
     identifierExternalResolveByDid: this.identifierExternalResolveByDid.bind(this),
     identifierExternalResolveByX5c: this.identifierExternalResolveByX5c.bind(this),
+    identifierExternalResolveByJwk: this.identifierExternalResolveByJwk.bind(this),
+    identifierExternalResolveByCoseKey: this.identifierExternalResolveByCoseKey.bind(this),
 
     // todo: JWKSet, oidc-discovery, oid4vci-issuer etc. Anything we already can resolve and need keys of
   }
@@ -84,6 +99,13 @@ export class IdentifierResolution implements IAgentPlugin {
     return (await this.identifierGetManaged({ ...args, method: 'key' }, context)) as ManagedIdentifierKeyResult
   }
 
+  private async identifierGetManagedByCoseKey(
+    args: ManagedIdentifierCoseKeyOpts,
+    context: IAgentContext<IKeyManager & IIdentifierResolution>
+  ): Promise<ManagedIdentifierCoseKeyResult> {
+    return (await this.identifierGetManaged({ ...args, method: 'cose_key' }, context)) as ManagedIdentifierCoseKeyResult
+  }
+
   private async identifierGetManagedByJwk(
     args: ManagedIdentifierJwkOpts,
     context: IAgentContext<IKeyManager & IIdentifierResolution>
@@ -108,5 +130,15 @@ export class IdentifierResolution implements IAgentPlugin {
 
   private async identifierExternalResolveByX5c(args: ExternalIdentifierX5cOpts, context: IAgentContext<any>): Promise<ExternalIdentifierX5cResult> {
     return (await this.identifierResolveExternal({ ...args, method: 'x5c' }, context)) as ExternalIdentifierX5cResult
+  }
+
+  private async identifierExternalResolveByCoseKey(
+    args: ExternalIdentifierCoseKeyOpts,
+    context: IAgentContext<any>
+  ): Promise<ExternalIdentifierCoseKeyResult> {
+    return (await this.identifierResolveExternal({ ...args, method: 'cose_key' }, context)) as ExternalIdentifierCoseKeyResult
+  }
+  private async identifierExternalResolveByJwk(args: ExternalIdentifierJwkOpts, context: IAgentContext<any>): Promise<ExternalIdentifierJwkResult> {
+    return (await this.identifierResolveExternal({ ...args, method: 'jwk' }, context)) as ExternalIdentifierJwkResult
   }
 }

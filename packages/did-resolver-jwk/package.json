@@ -10,7 +10,7 @@
     "build:clean": "tsc --build --clean && tsc --build"
   },
   "dependencies": {
-    "@sphereon/ssi-types": "0.29.1-unstable.75",
+    "@sphereon/ssi-types": "0.29.1-unstable.161",
     "base64url": "^3.0.1",
     "debug": "^4.3.4",
     "did-resolver": "^4.1.0",

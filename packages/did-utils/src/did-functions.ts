@@ -1,16 +1,9 @@
 import { computeAddress } from '@ethersproject/transactions'
 import { UniResolver } from '@sphereon/did-uni-client'
-import {
-  ENC_KEY_ALGS,
-  JWK,
-  JwkKeyUse,
-  keyTypeFromCryptographicSuite,
-  signatureAlgorithmFromKey,
-  TKeyType,
-  toJwk,
-} from '@sphereon/ssi-sdk-ext.key-utils'
+import { ENC_KEY_ALGS, JwkKeyUse, keyTypeFromCryptographicSuite, signatureAlgorithmFromKey, TKeyType, toJwk } from '@sphereon/ssi-sdk-ext.key-utils'
 import { base64ToHex, hexKeyFromPEMBasedJwk } from '@sphereon/ssi-sdk-ext.x509-utils'
 import { base58ToBytes, base64ToBytes, bytesToHex, hexToBytes, multibaseKeyToBytes } from '@sphereon/ssi-sdk.core'
+import { JWK } from '@sphereon/ssi-types'
 import { convertPublicKeyToX25519 } from '@stablelib/ed25519'
 import { DIDDocument, DIDDocumentSection, DIDResolutionResult, IAgentContext, IDIDManager, IIdentifier, IKey, IResolver } from '@veramo/core'
 import {
@@ -332,6 +325,15 @@ export async function dereferenceDidKeysWithJwkSupport(
     })
 }
 
+export function jwkTtoPublicKeyHex(jwk: JWK): string {
+  // todo: Hacky way to convert this to a VM. Should extract the logic from the below methods
+  // @ts-ignore
+  const vm: _ExtendedVerificationMethod = {
+    publicKeyJwk: jwk,
+  }
+  return extractPublicKeyHexWithJwkSupport(vm)
+}
+
 /**
  * Converts the publicKey of a VerificationMethod to hex encoding (publicKeyHex)
  *
@@ -428,7 +430,7 @@ function extractPublicKeyBytes(pk: VerificationMethod): Uint8Array {
 }
 
 export function verificationMethodToJwk(vm: VerificationMethod): JWK {
-  let jwk: JWK | undefined = vm.publicKeyJwk
+  let jwk: JWK | undefined = vm.publicKeyJwk as JWK
   if (!jwk) {
     let publicKeyHex = vm.publicKeyHex ?? u8a.toString(extractPublicKeyBytes(vm), 'hex')
     jwk = toJwk(publicKeyHex, keyTypeFromCryptographicSuite({ suite: vm.type }))

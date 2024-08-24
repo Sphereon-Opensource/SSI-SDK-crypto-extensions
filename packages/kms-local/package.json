@@ -22,7 +22,7 @@
   },
   "devDependencies": {
     "@sphereon/jsencrypt": "3.3.2-unstable.0",
-    "@sphereon/ssi-sdk.dev": "0.29.1-unstable.75",
+    "@sphereon/ssi-sdk.dev": "0.29.1-unstable.161",
     "@types/elliptic": "6.4.14",
     "@veramo/cli": "4.2.0"
   },

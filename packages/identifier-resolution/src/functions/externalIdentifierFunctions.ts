@@ -1,5 +1,5 @@
-import { didDocumentToJwks, getAgentResolver } from '@sphereon/ssi-sdk-ext.did-utils'
-import { calculateJwkThumbprint, JWK } from '@sphereon/ssi-sdk-ext.key-utils'
+import { didDocumentToJwks, getAgentResolver, jwkTtoPublicKeyHex } from '@sphereon/ssi-sdk-ext.did-utils'
+import { calculateJwkThumbprint, coseKeyToJwk } from '@sphereon/ssi-sdk-ext.key-utils'
 import {
   getSubjectDN,
   pemOrDerToX509Certificate,
@@ -8,20 +8,26 @@ import {
   X509ValidationResult,
 } from '@sphereon/ssi-sdk-ext.x509-utils'
 import { contextHasPlugin } from '@sphereon/ssi-sdk.agent-config'
-import { IParsedDID, parseDid } from '@sphereon/ssi-types'
+import { IParsedDID, JWK, parseDid } from '@sphereon/ssi-types'
 import { IAgentContext, IDIDManager, IResolver } from '@veramo/core'
 import { isDefined } from '@veramo/utils'
 import { CryptoEngine, setEngine } from 'pkijs'
 import {
+  ExternalIdentifierCoseKeyOpts,
+  ExternalIdentifierCoseKeyResult,
   ExternalIdentifierDidOpts,
   ExternalIdentifierDidResult,
+  ExternalIdentifierJwkOpts,
+  ExternalIdentifierJwkResult,
   ExternalIdentifierMethod,
   ExternalIdentifierOpts,
   ExternalIdentifierResult,
   ExternalIdentifierX5cOpts,
   ExternalIdentifierX5cResult,
   ExternalJwkInfo,
+  isExternalIdentifierCoseKeyOpts,
   isExternalIdentifierDidOpts,
+  isExternalIdentifierJwkOpts,
   isExternalIdentifierJwksUrlOpts,
   isExternalIdentifierKidOpts,
   isExternalIdentifierOidcDiscoveryOpts,
@@ -39,6 +45,10 @@ export async function resolveExternalIdentifier(
     return resolveExternalDidIdentifier(opts, context)
   } else if (isExternalIdentifierX5cOpts(opts)) {
     return resolveExternalX5cIdentifier(opts, context)
+  } else if (isExternalIdentifierJwkOpts(opts)) {
+    return resolveExternalJwkIdentifier(opts, context)
+  } else if (isExternalIdentifierCoseKeyOpts(opts)) {
+    return resolveExternalCoseKeyIdentifier(opts, context)
   } else if (isExternalIdentifierKidOpts(opts)) {
     method = 'kid'
   } else if (isExternalIdentifierJwksUrlOpts(opts)) {
@@ -82,6 +92,7 @@ export async function resolveExternalX5cIdentifier(
         chain: opts.identifier,
         trustAnchors: opts.trustAnchors ?? [],
         verificationTime: opts.verificationTime,
+        opts,
       })
     }
     if (verificationResult.certificateChain) {
@@ -90,6 +101,7 @@ export async function resolveExternalX5cIdentifier(
           jwk: cert.publicKeyJWK,
           kid: cert.subject.dn.DN,
           jwkThumbprint: calculateJwkThumbprint({ jwk: cert.publicKeyJWK }),
+          publicKeyHex: jwkTtoPublicKeyHex(cert.publicKeyJWK),
         } satisfies ExternalJwkInfo
       })
     }
@@ -108,6 +120,7 @@ export async function resolveExternalX5cIdentifier(
           jwk,
           kid: getSubjectDN(cert).DN,
           jwkThumbprint: calculateJwkThumbprint({ jwk }),
+          publicKeyHex: jwkTtoPublicKeyHex(jwk),
         } satisfies ExternalJwkInfo
       })
     )
@@ -127,6 +140,78 @@ export async function resolveExternalX5cIdentifier(
     certificates,
     x5c,
   }
+}
+
+/**
+ * Resolves a JWK. Normally this is just returning the JWK, but in case the JWK contains a x5c the chain is validated
+ * @param opts
+ * @param context
+ */
+export async function resolveExternalJwkIdentifier(
+  opts: ExternalIdentifierJwkOpts & {
+    x5c?: ExternalIdentifierX5cOpts
+  },
+  context: IAgentContext<any>
+): Promise<ExternalIdentifierJwkResult> {
+  if (!isExternalIdentifierJwkOpts(opts)) {
+    return Promise.reject('External JWK Identifier args need to be provided')
+  }
+  const jwk = opts.identifier
+  let x5c: ExternalIdentifierX5cResult | undefined = undefined
+  if (jwk.x5c) {
+    x5c = await resolveExternalX5cIdentifier({ ...opts.x5c, identifier: jwk.x5c }, context)
+  }
+  const jwkThumbprint = calculateJwkThumbprint({ jwk })
+  return {
+    method: 'jwk',
+    jwk,
+    jwks: [
+      {
+        jwk,
+        jwkThumbprint,
+        kid: jwk.kid,
+        publicKeyHex: jwkTtoPublicKeyHex(jwk),
+      },
+    ],
+    x5c,
+  } satisfies ExternalIdentifierJwkResult
+}
+
+/**
+ * Resolves a JWK. Normally this is just returning the JWK, but in case the JWK contains a x5c the chain is validated
+ * @param opts
+ * @param context
+ */
+export async function resolveExternalCoseKeyIdentifier(
+  opts: ExternalIdentifierCoseKeyOpts & {
+    x5c?: ExternalIdentifierX5cOpts
+  },
+  context: IAgentContext<any>
+): Promise<ExternalIdentifierCoseKeyResult> {
+  if (!isExternalIdentifierCoseKeyOpts(opts)) {
+    return Promise.reject('External Cose Key args need to be provided')
+  }
+  // TODO: We need to do cbor conversion here as well.
+  const coseKey = opts.identifier
+  let x5c: ExternalIdentifierX5cResult | undefined = undefined
+  if (coseKey.x5chain) {
+    x5c = await resolveExternalX5cIdentifier({ ...opts.x5c, identifier: coseKey.x5chain }, context)
+  }
+  const jwk = coseKeyToJwk(coseKey)
+  const jwkThumbprint = calculateJwkThumbprint({ jwk })
+  return {
+    method: 'cose_key',
+    coseKey,
+    jwks: [
+      {
+        jwk,
+        jwkThumbprint,
+        kid: coseKey.kid,
+        publicKeyHex: jwkTtoPublicKeyHex(jwk),
+      },
+    ],
+    x5c,
+  } satisfies ExternalIdentifierCoseKeyResult
 }
 
 export async function resolveExternalDidIdentifier(
@@ -163,7 +248,12 @@ export async function resolveExternalDidIdentifier(
             .flatMap((jwks) => jwks)
         )
       ).map((jwk) => {
-        return { jwk, jwkThumbprint: calculateJwkThumbprint({ jwk }), kid: jwk.kid }
+        return {
+          jwk,
+          jwkThumbprint: calculateJwkThumbprint({ jwk }),
+          kid: jwk.kid,
+          publicKeyHex: jwkTtoPublicKeyHex(jwk),
+        }
       })
     : []
 
