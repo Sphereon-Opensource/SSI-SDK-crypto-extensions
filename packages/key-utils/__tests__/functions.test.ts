@@ -1,3 +1,4 @@
+import {privateKeyHexFromPEM} from "@sphereon/ssi-sdk-ext.x509-utils";
 import { generatePrivateKeyHex, Key, padLeft } from '../src'
 
 describe('functions: key generator', () => {
