@@ -49,10 +49,6 @@ export const prepareJwsObject = async (args: CreateJwsJsonArgs, context: IRequir
   const { existingSignatures, protectedHeader, unprotectedHeader, issuer, payload, mode = 'auto' } = args
 
   const { noIdentifierInHeader = false } = issuer
-  const combinedHeader = { ...unprotectedHeader, ...protectedHeader }
-  if (!combinedHeader.alg) {
-    return Promise.reject(`No 'alg' key present in the JWS header`)
-  }
   const identifier = await ensureManagedIdentifierResult(issuer, context)
   await checkAndUpdateJwtHeader({ mode, identifier, noIdentifierInHeader, header: protectedHeader }, context)
   const isBytes = payload instanceof Uint8Array
