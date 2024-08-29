@@ -1,3 +1,4 @@
+import { ClientIdScheme } from '@sphereon/ssi-sdk-ext.x509-utils'
 import { ICoseKeyJson, JWK } from '@sphereon/ssi-types'
 import { DIDDocumentSection, IIdentifier, IKey, TKeyType } from '@veramo/core'
 import { isCoseKeyIdentifier, isDidIdentifier, isJwkIdentifier, isKeyIdentifier, isKidIdentifier, isX5cIdentifier, JwkInfo } from './common'
@@ -25,6 +26,8 @@ export type ManagedIdentifierOptsBase = {
   kmsKeyRef?: string // The key reference for the KMS system. If provided this value will be used to determine the appropriate key. Otherwise it will be inferred
   issuer?: string // can be used when a specific issuer needs to end up, for instance when signing JWTs. Will be returned or inferred if not provided
   kid?: string // can be used when a specific kid value needs to be used. For instance when signing JWTs. Will be returned or inferred if not provided
+  clientId?: string
+  clientIdScheme?: ClientIdScheme | 'did' | string
 }
 
 export type ManagedIdentifierDidOpts = Omit<ManagedIdentifierOptsBase, 'method'> & {
@@ -102,6 +105,8 @@ export interface IManagedIdentifierResultBase extends ManagedJwkInfo {
   key: IKey
   kid?: string
   issuer?: string
+  clientId?: string
+  clientIdScheme?: ClientIdScheme | 'did' | string
   identifier: ManagedIdentifierType
 }
 

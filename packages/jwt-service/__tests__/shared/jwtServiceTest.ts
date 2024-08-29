@@ -1,5 +1,5 @@
 import { IIdentifierResolution } from '@sphereon/ssi-sdk-ext.identifier-resolution'
-import {JWK} from "@sphereon/ssi-types";
+import { JWK } from '@sphereon/ssi-types'
 import { IDIDManager, IKeyManager, TAgent } from '@veramo/core'
 import { IJwtService } from '../../src'
 

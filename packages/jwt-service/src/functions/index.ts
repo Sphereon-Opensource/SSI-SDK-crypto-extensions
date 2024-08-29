@@ -46,7 +46,7 @@ const payloadToBytes = (payload: string | JwtPayload | Uint8Array): Uint8Array =
 }
 
 export const prepareJwsObject = async (args: CreateJwsJsonArgs, context: IRequiredContext): Promise<PreparedJwsObject> => {
-  const { existingSignatures, protectedHeader, unprotectedHeader, issuer, payload, mode = 'auto' } = args
+  const { existingSignatures, protectedHeader, unprotectedHeader, issuer, payload, mode = 'auto', clientId, clientIdScheme } = args
 
   const { noIdentifierInHeader = false } = issuer
   const identifier = await ensureManagedIdentifierResult(issuer, context)
@@ -56,6 +56,12 @@ export const prepareJwsObject = async (args: CreateJwsJsonArgs, context: IRequir
   if (!isBytes && !isString) {
     if (issuer.noIssPayloadUpdate !== true && !payload.iss && identifier.issuer) {
       payload.iss = identifier.issuer
+    }
+    if (clientIdScheme && !payload.client_id_scheme) {
+      payload.client_id_scheme = clientIdScheme
+    }
+    if (clientId && !payload.client_id) {
+      payload.client_id = clientId
     }
   }
   const payloadBytes = payloadToBytes(payload)

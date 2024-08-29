@@ -35,12 +35,11 @@ The `issuer` object allows you to provide a managed identifier
 const publicKeyHex = '037fcdce2770f6c45d4183cbee6fdb4b7b580733357be9ef13bacf6e3c7bd15445'
 const kid = publicKeyHex
 
-
 const example = await agent.jwtCreateJwsCompactSignature({
-    // Example payloads from IETF spec
-    issuer: {identifier: kid, noIdentifierInHeader: true}, // do not update any header values with the provided identifier. Just use the identifier for signing
-    protectedHeader: {alg: 'ES256'},
-    payload: 'eyJpc3MiOiJqb2UiLA0KICJleHAiOjEzMDA4MTkzODAsDQogImh0dHA6Ly9leGFtcGxlLmNvbS9pc19yb290Ijp0cnVlfQ',
+  // Example payloads from IETF spec
+  issuer: { identifier: kid, noIdentifierInHeader: true }, // do not update any header values with the provided identifier. Just use the identifier for signing
+  protectedHeader: { alg: 'ES256' },
+  payload: 'eyJpc3MiOiJqb2UiLA0KICJleHAiOjEzMDA4MTkzODAsDQogImh0dHA6Ly9leGFtcGxlLmNvbS9pc19yb290Ijp0cnVlfQ',
 })
 ```
 
@@ -53,57 +52,56 @@ module
 
 ```typescript
 const ietfJwk = {
-    kty: 'EC',
-    crv: 'P-256',
-    x: 'f83OJ3D2xF1Bg8vub9tLe1gHMzV76e8Tus9uPHvRVEU',
-    y: 'x_FEzRu9m36HLN_tue659LNpXW6pCyStikYjKIWI5a0',
-    // d: 'jpsQnnGQmL-YBIffH1136cspYG6-0iY7X1fCE9-E9LI',
+  kty: 'EC',
+  crv: 'P-256',
+  x: 'f83OJ3D2xF1Bg8vub9tLe1gHMzV76e8Tus9uPHvRVEU',
+  y: 'x_FEzRu9m36HLN_tue659LNpXW6pCyStikYjKIWI5a0',
+  // d: 'jpsQnnGQmL-YBIffH1136cspYG6-0iY7X1fCE9-E9LI',
 } satisfies JWK
 
 const result = await agent.jwtVerifyJwsSignature({
-    jws: example.jwt,
-    jwk: ietfJwk,
+  jws: example.jwt,
+  jwk: ietfJwk,
 })
-
 ```
 
 ```typescript
 const result = {
-    critical: false,
-    error: false,
-    jws: {
-        payload: 'eyJpc3MiOiJqb2UiLA0KICJleHAiOjEzMDA4MTkzODAsDQogImh0dHA6Ly9leGFtcGxlLmNvbS9pc19yb290Ijp0cnVlfQ',
-        signatures: [
+  critical: false,
+  error: false,
+  jws: {
+    payload: 'eyJpc3MiOiJqb2UiLA0KICJleHAiOjEzMDA4MTkzODAsDQogImh0dHA6Ly9leGFtcGxlLmNvbS9pc19yb290Ijp0cnVlfQ',
+    signatures: [
+      {
+        identifier: {
+          jwk: {
+            crv: 'P-256',
+            kty: 'EC',
+            x: 'f83OJ3D2xF1Bg8vub9tLe1gHMzV76e8Tus9uPHvRVEU',
+            y: 'x_FEzRu9m36HLN_tue659LNpXW6pCyStikYjKIWI5a0',
+          },
+          jwks: [
             {
-                identifier: {
-                    jwk: {
-                        crv: 'P-256',
-                        kty: 'EC',
-                        x: 'f83OJ3D2xF1Bg8vub9tLe1gHMzV76e8Tus9uPHvRVEU',
-                        y: 'x_FEzRu9m36HLN_tue659LNpXW6pCyStikYjKIWI5a0',
-                    },
-                    jwks: [
-                        {
-                            jwk: {
-                                crv: 'P-256',
-                                kty: 'EC',
-                                x: 'f83OJ3D2xF1Bg8vub9tLe1gHMzV76e8Tus9uPHvRVEU',
-                                y: 'x_FEzRu9m36HLN_tue659LNpXW6pCyStikYjKIWI5a0',
-                            },
-                            jwkThumbprint: 'oKIywvGUpTVTyxMQ3bwIIeQUudfr_CkLMjCE19ECD-U',
-                            publicKeyHex: '037fcdce2770f6c45d4183cbee6fdb4b7b580733357be9ef13bacf6e3c7bd15445',
-                        },
-                    ],
-                    method: 'jwk',
-                },
-                protected: 'eyJhbGciOiJFUzI1NiJ9',
-                signature: 'e4ZrhZdbFQ7630Tq51E6RQiJaae9bFNGJszIhtusEwzvO21rzH76Wer6yRn2Zb34VjIm3cVRl0iQctbf4uBY3w',
+              jwk: {
+                crv: 'P-256',
+                kty: 'EC',
+                x: 'f83OJ3D2xF1Bg8vub9tLe1gHMzV76e8Tus9uPHvRVEU',
+                y: 'x_FEzRu9m36HLN_tue659LNpXW6pCyStikYjKIWI5a0',
+              },
+              jwkThumbprint: 'oKIywvGUpTVTyxMQ3bwIIeQUudfr_CkLMjCE19ECD-U',
+              publicKeyHex: '037fcdce2770f6c45d4183cbee6fdb4b7b580733357be9ef13bacf6e3c7bd15445',
             },
-        ],
-    },
-    message: 'Signature validated',
-    name: 'jws',
-    verificationTime: '2024-08-10T23:04:23'
+          ],
+          method: 'jwk',
+        },
+        protected: 'eyJhbGciOiJFUzI1NiJ9',
+        signature: 'e4ZrhZdbFQ7630Tq51E6RQiJaae9bFNGJszIhtusEwzvO21rzH76Wer6yRn2Zb34VjIm3cVRl0iQctbf4uBY3w',
+      },
+    ],
+  },
+  message: 'Signature validated',
+  name: 'jws',
+  verificationTime: '2024-08-10T23:04:23',
 }
 ```
 

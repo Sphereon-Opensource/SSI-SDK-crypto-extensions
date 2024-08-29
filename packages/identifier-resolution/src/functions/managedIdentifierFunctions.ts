@@ -54,6 +54,8 @@ export async function getManagedKidIdentifier(
     jwk,
     jwkThumbprint,
     kid,
+    clientId: opts.clientId,
+    clientIdScheme: opts.clientIdScheme,
     issuer,
     kmsKeyRef: key.kid,
     opts,
@@ -107,6 +109,8 @@ export async function getManagedKeyIdentifier(opts: ManagedIdentifierKeyOpts, _c
     kid,
     issuer,
     kmsKeyRef: key.kid,
+    clientId: opts.clientId,
+    clientIdScheme: opts.clientIdScheme,
     opts,
   } satisfies ManagedIdentifierKeyResult
 }
@@ -139,6 +143,8 @@ export async function getManagedCoseKeyIdentifier(
     kid,
     issuer,
     kmsKeyRef: key.kid,
+    clientId: opts.clientId,
+    clientIdScheme: opts.clientIdScheme,
     opts,
   } satisfies ManagedIdentifierCoseKeyResult
 }
@@ -189,6 +195,8 @@ export async function getManagedDidIdentifier(opts: ManagedIdentifierDidOpts, co
     keys,
     issuer,
     identifier,
+    clientId: opts.clientId,
+    clientIdScheme: opts.clientIdScheme,
     opts,
   }
 }
@@ -215,6 +223,8 @@ export async function getManagedJwkIdentifier(
     jwkThumbprint,
     kid,
     issuer,
+    clientId: opts.clientId,
+    clientIdScheme: opts.clientIdScheme,
     opts,
   } satisfies ManagedIdentifierJwkResult
 }

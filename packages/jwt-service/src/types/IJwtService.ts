@@ -6,6 +6,7 @@ import {
   ManagedIdentifierOptsOrResult,
   ManagedIdentifierResult,
 } from '@sphereon/ssi-sdk-ext.identifier-resolution'
+import { ClientIdScheme } from '@sphereon/ssi-sdk-ext.x509-utils'
 import { IValidationResult, JoseSignatureAlgorithm, JoseSignatureAlgorithmString, JWK } from '@sphereon/ssi-types'
 import { IAgentContext, IKeyManager, IPluginMethodMap } from '@veramo/core'
 
@@ -120,6 +121,8 @@ export type CreateJwsArgs = {
     noIssPayloadUpdate?: boolean
     noIdentifierInHeader?: boolean
   }
+  clientId?: string
+  clientIdScheme?: ClientIdScheme | 'did' | string
   protectedHeader: JwtHeader
   payload: JwtPayload | Uint8Array | string
 }
