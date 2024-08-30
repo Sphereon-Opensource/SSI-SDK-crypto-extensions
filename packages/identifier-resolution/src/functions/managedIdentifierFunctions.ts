@@ -264,6 +264,8 @@ export async function getManagedX5cIdentifier(
     kmsKeyRef: key.kid,
     kid,
     issuer,
+    clientId: opts.clientId,
+    clientIdScheme: opts.clientIdScheme,
     opts,
   } satisfies ManagedIdentifierX5cResult
 }
