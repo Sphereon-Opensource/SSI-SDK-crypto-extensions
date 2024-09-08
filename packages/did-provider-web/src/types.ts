@@ -52,7 +52,7 @@ export interface IImportX509DIDArg {
     certificatePEM: string
     certificateChainPEM: string
     certificateChainURL?: string
-    kms?: string // The Key Management System to use. Will default to 'local' when not supplied.
+    kms?: string // The Key Management System to use. Will default to the default KMS when not supplied.
     // kid?: string // The requested KID. A default will be generated when not supplied
 }*/
 

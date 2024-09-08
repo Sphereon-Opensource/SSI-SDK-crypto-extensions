@@ -16,10 +16,6 @@ export enum IdentifierAliasEnum {
   PRIMARY = 'primary',
 }
 
-export enum KeyManagementSystemEnum {
-  LOCAL = 'local',
-}
-
 export interface ResolveOpts {
   jwtVerifyOpts?: JWTVerifyOptions
   resolver?: Resolvable
@@ -50,7 +46,7 @@ export type CreateIdentifierOpts = {
 }
 
 export type CreateIdentifierCreateOpts = {
-  kms?: KeyManagementSystemEnum
+  kms?: string
   alias?: string
   options?: IdentifierProviderOpts
 }

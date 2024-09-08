@@ -17,7 +17,7 @@ import {
   signAlgorithmToSchemeAndHashAlg,
 } from '@sphereon/ssi-sdk-ext.x509-utils'
 
-const debug = Debug('sphereon:kms:bls:local')
+const debug = Debug('sphereon:kms:local')
 
 export class SphereonKeyManagementSystem extends KeyManagementSystem {
   private readonly privateKeyStore: AbstractPrivateKeyStore

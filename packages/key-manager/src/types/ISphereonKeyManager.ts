@@ -1,5 +1,4 @@
-import { IPluginMethodMap, KeyMetadata, MinimalImportableKey, TKeyType, IKeyManagerSignArgs, IKeyManager } from '@veramo/core'
-import { ManagedKeyInfo } from '@veramo/core'
+import { IKeyManager, IKeyManagerSignArgs, IPluginMethodMap, KeyMetadata, ManagedKeyInfo, MinimalImportableKey, TKeyType } from '@veramo/core'
 
 export type PartialKey = ManagedKeyInfo & { privateKeyHex: string }
 
@@ -19,6 +18,12 @@ export interface ISphereonKeyManager extends IKeyManager, IPluginMethodMap {
   keyManagerVerify(args: ISphereonKeyManagerVerifyArgs): Promise<boolean>
 
   keyManagerListKeys(): Promise<Array<ManagedKeyInfo>>
+
+  /**
+   * Get the KMS registered as default. Handy when no explicit KMS is provided for a function
+   */
+
+  keyManagerGetDefaultKeyManagementSystem(): Promise<string>
 
   /**
    * Set keys to expired and remove keys eligible for deletion.

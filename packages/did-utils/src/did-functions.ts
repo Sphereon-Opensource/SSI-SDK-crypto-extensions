@@ -1,6 +1,14 @@
 import { computeAddress } from '@ethersproject/transactions'
 import { UniResolver } from '@sphereon/did-uni-client'
-import { ENC_KEY_ALGS, JwkKeyUse, keyTypeFromCryptographicSuite, signatureAlgorithmFromKey, TKeyType, toJwk } from '@sphereon/ssi-sdk-ext.key-utils'
+import {
+  ENC_KEY_ALGS,
+  getKms,
+  JwkKeyUse,
+  keyTypeFromCryptographicSuite,
+  signatureAlgorithmFromKey,
+  TKeyType,
+  toJwk,
+} from '@sphereon/ssi-sdk-ext.key-utils'
 import { base64ToHex, hexKeyFromPEMBasedJwk } from '@sphereon/ssi-sdk-ext.x509-utils'
 import { base58ToBytes, base64ToBytes, bytesToHex, hexToBytes, multibaseKeyToBytes } from '@sphereon/ssi-sdk.core'
 import { JWK } from '@sphereon/ssi-types'
@@ -30,7 +38,6 @@ import {
   IdentifierAliasEnum,
   IdentifierProviderOpts,
   IDIDOptions,
-  KeyManagementSystemEnum,
   SignJwtArgs,
   SupportedDidMethodEnum,
 } from './types'
@@ -188,13 +195,12 @@ export const getPrimaryIdentifier = async (context: IAgentContext<IDIDManager>, 
 }
 
 export const createIdentifier = async (context: IAgentContext<IDIDManager>, opts?: CreateIdentifierOpts): Promise<IIdentifier> => {
-  const identifier = await context.agent.didManagerCreate({
-    kms: opts?.createOpts?.kms ?? KeyManagementSystemEnum.LOCAL,
+  return await context.agent.didManagerCreate({
+    kms: await getKms(context, opts?.createOpts?.kms),
     ...(opts?.method && { provider: `${DID_PREFIX}${opts?.method}` }),
     alias: opts?.createOpts?.alias ?? `${IdentifierAliasEnum.PRIMARY}-${opts?.method}-${opts?.createOpts?.options?.type}-${new Date().toUTCString()}`,
     options: opts?.createOpts?.options,
   })
-  return identifier
 }
 
 export const getFirstKeyWithRelationFromDIDDoc = async (

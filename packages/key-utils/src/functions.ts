@@ -22,6 +22,22 @@ import {
 export const logger = Loggers.DEFAULT.get('sphereon:key-utils')
 
 /**
+ * Function that returns the provided KMS name or the default KMS name if none is provided.
+ * The default KMS is either explicitly defined during agent construction, or the first KMS available in the system
+ * @param context
+ * @param kms. Optional KMS to use. If provided will be the returned name. Otherwise the default KMS will be returned
+ */
+export const getKms = async (context: IAgentContext<any>, kms?: string): Promise<string> => {
+  if (kms) {
+    return kms
+  }
+  if (!context.agent.availableMethods().includes('keyManagerGetDefaultKeyManagementSystem')) {
+    throw Error('Cannot determine default KMS if not provided and a non Sphereon Key Manager is being used')
+  }
+  return context.agent.keyManagerGetDefaultKeyManagementSystem()
+}
+
+/**
  * Generates a random Private Hex Key for the specified key type
  * @param type The key type
  * @return The private key in Hex form
