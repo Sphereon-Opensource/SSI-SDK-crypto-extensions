@@ -28,7 +28,7 @@ export const logger = Loggers.DEFAULT.get('sphereon:key-utils')
  * @param kms. Optional KMS to use. If provided will be the returned name. Otherwise the default KMS will be returned
  */
 export const getKms = async (context: IAgentContext<any>, kms?: string): Promise<string> => {
-  if (kms && kms !== 'default') {
+  if (kms) {
     return kms
   }
   if (!context.agent.availableMethods().includes('keyManagerGetDefaultKeyManagementSystem')) {
