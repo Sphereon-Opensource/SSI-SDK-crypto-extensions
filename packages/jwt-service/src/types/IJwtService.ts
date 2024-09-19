@@ -164,4 +164,4 @@ export function isJwsJsonGeneral(jws: Jws): jws is JwsJsonGeneral {
   return typeof jws === 'object' && 'signatures' in jws
 }
 
-export const COMPACT_JWS_REGEX = /^([a-zA-Z0-9_=-]+)\.([a-zA-Z0-9_=-]+)?\.([a-zA-Z0-9_=-]+)$/
+export const COMPACT_JWS_REGEX = /^([a-zA-Z0-9_=-]+)\.([a-zA-Z0-9_=-]+)?(\.([a-zA-Z0-9_=-]+)?)?\.?$/

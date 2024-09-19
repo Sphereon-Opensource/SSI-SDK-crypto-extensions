@@ -32,7 +32,7 @@ import {
   JwsJsonFlattened,
   JwsJsonGeneral,
   JwsJsonGeneralWithIdentifiers,
-  JwsJsonSignature,
+  JwsJsonSignature, JwsJsonSignatureWithIdentifier,
   JwtHeader,
   JwtPayload,
   PreparedJwsObject,
@@ -404,6 +404,8 @@ async function resolveExternalIdentifierFromJwsHeader(
     })
   } else if (protectedHeader.kid && protectedHeader.kid.startsWith('did:')) {
     return await context.agent.identifierExternalResolveByDid({ ...args?.opts?.did, identifier: protectedHeader.kid })
+  } else if (protectedHeader.alg === 'none') {
+    return undefined
   } else {
     return Promise.reject(Error(`We can only process DIDs, X.509 certificate chains and JWKs for signature validation at present`))
   }
@@ -418,14 +420,18 @@ export const toJwsJsonGeneralWithIdentifiers = async (
   context: IAgentContext<IIdentifierResolution>
 ): Promise<JwsJsonGeneralWithIdentifiers> => {
   const jws = await toJwsJsonGeneral(args, context)
-  const signatures = await Promise.all(
+  const signatures = (await Promise.all(
     jws.signatures.map(async (signature) => {
       const protectedHeader: JwtHeader = decodeJoseBlob(signature.protected)
       const identifier = args.jwk
         ? await resolveExternalJwkIdentifier({ identifier: args.jwk }, context)
         : await resolveExternalIdentifierFromJwsHeader(protectedHeader, context, args)
-      return { ...signature, identifier }
+      if (identifier !== undefined) {
+        return { ...signature, identifier }
+      }
+      return undefined
     })
-  )
+  )).filter(signature => signature !== undefined ) as JwsJsonSignatureWithIdentifier[]
+  
   return { payload: jws.payload, signatures }
 }
