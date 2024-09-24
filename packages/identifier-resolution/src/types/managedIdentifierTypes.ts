@@ -30,7 +30,7 @@ export type ManagedIdentifierOptsBase = {
   clientIdScheme?: ClientIdScheme | 'did' | string
 }
 
-export type ManagedIdentifierDidOpts = Omit<ManagedIdentifierOptsBase, 'method'> & {
+export type ManagedIdentifierDidOpts = Omit<ManagedIdentifierOptsBase, 'method' | 'identifier'> & {
   method?: 'did'
   identifier: IIdentifier | string
   keyType?: TKeyType
@@ -45,7 +45,7 @@ export function isManagedIdentifierDidOpts(opts: ManagedIdentifierOptsBase): opt
   return ('method' in opts && opts.method === 'did') || isDidIdentifier(identifier)
 }
 
-export type ManagedIdentifierKidOpts = Omit<ManagedIdentifierOptsBase, 'method'> & {
+export type ManagedIdentifierKidOpts = Omit<ManagedIdentifierOptsBase, 'method' | 'identifier'> & {
   method?: 'kid'
   identifier: string
 }
@@ -55,7 +55,7 @@ export function isManagedIdentifierKidOpts(opts: ManagedIdentifierOptsBase): opt
   return ('method' in opts && opts.method === 'kid') || isKidIdentifier(identifier)
 }
 
-export type ManagedIdentifierKeyOpts = Omit<ManagedIdentifierOptsBase, 'method'> & {
+export type ManagedIdentifierKeyOpts = Omit<ManagedIdentifierOptsBase, 'method' | 'identifier'> & {
   method?: 'key'
   identifier: IKey
 }
@@ -65,7 +65,7 @@ export function isManagedIdentifierKeyOpts(opts: ManagedIdentifierOptsBase): opt
   return ('method' in opts && opts.method === 'key') || isKeyIdentifier(identifier)
 }
 
-export type ManagedIdentifierCoseKeyOpts = Omit<ManagedIdentifierOptsBase, 'method'> & {
+export type ManagedIdentifierCoseKeyOpts = Omit<ManagedIdentifierOptsBase, 'method' | 'identifier'> & {
   method?: 'cose_key'
   identifier: ICoseKeyJson
 }
@@ -75,7 +75,7 @@ export function isManagedIdentifierCoseKeyOpts(opts: ManagedIdentifierOptsBase):
   return ('method' in opts && opts.method === 'cose_key') || isCoseKeyIdentifier(identifier)
 }
 
-export type ManagedIdentifierJwkOpts = Omit<ManagedIdentifierOptsBase, 'method'> & {
+export type ManagedIdentifierJwkOpts = Omit<ManagedIdentifierOptsBase, 'method' | 'identifier'> & {
   method?: 'jwk'
   identifier: JWK
 }
@@ -85,7 +85,7 @@ export function isManagedIdentifierJwkOpts(opts: ManagedIdentifierOptsBase): opt
   return ('method' in opts && opts.method === 'jwk') || isJwkIdentifier(identifier)
 }
 
-export type ManagedIdentifierX5cOpts = Omit<ManagedIdentifierOptsBase, 'method'> & {
+export type ManagedIdentifierX5cOpts = Omit<ManagedIdentifierOptsBase, 'method' | 'identifier'> & {
   method?: 'x5c'
   identifier: string[]
 }
