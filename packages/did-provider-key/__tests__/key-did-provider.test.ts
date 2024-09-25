@@ -52,7 +52,9 @@ describe('@sphereon/did-provider-key', () => {
     const identifier: IIdentifier = await agent.didManagerCreate({ options })
 
     expect(identifier).toBeDefined()
-    expect(identifier.did).toBe('did:key:zQ3shqZQs23rWENxtomyw4BNz1p23AkbjzwdeYg6DpmhWDDE6')
+    // ATTENTION the did:key value changed after switching to importProvidedOrGeneratedKey, but is consistent after the change
+    // Value used to be did:key:zQ3shqZQs23rWENxtomyw4BNz1p23AkbjzwdeYg6DpmhWDDE6
+    expect(identifier.did).toBe('did:key:zQ3shWpZYh1Ci8kS18TdMf4C852Bygog1RSCHdR9MeHUaDGTz') 
   })
 
   it('should remove identifier', async () => {
