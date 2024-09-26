@@ -63,7 +63,7 @@ export class SphereonKeyDidProvider extends AbstractIdentifierProvider {
     const key = await importProvidedOrGeneratedKey({
         kms: kms ?? this.kms,
         alias: alias,
-        options: options,
+        options: { ...options, type: keyType },
       },
       context,
     )
