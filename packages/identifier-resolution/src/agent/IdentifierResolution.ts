@@ -1,16 +1,6 @@
 import { IAgentContext, IAgentPlugin, IDIDManager, IKeyManager } from '@veramo/core'
-import {
-  ensureManagedIdentifierResult,
-  ExternalIdentifierCoseKeyOpts,
-  ExternalIdentifierCoseKeyResult,
-  ExternalIdentifierJwkOpts,
-  ExternalIdentifierJwkResult,
-  ManagedIdentifierKeyOpts,
-  ManagedIdentifierKeyResult,
-  ManagedIdentifierOptsOrResult,
-  schema,
-} from '..'
-import { resolveExternalIdentifier } from '../functions'
+import { schema } from '..'
+import { resolveExternalIdentifier, ensureManagedIdentifierResult } from '../functions'
 import {
   ExternalIdentifierDidOpts,
   ExternalIdentifierDidResult,
@@ -18,6 +8,10 @@ import {
   ExternalIdentifierResult,
   ExternalIdentifierX5cOpts,
   ExternalIdentifierX5cResult,
+  ExternalIdentifierCoseKeyOpts,
+  ExternalIdentifierCoseKeyResult,
+  ExternalIdentifierJwkOpts,
+  ExternalIdentifierJwkResult,
   IIdentifierResolution,
   ManagedIdentifierCoseKeyOpts,
   ManagedIdentifierCoseKeyResult,
@@ -30,6 +24,11 @@ import {
   ManagedIdentifierResult,
   ManagedIdentifierX5cOpts,
   ManagedIdentifierX5cResult,
+  ManagedIdentifierIssuerResult,
+  ManagedIdentifierKeyOpts,
+  ManagedIdentifierKeyResult,
+  ManagedIdentifierOptsOrResult,
+  ManagedIdentifierIssuerOpts
 } from '../types'
 
 /**
@@ -47,6 +46,7 @@ export class IdentifierResolution implements IAgentPlugin {
     identifierManagedGetByX5c: this.identifierGetManagedByX5c.bind(this),
     identifierManagedGetByKey: this.identifierGetManagedByKey.bind(this),
     identifierManagedGetByCoseKey: this.identifierGetManagedByCoseKey.bind(this),
+    identifierManagedGetByIssuer: this.identifierGetManagedByIssuer.bind(this),
 
     identifierExternalResolve: this.identifierResolveExternal.bind(this),
     identifierExternalResolveByDid: this.identifierExternalResolveByDid.bind(this),
@@ -106,9 +106,16 @@ export class IdentifierResolution implements IAgentPlugin {
     return (await this.identifierGetManaged({ ...args, method: 'cose_key' }, context)) as ManagedIdentifierCoseKeyResult
   }
 
+  private async identifierGetManagedByIssuer(
+      args: ManagedIdentifierIssuerOpts,
+      context: IAgentContext<IKeyManager & IIdentifierResolution>
+  ): Promise<ManagedIdentifierIssuerResult> {
+    return (await this.identifierGetManaged({ ...args, method: 'oid4vci-issuer' }, context)) as ManagedIdentifierIssuerResult
+  }
+
   private async identifierGetManagedByJwk(
-    args: ManagedIdentifierJwkOpts,
-    context: IAgentContext<IKeyManager & IIdentifierResolution>
+      args: ManagedIdentifierJwkOpts,
+      context: IAgentContext<IKeyManager & IIdentifierResolution>
   ): Promise<ManagedIdentifierJwkResult> {
     return (await this.identifierGetManaged({ ...args, method: 'jwk' }, context)) as ManagedIdentifierJwkResult
   }

@@ -1,7 +1,16 @@
 import { ClientIdScheme } from '@sphereon/ssi-sdk-ext.x509-utils'
 import { ICoseKeyJson, JWK } from '@sphereon/ssi-types'
 import { DIDDocumentSection, IIdentifier, IKey, TKeyType } from '@veramo/core'
-import { isCoseKeyIdentifier, isDidIdentifier, isJwkIdentifier, isKeyIdentifier, isKidIdentifier, isX5cIdentifier, JwkInfo } from './common'
+import {
+  isCoseKeyIdentifier,
+  isDidIdentifier,
+  isIssuerIdentifier,
+  isJwkIdentifier,
+  isKeyIdentifier,
+  isKidIdentifier,
+  isX5cIdentifier,
+  JwkInfo
+} from './common'
 
 /**
  * Use whenever we need to pass in an identifier. We can pass in kids, DIDs, IIdentifier objects and x5chains
@@ -17,6 +26,7 @@ export type ManagedIdentifierOpts = (
   | ManagedIdentifierKidOpts
   | ManagedIdentifierKeyOpts
   | ManagedIdentifierCoseKeyOpts
+  | ManagedIdentifierIssuerOpts
 ) &
   ManagedIdentifierOptsBase
 
@@ -75,6 +85,16 @@ export function isManagedIdentifierCoseKeyOpts(opts: ManagedIdentifierOptsBase):
   return ('method' in opts && opts.method === 'cose_key') || isCoseKeyIdentifier(identifier)
 }
 
+export type ManagedIdentifierIssuerOpts = Omit<ManagedIdentifierOptsBase, 'method' | 'identifier'> & {
+  method?: 'oid4vci-issuer'
+  identifier: string
+}
+
+export function isManagedIdentifierIssuerOpts(opts: ManagedIdentifierOptsBase): opts is ManagedIdentifierCoseKeyOpts {
+  const { identifier } = opts
+  return ('method' in opts && opts.method === 'oid4vci-issuer') || isIssuerIdentifier(identifier)
+}
+
 export type ManagedIdentifierJwkOpts = Omit<ManagedIdentifierOptsBase, 'method' | 'identifier'> & {
   method?: 'jwk'
   identifier: JWK
@@ -96,13 +116,13 @@ export function isManagedIdentifierX5cOpts(opts: ManagedIdentifierOptsBase): opt
 }
 
 export interface ManagedJwkInfo extends JwkInfo {
-  kmsKeyRef: string
+  kmsKeyRef?: string
 }
 
 export interface IManagedIdentifierResultBase extends ManagedJwkInfo {
   method: ManagedIdentifierMethod
   opts: ManagedIdentifierOpts
-  key: IKey
+  key?: IKey
   kid?: string
   issuer?: string
   clientId?: string
@@ -128,10 +148,6 @@ export function isManagedIdentifierKidResult(object: IManagedIdentifierResultBas
 
 export function isManagedIdentifierKeyResult(object: IManagedIdentifierResultBase): object is ManagedIdentifierKeyResult {
   return object!! && typeof object === 'object' && 'method' in object && object.method === 'key'
-}
-
-export function isManagedIdentifierCoseKeyResult(object: IManagedIdentifierResultBase): object is ManagedIdentifierCoseKeyResult {
-  return object!! && typeof object === 'object' && 'method' in object && object.method === 'cose_key'
 }
 
 export interface ManagedIdentifierDidResult extends IManagedIdentifierResultBase {
@@ -167,6 +183,11 @@ export interface ManagedIdentifierCoseKeyResult extends IManagedIdentifierResult
   identifier: ICoseKeyJson
 }
 
+export interface ManagedIdentifierIssuerResult extends IManagedIdentifierResultBase {
+  method: 'oid4vci-issuer'
+  identifier: string
+}
+
 export interface ManagedIdentifierX5cResult extends IManagedIdentifierResultBase {
   method: 'x5c'
   identifier: string[]
@@ -174,7 +195,7 @@ export interface ManagedIdentifierX5cResult extends IManagedIdentifierResultBase
   certificate: any // Certificate(JSON_, but trips schema generator. Probably want to create our own DTO
 }
 
-export type ManagedIdentifierMethod = 'did' | 'jwk' | 'x5c' | 'kid' | 'key' | 'cose_key'
+export type ManagedIdentifierMethod = 'did' | 'jwk' | 'x5c' | 'kid' | 'key' | 'cose_key' | 'oid4vci-issuer'
 
 export type ManagedIdentifierResult = IManagedIdentifierResultBase &
   (
@@ -184,6 +205,7 @@ export type ManagedIdentifierResult = IManagedIdentifierResultBase &
     | ManagedIdentifierKidResult
     | ManagedIdentifierKeyResult
     | ManagedIdentifierCoseKeyResult
+    | ManagedIdentifierIssuerResult
   )
 
 export type ManagedIdentifierOptsOrResult = (ManagedIdentifierResult | ManagedIdentifierOpts) & {

@@ -71,7 +71,7 @@ export async function resolveExternalX5cIdentifier(
   const verify = opts.verify ?? true
   const x5c = opts.identifier.map((derOrPem) => (derOrPem.includes('CERTIFICATE') ? PEMToDer(derOrPem) : derOrPem))
   if (x5c.length === 0) {
-    return Promise.reject('Empty certification chain is now allowed')
+    return Promise.reject('Empty certification chain is not allowed')
   }
   const certificates = x5c.map(pemOrDerToX509Certificate)
 
