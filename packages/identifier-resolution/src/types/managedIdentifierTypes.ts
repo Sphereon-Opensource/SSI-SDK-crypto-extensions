@@ -116,7 +116,7 @@ export function isManagedIdentifierX5cOpts(opts: ManagedIdentifierOptsBase): opt
 }
 
 export interface ManagedJwkInfo extends JwkInfo {
-  kmsKeyRef?: string
+  kmsKeyRef: string
 }
 
 export interface IManagedIdentifierResultBase extends ManagedJwkInfo {
