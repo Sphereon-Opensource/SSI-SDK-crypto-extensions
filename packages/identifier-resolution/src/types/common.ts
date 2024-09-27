@@ -29,7 +29,11 @@ export function isJwksUrlIdentifier(identifier: ManagedIdentifierType | External
 }
 
 export function isKidIdentifier(identifier: ManagedIdentifierType | ExternalIdentifierType): identifier is string {
-  return typeof identifier === 'string' && !identifier.startsWith('did:')
+  return typeof identifier === 'string' && !identifier.startsWith('did:') && !identifier.startsWith('http')
+}
+
+export function isOID4VCIssuerIdentifier(identifier: ManagedIdentifierType | ExternalIdentifierType): identifier is string {
+  return typeof identifier === 'string' && identifier.startsWith('http') && identifier.endsWith('/.well-known/openid-credential-issuer')
 }
 
 export function isKeyIdentifier(identifier: ManagedIdentifierType): identifier is IKey {
