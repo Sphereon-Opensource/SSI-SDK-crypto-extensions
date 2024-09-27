@@ -300,6 +300,7 @@ export async function getManagedIssuerIdentifier(
     identifier,
     jwk,
     jwkThumbprint,
+    kmsKeyRef: identifier, // FIXME: We need to find a way to handle identifiers that do not have a kmsKeyRef
     issuer: identifier.replace('/.well-known/openid-credential-issuer', ''),
     clientId: opts.clientId,
     clientIdScheme: opts.clientIdScheme,
