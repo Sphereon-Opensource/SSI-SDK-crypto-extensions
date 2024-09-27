@@ -162,6 +162,10 @@ export interface ManagedIdentifierDidResult extends IManagedIdentifierResultBase
   kid: string
 }
 
+export function isManagedIdentifierCoseKeyResult(object: IManagedIdentifierResultBase): object is ManagedIdentifierCoseKeyResult {
+  return object!! && typeof object === 'object' && 'method' in object && object.method === 'cose_key'
+}
+
 export interface ManagedIdentifierJwkResult extends IManagedIdentifierResultBase {
   identifier: JWK
   method: 'jwk'
