@@ -4,7 +4,7 @@ import { DIDDocumentSection, IIdentifier, IKey, TKeyType } from '@veramo/core'
 import {
   isCoseKeyIdentifier,
   isDidIdentifier,
-  isIssuerIdentifier,
+  isOID4VCIssuerIdentifier,
   isJwkIdentifier,
   isKeyIdentifier,
   isKidIdentifier,
@@ -26,7 +26,7 @@ export type ManagedIdentifierOpts = (
   | ManagedIdentifierKidOpts
   | ManagedIdentifierKeyOpts
   | ManagedIdentifierCoseKeyOpts
-  | ManagedIdentifierIssuerOpts
+  | ManagedIdentifierOID4VCIssuerOpts
 ) &
   ManagedIdentifierOptsBase
 
@@ -85,14 +85,14 @@ export function isManagedIdentifierCoseKeyOpts(opts: ManagedIdentifierOptsBase):
   return ('method' in opts && opts.method === 'cose_key') || isCoseKeyIdentifier(identifier)
 }
 
-export type ManagedIdentifierIssuerOpts = Omit<ManagedIdentifierOptsBase, 'method' | 'identifier'> & {
+export type ManagedIdentifierOID4VCIssuerOpts = Omit<ManagedIdentifierOptsBase, 'method' | 'identifier'> & {
   method?: 'oid4vci-issuer'
   identifier: string
 }
 
-export function isManagedIdentifierIssuerOpts(opts: ManagedIdentifierOptsBase): opts is ManagedIdentifierCoseKeyOpts {
+export function isManagedIdentifierOID4VCIssuerOpts(opts: ManagedIdentifierOptsBase): opts is ManagedIdentifierCoseKeyOpts {
   const { identifier } = opts
-  return ('method' in opts && opts.method === 'oid4vci-issuer') || isIssuerIdentifier(identifier)
+  return ('method' in opts && opts.method === 'oid4vci-issuer') || isOID4VCIssuerIdentifier(identifier)
 }
 
 export type ManagedIdentifierJwkOpts = Omit<ManagedIdentifierOptsBase, 'method' | 'identifier'> & {
@@ -122,12 +122,16 @@ export interface ManagedJwkInfo extends JwkInfo {
 export interface IManagedIdentifierResultBase extends ManagedJwkInfo {
   method: ManagedIdentifierMethod
   opts: ManagedIdentifierOpts
-  key?: IKey
+  key: IKey
   kid?: string
   issuer?: string
   clientId?: string
   clientIdScheme?: ClientIdScheme | 'did' | string
   identifier: ManagedIdentifierType
+}
+
+export function isManagedIdentifierCoseKeyResult(object: IManagedIdentifierResultBase): object is ManagedIdentifierCoseKeyResult {
+  return object!! && typeof object === 'object' && 'method' in object && object.method === 'cose_key'
 }
 
 export function isManagedIdentifierDidResult(object: IManagedIdentifierResultBase): object is ManagedIdentifierDidResult {
@@ -162,10 +166,6 @@ export interface ManagedIdentifierDidResult extends IManagedIdentifierResultBase
   kid: string
 }
 
-export function isManagedIdentifierCoseKeyResult(object: IManagedIdentifierResultBase): object is ManagedIdentifierCoseKeyResult {
-  return object!! && typeof object === 'object' && 'method' in object && object.method === 'cose_key'
-}
-
 export interface ManagedIdentifierJwkResult extends IManagedIdentifierResultBase {
   identifier: JWK
   method: 'jwk'
@@ -187,7 +187,7 @@ export interface ManagedIdentifierCoseKeyResult extends IManagedIdentifierResult
   identifier: ICoseKeyJson
 }
 
-export interface ManagedIdentifierIssuerResult extends IManagedIdentifierResultBase {
+export interface ManagedIdentifierOID4VCIssuerResult extends IManagedIdentifierResultBase {
   method: 'oid4vci-issuer'
   identifier: string
 }
@@ -209,7 +209,7 @@ export type ManagedIdentifierResult = IManagedIdentifierResultBase &
     | ManagedIdentifierKidResult
     | ManagedIdentifierKeyResult
     | ManagedIdentifierCoseKeyResult
-    | ManagedIdentifierIssuerResult
+    | ManagedIdentifierOID4VCIssuerResult
   )
 
 export type ManagedIdentifierOptsOrResult = (ManagedIdentifierResult | ManagedIdentifierOpts) & {

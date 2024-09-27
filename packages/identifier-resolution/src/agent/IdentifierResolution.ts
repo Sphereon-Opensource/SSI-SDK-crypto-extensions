@@ -24,11 +24,11 @@ import {
   ManagedIdentifierResult,
   ManagedIdentifierX5cOpts,
   ManagedIdentifierX5cResult,
-  ManagedIdentifierIssuerResult,
+  ManagedIdentifierOID4VCIssuerResult,
   ManagedIdentifierKeyOpts,
   ManagedIdentifierKeyResult,
   ManagedIdentifierOptsOrResult,
-  ManagedIdentifierIssuerOpts
+  ManagedIdentifierOID4VCIssuerOpts
 } from '../types'
 
 /**
@@ -46,7 +46,7 @@ export class IdentifierResolution implements IAgentPlugin {
     identifierManagedGetByX5c: this.identifierGetManagedByX5c.bind(this),
     identifierManagedGetByKey: this.identifierGetManagedByKey.bind(this),
     identifierManagedGetByCoseKey: this.identifierGetManagedByCoseKey.bind(this),
-    identifierManagedGetByIssuer: this.identifierGetManagedByIssuer.bind(this),
+    identifierManagedGetByOID4VCIssuer: this.identifierGetManagedByOID4VCIssuer.bind(this),
 
     identifierExternalResolve: this.identifierResolveExternal.bind(this),
     identifierExternalResolveByDid: this.identifierExternalResolveByDid.bind(this),
@@ -106,11 +106,11 @@ export class IdentifierResolution implements IAgentPlugin {
     return (await this.identifierGetManaged({ ...args, method: 'cose_key' }, context)) as ManagedIdentifierCoseKeyResult
   }
 
-  private async identifierGetManagedByIssuer(
-      args: ManagedIdentifierIssuerOpts,
+  private async identifierGetManagedByOID4VCIssuer(
+      args: ManagedIdentifierOID4VCIssuerOpts,
       context: IAgentContext<IKeyManager & IIdentifierResolution>
-  ): Promise<ManagedIdentifierIssuerResult> {
-    return (await this.identifierGetManaged({ ...args, method: 'oid4vci-issuer' }, context)) as ManagedIdentifierIssuerResult
+  ): Promise<ManagedIdentifierOID4VCIssuerResult> {
+    return (await this.identifierGetManaged({ ...args, method: 'oid4vci-issuer' }, context)) as ManagedIdentifierOID4VCIssuerResult
   }
 
   private async identifierGetManagedByJwk(

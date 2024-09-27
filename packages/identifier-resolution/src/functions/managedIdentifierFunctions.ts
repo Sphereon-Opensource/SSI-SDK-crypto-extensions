@@ -10,7 +10,7 @@ import {
   isManagedIdentifierCoseKeyOpts,
   isManagedIdentifierDidOpts,
   isManagedIdentifierDidResult,
-  isManagedIdentifierIssuerOpts,
+  isManagedIdentifierOID4VCIssuerOpts,
   isManagedIdentifierJwkOpts,
   isManagedIdentifierJwkResult,
   isManagedIdentifierKeyOpts,
@@ -21,8 +21,8 @@ import {
   ManagedIdentifierCoseKeyResult,
   ManagedIdentifierDidOpts,
   ManagedIdentifierDidResult,
-  ManagedIdentifierIssuerOpts,
-  ManagedIdentifierIssuerResult,
+  ManagedIdentifierOID4VCIssuerOpts,
+  ManagedIdentifierOID4VCIssuerResult,
   ManagedIdentifierJwkOpts,
   ManagedIdentifierJwkResult,
   ManagedIdentifierKeyOpts,
@@ -273,16 +273,16 @@ export async function getManagedX5cIdentifier(
   } satisfies ManagedIdentifierX5cResult
 }
 
-export async function getManagedIssuerIdentifier(
-    opts: ManagedIdentifierIssuerOpts,
+export async function getManagedOID4VCIssuerIdentifier(
+    opts: ManagedIdentifierOID4VCIssuerOpts,
     context: IAgentContext<IKeyManager>
-): Promise<ManagedIdentifierIssuerResult> {
+): Promise<ManagedIdentifierOID4VCIssuerResult> {
   const { identifier } = opts
   const method = 'oid4vci-issuer'
   // FIXME: We need to eventually determine the JWK based on the issuer. Using a dummy JWK for now
   const jwk = {
     "kty" : "RSA",
-    "kid" : "cc34c0a0-bd5a-4a3c-a50d-a2a7db7643df",
+    "kid" : "dummy-jwk-for-vci-issuer-signing",
     "use" : "sig",
     "n"   : "pjdss8ZaDfEH6K6U7GeW2nxDqR4IP049fk1fK0lndimbMMVBdPv_hSpm8T8EtBDxrUdi1OHZfMhUixGaut-3nQ4GG9nM249oxhCtxqqNvEXrmQRGqczyLxuh-fKn9Fg--hS9UpazHpfVAFnB5aCfXoNhPuI8oByyFKMKaOVgHNqP5NBEqabiLftZD3W_lsFCPGuzr4Vp0YS7zS2hDYScC2oOMu4rGU1LcMZf39p3153Cq7bS2Xh6Y-vw5pwzFYZdjQxDn8x8BG3fJ6j8TGLXQsbKH1218_HcUJRvMwdpbUQG5nvA2GXVqLqdwp054Lzk9_B_f1lVrmOKuHjTNHq48w",
     "e"   : "AQAB",
@@ -295,17 +295,25 @@ export async function getManagedIssuerIdentifier(
   } as JWK
   const jwkThumbprint = calculateJwkThumbprint({ jwk })
 
+  const key = {
+    kid: 'dummy-key-for-vci-issuer-signing',
+    kms: 'local',
+    type: "RSA",
+    publicKeyHex: '9a3f75b2e4d8b91128fc6e9a8f6782e5a4f1cba3718e58b5d0a789d6e5f52b3a'
+  } as IKey
+
   return {
     method,
     identifier,
     jwk,
     jwkThumbprint,
-    kmsKeyRef: identifier, // FIXME: We need to find a way to handle identifiers that do not have a kmsKeyRef
+    key, // FIXME: We need construct a key as soon as we have the external VCI Issuer resolution
+    kmsKeyRef: identifier, // FIXME: We need use kmsKeyRef as soon as we have the external VCI Issuer resolution
     issuer: identifier.replace('/.well-known/openid-credential-issuer', ''),
     clientId: opts.clientId,
     clientIdScheme: opts.clientIdScheme,
     opts,
-  } satisfies ManagedIdentifierIssuerResult
+  } satisfies ManagedIdentifierOID4VCIssuerResult
 }
 
 export async function getManagedIdentifier(
@@ -330,13 +338,13 @@ export async function getManagedIdentifier(
     resolutionResult = await getManagedKeyIdentifier(opts, context)
   } else if (isManagedIdentifierCoseKeyOpts(opts)) {
     resolutionResult = await getManagedCoseKeyIdentifier(opts, context)
-  } else if (isManagedIdentifierIssuerOpts(opts)) {
-    resolutionResult = await getManagedIssuerIdentifier(opts, context)
+  } else if (isManagedIdentifierOID4VCIssuerOpts(opts)) {
+    resolutionResult = await getManagedOID4VCIssuerIdentifier(opts, context)
   } else {
     return Promise.reject(Error(`Could not determine identifier method. Please provide explicitly`))
   }
   const { key } = resolutionResult
-  if ((!key && !isManagedIdentifierIssuerOpts(opts)) || (isManagedIdentifierDidOpts(opts) && isManagedIdentifierDidResult(resolutionResult) && !resolutionResult.identifier)) {
+  if ((!key && !isManagedIdentifierOID4VCIssuerOpts(opts)) || (isManagedIdentifierDidOpts(opts) && isManagedIdentifierDidResult(resolutionResult) && !resolutionResult.identifier)) {
     console.log(`Cannot find identifier`, opts.identifier)
     return Promise.reject(`Cannot find identifier ${opts.identifier}`)
   }
@@ -350,10 +358,6 @@ export async function managedIdentifierToKeyResult(
   const resolved = await ensureManagedIdentifierResult(identifier, context)
   if (isManagedIdentifierKeyResult(resolved)) {
     return resolved
-  }
-
-  if (resolved.key === undefined) {
-    return Promise.reject(Error(`No key found in result: ${JSON.stringify(resolved)}`))
   }
 
   return {

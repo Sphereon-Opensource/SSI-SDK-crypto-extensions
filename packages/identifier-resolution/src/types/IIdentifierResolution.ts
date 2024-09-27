@@ -16,8 +16,8 @@ import {
   ManagedIdentifierCoseKeyResult,
   ManagedIdentifierDidOpts,
   ManagedIdentifierDidResult,
-  ManagedIdentifierIssuerOpts,
-  ManagedIdentifierIssuerResult,
+  ManagedIdentifierOID4VCIssuerOpts,
+  ManagedIdentifierOID4VCIssuerResult,
   ManagedIdentifierJwkOpts,
   ManagedIdentifierJwkResult,
   ManagedIdentifierKeyOpts,
@@ -38,7 +38,7 @@ export const identifierResolutionContextMethods: Array<string> = [
   'identifierManagedGetByJwk',
   'identifierManagedGetByX5c',
   'identifierManagedGetByKey',
-  'identifierManagedGetByIssuer',
+  'identifierManagedGetByOID4VCIssuer',
   'identifierGetManagedByCoseKey',
   'identifierExternalResolve',
   'identifierExternalResolveByDid',
@@ -80,7 +80,7 @@ export interface IIdentifierResolution extends IPluginMethodMap {
     context: IAgentContext<IKeyManager & IIdentifierResolution>
   ): Promise<ManagedIdentifierCoseKeyResult>
 
-  identifierManagedGetByIssuer(args: ManagedIdentifierIssuerOpts, context: IAgentContext<any>): Promise<ManagedIdentifierIssuerResult>
+  identifierManagedGetByOID4VCIssuer(args: ManagedIdentifierOID4VCIssuerOpts, context: IAgentContext<any>): Promise<ManagedIdentifierOID4VCIssuerResult>
 
   // TODO: We can create a custom managed identifier method allowing developers to register a callback function to get their implementation hooked up. Needs more investigation as it would also impact the KMS
 

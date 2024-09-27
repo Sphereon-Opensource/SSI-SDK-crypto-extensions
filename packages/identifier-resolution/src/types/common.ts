@@ -32,7 +32,7 @@ export function isKidIdentifier(identifier: ManagedIdentifierType | ExternalIden
   return typeof identifier === 'string' && !identifier.startsWith('did:') && !identifier.startsWith('http')
 }
 
-export function isIssuerIdentifier(identifier: ManagedIdentifierType | ExternalIdentifierType): identifier is string {
+export function isOID4VCIssuerIdentifier(identifier: ManagedIdentifierType | ExternalIdentifierType): identifier is string {
   return typeof identifier === 'string' && identifier.startsWith('http') && identifier.endsWith('/.well-known/openid-credential-issuer')
 }
 
