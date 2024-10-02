@@ -33,13 +33,13 @@ import {
   JwsJsonGeneral,
   JwsJsonGeneralWithIdentifiers,
   JwsJsonSignature, JwsJsonSignatureWithIdentifier,
-  JwtHeader,
-  JwtPayload,
+  JwsHeader,
+  JwsPayload,
   PreparedJwsObject,
-  VerifyJwsArgs,
+  VerifyJwsArgs, JweHeader,
 } from '../types/IJwtService'
 
-const payloadToBytes = (payload: string | JwtPayload | Uint8Array): Uint8Array => {
+const payloadToBytes = (payload: string | JwsPayload | Uint8Array): Uint8Array => {
   const isBytes = payload instanceof Uint8Array
   const isString = typeof payload === 'string'
   return isBytes ? payload : isString ? u8a.fromString(payload, 'base64url') : u8a.fromString(JSON.stringify(payload), 'utf-8')
@@ -50,7 +50,7 @@ export const prepareJwsObject = async (args: CreateJwsJsonArgs, context: IRequir
 
   const { noIdentifierInHeader = false } = issuer
   const identifier = await ensureManagedIdentifierResult(issuer, context)
-  await checkAndUpdateJwtHeader({ mode, identifier, noIdentifierInHeader, header: protectedHeader }, context)
+  await checkAndUpdateJwsHeader({ mode, identifier, noIdentifierInHeader, header: protectedHeader }, context)
   const isBytes = payload instanceof Uint8Array
   const isString = typeof payload === 'string'
   if (!isBytes && !isString) {
@@ -138,7 +138,7 @@ export const createJwsJsonGeneral = async (args: CreateJwsJsonArgs, context: IRe
  * @param context
  */
 
-export const checkAndUpdateJwtHeader = async (
+export const checkAndUpdateJwsHeader = async (
   {
     mode = 'auto',
     identifier,
@@ -148,7 +148,7 @@ export const checkAndUpdateJwtHeader = async (
     mode?: JwsIdentifierMode
     identifier: ManagedIdentifierResult
     noIdentifierInHeader?: boolean
-    header: JwtHeader
+    header: JwsHeader
   },
   context: IRequiredContext
 ) => {
@@ -179,7 +179,7 @@ const checkAndUpdateX5cHeader = async (
     identifier,
     noIdentifierInHeader = false,
   }: {
-    header: JwtHeader
+    header: JwsHeader | JweHeader
     identifier: ManagedIdentifierResult
     noIdentifierInHeader?: boolean
   },
@@ -208,7 +208,7 @@ const checkAndUpdateDidHeader = async (
     identifier,
     noIdentifierInHeader = false,
   }: {
-    header: JwtHeader
+    header: JwsHeader | JweHeader
     identifier: ManagedIdentifierResult
     noIdentifierInHeader?: boolean
   },
@@ -237,7 +237,7 @@ const checkAndUpdateJwkHeader = async (
     identifier,
     noIdentifierInHeader = false,
   }: {
-    header: JwtHeader
+    header: JwsHeader | JweHeader
     identifier: ManagedIdentifierResult
     noIdentifierInHeader?: boolean
   },
@@ -246,7 +246,7 @@ const checkAndUpdateJwkHeader = async (
   const { jwk } = header
   if (jwk) {
     // let's resolve the provided x5c to be sure
-    const jwkIdentifier = await context.agent.identifierManagedGetByJwk({ identifier: jwk })
+    const jwkIdentifier = await context.agent.identifierManagedGetByJwk({ identifier: jwk as JWK })
     if (jwkIdentifier.kmsKeyRef !== identifier.kmsKeyRef) {
       return Promise.reject(Error(`A jwk header was present, but its value did not match the provided signing jwk or kid!`))
     }
@@ -265,7 +265,7 @@ const checkAndUpdateKidHeader = async (
     identifier,
     noIdentifierInHeader = false,
   }: {
-    header: JwtHeader
+    header: JwsHeader | JweHeader
     identifier: ManagedIdentifierResult
     noIdentifierInHeader?: boolean
   },
@@ -376,7 +376,7 @@ export const toJwsJsonGeneral = async ({ jws }: { jws: Jws }, context: IAgentCon
 }
 
 async function resolveExternalIdentifierFromJwsHeader(
-  protectedHeader: JwtHeader,
+  protectedHeader: JwsHeader,
   context: IAgentContext<IIdentifierResolution>,
   args: {
     jws: Jws
@@ -422,7 +422,7 @@ export const toJwsJsonGeneralWithIdentifiers = async (
   const jws = await toJwsJsonGeneral(args, context)
   const signatures = (await Promise.all(
     jws.signatures.map(async (signature) => {
-      const protectedHeader: JwtHeader = decodeJoseBlob(signature.protected)
+      const protectedHeader: JwsHeader = decodeJoseBlob(signature.protected)
       const identifier = args.jwk
         ? await resolveExternalJwkIdentifier({ identifier: args.jwk }, context)
         : await resolveExternalIdentifierFromJwsHeader(protectedHeader, context, args)
@@ -432,6 +432,6 @@ export const toJwsJsonGeneralWithIdentifiers = async (
       return undefined
     })
   )).filter(signature => signature !== undefined ) as JwsJsonSignatureWithIdentifier[]
-  
+
   return { payload: jws.payload, signatures }
 }
