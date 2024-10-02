@@ -25,6 +25,8 @@ import {
 } from '..'
 import {CompactJwtEncrypter} from "../functions/JWE";
 
+import * as u8a from 'uint8arrays'
+
 /**
  * @public
  */
@@ -62,7 +64,9 @@ export class JwtService implements IAgentPlugin {
     }
 
     private async jwtEncryptJweCompactJwt(args: EncryptJweCompactJwtArgs, context: IRequiredContext): Promise<JwtCompactResult> {
-        const {payload, protectedHeader = {alg: args.alg, enc: args.enc}, recipientKey, keyManagementParams, issuer, expirationTime, audience} = args
+        const {payload, protectedHeader = {alg: args.alg, enc: args.enc}, recipientKey, issuer, expirationTime, audience} = args
+
+        console.log(JSON.stringify(args, null, 2))
 
         const alg = jweAlg(args.alg) ?? jweAlg(protectedHeader.alg) ?? 'ECDH-ES'
         const enc = jweEnc(args.enc) ?? jweEnc(protectedHeader.enc) ?? 'A256GCM'
@@ -77,7 +81,10 @@ export class JwtService implements IAgentPlugin {
         if (jwkInfo.jwk.kty?.startsWith('EC') !== true || !alg.startsWith('ECDH')) {
             return Promise.reject(Error(`Currently only ECDH-ES is supported for encryption. JWK alg ${jwkInfo.jwk.kty}, header alg ${alg}`)) // TODO: Probably we support way more already
         }
-        const {apu, apv} = {...keyManagementParams}
+        const apuVal = protectedHeader.apu ?? args.apu
+        const apu = apuVal ? u8a.fromString(apuVal, 'base64url') : undefined
+        const apvVal = protectedHeader.apv ?? args.apv
+        const apv = apvVal ? u8a.fromString(apvVal, 'base64url') : undefined
 
         const pubKey = await crypto.subtle.importKey('jwk', jwkInfo.jwk, {
             name: 'ECDH',

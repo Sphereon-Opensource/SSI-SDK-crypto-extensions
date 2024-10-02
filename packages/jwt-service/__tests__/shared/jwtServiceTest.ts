@@ -122,7 +122,8 @@ export default (testContext: {
                 alg: "ECDH-ES",
                 enc: "A256GCM",
                 payload: decodeJwt(jwt.jwt),
-                keyManagementParams: {apu: u8a.fromString('apu'), apv: u8a.fromString('apv')},
+                apu: u8a.toString(u8a.fromString('apu'), 'base64url'),
+                apv: u8a.toString(u8a.fromString('apv'), 'base64url'),
                 // @ts-ignore
                 recipientKey: await agent.identifierExternalResolveByJwk({identifier: ietfJwk})
             })

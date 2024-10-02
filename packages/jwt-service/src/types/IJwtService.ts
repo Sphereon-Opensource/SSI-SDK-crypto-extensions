@@ -15,7 +15,6 @@ import {
     JWK
 } from '@sphereon/ssi-types'
 import {IAgentContext, IKeyManager, IPluginMethodMap} from '@veramo/core'
-import {JWEKeyManagementHeaderParameters} from "jose";
 
 export type IRequiredContext = IAgentContext<IIdentifierResolution & IKeyManager> // could we still interop with Veramo?
 
@@ -208,7 +207,8 @@ export type EncryptJweCompactJwtArgs = {
     recipientKey:  ExternalIdentifierResult & { kid?: string}
     alg?: JweAlg
     enc?: JweEnc
-    keyManagementParams?: JWEKeyManagementHeaderParameters
+    apu?: string // base64url
+    apv?: string // base64url
     expirationTime?: number | string | Date
     issuer?: string
     audience?: string | string[]
