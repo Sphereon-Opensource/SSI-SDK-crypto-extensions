@@ -51,7 +51,7 @@ export class SphereonKeyManager extends VeramoKeyManager {
   }
 
   override async keyManagerCreate(args: ISphereonKeyManagerCreateArgs): Promise<ManagedKeyInfo> {
-    const kms = this.getKmsByName(args.kms)
+    const kms = this.getKmsByName(args.kms ?? this.defaultKms)
     const meta: KeyMetadata = { ...args.meta, ...(args.opts && { opts: args.opts }) }
     if (hasKeyOptions(meta) && meta.opts?.ephemeral && !meta.opts.expiration?.removalDate) {
       // Make sure we set a delete date on an ephemeral key
@@ -61,7 +61,7 @@ export class SphereonKeyManager extends VeramoKeyManager {
       }
     }
     const partialKey = await kms.createKey({ type: args.type, meta })
-    const key: IKey = { ...partialKey, kms: args.kms }
+    const key: IKey = { ...partialKey, kms: args.kms ?? this.defaultKms }
     key.meta = { ...meta, ...key.meta }
     key.meta.jwkThumbprint = key.meta.jwkThumbprint ?? calculateJwkThumbprintForKey({ key })
 

@@ -60,7 +60,7 @@ export interface ISphereonKeyManagerCreateArgs {
   /**
    * Key Management System
    */
-  kms: string
+  kms?: string
 
   /**
    * Key options
