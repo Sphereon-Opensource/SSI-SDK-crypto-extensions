@@ -145,7 +145,7 @@ export class CompactJwtEncrypter implements JweEncrypter {
         }
         this._keyManagementParams = args.keyManagementParams
         this.recipientKey = args.key
-        this.expirationTime = args.expirationTime ?? '10 minutes'
+        this.expirationTime = args.expirationTime
         this.issuer = args.issuer
         this.audience = args.audience
     }
@@ -215,8 +215,10 @@ export class CompactJwtEncrypter implements JweEncrypter {
             }
             encrypt.setKeyManagementParameters(this._keyManagementParams!)
         }
-        // We always set the expiration time for encrypted JWTs (values are set above)
-        encrypt.setExpirationTime(this.expirationTime)
+        if(this.expirationTime !== undefined) {
+            encrypt.setExpirationTime(this.expirationTime)
+        }
+        
         if (this.issuer) {
             encrypt.setIssuer(this.issuer)
         }
