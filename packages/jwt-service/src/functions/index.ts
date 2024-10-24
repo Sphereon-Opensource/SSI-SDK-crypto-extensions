@@ -431,7 +431,7 @@ export const toJwsJsonGeneralWithIdentifiers = async (
       }
       return undefined
     })
-  )).filter(signature => signature !== undefined ) as JwsJsonSignatureWithIdentifier[]
+  )) as Array<JwsJsonSignatureWithIdentifier>
 
   return { payload: jws.payload, signatures }
 }
