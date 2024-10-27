@@ -20,7 +20,7 @@ describe('@sphereon/ssi-sdk-ext.did-resolver-ebsi', () => {
   })
   it('should resolve conformance DID did:ebsi trying all registries', async () => {
     const resolver = new Resolver({ ...getResolver() })
-    const resolutionResult = await resolver.resolve('did:ebsi:zhJARjPN69cEtgPxHen1Mid', {
+    const resolutionResult = await resolver.resolve('did:ebsi:zZsV828SisuygqFhV7G9cW8', {
       accept: DID_LD_JSON,
     })
     expect(resolutionResult.didDocument).toMatchObject({
