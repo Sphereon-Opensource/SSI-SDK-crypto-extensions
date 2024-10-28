@@ -1,7 +1,7 @@
-import { JWTVerifyOptions } from 'did-jwt'
-import { Resolvable } from 'did-resolver'
-import { DIDDocumentSection, IIdentifier } from '@veramo/core'
 import { TKeyType } from '@sphereon/ssi-sdk-ext.key-utils'
+import { IAgentContext, IDIDManager, IIdentifier, IKeyManager, IResolver } from '@veramo/core'
+import { JWTHeader, JWTPayload, JWTVerifyOptions } from 'did-jwt'
+import { Resolvable } from 'did-resolver'
 
 export enum SupportedDidMethodEnum {
   DID_ETHR = 'ethr',
@@ -16,10 +16,6 @@ export enum IdentifierAliasEnum {
   PRIMARY = 'primary',
 }
 
-export enum KeyManagementSystemEnum {
-  LOCAL = 'local',
-}
-
 export interface ResolveOpts {
   jwtVerifyOpts?: JWTVerifyOptions
   resolver?: Resolvable
@@ -28,16 +24,13 @@ export interface ResolveOpts {
   subjectSyntaxTypesSupported?: string[]
 }
 
+/**
+ * @deprecated Replaced by the identifier resolution service
+ */
 export interface IDIDOptions {
   resolveOpts?: ResolveOpts
-  identifierOpts: IIdentifierOpts
+  idOpts: LegacyIIdentifierOpts
   supportedDIDMethods?: string[]
-}
-
-export interface IIdentifierOpts {
-  identifier: IIdentifier | string
-  verificationMethodSection?: DIDDocumentSection
-  kmsKeyRef?: string
 }
 
 export type IdentifierProviderOpts = {
@@ -53,7 +46,7 @@ export type CreateIdentifierOpts = {
 }
 
 export type CreateIdentifierCreateOpts = {
-  kms?: KeyManagementSystemEnum
+  kms?: string
   alias?: string
   options?: IdentifierProviderOpts
 }
@@ -69,3 +62,30 @@ export interface GetOrCreateResult<T> {
   created: boolean
   result: T
 }
+
+/**
+ * @deprecated Replaced by new signer
+ */
+export type SignJwtArgs = {
+  idOpts: LegacyIIdentifierOpts
+  header: Partial<JWTHeader>
+  payload: Partial<JWTPayload>
+  options: { issuer: string; expiresIn?: number; canonicalize?: boolean }
+  context: IRequiredSignAgentContext
+}
+
+/**
+ * @deprecated Replaced by new signer
+ */
+export type GetSignerArgs = {
+  idOpts: LegacyIIdentifierOpts
+  context: IRequiredSignAgentContext
+}
+
+/**
+ * @deprecated Replaced by the identifier resolution service
+ */
+type LegacyIIdentifierOpts = {
+  identifier: IIdentifier | string
+}
+export type IRequiredSignAgentContext = IAgentContext<IKeyManager & IDIDManager & IResolver>

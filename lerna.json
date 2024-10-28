@@ -10,7 +10,6 @@
       "message": "chore(release): %s"
     }
   },
-  "useWorkspaces": true,
   "forceLocal": true,
   "sort": true,
   "stream": true,

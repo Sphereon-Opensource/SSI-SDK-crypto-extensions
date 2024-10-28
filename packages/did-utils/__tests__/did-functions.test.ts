@@ -1,4 +1,4 @@
-import { base64ToHex, hexKeyFromPEMBasedJwk, jwkToPEM } from '../../key-utils/src'
+import { base64ToHex, hexKeyFromPEMBasedJwk, jwkToPEM } from '../../x509-utils/src'
 import elliptic from 'elliptic'
 import { isEvenHexString } from '../src'
 

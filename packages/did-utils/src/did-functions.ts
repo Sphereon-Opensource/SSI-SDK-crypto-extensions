@@ -1,7 +1,17 @@
 import { computeAddress } from '@ethersproject/transactions'
 import { UniResolver } from '@sphereon/did-uni-client'
-import { base64ToHex, ENC_KEY_ALGS, hexKeyFromPEMBasedJwk, JwkKeyUse, TKeyType, toJwk } from '@sphereon/ssi-sdk-ext.key-utils'
+import {
+  ENC_KEY_ALGS,
+  getKms,
+  JwkKeyUse,
+  keyTypeFromCryptographicSuite,
+  signatureAlgorithmFromKey,
+  TKeyType,
+  toJwk,
+} from '@sphereon/ssi-sdk-ext.key-utils'
+import { base64ToHex, hexKeyFromPEMBasedJwk } from '@sphereon/ssi-sdk-ext.x509-utils'
 import { base58ToBytes, base64ToBytes, bytesToHex, hexToBytes, multibaseKeyToBytes } from '@sphereon/ssi-sdk.core'
+import { JWK } from '@sphereon/ssi-types'
 import { convertPublicKeyToX25519 } from '@stablelib/ed25519'
 import { DIDDocument, DIDDocumentSection, DIDResolutionResult, IAgentContext, IDIDManager, IIdentifier, IKey, IResolver } from '@veramo/core'
 import {
@@ -14,6 +24,7 @@ import {
   isDefined,
   mapIdentifierKeysToDoc,
 } from '@veramo/utils'
+import { createJWT, Signer } from 'did-jwt'
 import { DIDResolutionOptions, JsonWebKey, Resolvable, VerificationMethod } from 'did-resolver'
 // @ts-ignore
 import elliptic from 'elliptic'
@@ -23,11 +34,11 @@ import {
   CreateOrGetIdentifierOpts,
   DID_PREFIX,
   GetOrCreateResult,
+  GetSignerArgs,
   IdentifierAliasEnum,
   IdentifierProviderOpts,
   IDIDOptions,
-  IIdentifierOpts,
-  KeyManagementSystemEnum,
+  SignJwtArgs,
   SupportedDidMethodEnum,
 } from './types'
 
@@ -90,7 +101,7 @@ export const getFirstKeyWithRelation = async (
         },
         context
       )) ??
-      (noVerificationMethodFallback
+      (noVerificationMethodFallback || vmRelationship === 'verificationMethod' // let's not fallback to the same value again
         ? undefined
         : await getFirstKeyWithRelationFromDIDDoc(
             {
@@ -125,7 +136,7 @@ export const getFirstKeyWithRelation = async (
         },
         context
       )) ??
-      (noVerificationMethodFallback
+      (noVerificationMethodFallback || vmRelationship === 'verificationMethod' // let's not fallback to the same value again
         ? undefined
         : await getFirstKeyWithRelationFromDIDDoc(
             {
@@ -184,13 +195,12 @@ export const getPrimaryIdentifier = async (context: IAgentContext<IDIDManager>, 
 }
 
 export const createIdentifier = async (context: IAgentContext<IDIDManager>, opts?: CreateIdentifierOpts): Promise<IIdentifier> => {
-  const identifier = await context.agent.didManagerCreate({
-    kms: opts?.createOpts?.kms ?? KeyManagementSystemEnum.LOCAL,
+  return await context.agent.didManagerCreate({
+    kms: await getKms(context, opts?.createOpts?.kms),
     ...(opts?.method && { provider: `${DID_PREFIX}${opts?.method}` }),
     alias: opts?.createOpts?.alias ?? `${IdentifierAliasEnum.PRIMARY}-${opts?.method}-${opts?.createOpts?.options?.type}-${new Date().toUTCString()}`,
     options: opts?.createOpts?.options,
   })
-  return identifier
 }
 
 export const getFirstKeyWithRelationFromDIDDoc = async (
@@ -321,6 +331,15 @@ export async function dereferenceDidKeysWithJwkSupport(
     })
 }
 
+export function jwkTtoPublicKeyHex(jwk: JWK): string {
+  // todo: Hacky way to convert this to a VM. Should extract the logic from the below methods
+  // @ts-ignore
+  const vm: _ExtendedVerificationMethod = {
+    publicKeyJwk: jwk,
+  }
+  return extractPublicKeyHexWithJwkSupport(vm)
+}
+
 /**
  * Converts the publicKey of a VerificationMethod to hex encoding (publicKeyHex)
  *
@@ -416,6 +435,47 @@ function extractPublicKeyBytes(pk: VerificationMethod): Uint8Array {
   return new Uint8Array()
 }
 
+export function verificationMethodToJwk(vm: VerificationMethod): JWK {
+  let jwk: JWK | undefined = vm.publicKeyJwk as JWK
+  if (!jwk) {
+    let publicKeyHex = vm.publicKeyHex ?? u8a.toString(extractPublicKeyBytes(vm), 'hex')
+    jwk = toJwk(publicKeyHex, keyTypeFromCryptographicSuite({ suite: vm.type }))
+  }
+  if (!jwk) {
+    throw Error(`Could not convert verification method to jwk`)
+  }
+  jwk.kid = vm.id
+  return jwk
+}
+
+function didDocumentSectionToJwks(
+  didDocumentSection: DIDDocumentSection,
+  searchForVerificationMethods?: (VerificationMethod | string)[],
+  verificationMethods?: VerificationMethod[]
+) {
+  const jwks = (searchForVerificationMethods ?? [])
+    .map((vmOrId) => (typeof vmOrId === 'object' ? vmOrId : verificationMethods?.find((vm) => vm.id === vmOrId)))
+    .filter(isDefined)
+    .map((vm) => verificationMethodToJwk(vm))
+  return { didDocumentSection, jwks: jwks }
+}
+
+export type DidDocumentJwks = Record<Exclude<DIDDocumentSection, 'publicKey' | 'service'>, Array<JWK>>
+
+export function didDocumentToJwks(didDocument: DIDDocument): DidDocumentJwks {
+  return {
+    verificationMethod: [
+      ...didDocumentSectionToJwks('publicKey', didDocument.publicKey, didDocument.verificationMethod).jwks, // legacy support
+      ...didDocumentSectionToJwks('verificationMethod', didDocument.verificationMethod, didDocument.verificationMethod).jwks,
+    ],
+    assertionMethod: didDocumentSectionToJwks('assertionMethod', didDocument.assertionMethod, didDocument.verificationMethod).jwks,
+    authentication: didDocumentSectionToJwks('authentication', didDocument.authentication, didDocument.verificationMethod).jwks,
+    keyAgreement: didDocumentSectionToJwks('keyAgreement', didDocument.keyAgreement, didDocument.verificationMethod).jwks,
+    capabilityInvocation: didDocumentSectionToJwks('capabilityInvocation', didDocument.capabilityInvocation, didDocument.verificationMethod).jwks,
+    capabilityDelegation: didDocumentSectionToJwks('capabilityDelegation', didDocument.capabilityDelegation, didDocument.verificationMethod).jwks,
+  }
+}
+
 /**
  * Maps the keys of a locally managed {@link @veramo/core#IIdentifier | IIdentifier} to the corresponding
  * {@link did-resolver#VerificationMethod | VerificationMethod} entries from the DID document.
@@ -468,8 +528,8 @@ export async function mapIdentifierKeysToDocWithJwkSupport(
   const extendedKeys: _ExtendedIKey[] = documentKeys
     .map((verificationMethod) => {
       /*if (verificationMethod.type !== 'JsonWebKey2020') {
-                                                                    return null
-                                                                  }*/
+                                                                                                  return null
+                                                                                                }*/
       const localKey = localKeys.find(
         (localKey) =>
           localKey.publicKeyHex === verificationMethod.publicKeyHex ||
@@ -519,20 +579,11 @@ export async function getAgentDIDMethods(context: IAgentContext<IDIDManager>) {
   return (await context.agent.didManagerGetProviders()).map((provider) => provider.toLowerCase().replace('did:', ''))
 }
 
-export async function getIdentifier(identifierOpts: IIdentifierOpts, context: IAgentContext<IDIDManager>): Promise<IIdentifier> {
-  if (typeof identifierOpts.identifier === 'string') {
-    return context.agent.didManagerGet({ did: identifierOpts.identifier })
-  } else if (typeof identifierOpts.identifier === 'object') {
-    return identifierOpts.identifier
-  }
-  throw Error(`Cannot get agent identifier value from options`)
-}
-
-export function getDID(identifierOpts: IIdentifierOpts): string {
-  if (typeof identifierOpts.identifier === 'string') {
-    return identifierOpts.identifier
-  } else if (typeof identifierOpts.identifier === 'object') {
-    return identifierOpts.identifier.did
+export function getDID(idOpts: { identifier: IIdentifier | string }): string {
+  if (typeof idOpts.identifier === 'string') {
+    return idOpts.identifier
+  } else if (typeof idOpts.identifier === 'object') {
+    return idOpts.identifier.did
   }
   throw Error(`Cannot get DID from identifier value`)
 }
@@ -603,9 +654,31 @@ export async function getKey(
 }
 
 /**
+ *
+ * @param identifier
+ * @param context
+ *
+ * @deprecated Replaced by the identfier resolution plugin
+ */
+async function legacyGetIdentifier(
+  {
+    identifier,
+  }: {
+    identifier: string | IIdentifier
+  },
+  context: IAgentContext<IDIDManager>
+): Promise<IIdentifier> {
+  if (typeof identifier === 'string') {
+    return await context.agent.didManagerGet({ did: identifier })
+  }
+  return identifier
+}
+
+/**
  * Get the real kid as used in JWTs. This is the kid in the VM or in the JWT, not the kid in the Veramo/Sphereon keystore. That was just a poorly chosen name
  * @param key
  * @param idOpts
+ * @param context
  */
 export async function determineKid(
   {
@@ -613,14 +686,14 @@ export async function determineKid(
     idOpts,
   }: {
     key: IKey
-    idOpts: IIdentifierOpts
+    idOpts: { identifier: IIdentifier | string; kmsKeyRef?: string }
   },
   context: IAgentContext<IResolver & IDIDManager>
 ): Promise<string> {
   if (key.meta?.verificationMethod?.id) {
     return key.meta?.verificationMethod?.id
   }
-  const identifier = await getIdentifier(idOpts, context)
+  const identifier = await legacyGetIdentifier(idOpts, context)
   const mappedKeys = await mapIdentifierKeysToDocWithJwkSupport(
     {
       identifier,
@@ -876,4 +949,61 @@ export async function asDidWeb(hostnameOrDID: string): Promise<string> {
     return did
   }
   return `did:web:${did.replace(/https?:\/\/([^/?#]+).*/i, '$1').toLowerCase()}`
+}
+
+/**
+ * @deprecated Replaced by the new signer service
+ */
+export const signDidJWT = async (args: SignJwtArgs): Promise<string> => {
+  const { idOpts, header, payload, context, options } = args
+  const jwtOptions = {
+    ...options,
+    signer: await getDidSigner({ idOpts, context }),
+  }
+
+  return createJWT(payload, jwtOptions, header)
+}
+
+/**
+ * @deprecated Replaced by the new signer service
+ */
+export const getDidSigner = async (
+  args: GetSignerArgs & {
+    idOpts: {
+      /**
+       * @deprecated
+       */
+      identifier: IIdentifier | string
+      /**
+       * @deprecated
+       */
+      verificationMethodSection?: DIDDocumentSection
+      /**
+       * @deprecated
+       */
+      kmsKeyRef?: string
+    }
+  }
+): Promise<Signer> => {
+  const { idOpts, context } = args
+
+  const identifier = await legacyGetIdentifier(idOpts, context)
+  const key = await getKey(
+    {
+      identifier,
+      vmRelationship: idOpts.verificationMethodSection,
+      kmsKeyRef: idOpts.kmsKeyRef,
+    },
+    context
+  )
+  const algorithm = await signatureAlgorithmFromKey({ key })
+
+  return async (data: string | Uint8Array): Promise<string> => {
+    const input = data instanceof Object.getPrototypeOf(Uint8Array) ? new TextDecoder().decode(data as Uint8Array) : (data as string)
+    return await context.agent.keyManagerSign({
+      keyRef: key.kid,
+      algorithm,
+      data: input,
+    })
+  }
 }

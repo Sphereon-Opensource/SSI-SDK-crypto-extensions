@@ -1,16 +1,4 @@
-import {
-  calculateJwkThumbprint,
-  generatePrivateKeyHex,
-  hexToPEM,
-  jwkToPEM,
-  pemCertChainTox5c,
-  PEMToHex,
-  PEMToJwk,
-  RSASigner,
-  signAlgorithmToSchemeAndHashAlg,
-  toJwk,
-  X509Opts,
-} from '@sphereon/ssi-sdk-ext.key-utils'
+import { calculateJwkThumbprint, generatePrivateKeyHex, toJwk, X509Opts } from '@sphereon/ssi-sdk-ext.key-utils'
 
 import { IKey, ManagedKeyInfo, MinimalImportableKey, TKeyType } from '@veramo/core'
 import { AbstractPrivateKeyStore, ManagedPrivateKey } from '@veramo/key-manager'
@@ -19,8 +7,17 @@ import Debug from 'debug'
 import elliptic from 'elliptic'
 import * as u8a from 'uint8arrays'
 import { KeyType, ManagedKeyInfoArgs } from './index'
+import {
+  hexToPEM,
+  jwkToPEM,
+  pemCertChainTox5c,
+  PEMToHex,
+  PEMToJwk,
+  RSASigner,
+  signAlgorithmToSchemeAndHashAlg,
+} from '@sphereon/ssi-sdk-ext.x509-utils'
 
-const debug = Debug('sphereon:kms:bls:local')
+const debug = Debug('sphereon:kms:local')
 
 export class SphereonKeyManagementSystem extends KeyManagementSystem {
   private readonly privateKeyStore: AbstractPrivateKeyStore

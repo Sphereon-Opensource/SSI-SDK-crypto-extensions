@@ -52,7 +52,7 @@ describe('@sphereon/did-provider-key', () => {
     const identifier: IIdentifier = await agent.didManagerCreate({ options })
 
     expect(identifier).toBeDefined()
-    expect(identifier.did).toBe('did:key:zQ3shqZQs23rWENxtomyw4BNz1p23AkbjzwdeYg6DpmhWDDE6')
+    expect(identifier.did).toBe('did:key:zQ3shqZQs23rWENxtomyw4BNz1p23AkbjzwdeYg6DpmhWDDE6') 
   })
 
   it('should remove identifier', async () => {

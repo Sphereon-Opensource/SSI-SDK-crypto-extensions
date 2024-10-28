@@ -1,4 +1,4 @@
-import { MinimalImportableKey } from '@veramo/core'
+import { IKey, MinimalImportableKey } from '@veramo/core'
 
 export const JWK_JCS_PUB_NAME = 'jwk_jcs-pub' as const
 export const JWK_JCS_PUB_PREFIX = 0xeb51
@@ -16,56 +16,8 @@ export enum JwkKeyUse {
   Signature = 'sig',
 }
 
-export enum KeyCurve {
-  Secp256k1 = 'secp256k1',
-  P_256 = 'P-256',
-  Ed25519 = 'Ed25519',
-  X25519 = 'X25519',
-}
-
-export enum KeyType {
-  EC = 'EC',
-  OKP = 'OKP',
-  RSA = 'RSA',
-}
-
 export const SIG_KEY_ALGS = ['ES256', 'ES384', 'ES512', 'EdDSA', 'ES256K', 'Ed25519', 'Secp256k1', 'Secp256r1', 'Bls12381G1', 'Bls12381G2']
 export const ENC_KEY_ALGS = ['X25519', 'ECDH_ES_A256KW', 'RSA_OAEP_256']
-
-export interface JWK {
-  alg?: string
-  crv?: string
-  d?: string
-  dp?: string
-  dq?: string
-  e?: string
-  ext?: boolean
-  k?: string
-  key_ops?: string[]
-  kid?: string
-  kty?: string
-  n?: string
-  oth?: Array<{
-    d?: string
-    r?: string
-    t?: string
-  }>
-  p?: string
-  q?: string
-  qi?: string
-  use?: string
-  x?: string
-  y?: string
-  /** JWK "x5c" (X.509 Certificate Chain) Parameter. */
-  x5c?: string[]
-  /** JWK "x5t" (X.509 Certificate SHA-1 Thumbprint) Parameter. */
-  x5t?: string
-  /** "x5t#S256" (X.509 Certificate SHA-256 Thumbprint) Parameter. */
-  'x5t#S256'?: string
-  /** JWK "x5u" (X.509 URL) Parameter. */
-  x5u?: string
-  [propName: string]: unknown
-}
 
 export type KeyVisibility = 'public' | 'private'
 
@@ -79,6 +31,7 @@ export interface X509Opts {
 
 export interface IImportProvidedOrGeneratedKeyArgs {
   kms?: string
+  alias?: string
   options?: IKeyOpts
 }
 export interface IKeyOpts {
@@ -92,3 +45,15 @@ export interface IKeyOpts {
 type WithRequiredProperty<Type, Key extends keyof Type> = Type & {
   [Property in Key]-?: Type[Property]
 }*/
+
+export type SignatureAlgorithmFromKeyArgs = {
+  key: IKey
+}
+
+export type SignatureAlgorithmFromKeyTypeArgs = {
+  type: TKeyType
+}
+
+export type KeyTypeFromCryptographicSuiteArgs = {
+  suite: string
+}

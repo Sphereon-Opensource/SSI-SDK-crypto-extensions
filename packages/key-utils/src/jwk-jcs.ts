@@ -1,7 +1,6 @@
 import { TextDecoder, TextEncoder } from 'web-encoding'
 import isPlainObject from 'lodash.isplainobject'
 import type { ByteView } from 'multiformats/codecs/interface'
-import type { JsonWebKey } from 'did-resolver'
 
 const textEncoder = new TextEncoder()
 const textDecoder = new TextDecoder()
@@ -74,7 +73,7 @@ function validateJwk(jwk: any) {
  * @param jwk - The JWK to canonicalize.
  * @returns The JWK with only the required members, ordered lexicographically.
  */
-function minimalJwk(jwk: any) {
+export function minimalJwk(jwk: any) {
   // "default" case is not needed
   // eslint-disable-next-line default-case
   switch (jwk.kty) {

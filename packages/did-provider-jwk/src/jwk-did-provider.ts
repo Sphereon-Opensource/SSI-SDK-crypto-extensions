@@ -24,6 +24,7 @@ export class JwkDIDProvider extends AbstractIdentifierProvider {
     const key = await importProvidedOrGeneratedKey(
       {
         kms: args.kms ?? this.defaultKms,
+        alias: args.alias,
         options: args.options,
       },
       context

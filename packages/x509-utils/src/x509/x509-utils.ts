@@ -1,7 +1,8 @@
+import { Certificate } from 'pkijs'
 import * as u8a from 'uint8arrays'
 // @ts-ignore
 import keyto from '@trust/keyto'
-import { JWK, KeyVisibility } from '../types'
+import { KeyVisibility } from '../types'
 
 // Based on (MIT licensed):
 // https://github.com/hildjj/node-posh/blob/master/lib/index.js
@@ -37,9 +38,24 @@ export function x5cToPemCertChain(x5c: string[], maxDepth?: number): string {
   const length = maxDepth === 0 ? x5c.length : Math.min(maxDepth, x5c.length)
   let pem = ''
   for (let i = 0; i < length; i++) {
-    pem += base64ToPEM(x5c[i], 'CERTIFICATE')
+    pem += derToPEM(x5c[i], 'CERTIFICATE')
   }
   return pem
+}
+
+export const pemOrDerToX509Certificate = (cert: string | Uint8Array): Certificate => {
+  if (typeof cert !== 'string') {
+    return Certificate.fromBER(cert)
+  }
+  let DER = cert
+  if (cert.includes('CERTIFICATE')) {
+    DER = PEMToDer(cert)
+  }
+  return Certificate.fromBER(u8a.fromString(DER, 'base64pad'))
+}
+
+export const areCertificatesEqual = (cert1: Certificate, cert2: Certificate): boolean => {
+  return cert1.signatureValue.isEqual(cert2.signatureValue)
 }
 
 export const toKeyObject = (PEM: string, visibility: KeyVisibility = 'public') => {
@@ -55,18 +71,18 @@ export const toKeyObject = (PEM: string, visibility: KeyVisibility = 'public') =
   }
 }
 
-export const jwkToPEM = (jwk: JWK, visibility: KeyVisibility = 'public'): string => {
+export const jwkToPEM = (jwk: JsonWebKey, visibility: KeyVisibility = 'public'): string => {
   return keyto.from(jwk, 'jwk').toString('pem', visibility === 'public' ? 'public_pkcs8' : 'private_pkcs8')
 }
 
-export const PEMToJwk = (pem: string, visibility: KeyVisibility = 'public'): JWK => {
+export const PEMToJwk = (pem: string, visibility: KeyVisibility = 'public'): JsonWebKey => {
   return keyto.from(pem, 'pem').toJwk(visibility)
 }
 export const privateKeyHexFromPEM = (PEM: string) => {
   return PEMToHex(PEM)
 }
 
-export const hexKeyFromPEMBasedJwk = (jwk: JWK, visibility: KeyVisibility = 'public'): string => {
+export const hexKeyFromPEMBasedJwk = (jwk: JsonWebKey, visibility: KeyVisibility = 'public'): string => {
   if (visibility === 'private') {
     return privateKeyHexFromPEM(jwkToPEM(jwk, 'private'))
   } else {
@@ -102,6 +118,15 @@ export const PEMToHex = (PEM: string, headerKey?: string): string => {
   return base64ToHex(strippedPem, 'base64pad')
 }
 
+export function PEMToBinary(pem: string): Uint8Array {
+  const pemContents = pem
+    .replace(/^[^]*-----BEGIN [^-]+-----/, '')
+    .replace(/-----END [^-]+-----[^]*$/, '')
+    .replace(/\s/g, '')
+
+  return u8a.fromString(pemContents, 'base64pad')
+}
+
 /**
  * Converts a base64 encoded string to hex string, removing any non-base64 characters, including newlines
  * @param input The input in base64, with optional newlines
@@ -124,19 +149,27 @@ export const hexToPEM = (hex: string, type: KeyVisibility): string => {
   const base64 = hexToBase64(hex, 'base64pad')
   const headerKey = type === 'private' ? 'RSA PRIVATE KEY' : 'PUBLIC KEY'
   if (type === 'private') {
-    const pem = base64ToPEM(base64, headerKey)
+    const pem = derToPEM(base64, headerKey)
     try {
       PEMToJwk(pem) // We only use it to test the private key
       return pem
     } catch (error) {
-      return base64ToPEM(base64, 'PRIVATE KEY')
+      return derToPEM(base64, 'PRIVATE KEY')
     }
   }
-  return base64ToPEM(base64, headerKey)
+  return derToPEM(base64, headerKey)
 }
 
-export function base64ToPEM(cert: string, headerKey?: 'PUBLIC KEY' | 'RSA PRIVATE KEY' | 'PRIVATE KEY' | 'CERTIFICATE'): string {
+export function PEMToDer(pem: string): string {
+  return pem.replace(/(-----(BEGIN|END) CERTIFICATE-----|[\n\r])/g, '')
+}
+
+export function derToPEM(cert: string, headerKey?: 'PUBLIC KEY' | 'RSA PRIVATE KEY' | 'PRIVATE KEY' | 'CERTIFICATE'): string {
   const key = headerKey ?? 'CERTIFICATE'
+  if (cert.includes(key)) {
+    // Was already in PEM it seems
+    return cert
+  }
   const matches = cert.match(/.{1,64}/g)
   if (!matches) {
     throw Error('Invalid cert input value supplied')

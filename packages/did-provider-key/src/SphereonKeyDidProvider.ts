@@ -1,5 +1,5 @@
 import {
-  generatePrivateKeyHex,
+  importProvidedOrGeneratedKey,
   JWK_JCS_PUB_NAME,
   JWK_JCS_PUB_PREFIX,
   jwkJcsEncode,
@@ -39,6 +39,7 @@ export class SphereonKeyDidProvider extends AbstractIdentifierProvider {
   async createIdentifier(
     {
       kms,
+      alias,
       options,
     }: {
       kms?: string
@@ -58,8 +59,15 @@ export class SphereonKeyDidProvider extends AbstractIdentifierProvider {
       | undefined
     const keyType: TKeyType = options?.type ?? (codecName === JWK_JCS_PUB_NAME ? 'Secp256r1' : 'Secp256k1')
     // console.log(`keytype: ${keyType}, codecName: ${codecName}`)
-    const privateKeyHex = options?.key?.privateKeyHex ?? (await generatePrivateKeyHex(keyType))
-    const key = await context.agent.keyManagerImport({ type: keyType, privateKeyHex, kms: kms ?? this.kms })
+
+    const key = await importProvidedOrGeneratedKey({
+        kms: kms ?? this.kms,
+        alias: alias,
+        options: { ...options, type: keyType },
+      },
+      context,
+    )
+
     let methodSpecificId: string | undefined
     if (codecName === JWK_JCS_PUB_NAME) {
       const jwk = toJwk(key.publicKeyHex, keyType, { use: JwkKeyUse.Signature, key, noKidThumbprint: true })

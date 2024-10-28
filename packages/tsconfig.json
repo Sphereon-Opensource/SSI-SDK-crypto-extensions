@@ -5,6 +5,9 @@
       "path": "key-utils"
     },
     {
+      "path": "x509-utils"
+    },
+    {
       "path": "did-utils"
     },
     {
@@ -36,6 +39,15 @@
     },
     {
       "path": "mnemonic-seed-manager"
+    },
+    {
+      "path": "kms-musap-rn"
+    },
+    {
+      "path": "identifier-resolution"
+    },
+    {
+      "path": "jwt-service"
     }
   ]
 }
