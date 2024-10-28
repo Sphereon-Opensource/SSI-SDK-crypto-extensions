@@ -3,6 +3,26 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.25.0](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/compare/v0.24.0...v0.25.0) (2024-10-28)
+
+### Bug Fixes
+
+- added @trust/keyto to dependencies of key-utils ([bc5d6f6](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/commit/bc5d6f68f74d8206794c611d5f9616a1f99bc822))
+- added @trust/keyto to dependencies of key-utils ([6bb8d9e](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/commit/6bb8d9eda667782b6fec8defd100a0b5ae2de852))
+- reverted dependency update of ssi-types in key-utils module ([1741bda](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/commit/1741bda55fad424c52b96fbba0e81da384e8777d))
+
+### Features
+
+- Add JWS signature verification; Add cose key conversions and resolution (managed and external) ([9f76393](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/commit/9f7639322d825bd7ec0a276adfb6ab4a934fc571))
+- Added x509 validateX5cCertificateChain & validatePEMCertificateChain functions ([3706e31](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/commit/3706e313c95bb26ee397c3fff6034e31a537b563))
+- External resolution of keys and validations for DIDs and x5c ([01db327](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/commit/01db32715f7e7a95b57e07c23b7f3cc5b6ffa578))
+- Have a method on the Key Management System as well as a separate function to get a named or the default KMS. Remove dep/enum for kms local. We only have KMSs names at runtime. We should not rely on static KMS names ever! ([c0ca69f](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/commit/c0ca69fe0f10cfd9cdafa94b7af31a6cf6100680))
+- New JWS signature service that makes use of the managed identifier resolution, allowing for easier and more flexible JWT signing. ([941996e](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/commit/941996ea69fc042680b29d39667b92b56690887f))
+
+### Reverts
+
+- Revert "chore: Allow default values for kms as kms is not optional in Veramo APIs" ([708742c](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/commit/708742c013bc9e8cff9217e1eaff746ae0f8af00))
+
 # [0.24.0](https://github.com/Sphereon-OpenSource/ssi-sdk/compare/v0.23.0...v0.24.0) (2024-08-01)
 
 ### Bug Fixes
