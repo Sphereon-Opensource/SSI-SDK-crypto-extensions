@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.25.0](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/compare/v0.24.0...v0.25.0) (2024-10-28)
+
+### Bug Fixes
+
+- u8aintarrays do not work with REST ([8c68022](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/commit/8c68022a999ae67c1b06d9ba80ec40a92e9db8a2))
+
+### Features
+
+- Add JWS signature verification; Add cose key conversions and resolution (managed and external) ([9f76393](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/commit/9f7639322d825bd7ec0a276adfb6ab4a934fc571))
+- also allow passing in a resolved identifier next to identifier opts, so we do not have to resolve twice ([70d2d15](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/commit/70d2d15cb5456d03ecc652092adbe3fba73a4c3d))
+- JWE JWT compact agent methods ([6324f97](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/commit/6324f978ae1b08c5dd5e116129166f40c8e3a58f))
+- New JWS signature service that makes use of the managed identifier resolution, allowing for easier and more flexible JWT signing. ([941996e](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/commit/941996ea69fc042680b29d39667b92b56690887f))
+
 # [0.24.0](https://github.com/Sphereon-Opensource/SSI-SDK/compare/v0.23.0...v0.24.0) (2024-08-01)
 
 **Note:** Version bump only for package @sphereon/ssi-sdk-ext.mnemonic-seed-manager

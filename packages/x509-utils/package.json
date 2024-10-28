@@ -1,7 +1,7 @@
 {
   "name": "@sphereon/ssi-sdk-ext.x509-utils",
   "description": "Sphereon SSI-SDK plugin functions for X.509 Certificate handling.",
-  "version": "0.24.0",
+  "version": "0.25.0",
   "source": "src/index.ts",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -10,11 +10,11 @@
     "build:clean": "tsc --build --clean && tsc --build"
   },
   "dependencies": {
-    "pkijs": "^3.2.4",
-    "js-x509-utils": "^1.0.7",
+    "@trust/keyto": "^1.0.1",
     "debug": "^4.3.4",
-    "uint8arrays": "^3.1.1",
-    "@trust/keyto": "^1.0.1"
+    "js-x509-utils": "^1.0.7",
+    "pkijs": "^3.2.4",
+    "uint8arrays": "^3.1.1"
   },
   "devDependencies": {
     "typescript": "^5.5.4"

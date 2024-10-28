@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.25.0](https://github.com/Sphereon-OpenSource/ssi-sdk-crypto-extensions/compare/v0.24.0...v0.25.0) (2024-10-28)
+
+### Features
+
+- Add JWS signature verification; Add cose key conversions and resolution (managed and external) ([9f76393](https://github.com/Sphereon-OpenSource/ssi-sdk-crypto-extensions/commit/9f7639322d825bd7ec0a276adfb6ab4a934fc571))
+- Create seperate function to handle KMS managed identifiers of different types as the assumption always was DIDs ([944b425](https://github.com/Sphereon-OpenSource/ssi-sdk-crypto-extensions/commit/944b42566461a125a4e14e7c0caba94040fac862))
+- External resolution of keys and validations for DIDs and x5c ([01db327](https://github.com/Sphereon-OpenSource/ssi-sdk-crypto-extensions/commit/01db32715f7e7a95b57e07c23b7f3cc5b6ffa578))
+- Have a method on the Key Management System as well as a separate function to get a named or the default KMS. Remove dep/enum for kms local. We only have KMSs names at runtime. We should not rely on static KMS names ever! ([c0ca69f](https://github.com/Sphereon-OpenSource/ssi-sdk-crypto-extensions/commit/c0ca69fe0f10cfd9cdafa94b7af31a6cf6100680))
+
 # [0.24.0](https://github.com/Sphereon-OpenSource/ssi-sdk-crypto-extensions/compare/v0.23.0...v0.24.0) (2024-08-01)
 
 ### Features

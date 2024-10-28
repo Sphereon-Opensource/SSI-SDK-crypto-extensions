@@ -3,6 +3,46 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.25.0](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/compare/v0.24.0...v0.25.0) (2024-10-28)
+
+### Bug Fixes
+
+- added @trust/keyto to dependencies of key-utils ([bc5d6f6](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/bc5d6f68f74d8206794c611d5f9616a1f99bc822))
+- added @trust/keyto to dependencies of key-utils ([6bb8d9e](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/6bb8d9eda667782b6fec8defd100a0b5ae2de852))
+- applied importProvidedOrGeneratedKey in KeyDidProvider ([841a1da](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/841a1daf9ad9a3eef8cbad89ac2624c7ec253ca0))
+- fixed didManagerCreate test ([b3b6756](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/b3b6756b3ba231c9721a6d104bb48c46b7dd13d4))
+- lockfile ([73415ed](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/73415eda87e71d990e8d7726fbef7c1eb5072280))
+- musapKMS improved determineAlgorithm handling ([24d8218](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/24d8218e0397ac4a8d0023533dbb807be0c8fa98))
+- reverted dependency update of ssi-types in key-utils module ([4150b25](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/4150b2513c8d01dfcdf26ff78c9951b4147aa884))
+- reverted dependency update of ssi-types in key-utils module ([1741bda](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/1741bda55fad424c52b96fbba0e81da384e8777d))
+- u8aintarrays do not work with REST ([8c68022](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/8c68022a999ae67c1b06d9ba80ec40a92e9db8a2))
+- **workaround:** Workaround (downgrade) for nist-weierstrauss being ESM only. refs [#19](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/issues/19) (should have a proper solution soon) ([aff05cf](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/aff05cf26ef7a6092d748fc3633ca48e997a4797))
+
+### Features
+
+- Add JWS signature verification; Add cose key conversions and resolution (managed and external) ([9f76393](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/9f7639322d825bd7ec0a276adfb6ab4a934fc571))
+- Add support for setting or inferring kid and issuer. Which will be handy for JWS signing. Also split managed functions into separate functions, like we do for the external identifier resolution. ([c17edaf](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/c17edaf8f7fa14a0a998d7ea5b5370e5014dbc0b))
+- Add support to convert any identifier resolution to JWK and Key resolution ([60da6b8](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/60da6b8eefe5f2a07af102eae64902b81256b089))
+- added calculation and querying based on jwk thumbprints ([5ce83cc](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/5ce83cca64d55b664a2b0e6eb04660d299e2655c))
+- added managed issuer identifier resolution ([d5ca58e](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/d5ca58e02c86702ed8f18374d65b78cd337dd7c2))
+- added MusapKeyManagerSystem ([5841d67](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/5841d677fad29bb770f7157cd3f7a77e634b27f9))
+- Added x509 validateX5cCertificateChain & validatePEMCertificateChain functions ([3706e31](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/3706e313c95bb26ee397c3fff6034e31a537b563))
+- Allow main managed identifier get method to be lazy when a resolved identifier is passed in ([28fb763](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/28fb763f611e845d64342c8f726cea9fd38bd95e))
+- Allow main managed identifier get method to be lazy when a resolved identifier is passed in ([7d4fa81](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/7d4fa81b44cfae44a23339125076bf825503b887))
+- Allow to cleanup keys and have ephemeral keys. Remove dep on kms-local from KMS. Always calculate jwkThumbprints no matter the KMS used ([94414ff](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/94414ffe62f1bb2192506b1ab81441077d92712d))
+- also allow passing in a resolved identifier next to identifier opts, so we do not have to resolve twice ([70d2d15](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/70d2d15cb5456d03ecc652092adbe3fba73a4c3d))
+- Create seperate function to handle KMS managed identifiers of different types as the assumption always was DIDs ([944b425](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/944b42566461a125a4e14e7c0caba94040fac862))
+- Expose managed identifier lazy result method, as we are using lazy resolution more and more ([b2c8065](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/b2c80655b05eec627f2f3d957cece1b6468375cf))
+- Expose subject alternative names. Make getting the public key JWK more resilient. Allow to blindly trust certificates for testing purposes (only when x5c has 1 element!) as we perform all kinds of checks including CA certificate extension verifications in the chain ([675d6cb](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/675d6cb99e1ff87da59f37880a4c3b1f6d3809e5))
+- External resolution of keys and validations for DIDs and x5c ([01db327](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/01db32715f7e7a95b57e07c23b7f3cc5b6ffa578))
+- Have a method on the Key Management System as well as a separate function to get a named or the default KMS. Remove dep/enum for kms local. We only have KMSs names at runtime. We should not rely on static KMS names ever! ([c0ca69f](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/c0ca69fe0f10cfd9cdafa94b7af31a6cf6100680))
+- JWE JWT compact agent methods ([6324f97](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/6324f978ae1b08c5dd5e116129166f40c8e3a58f))
+- New JWS signature service that makes use of the managed identifier resolution, allowing for easier and more flexible JWT signing. ([941996e](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/941996ea69fc042680b29d39667b92b56690887f))
+
+### Reverts
+
+- Revert "chore: Allow default values for kms as kms is not optional in Veramo APIs" ([708742c](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/708742c013bc9e8cff9217e1eaff746ae0f8af00))
+
 # [0.24.0](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/compare/v0.23.0...v0.24.0) (2024-08-01)
 
 ### Bug Fixes
