@@ -10,6 +10,7 @@ import {
   isManagedIdentifierCoseKeyOpts,
   isManagedIdentifierDidOpts,
   isManagedIdentifierDidResult,
+  isManagedIdentifierEntityIdOpts,
   isManagedIdentifierJwkOpts,
   isManagedIdentifierJwkResult,
   isManagedIdentifierKeyOpts,
@@ -20,6 +21,8 @@ import {
   ManagedIdentifierCoseKeyResult,
   ManagedIdentifierDidOpts,
   ManagedIdentifierDidResult,
+  ManagedIdentifierEntityIdOpts,
+  ManagedIdentifierEntityIdResult,
   ManagedIdentifierJwkOpts,
   ManagedIdentifierJwkResult,
   ManagedIdentifierKeyOpts,
@@ -30,6 +33,7 @@ import {
   ManagedIdentifierResult,
   ManagedIdentifierX5cOpts,
   ManagedIdentifierX5cResult,
+  RemoteIdentifierResult,
 } from '../types'
 
 export async function getManagedKidIdentifier(
@@ -80,7 +84,7 @@ export async function ensureManagedIdentifierResult(
     crypto?: Crypto
   },
   context: IAgentContext<IKeyManager>
-): Promise<ManagedIdentifierResult> {
+): Promise<ManagedIdentifierResult | RemoteIdentifierResult> {
   const { lazyDisabled = false } = identifier
   return !lazyDisabled && isManagedIdentifierResult(identifier) ? identifier : await getManagedIdentifier(identifier, context)
 }
@@ -147,6 +151,16 @@ export async function getManagedCoseKeyIdentifier(
     clientIdScheme: opts.clientIdScheme,
     opts,
   } satisfies ManagedIdentifierCoseKeyResult
+}
+
+export async function getManagedEntityIdIdentifier(
+  opts: ManagedIdentifierEntityIdOpts,
+): Promise<ManagedIdentifierEntityIdResult> {
+  return { 
+    method: 'entity_id',
+    identifier: new URL(opts.identifier).toString(), // URL validation
+    opts,
+  } satisfies ManagedIdentifierEntityIdResult
 }
 
 export async function getManagedDidIdentifier(opts: ManagedIdentifierDidOpts, context: IAgentContext<any>): Promise<ManagedIdentifierDidResult> {
@@ -275,8 +289,9 @@ export async function getManagedIdentifier(
     crypto?: Crypto
   },
   context: IAgentContext<IKeyManager>
-): Promise<ManagedIdentifierResult> {
-  let resolutionResult: ManagedIdentifierResult
+): Promise<ManagedIdentifierResult | RemoteIdentifierResult> {
+  let resolutionResult: ManagedIdentifierResult | undefined
+  let remoteResolutionResult: RemoteIdentifierResult | undefined
   if (isManagedIdentifierResult(opts)) {
     opts
   }
@@ -292,15 +307,24 @@ export async function getManagedIdentifier(
     resolutionResult = await getManagedKeyIdentifier(opts, context)
   } else if (isManagedIdentifierCoseKeyOpts(opts)) {
     resolutionResult = await getManagedCoseKeyIdentifier(opts, context)
-  } else {
+  } else if (isManagedIdentifierEntityIdOpts(opts)) {
+    remoteResolutionResult = await getManagedEntityIdIdentifier(opts)
+  } 
+  
+  if(!resolutionResult && !remoteResolutionResult) {
     return Promise.reject(Error(`Could not determine identifier method. Please provide explicitly`))
   }
-  const { key } = resolutionResult
-  if (!key || (isManagedIdentifierDidOpts(opts) && isManagedIdentifierDidResult(resolutionResult) && !resolutionResult.identifier)) {
-    console.log(`Cannot find identifier`, opts.identifier)
-    return Promise.reject(`Cannot find identifier ${opts.identifier}`)
+  
+  if (resolutionResult) {
+    const { key } = resolutionResult
+    if (!key || (isManagedIdentifierDidOpts(opts) && isManagedIdentifierDidResult(resolutionResult) && !resolutionResult.identifier)) {
+      console.log(`Cannot find identifier`, opts.identifier)
+      return Promise.reject(`Cannot find identifier ${opts.identifier}`)
+    }
+    return resolutionResult
   }
-  return resolutionResult
+  
+  return remoteResolutionResult!
 }
 
 export async function managedIdentifierToKeyResult(
