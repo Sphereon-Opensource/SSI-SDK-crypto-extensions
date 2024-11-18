@@ -508,9 +508,6 @@ importers:
       '@sphereon/ssi-sdk-ext.did-resolver-jwk':
         specifier: workspace:*
         version: link:../did-resolver-jwk
-      '@sphereon/ssi-sdk-ext.jwt-service':
-        specifier: workspace:*
-        version: link:../jwt-service
       '@sphereon/ssi-sdk-ext.key-manager':
         specifier: workspace:*
         version: link:../key-manager
