@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.25.0](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/compare/v0.24.0...v0.25.0) (2024-10-28)
+
+### Features
+
+- Add JWS signature verification; Add cose key conversions and resolution (managed and external) ([9f76393](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/commit/9f7639322d825bd7ec0a276adfb6ab4a934fc571))
+- Add support for setting or inferring kid and issuer. Which will be handy for JWS signing. Also split managed functions into separate functions, like we do for the external identifier resolution. ([c17edaf](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/commit/c17edaf8f7fa14a0a998d7ea5b5370e5014dbc0b))
+- Add support to convert any identifier resolution to JWK and Key resolution ([60da6b8](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/commit/60da6b8eefe5f2a07af102eae64902b81256b089))
+- added managed issuer identifier resolution ([d5ca58e](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/commit/d5ca58e02c86702ed8f18374d65b78cd337dd7c2))
+- Allow main managed identifier get method to be lazy when a resolved identifier is passed in ([28fb763](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/commit/28fb763f611e845d64342c8f726cea9fd38bd95e))
+- Allow main managed identifier get method to be lazy when a resolved identifier is passed in ([7d4fa81](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/commit/7d4fa81b44cfae44a23339125076bf825503b887))
+- Expose managed identifier lazy result method, as we are using lazy resolution more and more ([b2c8065](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/commit/b2c80655b05eec627f2f3d957cece1b6468375cf))
+- External resolution of keys and validations for DIDs and x5c ([01db327](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/commit/01db32715f7e7a95b57e07c23b7f3cc5b6ffa578))
+- New JWS signature service that makes use of the managed identifier resolution, allowing for easier and more flexible JWT signing. ([941996e](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/commit/941996ea69fc042680b29d39667b92b56690887f))
+
 # [0.24.0](https://github.com/Sphereon-Opensource/SSI-SDK/compare/v0.23.0...v0.24.0) (2024-08-01)
 
 **Note:** Version bump only for package @sphereon/ssi-sdk-ext.mnemonic-seed-manager
