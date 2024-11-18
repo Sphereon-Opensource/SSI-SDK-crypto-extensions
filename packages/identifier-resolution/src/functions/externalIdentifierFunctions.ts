@@ -258,7 +258,7 @@ export async function resolveExternalEntityIdIdentifier(
           break
         }
         const esSignature = jwtVerifyResult.jws.signatures[0] // FIXME?
-        trustedAnchors[trustAnchor] = esSignature.publicKeyHex
+        trustedAnchors[trustAnchor] = esSignature.publicKeyHex // When we have multiple hits from different trust anchors the caller can infer which signature came from which trust anchor  
         jwks.concat(esSignature.identifier.jwks)
       }
     }
