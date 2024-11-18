@@ -1,5 +1,5 @@
 import { IAgentContext, IAgentPlugin, IDIDManager, IKeyManager } from '@veramo/core'
-import { schema } from '..'
+import { ExternalIdentifierEntityIdOpts, ExternalIdentifierEntityIdResult, schema } from '..'
 import { resolveExternalIdentifier, ensureManagedIdentifierResult } from '../functions'
 import {
   ExternalIdentifierDidOpts,
@@ -30,6 +30,7 @@ import {
   ManagedIdentifierOptsOrResult,
   ManagedIdentifierOID4VCIssuerOpts
 } from '../types'
+import { IOIDFClient } from '@sphereon/ssi-sdk.oidf-client'
 
 /**
  * @public
@@ -53,6 +54,7 @@ export class IdentifierResolution implements IAgentPlugin {
     identifierExternalResolveByX5c: this.identifierExternalResolveByX5c.bind(this),
     identifierExternalResolveByJwk: this.identifierExternalResolveByJwk.bind(this),
     identifierExternalResolveByCoseKey: this.identifierExternalResolveByCoseKey.bind(this),
+    identifierExternalResolveByEntityId: this.identifierExternalResolveByEntityId.bind(this),
 
     // todo: JWKSet, oidc-discovery, oid4vci-issuer etc. Anything we already can resolve and need keys of
   }
@@ -127,7 +129,7 @@ export class IdentifierResolution implements IAgentPlugin {
     return (await this.identifierGetManaged({ ...args, method: 'x5c' }, context)) as ManagedIdentifierX5cResult
   }
 
-  private async identifierResolveExternal(args: ExternalIdentifierOpts, context: IAgentContext<IKeyManager>): Promise<ExternalIdentifierResult> {
+  private async identifierResolveExternal(args: ExternalIdentifierOpts, context: IAgentContext<IKeyManager | IOIDFClient>): Promise<ExternalIdentifierResult> {
     return await resolveExternalIdentifier({ ...args, crypto: this._crypto }, context)
   }
 
@@ -145,7 +147,12 @@ export class IdentifierResolution implements IAgentPlugin {
   ): Promise<ExternalIdentifierCoseKeyResult> {
     return (await this.identifierResolveExternal({ ...args, method: 'cose_key' }, context)) as ExternalIdentifierCoseKeyResult
   }
+  
   private async identifierExternalResolveByJwk(args: ExternalIdentifierJwkOpts, context: IAgentContext<any>): Promise<ExternalIdentifierJwkResult> {
     return (await this.identifierResolveExternal({ ...args, method: 'jwk' }, context)) as ExternalIdentifierJwkResult
+  }
+  
+  private async identifierExternalResolveByEntityId(args: ExternalIdentifierEntityIdOpts, context: IAgentContext<IOIDFClient>): Promise<ExternalIdentifierEntityIdResult> {
+    return (await this.identifierResolveExternal({ ...args, method: 'entity_id' }, context)) as ExternalIdentifierEntityIdResult
   }
 }

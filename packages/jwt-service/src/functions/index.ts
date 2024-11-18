@@ -348,6 +348,7 @@ export const verifyJws = async (args: VerifyJwsArgs, context: IAgentContext<IIde
     verificationTime: new Date(),
   } satisfies IJwsValidationResult
 }
+
 export const toJwsJsonGeneral = async ({ jws }: { jws: Jws }, context: IAgentContext<any>): Promise<JwsJsonGeneral> => {
   let payload: string
   let signatures: JwsJsonSignature[] = []
@@ -427,7 +428,8 @@ export const toJwsJsonGeneralWithIdentifiers = async (
         ? await resolveExternalJwkIdentifier({ identifier: args.jwk }, context)
         : await resolveExternalIdentifierFromJwsHeader(protectedHeader, context, args)
       if (identifier !== undefined) {
-        return { ...signature, identifier }
+        const publicKeyHex = args.jwk && jwkTtoPublicKeyHex(args.jwk)
+        return { ...signature, identifier, publicKeyHex }
       }
       return undefined
     })

@@ -3,7 +3,7 @@ import {
   ExternalIdentifierCoseKeyOpts,
   ExternalIdentifierCoseKeyResult,
   ExternalIdentifierDidOpts,
-  ExternalIdentifierDidResult,
+  ExternalIdentifierDidResult, ExternalIdentifierEntityIdOpts, ExternalIdentifierEntityIdResult,
   ExternalIdentifierJwkOpts,
   ExternalIdentifierJwkResult,
   ExternalIdentifierOpts,
@@ -29,6 +29,7 @@ import {
   ManagedIdentifierX5cOpts,
   ManagedIdentifierX5cResult,
 } from './managedIdentifierTypes'
+import { IOIDFClient } from '@sphereon/ssi-sdk.oidf-client'
 
 // Exposing the methods here for any REST implementation
 export const identifierResolutionContextMethods: Array<string> = [
@@ -45,6 +46,7 @@ export const identifierResolutionContextMethods: Array<string> = [
   'identifierExternalResolveByX5c',
   'identifierExternalResolveByJwk',
   'identifierExternalResolveByCoseKey',
+  'identifierExternalResolveByEntityId',
 ]
 
 /**
@@ -99,4 +101,6 @@ export interface IIdentifierResolution extends IPluginMethodMap {
   identifierExternalResolveByCoseKey(args: ExternalIdentifierCoseKeyOpts, context: IAgentContext<any>): Promise<ExternalIdentifierCoseKeyResult>
 
   identifierExternalResolveByX5c(args: ExternalIdentifierX5cOpts, context: IAgentContext<any>): Promise<ExternalIdentifierX5cResult>
+  
+  identifierExternalResolveByEntityId(args: ExternalIdentifierEntityIdOpts, context: IAgentContext<IOIDFClient>): Promise<ExternalIdentifierEntityIdResult>
 }

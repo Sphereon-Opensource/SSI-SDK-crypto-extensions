@@ -48,6 +48,7 @@ export interface IJwtService extends IPluginMethodMap {
 
 export type IJwsValidationResult = IValidationResult & {
     jws: JwsJsonGeneralWithIdentifiers // We always translate to general as that is the most flexible format allowing multiple sigs
+    
 }
 
 export interface PreparedJws {
@@ -126,6 +127,7 @@ export interface JwsJsonGeneralWithIdentifiers extends JwsJsonGeneral {
 
 export interface JwsJsonSignatureWithIdentifier extends JwsJsonSignature {
     identifier: ExternalIdentifierResult
+    publicKeyHex: string
 }
 
 
