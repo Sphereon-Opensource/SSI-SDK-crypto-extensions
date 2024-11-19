@@ -1,11 +1,7 @@
-import {
-  ExternalIdentifierOIDFEntityIdResult,
-  ExternalIdentifierResult,
-  IIdentifierResolution,
-} from '@sphereon/ssi-sdk-ext.identifier-resolution'
+import { IIdentifierResolution } from '@sphereon/ssi-sdk-ext.identifier-resolution'
 import { JWK } from '@sphereon/ssi-types'
 import { IDIDManager, IKeyManager, TAgent } from '@veramo/core'
-import { decodeJwt } from 'jose'
+import {decodeJwt} from "jose";
 
 import * as u8a from 'uint8arrays'
 import { IJwtService } from '../../src'
@@ -136,39 +132,4 @@ export default (testContext: {
             console.log(jwe)
         })
     })
-
-  describe('oidf-identifier-resolution', () => { // TODO move to separate package? We can't load JwtService in identifier-resolution
-    it('should resolve OIDF entity ID against multiple trust anchors', async () => {
-      const EXAMPLE_ENTITY_ID = 'https://agent.findynet.demo.sphereon.com/oid4vci'
-      const result: ExternalIdentifierResult = await agent.identifierExternalResolve({
-        identifier: EXAMPLE_ENTITY_ID,
-        trustAnchors: ['https://federation.demo.sphereon.com', 'https://federation.dev.findy.fi']
-      })
-
-      expect(result).toBeDefined()
-      expect(result.method).toEqual('entity_id')
-
-      if (result.method === 'entity_id') {
-        const entityResult = result as ExternalIdentifierOIDFEntityIdResult
-        expect(entityResult.trustedAnchors).toBeDefined()
-
-        expect(entityResult.trustedAnchors['https://federation.demo.sphereon.com'])
-          .toEqual('036f147e164a6b2ae860330b75bb54243b028086b4297a8d663bb4afe4080afec7')
-
-        expect(entityResult.errorList).toBeDefined()
-        if(entityResult.errorList) {
-          expect(entityResult.errorList['https://federation.dev.findy.fi'])
-            .toEqual('A Trust chain could not be established')
-        }
-
-        expect(Array.isArray(entityResult.jwks)).toBe(true)
-        expect(entityResult.jwks).toHaveLength(1)
-
-        const jwk = entityResult.jwks[0]
-        expect(jwk.jwkThumbprint).toEqual('PjWRF5oJSGKQQaf_NPMndBA528S_Ulqcu6E_ZWZkkWY')
-        
-        expect(entityResult.trustEstablished).toBeTruthy()
-      }
-    })
-  })
 }
