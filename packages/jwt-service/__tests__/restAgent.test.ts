@@ -21,6 +21,8 @@ import { DataSource } from 'typeorm'
 
 import { IJwtService, JwtService } from '../src'
 import jwtServiceTests from './shared/jwtServiceTest'
+import { ResourceResolver } from '@sphereon/ssi-sdk.resource-resolver'
+import { OIDFClient } from '@sphereon/ssi-sdk.oidf-client'
 
 jest.setTimeout(30000)
 
@@ -98,6 +100,8 @@ const setup = async (): Promise<boolean> => {
       }),
       new IdentifierResolution(),
       new JwtService(),
+      new ResourceResolver(),
+      new OIDFClient(),
     ],
   })
 

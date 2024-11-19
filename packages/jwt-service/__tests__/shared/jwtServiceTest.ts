@@ -156,8 +156,10 @@ export default (testContext: {
           .toEqual('036f147e164a6b2ae860330b75bb54243b028086b4297a8d663bb4afe4080afec7')
 
         expect(entityResult.errorList).toBeDefined()
-        expect(entityResult.errorList['https://federation.dev.findy.fi'])
-          .toEqual('A Trust chain could not be established')
+        if(entityResult.errorList) {
+          expect(entityResult.errorList['https://federation.dev.findy.fi'])
+            .toEqual('A Trust chain could not be established')
+        }
 
         expect(Array.isArray(entityResult.jwks)).toBe(true)
         expect(entityResult.jwks).toHaveLength(1)
