@@ -13,13 +13,10 @@ import { IAgentContext, IDIDManager, IResolver } from '@veramo/core'
 import { isDefined } from '@veramo/utils'
 import { CryptoEngine, setEngine } from 'pkijs'
 import {
-  ErrorMessage,
   ExternalIdentifierCoseKeyOpts,
   ExternalIdentifierCoseKeyResult,
   ExternalIdentifierDidOpts,
   ExternalIdentifierDidResult,
-  ExternalIdentifierEntityIdOpts,
-  ExternalIdentifierEntityIdResult,
   ExternalIdentifierJwkOpts,
   ExternalIdentifierJwkResult,
   ExternalIdentifierMethod,
@@ -30,16 +27,14 @@ import {
   ExternalJwkInfo,
   isExternalIdentifierCoseKeyOpts,
   isExternalIdentifierDidOpts,
-  isExternalIdentifierEntityIdOpts,
   isExternalIdentifierJwkOpts,
   isExternalIdentifierJwksUrlOpts,
   isExternalIdentifierKidOpts,
   isExternalIdentifierOidcDiscoveryOpts,
+  isExternalIdentifierOIDFEntityIdOpts,
   isExternalIdentifierX5cOpts,
-  PublicKeyHex,
-  TrustedAnchor,
 } from '../types'
-import { IOIDFClient } from '@sphereon/ssi-sdk.oidf-client'
+import { resolveExternalOIDFEntityIdIdentifier } from '.'
 
 
 export async function resolveExternalIdentifier(
@@ -57,8 +52,8 @@ export async function resolveExternalIdentifier(
     return resolveExternalJwkIdentifier(opts, context)
   } else if (isExternalIdentifierCoseKeyOpts(opts)) {
     return resolveExternalCoseKeyIdentifier(opts, context)
-  } else if (isExternalIdentifierEntityIdOpts(opts)) {
-    return resolveExternalEntityIdIdentifier(opts, context)
+  } else if (isExternalIdentifierOIDFEntityIdOpts(opts)) {
+    return resolveExternalOIDFEntityIdIdentifier(opts, context)
   } else if (isExternalIdentifierKidOpts(opts)) {
     method = 'kid'
   } else if (isExternalIdentifierJwksUrlOpts(opts)) {
@@ -222,54 +217,6 @@ export async function resolveExternalCoseKeyIdentifier(
     ],
     x5c,
   } satisfies ExternalIdentifierCoseKeyResult
-}
-
-export async function resolveExternalEntityIdIdentifier(
-  opts: ExternalIdentifierEntityIdOpts,
-  context: IAgentContext<IOIDFClient>
-): Promise<ExternalIdentifierEntityIdResult> {
-  let { trustAnchors, identifier } = opts
-
-  if (!trustAnchors || trustAnchors.length === 0) {
-    return Promise.reject(Error('ExternalIdentifierEntityIdOpts is missing the trustAnchors'))
-  }
-
-  if (!contextHasPlugin(context, 'jwtVerifyJwsSignature')) {
-    return Promise.reject(Error('For EntityId resolving the agent needs to have the JwtService plugin enabled'))
-  }
-
-  const trustedAnchors: Record<TrustedAnchor, PublicKeyHex> = {}
-  const errorList: Record<TrustedAnchor, ErrorMessage> = {}
-  const jwks: Array<ExternalJwkInfo> = []
-  
-  for (const trustAnchor of trustAnchors) {
-    const resolveResult = await context.agent.resolveTrustChain({
-      entityIdentifier: identifier,
-      trustAnchors: [trustAnchor]
-    })
-
-    if (resolveResult.error || !resolveResult.trustChain) {
-      errorList[trustAnchor] = resolveResult.errorMessage ?? 'unspecified'
-    } else {
-      for(const jwt of resolveResult.trustChain.asJsReadonlyArrayView()) {
-        const jwtVerifyResult = await context.agent.jwtVerifyJwsSignature({jwt})
-        if(jwtVerifyResult.error || jwtVerifyResult.critical) {
-          errorList[trustAnchor] = jwtVerifyResult.message
-          break
-        }
-        const esSignature = jwtVerifyResult.jws.signatures[0] // FIXME?
-        trustedAnchors[trustAnchor] = esSignature.publicKeyHex // When we have multiple hits from different trust anchors the caller can infer which signature came from which trust anchor  
-        jwks.concat(esSignature.identifier.jwks)
-      }
-    }
-  }
-
-  return {
-    method: 'entity_id',
-    trustedAnchors,
-    ...(Object.keys(errorList).length > 0 && { errorList }),
-    jwks
-  }
 }
 
 export async function resolveExternalDidIdentifier(

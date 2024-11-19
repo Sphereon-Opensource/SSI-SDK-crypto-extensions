@@ -1,5 +1,5 @@
 import { IAgentContext, IAgentPlugin, IDIDManager, IKeyManager } from '@veramo/core'
-import { ExternalIdentifierEntityIdOpts, ExternalIdentifierEntityIdResult, schema } from '..'
+import { ExternalIdentifierOIDFEntityIdOpts, ExternalIdentifierOIDFEntityIdResult, schema } from '..'
 import { resolveExternalIdentifier, ensureManagedIdentifierResult } from '../functions'
 import {
   ExternalIdentifierDidOpts,
@@ -54,7 +54,7 @@ export class IdentifierResolution implements IAgentPlugin {
     identifierExternalResolveByX5c: this.identifierExternalResolveByX5c.bind(this),
     identifierExternalResolveByJwk: this.identifierExternalResolveByJwk.bind(this),
     identifierExternalResolveByCoseKey: this.identifierExternalResolveByCoseKey.bind(this),
-    identifierExternalResolveByEntityId: this.identifierExternalResolveByEntityId.bind(this),
+    identifierExternalResolveByOIDFEntityId: this.identifierExternalResolveByOIDFEntityId.bind(this),
 
     // todo: JWKSet, oidc-discovery, oid4vci-issuer etc. Anything we already can resolve and need keys of
   }
@@ -152,7 +152,7 @@ export class IdentifierResolution implements IAgentPlugin {
     return (await this.identifierResolveExternal({ ...args, method: 'jwk' }, context)) as ExternalIdentifierJwkResult
   }
   
-  private async identifierExternalResolveByEntityId(args: ExternalIdentifierEntityIdOpts, context: IAgentContext<IOIDFClient>): Promise<ExternalIdentifierEntityIdResult> {
-    return (await this.identifierResolveExternal({ ...args, method: 'entity_id' }, context)) as ExternalIdentifierEntityIdResult
+  private async identifierExternalResolveByOIDFEntityId(args: ExternalIdentifierOIDFEntityIdOpts, context: IAgentContext<IOIDFClient>): Promise<ExternalIdentifierOIDFEntityIdResult> {
+    return (await this.identifierResolveExternal({ ...args, method: 'entity_id' }, context)) as ExternalIdentifierOIDFEntityIdResult
   }
 }

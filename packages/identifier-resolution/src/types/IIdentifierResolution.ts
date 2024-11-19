@@ -3,7 +3,7 @@ import {
   ExternalIdentifierCoseKeyOpts,
   ExternalIdentifierCoseKeyResult,
   ExternalIdentifierDidOpts,
-  ExternalIdentifierDidResult, ExternalIdentifierEntityIdOpts, ExternalIdentifierEntityIdResult,
+  ExternalIdentifierDidResult, ExternalIdentifierOIDFEntityIdOpts, ExternalIdentifierOIDFEntityIdResult,
   ExternalIdentifierJwkOpts,
   ExternalIdentifierJwkResult,
   ExternalIdentifierOpts,
@@ -46,7 +46,7 @@ export const identifierResolutionContextMethods: Array<string> = [
   'identifierExternalResolveByX5c',
   'identifierExternalResolveByJwk',
   'identifierExternalResolveByCoseKey',
-  'identifierExternalResolveByEntityId',
+  'identifierExternalResolveByOIDFEntityId',
 ]
 
 /**
@@ -102,5 +102,5 @@ export interface IIdentifierResolution extends IPluginMethodMap {
 
   identifierExternalResolveByX5c(args: ExternalIdentifierX5cOpts, context: IAgentContext<any>): Promise<ExternalIdentifierX5cResult>
   
-  identifierExternalResolveByEntityId(args: ExternalIdentifierEntityIdOpts, context: IAgentContext<IOIDFClient>): Promise<ExternalIdentifierEntityIdResult>
+  identifierExternalResolveByOIDFEntityId(args: ExternalIdentifierOIDFEntityIdOpts, context: IAgentContext<IOIDFClient>): Promise<ExternalIdentifierOIDFEntityIdResult>
 }

@@ -35,6 +35,8 @@
     "@sphereon/ssi-sdk-ext.did-resolver-jwk": "workspace:*",
     "@sphereon/ssi-sdk-ext.kms-local": "workspace:*",
     "@sphereon/ssi-sdk.dev": "0.30.2-feature.SDK.41.oidf.support.286",
+    "@sphereon/ssi-sdk.oidf-client": "0.30.2-feature.SDK.41.oidf.support.286",
+    "@sphereon/ssi-sdk.resource-resolver": "0.30.2-feature.SDK.41.oidf.support.286",
     "@veramo/data-store": "4.2.0",
     "@veramo/did-manager": "4.2.0",
     "@veramo/did-resolver": "4.2.0",

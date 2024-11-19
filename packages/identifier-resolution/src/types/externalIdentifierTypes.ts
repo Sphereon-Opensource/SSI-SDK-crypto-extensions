@@ -5,7 +5,7 @@ import { IParsedDID } from '@sphereon/ssi-types'
 import { DIDDocument, DIDDocumentSection, DIDResolutionResult } from '@veramo/core'
 import {
   isCoseKeyIdentifier,
-  isDidIdentifier, isEntityIdIdentifier,
+  isDidIdentifier, isOIDFEntityIdIdentifier,
   isJwkIdentifier,
   isJwksUrlIdentifier,
   isKidIdentifier,
@@ -47,7 +47,7 @@ export type ExternalIdentifierOpts = (
   | ExternalIdentifierDidOpts
   | ExternalIdentifierKidOpts
   | ExternalIdentifierCoseKeyOpts
-  | ExternalIdentifierEntityIdOpts
+  | ExternalIdentifierOIDFEntityIdOpts
 ) &
   ExternalIdentifierOptsBase
 
@@ -102,15 +102,15 @@ export function isExternalIdentifierJwksUrlOpts(opts: ExternalIdentifierOptsBase
   return ('method' in opts && opts.method === 'oidc-discovery') || isJwksUrlIdentifier(identifier)
 }
 
-export type ExternalIdentifierEntityIdOpts = Omit<ExternalIdentifierOptsBase, 'method'> & {
+export type ExternalIdentifierOIDFEntityIdOpts = Omit<ExternalIdentifierOptsBase, 'method'> & {
   method?: 'entity_id'
   identifier: string
   trustAnchors?: Array<string>
 }
 
-export function isExternalIdentifierEntityIdOpts(opts: ExternalIdentifierOptsBase): opts is ExternalIdentifierCoseKeyOpts {
+export function isExternalIdentifierOIDFEntityIdOpts(opts: ExternalIdentifierOptsBase): opts is ExternalIdentifierCoseKeyOpts {
   const { identifier } = opts
-  return ('method' in opts && opts.method === 'entity_id') || isEntityIdIdentifier(identifier)
+  return ('method' in opts && opts.method === 'entity_id' || 'trustAnchors' in opts) && isOIDFEntityIdIdentifier(identifier)
 }
 
 export type ExternalIdentifierX5cOpts = Omit<ExternalIdentifierOptsBase, 'method'> &
@@ -130,7 +130,7 @@ export function isExternalIdentifierX5cOpts(opts: ExternalIdentifierOptsBase): o
 export type ExternalIdentifierMethod = 'did' | 'jwk' | 'x5c' | 'kid' | 'cose_key' | 'oidc-discovery' | 'jwks-url' | 'oid4vci-issuer' | 'entity_id'
 
 export type ExternalIdentifierResult = IExternalIdentifierResultBase &
-  (ExternalIdentifierDidResult | ExternalIdentifierX5cResult | ExternalIdentifierJwkResult | ExternalIdentifierCoseKeyResult | ExternalIdentifierEntityIdResult )
+  (ExternalIdentifierDidResult | ExternalIdentifierX5cResult | ExternalIdentifierJwkResult | ExternalIdentifierOIDFEntityIdResult | ExternalIdentifierCoseKeyResult )
 
 export interface IExternalIdentifierResultBase {
   method: ExternalIdentifierMethod
@@ -161,10 +161,11 @@ export type TrustedAnchor = string
 export type PublicKeyHex = string
 export type ErrorMessage = string
 
-export interface ExternalIdentifierEntityIdResult extends IExternalIdentifierResultBase {
+export interface ExternalIdentifierOIDFEntityIdResult extends IExternalIdentifierResultBase {
   method: 'entity_id'
   trustedAnchors: Record<TrustedAnchor, PublicKeyHex>
   errorList?: Record<TrustedAnchor, ErrorMessage>
+  trustEstablished: boolean
 }
 
 export interface ExternalJwkInfo extends JwkInfo {
