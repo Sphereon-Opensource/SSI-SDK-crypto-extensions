@@ -61,6 +61,8 @@ export async function resolveExternalOIDFEntityIdIdentifier(
         if(authorityJWK && !isLast) {
           verifyArgs.jwk = authorityJWK
         }
+        
+        // FIXME remove jwtVerifyJwsSignature as the Kotlin client already did this
         const jwtVerifyResult:IJwsValidationResult = await context.agent.jwtVerifyJwsSignature(verifyArgs)
         if(jwtVerifyResult.error || jwtVerifyResult.critical) {
           errorList[trustAnchor] = jwtVerifyResult.message
