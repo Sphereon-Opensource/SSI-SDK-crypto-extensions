@@ -20,7 +20,7 @@ export function legacyKeyRefsToIdentifierOpts(opts: {
       opts.keyRef ??
       opts.didOpts?.idOpts?.kmsKeyRef ??
       opts.didOpts?.kid ??
-      opts.didOpts.idOpts?.kid ??
+      opts.didOpts?.idOpts?.kid ??
       (typeof opts.didOpts?.idOpts.identifier === 'object' ? (opts.didOpts?.idOpts.identifier as IIdentifier).keys[0].kid : undefined)
     if (!kmsKeyRef) {
       throw Error('Key ref is needed for access token signer')
