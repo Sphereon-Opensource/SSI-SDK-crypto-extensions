@@ -1,15 +1,15 @@
 import {
   ErrorMessage,
   ExternalIdentifierOIDFEntityIdOpts,
-  ExternalIdentifierOIDFEntityIdResult, ExternalJwkInfo,
+  ExternalIdentifierOIDFEntityIdResult,
+  ExternalJwkInfo,
   PublicKeyHex,
   TrustedAnchor,
 } from '../types'
 import { IAgentContext } from '@veramo/core'
 import { IOIDFClient } from '@sphereon/ssi-sdk.oidf-client'
 import { contextHasPlugin } from '@sphereon/ssi-sdk.agent-config'
-import { JWK } from '@sphereon/ssi-types'
-import { IJwsValidationResult, VerifyJwsArgs } from '../types/IJwtService'
+import { IJwsValidationResult } from '../types/IJwtService'
 
 /**
  * Resolves an OIDF Entity ID against multiple trust anchors to establish trusted relationships
@@ -53,37 +53,33 @@ export async function resolveExternalOIDFEntityIdIdentifier(
       errorList[trustAnchor] = resolveResult.errorMessage ?? 'unspecified'
     } else {
       const trustChain: ReadonlyArray<string> = resolveResult.trustChain.asJsReadonlyArrayView()
-      let authorityJWK:JWK | undefined = undefined
-      for (const [i, jwt] of [...trustChain].reverse().entries()) {
-        const isLast = i === trustChain.length - 1
-
-        const verifyArgs:VerifyJwsArgs = {jws: jwt}
-        if(authorityJWK && !isLast) {
-          verifyArgs.jwk = authorityJWK
-        }
-        
-        // FIXME remove jwtVerifyJwsSignature as the Kotlin client already did this
-        const jwtVerifyResult:IJwsValidationResult = await context.agent.jwtVerifyJwsSignature(verifyArgs)
-        if(jwtVerifyResult.error || jwtVerifyResult.critical) {
-          errorList[trustAnchor] = jwtVerifyResult.message
-          break
-        }
-        if(jwtVerifyResult.jws.signatures.length === 0) {
-          errorList[trustAnchor] = 'No signature was present in the trust anchor JWS'
-          break
-        }
-        const signature = jwtVerifyResult.jws.signatures[0]
-        if(signature.identifier.jwks.length === 0) {
-          errorList[trustAnchor] = 'No JWK was present in the trust anchor signature'
-          break
-        }
-        const jwkInfo:ExternalJwkInfo = signature.identifier.jwks[0]
-        if(!authorityJWK) {
-          authorityJWK = jwkInfo.jwk
-          jwkInfos.push(jwkInfo)
-          trustedAnchors[trustAnchor] = signature.publicKeyHex // When we have multiple hits from different trust anchor authorities the caller can infer which signature came from which trust anchor  
-        }
+      if (trustChain.length === 0) {
+        errorList[trustAnchor] = 'Trust chain is empty'
+        continue
       }
+      
+      const jwt = trustChain[trustChain.length - 1]
+      const jwtVerifyResult: IJwsValidationResult = await context.agent.jwtVerifyJwsSignature({ jws: jwt })
+
+      if (jwtVerifyResult.error || jwtVerifyResult.critical) {
+        errorList[trustAnchor] = jwtVerifyResult.message
+        continue
+      }
+
+      if (jwtVerifyResult.jws.signatures.length === 0) {
+        errorList[trustAnchor] = 'No signature was present in the trust anchor JWS'
+        continue
+      }
+
+      const signature = jwtVerifyResult.jws.signatures[0]
+      if (signature.identifier.jwks.length === 0) {
+        errorList[trustAnchor] = 'No JWK was present in the trust anchor signature'
+        continue
+      }
+
+      const jwkInfo: ExternalJwkInfo = signature.identifier.jwks[0]
+      jwkInfos.push(jwkInfo)
+      trustedAnchors[trustAnchor] = signature.publicKeyHex
     }
   }
 
