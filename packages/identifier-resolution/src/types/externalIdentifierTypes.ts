@@ -108,7 +108,7 @@ export type ExternalIdentifierOIDFEntityIdOpts = Omit<ExternalIdentifierOptsBase
   trustAnchors?: Array<string>
 }
 
-export function isExternalIdentifierOIDFEntityIdOpts(opts: ExternalIdentifierOptsBase): opts is ExternalIdentifierCoseKeyOpts {
+export function isExternalIdentifierOIDFEntityIdOpts(opts: ExternalIdentifierOptsBase): opts is ExternalIdentifierOIDFEntityIdOpts {
   const { identifier } = opts
   return ('method' in opts && opts.method === 'entity_id' || 'trustAnchors' in opts) && isOIDFEntityIdIdentifier(identifier)
 }
