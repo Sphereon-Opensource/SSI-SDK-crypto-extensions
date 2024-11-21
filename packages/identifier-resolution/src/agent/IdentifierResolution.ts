@@ -1,5 +1,6 @@
 import { IAgentContext, IAgentPlugin, IDIDManager, IKeyManager } from '@veramo/core'
-import { ExternalIdentifierOIDFEntityIdOpts, ExternalIdentifierOIDFEntityIdResult, schema } from '..'
+import { ExternalIdentifierOIDFEntityIdOpts, ExternalIdentifierOIDFEntityIdResult } from '../types'
+import { schema } from '..'
 import { resolveExternalIdentifier, ensureManagedIdentifierResult } from '../functions'
 import {
   ExternalIdentifierDidOpts,
@@ -152,7 +153,7 @@ export class IdentifierResolution implements IAgentPlugin {
     return (await this.identifierResolveExternal({ ...args, method: 'jwk' }, context)) as ExternalIdentifierJwkResult
   }
   
-  private async identifierExternalResolveByOIDFEntityId(args: ExternalIdentifierOIDFEntityIdOpts, context: IAgentContext<IOIDFClient>): Promise<ExternalIdentifierOIDFEntityIdResult> {
+  private async identifierExternalResolveByOIDFEntityId(args: ExternalIdentifierOIDFEntityIdOpts, context: IAgentContext<any>): Promise<ExternalIdentifierOIDFEntityIdResult> {
     return (await this.identifierResolveExternal({ ...args, method: 'entity_id' }, context)) as ExternalIdentifierOIDFEntityIdResult
   }
 }

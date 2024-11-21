@@ -102,5 +102,5 @@ export interface IIdentifierResolution extends IPluginMethodMap {
 
   identifierExternalResolveByX5c(args: ExternalIdentifierX5cOpts, context: IAgentContext<any>): Promise<ExternalIdentifierX5cResult>
   
-  identifierExternalResolveByOIDFEntityId(args: ExternalIdentifierOIDFEntityIdOpts, context: IAgentContext<IOIDFClient>): Promise<ExternalIdentifierOIDFEntityIdResult>
+  identifierExternalResolveByOIDFEntityId(args: ExternalIdentifierOIDFEntityIdOpts, context: IAgentContext<any>): Promise<ExternalIdentifierOIDFEntityIdResult>
 }
