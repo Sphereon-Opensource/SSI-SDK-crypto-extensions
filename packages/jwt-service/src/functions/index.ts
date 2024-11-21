@@ -420,7 +420,7 @@ function loadJWK(
   if (providedJwk) {
     return providedJwk
   }
-  // TODO? the identityResolver could handle this as well, but it's a really tiny function
+  // TODO SDK-47 the identityResolver could handle this as well, but it's a really tiny function
   if (protectedHeader?.typ === 'entity-statement+jwt') {
     const payload = decodeJoseBlob(jws.payload)
     if (!payload?.jwks?.keys?.[0]) {
@@ -449,8 +449,7 @@ export const toJwsJsonGeneralWithIdentifiers = async (
         ? await resolveExternalJwkIdentifier({ identifier: jwk, method: 'jwk' }, context)
         : await resolveExternalIdentifierFromJwsHeader(protectedHeader, context, args)
       if (identifier !== undefined) {
-        const publicKeyHex = jwk && jwkTtoPublicKeyHex(jwk)
-        return { ...signature, identifier, publicKeyHex }
+        return { ...signature, identifier }
       }
       return undefined
     })

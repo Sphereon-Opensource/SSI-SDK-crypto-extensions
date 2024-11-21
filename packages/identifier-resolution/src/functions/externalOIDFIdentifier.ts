@@ -58,7 +58,7 @@ export async function resolveExternalOIDFEntityIdIdentifier(
         continue
       }
       
-      const jwt = trustChain[trustChain.length - 1]
+      const jwt = trustChain[0]
       const jwtVerifyResult: IJwsValidationResult = await context.agent.jwtVerifyJwsSignature({ jws: jwt })
 
       if (jwtVerifyResult.error || jwtVerifyResult.critical) {
@@ -79,7 +79,7 @@ export async function resolveExternalOIDFEntityIdIdentifier(
 
       const jwkInfo: ExternalJwkInfo = signature.identifier.jwks[0]
       jwkInfos.push(jwkInfo)
-      trustedAnchors[trustAnchor] = signature.publicKeyHex
+      trustedAnchors[trustAnchor] = jwkInfo.publicKeyHex
     }
   }
 

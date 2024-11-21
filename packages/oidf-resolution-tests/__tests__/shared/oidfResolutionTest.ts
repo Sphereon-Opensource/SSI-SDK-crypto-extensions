@@ -44,7 +44,7 @@ export default (testContext: {
         expect(entityResult.trustedAnchors).toBeDefined()
 
         expect(entityResult.trustedAnchors['https://federation.demo.sphereon.com'])
-          .toEqual('036f147e164a6b2ae860330b75bb54243b028086b4297a8d663bb4afe4080afec7')
+          .toEqual('03291335afd2b0b6ab6c6166cb6cebdbdc256a5ff6cda283513450e4138dc96580')
 
         expect(entityResult.errorList).toBeDefined()
         if(entityResult.errorList) {
@@ -56,7 +56,7 @@ export default (testContext: {
         expect(entityResult.jwks).toHaveLength(1)
 
         const jwk = entityResult.jwks[0]
-        expect(jwk.jwkThumbprint).toEqual('PjWRF5oJSGKQQaf_NPMndBA528S_Ulqcu6E_ZWZkkWY')
+        expect(jwk.jwkThumbprint).toEqual('0cKRNZgWAjZ5Aq72bzRTXC8pBmMCDm-6P45aGmDoyU4')
         
         expect(entityResult.trustEstablished).toBeTruthy()
       }

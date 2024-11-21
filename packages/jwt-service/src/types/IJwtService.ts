@@ -127,7 +127,6 @@ export interface JwsJsonGeneralWithIdentifiers extends JwsJsonGeneral {
 
 export interface JwsJsonSignatureWithIdentifier extends JwsJsonSignature {
     identifier: ExternalIdentifierResult
-    publicKeyHex: string
 }
 
 

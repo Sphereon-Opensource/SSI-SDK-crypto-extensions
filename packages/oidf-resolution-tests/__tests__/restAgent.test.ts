@@ -25,7 +25,6 @@ const databaseFile = ':memory:'
 const port = 13213
 const basePath = '/agent'
 
-119f7e793cc2899e99b64b88ca8603db986700089532b'
 
 let serverAgent: IAgent
 let clientAgent: TAgent<IKeyManager & IIdentifierResolution & IJwtService>

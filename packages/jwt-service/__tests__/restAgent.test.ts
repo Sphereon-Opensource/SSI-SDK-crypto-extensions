@@ -29,7 +29,6 @@ const port = 13213
 const basePath = '/agent'
 
 const DID_METHOD = 'did:jwk'
-119f7e793cc2899e99b64b88ca8603db986700089532b'
 
 const jwkDIDProvider = new JwkDIDProvider({
   defaultKms: 'mem',

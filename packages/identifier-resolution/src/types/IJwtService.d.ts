@@ -77,7 +77,6 @@ export interface JwsJsonGeneralWithIdentifiers extends JwsJsonGeneral {
 }
 export interface JwsJsonSignatureWithIdentifier extends JwsJsonSignature {
     identifier: ExternalIdentifierResult;
-    publicKeyHex: string;
 }
 export type Jwe = JweCompact | JweJsonFlattened | JweJsonGeneral;
 export type JweCompact = string;
