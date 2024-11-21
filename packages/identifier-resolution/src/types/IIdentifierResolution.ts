@@ -3,9 +3,11 @@ import {
   ExternalIdentifierCoseKeyOpts,
   ExternalIdentifierCoseKeyResult,
   ExternalIdentifierDidOpts,
-  ExternalIdentifierDidResult, ExternalIdentifierOIDFEntityIdOpts, ExternalIdentifierOIDFEntityIdResult,
+  ExternalIdentifierDidResult,
   ExternalIdentifierJwkOpts,
   ExternalIdentifierJwkResult,
+  ExternalIdentifierOIDFEntityIdOpts,
+  ExternalIdentifierOIDFEntityIdResult,
   ExternalIdentifierOpts,
   ExternalIdentifierResult,
   ExternalIdentifierX5cOpts,
@@ -16,20 +18,19 @@ import {
   ManagedIdentifierCoseKeyResult,
   ManagedIdentifierDidOpts,
   ManagedIdentifierDidResult,
-  ManagedIdentifierOID4VCIssuerOpts,
-  ManagedIdentifierOID4VCIssuerResult,
   ManagedIdentifierJwkOpts,
   ManagedIdentifierJwkResult,
   ManagedIdentifierKeyOpts,
   ManagedIdentifierKeyResult,
   ManagedIdentifierKidOpts,
   ManagedIdentifierKidResult,
+  ManagedIdentifierOID4VCIssuerOpts,
+  ManagedIdentifierOID4VCIssuerResult,
   ManagedIdentifierOptsOrResult,
   ManagedIdentifierResult,
   ManagedIdentifierX5cOpts,
   ManagedIdentifierX5cResult,
 } from './managedIdentifierTypes'
-import { IOIDFClient } from '@sphereon/ssi-sdk.oidf-client'
 
 // Exposing the methods here for any REST implementation
 export const identifierResolutionContextMethods: Array<string> = [
