@@ -77,9 +77,9 @@ export async function resolveExternalOIDFEntityIdIdentifier(
         continue
       }
 
-      const jwkInfo: ExternalJwkInfo = signature.identifier.jwks[0]
-      jwkInfos.push(jwkInfo)
-      trustedAnchors[trustAnchor] = jwkInfo.publicKeyHex
+      jwkInfos.concat(signature.identifier.jwks)
+      const firstJwk: ExternalJwkInfo = signature.identifier.jwks[0]
+      trustedAnchors[trustAnchor] = firstJwk.publicKeyHex
     }
   }
 
