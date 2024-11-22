@@ -163,7 +163,7 @@ export type ErrorMessage = string
 
 export interface ExternalIdentifierOIDFEntityIdResult extends IExternalIdentifierResultBase {
   method: 'entity_id'
-  trustedAnchors: Record<TrustedAnchor, PublicKeyHex>
+  trustedAnchors: Array<TrustedAnchor>
   errorList?: Record<TrustedAnchor, ErrorMessage>
   trustEstablished: boolean
 }

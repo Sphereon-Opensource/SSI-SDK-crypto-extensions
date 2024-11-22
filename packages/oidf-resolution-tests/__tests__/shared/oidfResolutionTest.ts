@@ -43,8 +43,8 @@ export default (testContext: {
         const entityResult = result as ExternalIdentifierOIDFEntityIdResult
         expect(entityResult.trustedAnchors).toBeDefined()
 
-        expect(entityResult.trustedAnchors['https://federation.demo.sphereon.com'])
-          .toEqual('03291335afd2b0b6ab6c6166cb6cebdbdc256a5ff6cda283513450e4138dc96580')
+        expect(entityResult.trustedAnchors).toHaveLength(1)
+        expect(entityResult.trustedAnchors[0]).toEqual('https://federation.demo.sphereon.com')
 
         expect(entityResult.errorList).toBeDefined()
         if(entityResult.errorList) {
@@ -56,6 +56,7 @@ export default (testContext: {
         expect(entityResult.jwks).toHaveLength(1)
 
         const jwk = entityResult.jwks[0]
+        expect(jwk.publicKeyHex).toEqual('03291335afd2b0b6ab6c6166cb6cebdbdc256a5ff6cda283513450e4138dc96580')
         expect(jwk.jwkThumbprint).toEqual('0cKRNZgWAjZ5Aq72bzRTXC8pBmMCDm-6P45aGmDoyU4')
         
         expect(entityResult.trustEstablished).toBeTruthy()

@@ -3,7 +3,6 @@ import {
   ExternalIdentifierOIDFEntityIdOpts,
   ExternalIdentifierOIDFEntityIdResult,
   ExternalJwkInfo,
-  PublicKeyHex,
   TrustedAnchor,
 } from '../types'
 import { IAgentContext } from '@veramo/core'
@@ -39,7 +38,7 @@ export async function resolveExternalOIDFEntityIdIdentifier(
     return Promise.reject(Error('For OIDFEntityId resolving the agent needs to have the JwtService plugin enabled'))
   }
 
-  const trustedAnchors: Record<TrustedAnchor, PublicKeyHex> = {}
+  const trustedAnchors: Set<TrustedAnchor> = new Set<TrustedAnchor>()
   const errorList: Record<TrustedAnchor, ErrorMessage> = {}
   const jwkInfos: Array<ExternalJwkInfo> = []
 
@@ -77,17 +76,18 @@ export async function resolveExternalOIDFEntityIdIdentifier(
         continue
       }
 
-      jwkInfos.concat(signature.identifier.jwks)
-      const firstJwk: ExternalJwkInfo = signature.identifier.jwks[0]
-      trustedAnchors[trustAnchor] = firstJwk.publicKeyHex
+      if(jwkInfos.length === 0) { // We need the entity JWK only once
+        jwkInfos.push(...signature.identifier.jwks)
+      }
+      trustedAnchors.add(trustAnchor)
     }
   }
 
   return {
     method: 'entity_id',
-    trustedAnchors,
+    trustedAnchors: Array.from(trustedAnchors),
     ...(Object.keys(errorList).length > 0 && { errorList }),
     jwks: jwkInfos,
-    trustEstablished: Object.keys(trustedAnchors).length > 0
+    trustEstablished: trustedAnchors.size > 0
   }
 }
