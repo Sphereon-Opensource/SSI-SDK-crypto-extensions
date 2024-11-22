@@ -348,6 +348,7 @@ export const verifyJws = async (args: VerifyJwsArgs, context: IAgentContext<IIde
     verificationTime: new Date(),
   } satisfies IJwsValidationResult
 }
+
 export const toJwsJsonGeneral = async ({ jws }: { jws: Jws }, context: IAgentContext<any>): Promise<JwsJsonGeneral> => {
   let payload: string
   let signatures: JwsJsonSignature[] = []
@@ -411,6 +412,26 @@ async function resolveExternalIdentifierFromJwsHeader(
   }
 }
 
+function loadJWK(
+  providedJwk: JWK | undefined,
+  protectedHeader: JwsHeader,
+  jws: JwsJsonGeneral,
+): JWK | undefined {
+  if (providedJwk) {
+    return providedJwk
+  }
+  // TODO SDK-47 the identityResolver could handle this as well, but it's a really tiny function
+  if (protectedHeader?.typ === 'entity-statement+jwt') {
+    const payload = decodeJoseBlob(jws.payload)
+    if (!payload?.jwks?.keys?.[0]) {
+      throw new Error('Missing or invalid JWK in payload')
+    }
+    return payload.jwks.keys[0]
+  }
+
+  return undefined
+}
+
 export const toJwsJsonGeneralWithIdentifiers = async (
   args: {
     jws: Jws
@@ -423,8 +444,9 @@ export const toJwsJsonGeneralWithIdentifiers = async (
   const signatures = (await Promise.all(
     jws.signatures.map(async (signature) => {
       const protectedHeader: JwsHeader = decodeJoseBlob(signature.protected)
-      const identifier = args.jwk
-        ? await resolveExternalJwkIdentifier({ identifier: args.jwk }, context)
+      const jwk = loadJWK(args.jwk, protectedHeader, jws)
+      const identifier = jwk
+        ? await resolveExternalJwkIdentifier({ identifier: jwk, method: 'jwk' }, context)
         : await resolveExternalIdentifierFromJwsHeader(protectedHeader, context, args)
       if (identifier !== undefined) {
         return { ...signature, identifier }

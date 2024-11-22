@@ -50,6 +50,10 @@ export function isCoseKeyIdentifier(identifier: ManagedIdentifierType): identifi
   return typeof identifier === 'object' && `kty` in identifier && ('baseIV' in identifier || 'x5chain' in identifier) && !('x5c' in identifier)
 }
 
+export function isOIDFEntityIdIdentifier(identifier: ManagedIdentifierType): identifier is string {
+  return typeof identifier === 'string' && identifier.startsWith('https://') 
+}
+
 export function isX5cIdentifier(identifier: ManagedIdentifierType | ExternalIdentifierType): identifier is string[] {
   return Array.isArray(identifier) && identifier.length > 0 // todo: Do we want to do additional validation? We know it must be DER and thus hex for instance
 }

@@ -47,6 +47,9 @@
       "path": "identifier-resolution"
     },
     {
+      "path": "oidf-resolution-tests"
+    },
+    {
       "path": "jwt-service"
     }
   ]

@@ -31,8 +31,11 @@ import {
   isExternalIdentifierJwksUrlOpts,
   isExternalIdentifierKidOpts,
   isExternalIdentifierOidcDiscoveryOpts,
+  isExternalIdentifierOIDFEntityIdOpts,
   isExternalIdentifierX5cOpts,
 } from '../types'
+import { resolveExternalOIDFEntityIdIdentifier } from '.'
+
 
 export async function resolveExternalIdentifier(
   opts: ExternalIdentifierOpts & {
@@ -49,13 +52,15 @@ export async function resolveExternalIdentifier(
     return resolveExternalJwkIdentifier(opts, context)
   } else if (isExternalIdentifierCoseKeyOpts(opts)) {
     return resolveExternalCoseKeyIdentifier(opts, context)
+  } else if (isExternalIdentifierOIDFEntityIdOpts(opts)) {
+    return resolveExternalOIDFEntityIdIdentifier(opts, context)
   } else if (isExternalIdentifierKidOpts(opts)) {
     method = 'kid'
   } else if (isExternalIdentifierJwksUrlOpts(opts)) {
     method = 'jwks-url'
   } else if (isExternalIdentifierOidcDiscoveryOpts(opts)) {
     method = 'oidc-discovery'
-  }
+  } 
   throw Error(`External resolution method ${method} is not yet implemented`)
 }
 

@@ -1,10 +1,11 @@
-import {IIdentifierResolution} from '@sphereon/ssi-sdk-ext.identifier-resolution'
-import {JWK} from '@sphereon/ssi-types'
-import {IDIDManager, IKeyManager, TAgent} from '@veramo/core'
+import { IIdentifierResolution } from '@sphereon/ssi-sdk-ext.identifier-resolution'
+import { JWK } from '@sphereon/ssi-types'
+import { IDIDManager, IKeyManager, TAgent } from '@veramo/core'
 import {decodeJwt} from "jose";
 
 import * as u8a from 'uint8arrays'
-import {IJwtService} from '../../src'
+import { IJwtService } from '../../src'
+import { describe } from 'node:test'
 
 type ConfiguredAgent = TAgent<IKeyManager & IDIDManager & IIdentifierResolution & IJwtService>
 
@@ -131,5 +132,4 @@ export default (testContext: {
             console.log(jwe)
         })
     })
-
 }
