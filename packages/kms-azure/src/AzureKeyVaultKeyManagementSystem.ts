@@ -11,7 +11,7 @@ import ManagedKeyPair = com.sphereon.crypto.generic.ManagedKeyPair;
 export class AzureKeyVaultKeyManagementSystem extends AbstractKeyManagementSystem {
     private client: AzureKeyVaultCryptoProvider
 
-    constructor(private config : AzureKeyVaultClientConfig) {
+    constructor(private config: AzureKeyVaultClientConfig) {
         super()
 
         this.client = new AzureKeyVaultCryptoProvider(this.config)
@@ -32,7 +32,10 @@ export class AzureKeyVaultKeyManagementSystem extends AbstractKeyManagementSyste
         )
         const key: ManagedKeyPair = await this.client.generateKeyAsync(options)
 
-        return this.asManagedKeyInfo(key) // TODO: Implement this conversion from ManagedKeyPair to ManagedKeyInfo
+        console.log('key', key)
+
+        // @ts-ignore
+        return key.joseToManagedKeyInfo()
     }
 
     async sign(args: {
@@ -44,7 +47,11 @@ export class AzureKeyVaultKeyManagementSystem extends AbstractKeyManagementSyste
             throw new Error('key_not_found: No key ref provided')
         }
         const key = await this.client.fetchKeyAsync(args.keyRef.kid)
-        return (await this.client.createRawSignatureAsync({keyInfo: key, input: new Int8Array(args.data), requireX5Chain: false})).toString()
+        return (await this.client.createRawSignatureAsync({
+            keyInfo: key,
+            input: new Int8Array(args.data),
+            requireX5Chain: false
+        })).toString()
     }
 
     async verify(args: {
