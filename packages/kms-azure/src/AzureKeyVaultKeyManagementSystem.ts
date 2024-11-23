@@ -1,17 +1,12 @@
 import {AzureKeyVaultCryptoProvider, com} from '@sphereon/kmp-crypto-kms-azure'
 import {IKey, ManagedKeyInfo, MinimalImportableKey, TKeyType} from '@veramo/core'
 import {AbstractKeyManagementSystem} from '@veramo/key-manager'
-import {Loggers} from '@sphereon/ssi-types'
 import {KeyMetadata} from './index'
 import AzureKeyVaultClientConfig = com.sphereon.crypto.kms.azure.AzureKeyVaultClientConfig;
 import SignatureAlgorithm = com.sphereon.crypto.generic.SignatureAlgorithm;
 import KeyOperations = com.sphereon.crypto.generic.KeyOperations;
 import JwkUse = com.sphereon.crypto.jose.JwkUse;
 import ManagedKeyPair = com.sphereon.crypto.generic.ManagedKeyPair;
-import JwaCurve = com.sphereon.crypto.jose.JwaCurve;
-import {calculateJwkThumbprintForKey} from "@sphereon/ssi-sdk-ext.key-utils";
-
-export const logger = Loggers.DEFAULT.get('sphereon:azure-key-vault-ssi-sdk')
 
 export class AzureKeyVaultKeyManagementSystem extends AbstractKeyManagementSystem {
     private client: AzureKeyVaultCryptoProvider
@@ -35,8 +30,9 @@ export class AzureKeyVaultKeyManagementSystem extends AbstractKeyManagementSyste
             'keyOperations' in meta ? this.mapKeyOperations(meta.keyOperations as string[]) : [KeyOperations.SIGN],
             this.mapKeyTypeToSignatureAlgorithm(type)
         )
+        const key: ManagedKeyPair = await this.client.generateKeyAsync(options)
 
-        return this.asManagedKeyInfo(await this.client.generateKeyAsync(options))
+        return this.asManagedKeyInfo(key) // TODO: Implement this conversion from ManagedKeyPair to ManagedKeyInfo
     }
 
     async sign(args: {
@@ -48,7 +44,7 @@ export class AzureKeyVaultKeyManagementSystem extends AbstractKeyManagementSyste
             throw new Error('key_not_found: No key ref provided')
         }
         const key = await this.client.fetchKeyAsync(args.keyRef.kid)
-        return (await this.client.createRawSignatureAsync({keyInfo: key.toManagedKeyInfo(undefined, null), input: new Int8Array(args.data), requireX5Chain: false})).toString()
+        return (await this.client.createRawSignatureAsync({keyInfo: key, input: new Int8Array(args.data), requireX5Chain: false})).toString()
     }
 
     async verify(args: {
@@ -116,33 +112,5 @@ export class AzureKeyVaultKeyManagementSystem extends AbstractKeyManagementSyste
 
     private mapKeyOperations = (operations: string[]): KeyOperations[] => {
         return operations.map(operation => this.mapKeyOperation(operation))
-    }
-
-    private asManagedKeyInfo(args: ManagedKeyPair): ManagedKeyInfo {
-        const { jose }: ManagedKeyPair = args
-        const keyType = this.mapAlgorithmTypeToKeyType(jose.publicJwk.crv!!)
-
-        const keyInfo: Partial<ManagedKeyInfo> = {
-            kid: jose.publicJwk.kid!!,
-            type: keyType,
-            publicKeyHex: jose.publicJwk.toString(),
-            meta: {
-                keyUsage: jose.publicJwk.use,
-                keyOperations: jose.publicJwk.key_ops
-            }
-        }
-
-        const jwkThumbprint = calculateJwkThumbprintForKey({ key: keyInfo as ManagedKeyInfo })
-        keyInfo.meta = { ...keyInfo.meta, jwkThumbprint }
-        return keyInfo as ManagedKeyInfo
-    }
-
-    private mapAlgorithmTypeToKeyType = (type: JwaCurve): TKeyType => {
-        switch (type) {
-            case JwaCurve.P_256:
-                return 'Secp256r1'
-            default:
-                throw new Error(`Key type ${type} is not supported.`)
-        }
     }
 }
