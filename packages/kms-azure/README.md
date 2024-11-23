@@ -32,8 +32,7 @@ To create a key, you eed to specify the key type and provide a keyAlias as part 
 
 ```typescript
 import {AzureKeyVaultCryptoProvider, com} from '@sphereon/kmp-crypto-kms-azure'
-import AzureKeyvaultClientConfig = com.sphereon.crypto.kms.azure.AzureKeyvaultClientConfig;
-
+import AzureKeyVaultClientConfig = com.sphereon.crypto.kms.azure.AzureKeyVaultClientConfig;
 
 const id = "azure-keyvault-test"
 const keyVaultUrl = "https://example.vault.azure.net/"
@@ -46,7 +45,7 @@ const credentialOptions = new com.sphereon.crypto.kms.azure.CredentialOpts(
     )
 )
 
-const config = new AzureKeyvaultClientConfig(
+const config = new AzureKeyVaultClientConfig(
     id,
     keyVaultUrl,
     tenantId,

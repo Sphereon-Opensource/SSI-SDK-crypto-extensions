@@ -3,7 +3,7 @@ import {IKey, ManagedKeyInfo, MinimalImportableKey, TKeyType} from '@veramo/core
 import {AbstractKeyManagementSystem} from '@veramo/key-manager'
 import {Loggers} from '@sphereon/ssi-types'
 import {KeyMetadata} from './index'
-import AzureKeyvaultClientConfig = com.sphereon.crypto.kms.azure.AzureKeyvaultClientConfig;
+import AzureKeyVaultClientConfig = com.sphereon.crypto.kms.azure.AzureKeyVaultClientConfig;
 import SignatureAlgorithm = com.sphereon.crypto.generic.SignatureAlgorithm;
 import KeyOperations = com.sphereon.crypto.generic.KeyOperations;
 import JwkUse = com.sphereon.crypto.jose.JwkUse;
@@ -16,7 +16,7 @@ export const logger = Loggers.DEFAULT.get('sphereon:azure-key-vault-ssi-sdk')
 export class AzureKeyVaultKeyManagementSystem extends AbstractKeyManagementSystem {
     private client: AzureKeyVaultCryptoProvider
 
-    constructor(private config : AzureKeyvaultClientConfig) {
+    constructor(private config : AzureKeyVaultClientConfig) {
         super()
 
         this.client = new AzureKeyVaultCryptoProvider(this.config)
