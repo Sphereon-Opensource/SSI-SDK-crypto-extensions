@@ -47,10 +47,8 @@ export class AzureKeyVaultKeyManagementSystem extends AbstractKeyManagementSyste
         if (!args.keyRef) {
             throw new Error('key_not_found: No key ref provided')
         }
-
-        const key = await this.client.getAzureKeyVaultJwk(args.keyRef.kid)
-
-        return (await this.client.createRawSignatureAsync({key, data: args.data, algorithm: args.algorithm || 'SHA256'})).toString()
+        const key = await this.client.fetchKeyAsync(args.keyRef.kid)
+        return (await this.client.createRawSignatureAsync({keyInfo: key.toManagedKeyInfo(undefined, null), input: new Int8Array(args.data), requireX5Chain: false})).toString()
     }
 
     async verify(args: {
