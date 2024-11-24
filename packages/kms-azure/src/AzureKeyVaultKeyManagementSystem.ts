@@ -2,40 +2,62 @@ import {AzureKeyVaultCryptoProvider, com} from '@sphereon/kmp-crypto-kms-azure'
 import {IKey, ManagedKeyInfo, MinimalImportableKey, TKeyType} from '@veramo/core'
 import {AbstractKeyManagementSystem} from '@veramo/key-manager'
 import {KeyMetadata} from './index'
+import {calculateJwkThumbprint} from '@sphereon/ssi-sdk-ext.key-utils'
+import {JoseCurve, JWK} from "@sphereon/ssi-types";
 import AzureKeyVaultClientConfig = com.sphereon.crypto.kms.azure.AzureKeyVaultClientConfig;
 import SignatureAlgorithm = com.sphereon.crypto.generic.SignatureAlgorithm;
 import KeyOperations = com.sphereon.crypto.generic.KeyOperations;
 import JwkUse = com.sphereon.crypto.jose.JwkUse;
-import ManagedKeyPair = com.sphereon.crypto.generic.ManagedKeyPair;
 
 export class AzureKeyVaultKeyManagementSystem extends AbstractKeyManagementSystem {
+    private id: string
     private client: AzureKeyVaultCryptoProvider
 
     constructor(private config: AzureKeyVaultClientConfig) {
         super()
 
+        this.id = config.applicationId
         this.client = new AzureKeyVaultCryptoProvider(this.config)
     }
 
     async createKey(args: { type: TKeyType; meta?: KeyMetadata }): Promise<ManagedKeyInfo> {
         const {type, meta} = args
 
-        if (meta === undefined || !('keyAlias' in meta)) {
-            return Promise.reject(Error('a unique keyAlias field is required for AzureKeyVaultKMS'))
-        }
-
         const options = new AzureKeyVaultCryptoProvider.GenerateKeyRequest(
-            meta.keyAlias,
-            'keyUsage' in meta ? this.mapKeyUsage(meta.keyUsage) : JwkUse.sig,
-            'keyOperations' in meta ? this.mapKeyOperations(meta.keyOperations as string[]) : [KeyOperations.SIGN],
+            meta?.keyAlias || `key-${crypto.randomUUID()}`,
+            meta && 'keyUsage' in meta ? this.mapKeyUsage(meta.keyUsage) : JwkUse.sig,
+            meta && 'keyOperations' in meta ? this.mapKeyOperations(meta.keyOperations as string[]) : [KeyOperations.SIGN],
             this.mapKeyTypeToSignatureAlgorithm(type)
         )
-        const key: ManagedKeyPair = await this.client.generateKeyAsync(options)
+        const key = await this.client.generateKeyAsync(options)
 
-        console.log('key', key)
+        const jwk: JWK = {
+            ...key.jose.publicJwk.toPublicKey(),
+            kty: key.jose.publicJwk.toPublicKey().kty.name,
+            crv: JoseCurve.P_256,
+            x: key.jose.publicJwk.toPublicKey().x || undefined,
+            y: key.jose.publicJwk.toPublicKey().y || undefined,
+            kid: key.jose.publicJwk.toPublicKey().kid || undefined
+        }
 
-        // @ts-ignore
-        return key.joseToManagedKeyInfo()
+        const managedKeyInfo: ManagedKeyInfo = {
+            kid: key.kmsKeyRef,
+            kms: this.id,
+            type,
+            meta: {
+                alias: key.kid,
+                algorithms: [key.jose.publicJwk.alg?.name ?? 'ES256'],
+                jwkThumbprint: calculateJwkThumbprint(
+                    {
+                        jwk,
+                        digestAlgorithm: 'sha256'
+                    }
+                )
+            },
+            publicKeyHex: Buffer.from(key.jose.toString(), 'utf8').toString('base64'),
+        }
+
+        return managedKeyInfo
     }
 
     async sign(args: {
@@ -47,25 +69,38 @@ export class AzureKeyVaultKeyManagementSystem extends AbstractKeyManagementSyste
             throw new Error('key_not_found: No key ref provided')
         }
         const key = await this.client.fetchKeyAsync(args.keyRef.kid)
-        return (await this.client.createRawSignatureAsync({
+        const signature =  (await this.client.createRawSignatureAsync({
             keyInfo: key,
             input: new Int8Array(args.data),
             requireX5Chain: false
-        })).toString()
+        }))
+        return btoa(String.fromCharCode(...signature))
     }
 
     async verify(args: {
         keyRef: Pick<IKey, 'kid'>;
-        algorithm?: string;
         data: Uint8Array;
+        signature: any;
         [x: string]: any
-    }): Promise<string> {
+    }): Promise<Boolean> {
         if (!args.keyRef) {
             throw new Error('key_not_found: No key ref provided')
         }
 
-        throw new Error('!!! Implement this method !!!')
+        try {
+            const key = await this.client.fetchKeyAsync(args.keyRef.kid)
+            return await this.client.isValidRawSignatureAsync({
+                keyInfo: key,
+                input: new Int8Array(args.data.buffer),
+                signature: args.signature
+            })
+
+        } catch (e) {
+            console.error(e)
+            return false
+        }
     }
+
 
     sharedSecret(args: {
         myKeyRef: Pick<IKey, 'kid'>;

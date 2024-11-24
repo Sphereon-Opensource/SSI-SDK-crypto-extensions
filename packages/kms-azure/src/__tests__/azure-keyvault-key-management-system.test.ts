@@ -34,4 +34,32 @@ describe('Key creation', () => {
         expect(key?.meta?.jwkThumbprint).toBeDefined()
         expect(key?.meta?.algorithms).toContain('ES256')
     })
+
+    it('should create sign and verify with a Secp256r1 key', async () => {
+        const key = await kms.createKey({
+            type: 'Secp256r1', meta: {
+                keyAlias: `test-key-${crypto.randomUUID()}`
+            }
+        })
+
+        const data = new TextEncoder().encode('test')
+        const signature = await kms.sign({
+            data,
+            keyRef: {kid: key.kid}
+        })
+
+        console.log('signature', signature)
+
+        expect(signature).toBeDefined()
+
+        const verified = await kms.verify({
+            data,
+            signature,
+            keyRef: {kid: key.kid}
+        })
+
+        console.log('verified', verified)
+
+        expect(verified).toBeTruthy()
+    })
 })
