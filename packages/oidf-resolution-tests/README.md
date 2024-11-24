@@ -1,6 +1,6 @@
 # @sphereon/ssi-sdk-ext.jwt-service-test
 
-This package contains test code for the OIDF Resolution functionality, separated to avoid duplicate dependencies with the jwt-service package.
+This package contains test code for the OIDF Resolution functionality, separated to avoid circular dependencies with the jwt-service package.
 
 ## Purpose
 The test code had to be moved to a separate package because including `JwtService` agent plugin directly in the identifier-resolution package would create circular dependencies.

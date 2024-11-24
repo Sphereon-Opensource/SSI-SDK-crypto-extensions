@@ -60,7 +60,7 @@ export async function resolveExternalIdentifier(
     method = 'jwks-url'
   } else if (isExternalIdentifierOidcDiscoveryOpts(opts)) {
     method = 'oidc-discovery'
-  } 
+  }
   throw Error(`External resolution method ${method} is not yet implemented`)
 }
 
