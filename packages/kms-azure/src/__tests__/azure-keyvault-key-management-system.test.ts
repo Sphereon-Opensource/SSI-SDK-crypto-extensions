@@ -6,11 +6,11 @@ describe('Key creation', () => {
     const id = "azure-keyvault-test"
 
     const keyVaultUrl = process.env.AZURE_KEYVAULT_URL
-    const tenantId = process.env.AZURE_KEYVAULT_TENANT_ID
+    const keyVaultClientIdTenantId = process.env.AZURE_KEYVAULT_TENANT_ID
     const keyVaultClientId = process.env.AZURE_KEYVAULT_CLIENT_ID
     const keyVaultClientSecret = process.env.AZURE_KEYVAULT_CLIENT_SECRET
 
-    if (!keyVaultUrl || !tenantId || !keyVaultClientId || !keyVaultClientSecret) {
+    if (!keyVaultUrl || !keyVaultClientIdTenantId || !keyVaultClientId || !keyVaultClientSecret) {
         throw new Error("Missing Azure KeyVault test environment variables")
     }
 
@@ -25,7 +25,7 @@ describe('Key creation', () => {
     const azureKeyVaultClientConfig = new com.sphereon.crypto.kms.azure.AzureKeyVaultClientConfig(
         id,
         keyVaultUrl,
-        tenantId,
+        keyVaultClientIdTenantId,
         credentialOptions
     )
 
