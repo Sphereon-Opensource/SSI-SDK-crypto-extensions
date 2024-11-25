@@ -48,18 +48,30 @@ describe('Key creation', () => {
             keyRef: {kid: key.kid}
         })
 
-        console.log('signature', signature)
-
-        expect(signature).toBeDefined()
-
         const verified = await kms.verify({
             data,
             signature,
             keyRef: {kid: key.kid}
         })
 
-        console.log('verified', verified)
-
         expect(verified).toBeTruthy()
+    })
+
+    it('should not verify wrong sign with a Secp256r1 key', async () => {
+        const key = await kms.createKey({
+            type: 'Secp256r1', meta: {
+                keyAlias: `test-key-${crypto.randomUUID()}`
+            }
+        })
+
+        const data = new TextEncoder().encode('test')
+
+        const verified = await kms.verify({
+            data,
+            signature: "invalid-signature",
+            keyRef: {kid: key.kid}
+        })
+
+        expect(verified).toBeFalsy()
     })
 })

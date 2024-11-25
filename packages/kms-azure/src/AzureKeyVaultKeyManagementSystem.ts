@@ -69,18 +69,19 @@ export class AzureKeyVaultKeyManagementSystem extends AbstractKeyManagementSyste
             throw new Error('key_not_found: No key ref provided')
         }
         const key = await this.client.fetchKeyAsync(args.keyRef.kid)
-        const signature =  (await this.client.createRawSignatureAsync({
+        const signature =  await this.client.createRawSignatureAsync({
             keyInfo: key,
-            input: new Int8Array(args.data),
-            requireX5Chain: false
-        }))
-        return btoa(String.fromCharCode(...signature))
+            // @ts-ignore
+            input: args.data
+        })
+
+        return Buffer.from(signature).toString('hex');
     }
 
     async verify(args: {
         keyRef: Pick<IKey, 'kid'>;
         data: Uint8Array;
-        signature: any;
+        signature: string;
         [x: string]: any
     }): Promise<Boolean> {
         if (!args.keyRef) {
@@ -91,16 +92,16 @@ export class AzureKeyVaultKeyManagementSystem extends AbstractKeyManagementSyste
             const key = await this.client.fetchKeyAsync(args.keyRef.kid)
             return await this.client.isValidRawSignatureAsync({
                 keyInfo: key,
-                input: new Int8Array(args.data.buffer),
-                signature: args.signature
+                // @ts-ignore
+                signature: Buffer.from(args.signature, 'hex'),
+                // @ts-ignore
+                input: args.data
             })
-
         } catch (e) {
             console.error(e)
             return false
         }
     }
-
 
     sharedSecret(args: {
         myKeyRef: Pick<IKey, 'kid'>;

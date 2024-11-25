@@ -720,16 +720,13 @@ importers:
     dependencies:
       '@sphereon/kmp-crypto-kms-azure':
         specifier: file:../../../mdoc-cbor-crypto-multiplatform/sphereon-kmp-crypto-kms-azure/build/dist/js/productionLibrary
-        version: '@sphereon/kmp-crypto-kms@file:../mdoc-cbor-crypto-multiplatform/sphereon-kmp-crypto-kms-azure/build/dist/js/productionLibrary'
+        version: file:../mdoc-cbor-crypto-multiplatform/sphereon-kmp-crypto-kms-azure/build/dist/js/productionLibrary
       '@sphereon/ssi-sdk-ext.did-utils':
         specifier: workspace:*
         version: link:../did-utils
       '@sphereon/ssi-sdk-ext.key-utils':
         specifier: workspace:*
         version: link:../key-utils
-      '@sphereon/ssi-sdk-ext.kms-local':
-        specifier: workspace:*
-        version: link:../kms-local
       '@sphereon/ssi-types':
         specifier: 0.30.2-feature.SDK.41.oidf.support.286
         version: 0.30.2-feature.SDK.41.oidf.support.286
@@ -2758,7 +2755,7 @@ packages:
   '@sphereon/jsencrypt@3.3.2-unstable.0':
     resolution: {integrity: sha512-HurQBvkjAW8t4oZ629sAKTAEi7B/rjYfmSJOquGdyJZeMPT+5R/9DW6i2eQv6kWHWLBa1Iji14zMUvM/NmF8Ew==}
 
-  '@sphereon/kmp-crypto-kms@file:../mdoc-cbor-crypto-multiplatform/sphereon-kmp-crypto-kms-azure/build/dist/js/productionLibrary':
+  '@sphereon/kmp-crypto-kms-azure@file:../mdoc-cbor-crypto-multiplatform/sphereon-kmp-crypto-kms-azure/build/dist/js/productionLibrary':
     resolution: {directory: ../mdoc-cbor-crypto-multiplatform/sphereon-kmp-crypto-kms-azure/build/dist/js/productionLibrary, type: directory}
     bundledDependencies: []
 
@@ -12253,7 +12250,7 @@ snapshots:
 
   '@sphereon/jsencrypt@3.3.2-unstable.0': {}
 
-  '@sphereon/kmp-crypto-kms@file:../mdoc-cbor-crypto-multiplatform/sphereon-kmp-crypto-kms-azure/build/dist/js/productionLibrary':
+  '@sphereon/kmp-crypto-kms-azure@file:../mdoc-cbor-crypto-multiplatform/sphereon-kmp-crypto-kms-azure/build/dist/js/productionLibrary':
     dependencies:
       '@azure/identity': 4.5.0
       '@azure/keyvault-keys': 4.9.0
