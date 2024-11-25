@@ -719,8 +719,8 @@ importers:
   packages/kms-azure:
     dependencies:
       '@sphereon/kmp-crypto-kms-azure':
-        specifier: file:../../../mdoc-cbor-crypto-multiplatform/sphereon-kmp-crypto-kms-azure/build/dist/js/productionLibrary
-        version: file:../mdoc-cbor-crypto-multiplatform/sphereon-kmp-crypto-kms-azure/build/dist/js/productionLibrary
+        specifier: 0.2.0-SNAPSHOT.12
+        version: 0.2.0-SNAPSHOT.12
       '@sphereon/ssi-sdk-ext.did-utils':
         specifier: workspace:*
         version: link:../did-utils
@@ -2755,9 +2755,8 @@ packages:
   '@sphereon/jsencrypt@3.3.2-unstable.0':
     resolution: {integrity: sha512-HurQBvkjAW8t4oZ629sAKTAEi7B/rjYfmSJOquGdyJZeMPT+5R/9DW6i2eQv6kWHWLBa1Iji14zMUvM/NmF8Ew==}
 
-  '@sphereon/kmp-crypto-kms-azure@file:../mdoc-cbor-crypto-multiplatform/sphereon-kmp-crypto-kms-azure/build/dist/js/productionLibrary':
-    resolution: {directory: ../mdoc-cbor-crypto-multiplatform/sphereon-kmp-crypto-kms-azure/build/dist/js/productionLibrary, type: directory}
-    bundledDependencies: []
+  '@sphereon/kmp-crypto-kms-azure@0.2.0-SNAPSHOT.12':
+    resolution: {integrity: sha512-XDsLNHmFkHcPkwqmYLhxn1vVs2H6rAglrfjtpulOCmvPaqwROMnjS89lMD7F3fUpF5e5sYpk8IL6WlPZGvAP/A==}
 
   '@sphereon/kmp-mdl-mdoc@0.2.0-SNAPSHOT.22':
     resolution: {integrity: sha512-uAZZExVy+ug9JLircejWa5eLtAZ7bnBP6xb7DO2+86LRsHNLh2k2jMWJYxp+iWtGHTsh6RYsZl14ScQLvjiQ/A==}
@@ -12250,7 +12249,7 @@ snapshots:
 
   '@sphereon/jsencrypt@3.3.2-unstable.0': {}
 
-  '@sphereon/kmp-crypto-kms-azure@file:../mdoc-cbor-crypto-multiplatform/sphereon-kmp-crypto-kms-azure/build/dist/js/productionLibrary':
+  '@sphereon/kmp-crypto-kms-azure@0.2.0-SNAPSHOT.12':
     dependencies:
       '@azure/identity': 4.5.0
       '@azure/keyvault-keys': 4.9.0

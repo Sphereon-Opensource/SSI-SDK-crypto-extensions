@@ -68,7 +68,7 @@ describe('Key creation', () => {
 
         const verified = await kms.verify({
             data,
-            signature: "invalid-signature",
+            signature: "b0d1e9621d5e35206e982e1db5b15877565e76494d90f2227cc1d14961c15c1fa37a9c197a9c3d22ca94d665f14a3670bb84e1af2641cf09a08fa56f467de541",
             keyRef: {kid: key.kid}
         })
 
