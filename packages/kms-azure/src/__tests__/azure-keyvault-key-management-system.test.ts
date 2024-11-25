@@ -4,13 +4,21 @@ import * as process from "node:process";
 
 describe('Key creation', () => {
     const id = "azure-keyvault-test"
+
     const keyVaultUrl = process.env.AZURE_KEYVAULT_URL
     const tenantId = process.env.AZURE_KEYVAULT_TENANT_ID
+    const keyVaultClientId = process.env.AZURE_KEYVAULT_CLIENT_ID
+    const keyVaultClientSecret = process.env.AZURE_KEYVAULT_CLIENT_SECRET
+
+    if (!keyVaultUrl || !tenantId || !keyVaultClientId || !keyVaultClientSecret) {
+        throw new Error("Missing Azure KeyVault test environment variables")
+    }
+
     const credentialOptions = new com.sphereon.crypto.kms.azure.CredentialOpts(
         com.sphereon.crypto.kms.azure.CredentialMode.SERVICE_CLIENT_SECRET,
         new com.sphereon.crypto.kms.azure.SecretCredentialOpts(
-            process.env.AZURE_KEYVAULT_CLIENT_ID,
-            process.env.AZURE_KEYVAULT_CLIENT_SECRET
+            keyVaultClientId,
+            keyVaultClientSecret
         )
     )
 
