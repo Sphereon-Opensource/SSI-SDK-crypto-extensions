@@ -4,20 +4,46 @@ import {AbstractKeyManagementSystem} from '@veramo/key-manager'
 import {KeyMetadata} from './index'
 import {calculateJwkThumbprint} from '@sphereon/ssi-sdk-ext.key-utils'
 import {JoseCurve, JWK} from "@sphereon/ssi-types";
-import AzureKeyVaultClientConfig = com.sphereon.crypto.kms.azure.AzureKeyVaultClientConfig;
 import SignatureAlgorithm = com.sphereon.crypto.generic.SignatureAlgorithm;
 import KeyOperations = com.sphereon.crypto.generic.KeyOperations;
 import JwkUse = com.sphereon.crypto.jose.JwkUse;
 
-export class AzureKeyVaultKeyManagementSystem extends AbstractKeyManagementSystem {
-    private id: string
-    private client: AzureKeyVaultCryptoProvider
 
-    constructor(private config: AzureKeyVaultClientConfig) {
+interface AbstractKeyManagementSystemOptions {
+    applicationId: string
+    keyVaultUrl: string
+    keyVaultClientIdTenantId: string
+    keyVaultClientId: string
+    keyVaultClientSecret: string
+}
+
+export class AzureKeyVaultKeyManagementSystem extends AbstractKeyManagementSystem {
+    private client: AzureKeyVaultCryptoProvider
+    private id: string
+
+    constructor(
+        options: AbstractKeyManagementSystemOptions
+    )
+    {
         super()
 
-        this.id = config.applicationId
-        this.client = new AzureKeyVaultCryptoProvider(this.config)
+        const credentialOptions = new com.sphereon.crypto.kms.azure.CredentialOpts(
+            com.sphereon.crypto.kms.azure.CredentialMode.SERVICE_CLIENT_SECRET,
+            new com.sphereon.crypto.kms.azure.SecretCredentialOpts(
+                options.keyVaultClientId,
+                options.keyVaultClientSecret
+            )
+        )
+
+        const azureKeyVaultClientConfig = new com.sphereon.crypto.kms.azure.AzureKeyVaultClientConfig(
+            options.applicationId,
+            options.keyVaultUrl,
+            options.keyVaultClientIdTenantId,
+            credentialOptions
+        )
+
+        this.id = options.applicationId
+        this.client = new AzureKeyVaultCryptoProvider(azureKeyVaultClientConfig)
     }
 
     async createKey(args: { type: TKeyType; meta?: KeyMetadata }): Promise<ManagedKeyInfo> {

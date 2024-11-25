@@ -1,9 +1,8 @@
-import {com} from "@sphereon/kmp-crypto-kms-azure";
 import {AzureKeyVaultKeyManagementSystem} from '../AzureKeyVaultKeyManagementSystem'
 import * as process from "node:process";
 
 describe('Key creation', () => {
-    const id = "azure-keyvault-test"
+    const applicationId = "azure-keyvault-test"
 
     const keyVaultUrl = process.env.AZURE_KEYVAULT_URL
     const keyVaultClientIdTenantId = process.env.AZURE_KEYVAULT_TENANT_ID
@@ -14,22 +13,13 @@ describe('Key creation', () => {
         throw new Error("Missing Azure KeyVault test environment variables")
     }
 
-    const credentialOptions = new com.sphereon.crypto.kms.azure.CredentialOpts(
-        com.sphereon.crypto.kms.azure.CredentialMode.SERVICE_CLIENT_SECRET,
-        new com.sphereon.crypto.kms.azure.SecretCredentialOpts(
-            keyVaultClientId,
-            keyVaultClientSecret
-        )
-    )
-
-    const azureKeyVaultClientConfig = new com.sphereon.crypto.kms.azure.AzureKeyVaultClientConfig(
-        id,
-        keyVaultUrl,
+    const kms = new AzureKeyVaultKeyManagementSystem({
+        applicationId,
         keyVaultClientIdTenantId,
-        credentialOptions
-    )
-
-    const kms = new AzureKeyVaultKeyManagementSystem(azureKeyVaultClientConfig)
+        keyVaultClientId,
+        keyVaultClientSecret,
+        keyVaultUrl
+    })
 
     it('should create a Secp256r1 key', async () => {
         const key = await kms.createKey({
