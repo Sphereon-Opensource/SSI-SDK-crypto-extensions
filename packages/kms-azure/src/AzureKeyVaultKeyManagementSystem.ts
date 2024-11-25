@@ -23,41 +23,41 @@ export class AzureKeyVaultKeyManagementSystem extends AbstractKeyManagementSyste
     async createKey(args: { type: TKeyType; meta?: KeyMetadata }): Promise<ManagedKeyInfo> {
         const {type, meta} = args
 
+        const signatureAlgorithm = this.mapKeyTypeToSignatureAlgorithm(type)
+
         const options = new AzureKeyVaultCryptoProvider.GenerateKeyRequest(
             meta?.keyAlias || `key-${crypto.randomUUID()}`,
             meta && 'keyUsage' in meta ? this.mapKeyUsage(meta.keyUsage) : JwkUse.sig,
             meta && 'keyOperations' in meta ? this.mapKeyOperations(meta.keyOperations as string[]) : [KeyOperations.SIGN],
-            this.mapKeyTypeToSignatureAlgorithm(type)
+            signatureAlgorithm
         )
         const key = await this.client.generateKeyAsync(options)
 
         const jwk: JWK = {
             ...key.jose.publicJwk.toPublicKey(),
             kty: key.jose.publicJwk.toPublicKey().kty.name,
-            crv: JoseCurve.P_256,
-            x: key.jose.publicJwk.toPublicKey().x || undefined,
-            y: key.jose.publicJwk.toPublicKey().y || undefined,
-            kid: key.jose.publicJwk.toPublicKey().kid || undefined
+            crv: this.signatureAlgorithmToCurve(signatureAlgorithm),
+            x: key.jose.publicJwk.toPublicKey().x!!,
+            y: key.jose.publicJwk.toPublicKey().y!!,
+            kid: key.jose.publicJwk.toPublicKey().kid!!
         }
 
-        const managedKeyInfo: ManagedKeyInfo = {
+        return {
             kid: key.kmsKeyRef,
             kms: this.id,
             type,
             meta: {
                 alias: key.kid,
-                algorithms: [key.jose.publicJwk.alg?.name ?? 'ES256'],
+                algorithms: [key.jose.publicJwk.alg?.name ?? 'PS256'],
                 jwkThumbprint: calculateJwkThumbprint(
                     {
                         jwk,
-                        digestAlgorithm: 'sha256'
+                        digestAlgorithm: this.signatureAlgorithmToDigestAlgorithm(signatureAlgorithm)
                     }
                 )
             },
             publicKeyHex: Buffer.from(key.jose.toString(), 'utf8').toString('base64'),
         }
-
-        return managedKeyInfo
     }
 
     async sign(args: {
@@ -120,6 +120,24 @@ export class AzureKeyVaultKeyManagementSystem extends AbstractKeyManagementSyste
 
     async listKeys(): Promise<ManagedKeyInfo[]> {
         throw new Error('listKeys is not implemented for AzureKeyVaultKMS.')
+    }
+
+    private signatureAlgorithmToDigestAlgorithm = (signatureAlgorithm: SignatureAlgorithm):  "sha256" | "sha512" => {
+        switch (signatureAlgorithm) {
+            case SignatureAlgorithm.ECDSA_SHA256:
+                return 'sha256'
+            default:
+                throw new Error(`Signature algorithm ${signatureAlgorithm} is not supported by AzureKeyVaultKMS`)
+        }
+    }
+
+    private signatureAlgorithmToCurve = (signatureAlgorithm: SignatureAlgorithm): JoseCurve => {
+        switch (signatureAlgorithm) {
+            case SignatureAlgorithm.ECDSA_SHA256:
+                return JoseCurve.P_256
+            default:
+                throw new Error(`Signature algorithm ${signatureAlgorithm} is not supported by AzureKeyVaultKMS`)
+        }
     }
 
     private mapKeyUsage = (usage: string): JwkUse => {
