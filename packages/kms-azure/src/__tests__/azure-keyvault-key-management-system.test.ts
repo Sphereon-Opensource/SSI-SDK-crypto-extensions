@@ -10,10 +10,10 @@ describe('Key creation', () => {
     const keyVaultClientId = process.env.AZURE_KEYVAULT_CLIENT_ID
     const keyVaultClientSecret = process.env.AZURE_KEYVAULT_CLIENT_SECRET
 
-    console.log("keyVaultUrl env var found: " + keyVaultUrl !== undefined)
-    console.log("keyVaultClientIdTenantId env var found: " + keyVaultClientIdTenantId !== undefined)
-    console.log("keyVaultClientId env var found: " + keyVaultClientId !== undefined)
-    console.log("keyVaultClientSecret env var found: " + keyVaultClientSecret !== undefined)
+    console.log("keyVaultUrl env var found: " + keyVaultUrl)
+    console.log("keyVaultClientIdTenantId env var found: " + keyVaultClientIdTenantId)
+    console.log("keyVaultClientId env var found: " + keyVaultClientId)
+    console.log("keyVaultClientSecret env var found: " + typeof(keyVaultClientSecret))
 
     if (!keyVaultUrl || !keyVaultClientIdTenantId || !keyVaultClientId || !keyVaultClientSecret) {
         throw new Error("Missing Azure KeyVault test environment variables")
