@@ -1,20 +1,21 @@
 import { PEMToBinary } from '@sphereon/ssi-sdk-ext.x509-utils'
 import { IKey, ManagedKeyInfo, MinimalImportableKey, TKeyType } from '@veramo/core'
 import {
+  ExternalSscdSettings,
+  IMusapClient,
   isSignatureAlgorithmType,
   JWSAlgorithm,
   KeyAlgorithm,
   KeyAlgorithmType,
   KeyGenReq,
+  MusapClient,
   MusapKey,
-  MusapModule,
-  MusapModuleType,
   signatureAlgorithmFromKeyAlgorithm,
   SignatureAlgorithmType,
   SignatureFormat,
   SignatureReq,
+  SscdType,
 } from '@sphereon/musap-react-native'
-import { KeyAttribute, SscdType } from '@sphereon/musap-react-native'
 import { AbstractKeyManagementSystem } from '@veramo/key-manager'
 import { TextDecoder } from 'text-encoding'
 import { Loggers } from '@sphereon/ssi-types'
@@ -31,15 +32,28 @@ import {
 export const logger = Loggers.DEFAULT.get('sphereon:musap-rn-kms')
 
 export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
-  private musapKeyStore: MusapModuleType
-  private sscdType: SscdType
+  private musapClient: IMusapClient
+  private readonly sscdType: SscdType
+  private readonly sscdId: string
+  private readonly defaultKeyAttributes: Record<string, string> | undefined
+  private readonly defaultSignAttributes: Record<string, string> | undefined
 
-  constructor(sscdType?: SscdType) {
+  constructor(sscdType?: SscdType, sscdId?: string, opts?: {
+    externalSscdSettings?: ExternalSscdSettings,
+    defaultKeyAttributes?: Record<string, string>,
+    defaultSignAttributes?: Record<string, string>}) {
     super()
     try {
-      this.musapKeyStore = MusapModule
+      this.musapClient = MusapClient
       this.sscdType = sscdType ? sscdType : 'TEE'
-      this.musapKeyStore.enableSscd(this.sscdType)
+      this.sscdId = sscdId ?? this.sscdType
+      this.defaultKeyAttributes = opts?.defaultKeyAttributes
+      this.defaultSignAttributes = opts?.defaultSignAttributes
+      
+      const enabledSscds = this.musapClient.listEnabledSscds()
+      if(!enabledSscds.some(value => value.sscdId == sscdId)) {
+        this.musapClient.enableSscd(this.sscdType, this.sscdId, opts?.externalSscdSettings)
+      }
     } catch (e) {
       console.error('enableSscd', e)
       throw Error('enableSscd failed')
@@ -47,7 +61,7 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
   }
 
   async listKeys(): Promise<ManagedKeyInfo[]> {
-    const keysJson: MusapKey[] = (await this.musapKeyStore.listKeys()) as MusapKey[]
+    const keysJson: MusapKey[] = (this.musapClient.listKeys()) as MusapKey[]
     return keysJson.map((key) => this.asMusapKeyInfo(key))
   }
 
@@ -61,15 +75,15 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
       keyAlgorithm: this.mapKeyTypeToAlgorithmType(type),
       keyUsage: 'keyUsage' in meta ? (meta.keyUsage as string) : 'sign',
       keyAlias: meta.keyAlias as string,
-      attributes: 'attributes' in meta ? (meta.attributes as KeyAttribute[]) : [],
+      attributes: { ...this.defaultKeyAttributes, ...('attributes' in meta ? meta.attributes : {}) },
       role: 'role' in meta ? (meta.role as string) : 'administrator',
     } satisfies KeyGenReq
 
     try {
-      const generatedKeyUri = await this.musapKeyStore.generateKey(this.sscdType, keyGenReq)
+      const generatedKeyUri = await this.musapClient.generateKey(this.sscdType, keyGenReq)
       if (generatedKeyUri) {
         logger.debug('Generated key:', generatedKeyUri)
-        const key = await this.musapKeyStore.getKeyByUri(generatedKeyUri)
+        const key = this.musapClient.getKeyByUri(generatedKeyUri)
         return this.asMusapKeyInfo(key)
       } else {
         return Promise.reject(new Error('Failed to generate key. No key URI'))
@@ -108,7 +122,7 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
 
   async deleteKey({ kid }: { kid: string }): Promise<boolean> {
     try {
-      this.musapKeyStore.removeKey(kid)
+      void this.musapClient.removeKey(kid)
       return true
     } catch (error) {
       console.warn('Failed to delete key:', error)
@@ -136,7 +150,7 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
 
     const data = new TextDecoder().decode(args.data as Uint8Array)
 
-    const key: MusapKey = this.musapKeyStore.getKeyById(args.keyRef.kid) as MusapKey
+    const key: MusapKey = this.musapClient.getKeyById(args.keyRef.kid) as MusapKey
     const signatureReq: SignatureReq = {
       keyUri: key.keyUri,
       data,
@@ -144,9 +158,9 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
       displayText: args.displayText,
       transId: args.transId,
       format: (args.format as SignatureFormat) ?? 'RAW',
-      attributes: args.attributes,
+      attributes: { ...this.defaultSignAttributes, ...args.attributes }
     }
-    return this.musapKeyStore.sign(signatureReq)
+    return this.musapClient.sign(signatureReq)
   }
 
   async importKey(args: Omit<MinimalImportableKey, 'kms'> & { privateKeyPEM?: string }): Promise<ManagedKeyInfo> {

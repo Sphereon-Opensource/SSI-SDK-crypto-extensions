@@ -762,8 +762,8 @@ importers:
   packages/kms-musap-rn:
     dependencies:
       '@sphereon/musap-react-native':
-        specifier: 0.0.1-next.154
-        version: 0.0.1-next.154(react-native@0.76.0(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(encoding@0.1.13)(react@18.3.1))(react@18.3.1)
+        specifier: 0.2.1-unstable.160
+        version: 0.2.1-unstable.160(react-native@0.76.0(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(encoding@0.1.13)(react@18.3.1))(react@18.3.1)
       '@sphereon/ssi-sdk-ext.key-utils':
         specifier: workspace:*
         version: link:../key-utils
@@ -2666,11 +2666,11 @@ packages:
     resolution: {integrity: sha512-uAZZExVy+ug9JLircejWa5eLtAZ7bnBP6xb7DO2+86LRsHNLh2k2jMWJYxp+iWtGHTsh6RYsZl14ScQLvjiQ/A==}
     bundledDependencies: []
 
-  '@sphereon/musap-native@0.0.1-next.154':
-    resolution: {integrity: sha512-WNdL0bAYV+YnyAdruoHV9nvWh9gag2ELBhbkXYSvynBv5kLBv2sOQ670+GfiLzoAkgl5xyre58QHVM65zzY8Dw==}
+  '@sphereon/musap-native@0.2.1-unstable.160':
+    resolution: {integrity: sha512-nXl8CNlaagBKRDKx8xJZvMOJnPIkNIcClVLevqwEyK9PAG8o0g59xEXYXps7n9+fFCYaI84RJYqhy1vV9kRMAw==}
 
-  '@sphereon/musap-react-native@0.0.1-next.154':
-    resolution: {integrity: sha512-sj7k1Ikylm0540urv2hXc7MiBhwNUzgrrRaSl+VbOV1PpGkrydqQz0QTB4Dmsxl8+JddOb4DNV0Lr9VdYYAl9A==}
+  '@sphereon/musap-react-native@0.2.1-unstable.160':
+    resolution: {integrity: sha512-vR9iPRjMgYRJ/Wg5c16CC2HowpV2As+IrpKbLhv2WQT1lwZNeuh8jkobTvRLd9424Nk/l0bd4tL16IZi4otm3A==}
     peerDependencies:
       react: '*'
       react-native: '*'
@@ -11973,11 +11973,11 @@ snapshots:
       '@js-joda/timezone': 2.3.0(@js-joda/core@5.6.3)
       format-util: 1.0.5
 
-  '@sphereon/musap-native@0.0.1-next.154': {}
+  '@sphereon/musap-native@0.2.1-unstable.160': {}
 
-  '@sphereon/musap-react-native@0.0.1-next.154(react-native@0.76.0(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(encoding@0.1.13)(react@18.3.1))(react@18.3.1)':
+  '@sphereon/musap-react-native@0.2.1-unstable.160(react-native@0.76.0(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(encoding@0.1.13)(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@sphereon/musap-native': 0.0.1-next.154
+      '@sphereon/musap-native': 0.2.1-unstable.160
       react: 18.3.1
       react-native: 0.76.0(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(encoding@0.1.13)(react@18.3.1)
 
@@ -12010,7 +12010,7 @@ snapshots:
     dependencies:
       abort-controller: 3.0.0
       format-util: 1.0.5
-      node-fetch: 2.7.0(encoding@0.1.13)
+      node-fetch: 2.6.7(encoding@0.1.13)
       ws: 8.5.0
     transitivePeerDependencies:
       - bufferutil
