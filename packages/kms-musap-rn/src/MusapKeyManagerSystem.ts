@@ -7,11 +7,13 @@ import {
   JWSAlgorithm,
   KeyAlgorithm,
   KeyAlgorithmType,
+  KeyAttribute,
   KeyGenReq,
   MusapClient,
   MusapKey,
   signatureAlgorithmFromKeyAlgorithm,
   SignatureAlgorithmType,
+  SignatureAttribute,
   SignatureFormat,
   SignatureReq,
   SscdType,
@@ -41,7 +43,8 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
   constructor(sscdType?: SscdType, sscdId?: string, opts?: {
     externalSscdSettings?: ExternalSscdSettings,
     defaultKeyAttributes?: Record<string, string>,
-    defaultSignAttributes?: Record<string, string>}) {
+    defaultSignAttributes?: Record<string, string>
+  }) {
     super()
     try {
       this.musapClient = MusapClient
@@ -49,9 +52,9 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
       this.sscdId = sscdId ?? this.sscdType
       this.defaultKeyAttributes = opts?.defaultKeyAttributes
       this.defaultSignAttributes = opts?.defaultSignAttributes
-      
+
       const enabledSscds = this.musapClient.listEnabledSscds()
-      if(!enabledSscds.some(value => value.sscdId == sscdId)) {
+      if (!enabledSscds.some(value => value.sscdId == sscdId)) {
         this.musapClient.enableSscd(this.sscdType, this.sscdId, opts?.externalSscdSettings)
       }
     } catch (e) {
@@ -75,7 +78,7 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
       keyAlgorithm: this.mapKeyTypeToAlgorithmType(type),
       keyUsage: 'keyUsage' in meta ? (meta.keyUsage as string) : 'sign',
       keyAlias: meta.keyAlias as string,
-      attributes: { ...this.defaultKeyAttributes, ...('attributes' in meta ? meta.attributes : {}) },
+      attributes: this.recordToKeyAttributes({ ...this.defaultKeyAttributes, ...('attributes' in meta ? meta.attributes : {}) }),
       role: 'role' in meta ? (meta.role as string) : 'administrator',
     } satisfies KeyGenReq
 
@@ -143,7 +146,12 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
     return signatureAlgorithmFromKeyAlgorithm(providedAlgorithm as JWSAlgorithm)
   }
 
-  async sign(args: { keyRef: Pick<IKey, 'kid'>; algorithm?: string; data: Uint8Array; [x: string]: any }): Promise<string> {
+  async sign(args: {
+    keyRef: Pick<IKey, 'kid'>;
+    algorithm?: string;
+    data: Uint8Array;
+    [x: string]: any
+  }): Promise<string> {
     if (!args.keyRef) {
       throw new Error('key_not_found: No key ref provided')
     }
@@ -158,7 +166,7 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
       displayText: args.displayText,
       transId: args.transId,
       format: (args.format as SignatureFormat) ?? 'RAW',
-      attributes: { ...this.defaultSignAttributes, ...args.attributes }
+      attributes: this.recordToSignatureAttributes({ ...this.defaultSignAttributes, ...args.attributes }),
     }
     return this.musapClient.sign(signatureReq)
   }
@@ -189,5 +197,25 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
 
   sharedSecret(args: { myKeyRef: Pick<IKey, 'kid'>; theirKey: Pick<IKey, 'publicKeyHex' | 'type'> }): Promise<string> {
     throw new Error('Not supported.')
+  }
+
+  private recordToKeyAttributes(record?: Record<string, string>): KeyAttribute[] {
+    if (!record) {
+      return []
+    }
+    return Object.entries(record).map(([key, value]) => ({
+      name: key,
+      value,
+    }))
+  }
+
+  private recordToSignatureAttributes(record?: Record<string, string>): SignatureAttribute[] {
+    if (!record) {
+      return []
+    }
+    return Object.entries(record).map(([key, value]) => ({
+      name: key,
+      value,
+    }))
   }
 }
