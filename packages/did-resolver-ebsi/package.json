@@ -1,7 +1,7 @@
 {
   "name": "@sphereon/ssi-sdk-ext.did-resolver-ebsi",
   "description": "Sphereon did:ebsi resolver for Legal Entities.",
-  "version": "0.25.0",
+  "version": "0.26.0",
   "source": "src/index.ts",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
