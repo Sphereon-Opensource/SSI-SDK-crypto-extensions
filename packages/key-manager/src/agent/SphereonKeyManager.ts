@@ -82,7 +82,7 @@ export class SphereonKeyManager extends VeramoKeyManager {
       return await kms.sign({ keyRef: keyInfo, data: typeof args.data === 'string' ? u8a.fromString(args.data) : args.data })
     }
     // @ts-ignore // we can pass in uint8arrays as well, which the super also can handle but does not expose in its types
-    return await super.keyManagerSign(args)
+    return await super.keyManagerSign({...args, keyRef: keyInfo.kid})
   }
 
   async keyManagerVerify(args: ISphereonKeyManagerVerifyArgs): Promise<boolean> {
