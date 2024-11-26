@@ -5,7 +5,7 @@ import { IParsedDID } from '@sphereon/ssi-types'
 import { DIDDocument, DIDDocumentSection, DIDResolutionResult } from '@veramo/core'
 import {
   isCoseKeyIdentifier,
-  isDidIdentifier,
+  isDidIdentifier, isOIDFEntityIdIdentifier,
   isJwkIdentifier,
   isJwksUrlIdentifier,
   isKidIdentifier,
@@ -47,6 +47,7 @@ export type ExternalIdentifierOpts = (
   | ExternalIdentifierDidOpts
   | ExternalIdentifierKidOpts
   | ExternalIdentifierCoseKeyOpts
+  | ExternalIdentifierOIDFEntityIdOpts
 ) &
   ExternalIdentifierOptsBase
 
@@ -101,6 +102,17 @@ export function isExternalIdentifierJwksUrlOpts(opts: ExternalIdentifierOptsBase
   return ('method' in opts && opts.method === 'oidc-discovery') || isJwksUrlIdentifier(identifier)
 }
 
+export type ExternalIdentifierOIDFEntityIdOpts = Omit<ExternalIdentifierOptsBase, 'method'> & {
+  method?: 'entity_id'
+  identifier: string
+  trustAnchors?: Array<string>
+}
+
+export function isExternalIdentifierOIDFEntityIdOpts(opts: ExternalIdentifierOptsBase): opts is ExternalIdentifierOIDFEntityIdOpts {
+  const { identifier } = opts
+  return ('method' in opts && opts.method === 'entity_id' || 'trustAnchors' in opts) && isOIDFEntityIdIdentifier(identifier)
+}
+
 export type ExternalIdentifierX5cOpts = Omit<ExternalIdentifierOptsBase, 'method'> &
   X509CertificateChainValidationOpts & {
     method?: 'x5c'
@@ -115,10 +127,10 @@ export function isExternalIdentifierX5cOpts(opts: ExternalIdentifierOptsBase): o
   return ('method' in opts && opts.method === 'x5c') || isX5cIdentifier(identifier)
 }
 
-export type ExternalIdentifierMethod = 'did' | 'jwk' | 'x5c' | 'kid' | 'cose_key' | 'oidc-discovery' | 'jwks-url' | 'oid4vci-issuer'
+export type ExternalIdentifierMethod = 'did' | 'jwk' | 'x5c' | 'kid' | 'cose_key' | 'oidc-discovery' | 'jwks-url' | 'oid4vci-issuer' | 'entity_id'
 
 export type ExternalIdentifierResult = IExternalIdentifierResultBase &
-  (ExternalIdentifierDidResult | ExternalIdentifierX5cResult | ExternalIdentifierJwkResult | ExternalIdentifierCoseKeyResult)
+  (ExternalIdentifierDidResult | ExternalIdentifierX5cResult | ExternalIdentifierJwkResult | ExternalIdentifierOIDFEntityIdResult | ExternalIdentifierCoseKeyResult )
 
 export interface IExternalIdentifierResultBase {
   method: ExternalIdentifierMethod
@@ -143,6 +155,17 @@ export interface ExternalIdentifierX5cResult extends IExternalIdentifierResultBa
   issuerJWK: JWK
   verificationResult?: X509ValidationResult
   certificates: any[] // for now since our schema generator trips on pkijs Certificate(Json) object //fixme
+}
+
+export type TrustedAnchor = string
+export type PublicKeyHex = string
+export type ErrorMessage = string
+
+export interface ExternalIdentifierOIDFEntityIdResult extends IExternalIdentifierResultBase {
+  method: 'entity_id'
+  trustedAnchors: Array<TrustedAnchor>
+  errorList?: Record<TrustedAnchor, ErrorMessage>
+  trustEstablished: boolean
 }
 
 export interface ExternalJwkInfo extends JwkInfo {

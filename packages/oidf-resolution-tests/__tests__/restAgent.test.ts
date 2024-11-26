@@ -1,40 +1,33 @@
-import { JwkDIDProvider } from '@sphereon/ssi-sdk-ext.did-provider-jwk'
-import { getDidJwkResolver } from '@sphereon/ssi-sdk-ext.did-resolver-jwk'
+import { IdentifierResolution, IIdentifierResolution } from '../../identifier-resolution/src' // FIXME fix when new types have been absorbed throughout ssi-sdk
 import { SphereonKeyManager } from '@sphereon/ssi-sdk-ext.key-manager'
 import { SphereonKeyManagementSystem } from '@sphereon/ssi-sdk-ext.kms-local'
 
-import { createAgent, IAgent, IAgentOptions, IDIDManager, IKeyManager, TAgent } from '@veramo/core'
+import { createAgent, IAgent, IAgentOptions, IKeyManager, TAgent } from '@veramo/core'
 import { Entities, KeyStore, migrations, PrivateKeyStore } from '@veramo/data-store'
-import { DIDManager, MemoryDIDStore } from '@veramo/did-manager'
-import { DIDResolverPlugin } from '@veramo/did-resolver'
 import { SecretBox } from '@veramo/kms-local'
 import { AgentRestClient } from '@veramo/remote-client'
 import { AgentRouter, RequestWithAgentRouter } from '@veramo/remote-server'
 import { OrPromise } from '@veramo/utils'
-import { Resolver } from 'did-resolver'
 
 // @ts-ignore
 import express from 'express'
 import { Server } from 'http'
 import { DataSource } from 'typeorm'
 
-import { IdentifierResolution, IIdentifierResolution } from '../src'
-import identifierResolution from './shared/identifierResolution'
+import oidfResolutionTests from './shared/oidfResolutionTest'
+import { ResourceResolver } from '@sphereon/ssi-sdk.resource-resolver'
+import { OIDFClient } from '@sphereon/ssi-sdk.oidf-client'
+import { IJwtService, JwtService } from '@sphereon/ssi-sdk-ext.jwt-service'
 
 jest.setTimeout(30000)
 
 const databaseFile = ':memory:'
-const port = 14312
+const port = 13213
 const basePath = '/agent'
 
-const DID_METHOD = 'did:jwk'
-
-const jwkDIDProvider = new JwkDIDProvider({
-  defaultKms: 'mem',
-})
 
 let serverAgent: IAgent
-let clientAgent: TAgent<IKeyManager & IDIDManager & IIdentifierResolution>
+let clientAgent: TAgent<IKeyManager & IIdentifierResolution & IJwtService>
 let restServer: Server
 let dbConnection: OrPromise<DataSource>
 
@@ -45,7 +38,7 @@ const getAgent = (options?: IAgentOptions) => {
     throw Error('Server agent not available yet (missed await?)')
   }
   if (!clientAgent) {
-    clientAgent = createAgent<IIdentifierResolution & IKeyManager & IDIDManager>({
+    clientAgent = createAgent<IIdentifierResolution & IKeyManager & IJwtService>({
       ...options,
       plugins: [
         new AgentRestClient({
@@ -76,7 +69,7 @@ const setup = async (): Promise<boolean> => {
 
   const secretBox = new SecretBox(KMS_SECRET_KEY)
 
-  const agent = createAgent<IKeyManager & IDIDManager & IIdentifierResolution>({
+  const agent = createAgent<IKeyManager & IIdentifierResolution & IJwtService>({
     plugins: [
       new SphereonKeyManager({
         store: new KeyStore(db),
@@ -84,17 +77,10 @@ const setup = async (): Promise<boolean> => {
           local: new SphereonKeyManagementSystem(new PrivateKeyStore(db, secretBox)),
         },
       }),
-      new DIDResolverPlugin({
-        resolver: new Resolver({ ...getDidJwkResolver() }),
-      }),
-      new DIDManager({
-        providers: {
-          [DID_METHOD]: jwkDIDProvider,
-        },
-        defaultProvider: DID_METHOD,
-        store: new MemoryDIDStore(),
-      }),
-      new IdentifierResolution({ crypto: global.crypto }),
+      new IdentifierResolution(),
+      new JwtService(),
+      new ResourceResolver(),
+      new OIDFClient(),
     ],
   })
 
@@ -127,5 +113,5 @@ const tearDown = async (): Promise<boolean> => {
 const testContext = { getAgent, setup, tearDown }
 
 describe('REST integration tests', () => {
-  identifierResolution(testContext)
+  oidfResolutionTests(testContext)
 })

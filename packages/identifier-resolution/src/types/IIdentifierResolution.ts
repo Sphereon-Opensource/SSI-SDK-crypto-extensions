@@ -6,6 +6,8 @@ import {
   ExternalIdentifierDidResult,
   ExternalIdentifierJwkOpts,
   ExternalIdentifierJwkResult,
+  ExternalIdentifierOIDFEntityIdOpts,
+  ExternalIdentifierOIDFEntityIdResult,
   ExternalIdentifierOpts,
   ExternalIdentifierResult,
   ExternalIdentifierX5cOpts,
@@ -16,14 +18,14 @@ import {
   ManagedIdentifierCoseKeyResult,
   ManagedIdentifierDidOpts,
   ManagedIdentifierDidResult,
-  ManagedIdentifierOID4VCIssuerOpts,
-  ManagedIdentifierOID4VCIssuerResult,
   ManagedIdentifierJwkOpts,
   ManagedIdentifierJwkResult,
   ManagedIdentifierKeyOpts,
   ManagedIdentifierKeyResult,
   ManagedIdentifierKidOpts,
   ManagedIdentifierKidResult,
+  ManagedIdentifierOID4VCIssuerOpts,
+  ManagedIdentifierOID4VCIssuerResult,
   ManagedIdentifierOptsOrResult,
   ManagedIdentifierResult,
   ManagedIdentifierX5cOpts,
@@ -45,6 +47,7 @@ export const identifierResolutionContextMethods: Array<string> = [
   'identifierExternalResolveByX5c',
   'identifierExternalResolveByJwk',
   'identifierExternalResolveByCoseKey',
+  'identifierExternalResolveByOIDFEntityId',
 ]
 
 /**
@@ -99,4 +102,6 @@ export interface IIdentifierResolution extends IPluginMethodMap {
   identifierExternalResolveByCoseKey(args: ExternalIdentifierCoseKeyOpts, context: IAgentContext<any>): Promise<ExternalIdentifierCoseKeyResult>
 
   identifierExternalResolveByX5c(args: ExternalIdentifierX5cOpts, context: IAgentContext<any>): Promise<ExternalIdentifierX5cResult>
+  
+  identifierExternalResolveByOIDFEntityId(args: ExternalIdentifierOIDFEntityIdOpts, context: IAgentContext<any>): Promise<ExternalIdentifierOIDFEntityIdResult>
 }

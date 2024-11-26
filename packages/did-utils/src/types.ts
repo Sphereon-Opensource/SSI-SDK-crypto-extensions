@@ -10,6 +10,7 @@ export enum SupportedDidMethodEnum {
   DID_ION = 'ion',
   DID_EBSI = 'ebsi',
   DID_JWK = 'jwk',
+  DID_OYD = 'oyd',
 }
 
 export enum IdentifierAliasEnum {
