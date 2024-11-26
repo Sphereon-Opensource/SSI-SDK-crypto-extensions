@@ -18,6 +18,11 @@ jobs:
       GH_USER: ${{secrets.GH_USER}}
       GH_EMAIL: ${{secrets.GH_EMAIL}}
       VC_HTTP_API_AUTH_TOKEN: ${{secrets.VC_HTTP_API_AUTH_TOKEN}}
+      AZURE_KEYVAULT_URL: ${{secrets.AZURE_KEYVAULT_URL}}
+      AZURE_KEYVAULT_TENANT_ID: ${{secrets.AZURE_KEYVAULT_TENANT_ID}}
+      AZURE_KEYVAULT_CLIENT_ID: ${{secrets.AZURE_KEYVAULT_CLIENT_ID}}
+      AZURE_KEYVAULT_CLIENT_SECRET: ${{secrets.AZURE_KEYVAULT_CLIENT_SECRET}}
+
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -88,4 +93,3 @@ jobs:
       - name: publish @unstable when on unstable branch
         if: startsWith(github.ref, 'refs/heads/feat')
         run: lerna publish --conventional-prerelease --force-publish --canary --sync-dist-version --no-git-tag-version --include-merged-tags --preid $PRE_ID --pre-dist-tag unstable --yes --throttle-size 75 --registry https://registry.npmjs.org
-
