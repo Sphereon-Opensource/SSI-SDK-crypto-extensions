@@ -76,7 +76,7 @@ export class SphereonKeyManager extends VeramoKeyManager {
   //FIXME extend the IKeyManagerSignArgs.data to be a string or array of strings
 
   async keyManagerSign(args: ISphereonKeyManagerSignArgs): Promise<string> {
-    const keyInfo: IKey = (await this.kmsStore.get({ kid: args.keyRef })) as IKey
+    const keyInfo = await this.keyManagerGet({kid: args.keyRef})
     const kms = this.getKmsByName(keyInfo.kms)
     if (keyInfo.type === 'Bls12381G2') {
       return await kms.sign({ keyRef: keyInfo, data: typeof args.data === 'string' ? u8a.fromString(args.data) : args.data })
