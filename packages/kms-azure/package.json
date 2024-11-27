@@ -1,6 +1,6 @@
 {
-  "name": "@sphereon/ssi-sdk-ext.did-provider-jwk",
-  "description": "Sphereon SSI-SDK plugin for management of did:key identifiers.",
+  "name": "@sphereon/ssi-sdk-ext.kms-azure",
+  "description": "Sphereon SSI-SDK plugin for Azure KeyVault Key Management System.",
   "version": "0.26.0",
   "source": "src/index.ts",
   "main": "dist/index.js",
@@ -10,26 +10,15 @@
     "build:clean": "tsc --build --clean && tsc --build"
   },
   "dependencies": {
-    "@ethersproject/random": "^5.7.0",
+    "@sphereon/kmp-crypto-kms-azure": "0.2.0-SNAPSHOT.12",
     "@sphereon/ssi-sdk-ext.did-utils": "workspace:*",
     "@sphereon/ssi-sdk-ext.key-utils": "workspace:*",
     "@sphereon/ssi-types": "0.30.2-feature.SDK.41.oidf.support.286",
-    "@stablelib/ed25519": "^1.0.3",
     "@veramo/core": "4.2.0",
-    "@veramo/did-manager": "4.2.0",
-    "base64url": "^3.0.1",
-    "debug": "^4.3.4",
-    "did-resolver": "^4.1.0",
-    "elliptic": "^6.5.4"
+    "@veramo/key-manager": "4.2.0"
   },
   "devDependencies": {
-    "@or13/did-jwk": "^0.0.4",
-    "@sphereon/ssi-sdk-ext.key-manager": "workspace:*",
-    "@sphereon/ssi-sdk-ext.kms-local": "workspace:*",
-    "@veramo/did-resolver": "4.2.0",
-    "@veramo/key-manager": "4.2.0",
-    "jose": "^4.14.6",
-    "uint8arrays": "^3.1.1"
+    "@types/text-encoding": "0.0.39"
   },
   "files": [
     "dist/**/*",
@@ -45,8 +34,10 @@
   "author": "Sphereon <dev@sphereon.com>",
   "license": "Apache-2.0",
   "keywords": [
-    "JWK",
-    "DID",
+    "azure",
+    "keyvault",
+    "key-management",
+    "react-native",
     "Veramo"
   ]
 }
