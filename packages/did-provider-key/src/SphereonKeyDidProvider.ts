@@ -48,6 +48,7 @@ export class SphereonKeyDidProvider extends AbstractIdentifierProvider {
         type?: TKeyType
         codecName?: 'EBSI' | 'jwk_jcs-pub' | Multicodec.CodecName
         key?: {
+          type?: TKeyType
           privateKeyHex: string
         }
       }
@@ -57,7 +58,7 @@ export class SphereonKeyDidProvider extends AbstractIdentifierProvider {
     let codecName = (options?.codecName?.toUpperCase() === 'EBSI' ? (JWK_JCS_PUB_NAME as Multicodec.CodecName) : options?.codecName) as
       | CodeNameType
       | undefined
-    const keyType: TKeyType = options?.type ?? (codecName === JWK_JCS_PUB_NAME ? 'Secp256r1' : 'Secp256k1')
+    const keyType: TKeyType = options?.type ?? options?.key?.type  ?? (codecName === JWK_JCS_PUB_NAME ? 'Secp256r1' : 'Secp256k1')
     // console.log(`keytype: ${keyType}, codecName: ${codecName}`)
 
     const key = await importProvidedOrGeneratedKey({
