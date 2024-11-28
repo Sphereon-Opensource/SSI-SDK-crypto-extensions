@@ -165,6 +165,7 @@ export interface ExternalIdentifierOIDFEntityIdResult extends IExternalIdentifie
   method: 'entity_id'
   trustedAnchors: Array<TrustedAnchor>
   errorList?: Record<TrustedAnchor, ErrorMessage>
+  jwtPayload?: string
   trustEstablished: boolean
 }
 
