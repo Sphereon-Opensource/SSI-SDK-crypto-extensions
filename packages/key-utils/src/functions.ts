@@ -491,7 +491,7 @@ export const isRawCompressedPublicKey = (key: Uint8Array): boolean => key.length
 
 export const toRawCompressedHexPublicKey = (rawPublicKey: Uint8Array, keyType: TKeyType): string => {
   if (isRawCompressedPublicKey(rawPublicKey)) {
-    throw new Error('Invalid public key format, an uncompressed raw public key is required as input, not a raw')
+    return hexStringFromUint8Array(rawPublicKey)
   }
 
   if (keyType === 'Secp256k1' || keyType === 'Secp256r1') {
