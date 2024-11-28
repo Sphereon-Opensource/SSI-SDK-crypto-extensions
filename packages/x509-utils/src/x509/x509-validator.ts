@@ -214,7 +214,7 @@ const validateX509CertificateChainImpl = async ({
         date: verificationTime,
         publicKey: prevCert?.x509Certificate?.publicKey,
       },
-      crypto
+      getCrypto()?.crypto ?? crypto ?? global.crypto
     )
     if (!result) {
       if (i == 0 && !reversed && !disallowReversedChain) {
