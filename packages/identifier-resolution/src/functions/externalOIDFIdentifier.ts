@@ -5,10 +5,10 @@ import {
   ExternalJwkInfo,
   TrustedAnchor,
 } from '../types'
-import { IAgentContext } from '@veramo/core'
-import { IOIDFClient } from '@sphereon/ssi-sdk.oidf-client'
-import { contextHasPlugin } from '@sphereon/ssi-sdk.agent-config'
-import { IJwsValidationResult } from '../types/IJwtService'
+import {IAgentContext} from '@veramo/core'
+import {IOIDFClient} from '@sphereon/ssi-sdk.oidf-client'
+import {contextHasPlugin} from '@sphereon/ssi-sdk.agent-config'
+import {IJwsValidationResult, JwsPayload} from '../types/IJwtService'
 import {decodeBase64url} from "@veramo/utils";
 
 /**
@@ -43,7 +43,7 @@ export async function resolveExternalOIDFEntityIdIdentifier(
   const errorList: Record<TrustedAnchor, ErrorMessage> = {}
   const jwkInfos: Array<ExternalJwkInfo> = []
 
-  let payload: string | undefined
+  let payload: JwsPayload | undefined
   for (const trustAnchor of trustAnchors) {
     const resolveResult = await context.agent.resolveTrustChain({
       entityIdentifier: identifier,
