@@ -176,21 +176,22 @@ const validateX509CertificateChainImpl = async ({
   const chainLength = chain.length
   var foundTrustAnchor: ParsedCertificate | undefined = undefined
   for (let i = 0; i < chainLength; i++) {
-    const cert = chain[i]
-    const prevCert = i > 0 ? chain[i - 1] : undefined
-    if (blindlyTrusted.some((trusted) => areCertificatesEqual(trusted.certificate, cert.certificate))) {
+    const currentCert = chain[i]
+    const previousCert = i > 0 ? chain[i - 1] : undefined
+    if (blindlyTrusted.some((trusted) => areCertificatesEqual(trusted.certificate, currentCert.certificate))) {
       console.log(`Certificate chain validation success as single cert if blindly trusted. WARNING: ONLY USE FOR TESTING PURPOSES.`)
       return {
         error: false,
         critical: false,
         message: `Certificate chain validation success as single cert if blindly trusted. WARNING: ONLY USE FOR TESTING PURPOSES.`,
+        trustAnchor: foundTrustAnchor?.certificateInfo,
         verificationTime,
         certificateChain: chain.map((cert) => cert.certificateInfo),
         ...(client && { client }),
       }
     }
     if (i > 0) {
-      if (cert.x509Certificate.issuer !== chain[i - 1].x509Certificate.subject) {
+      if (currentCert.x509Certificate.issuer !== chain[i - 1].x509Certificate.subject) {
         if (!reversed && !disallowReversedChain) {
           return await validateX509CertificateChainImpl({
             reversed: true,
@@ -209,10 +210,10 @@ const validateX509CertificateChainImpl = async ({
         }
       }
     }
-    const result = await cert.x509Certificate.verify(
+    const result = await currentCert.x509Certificate.verify(
       {
         date: verificationTime,
-        publicKey: prevCert?.x509Certificate?.publicKey,
+        publicKey: previousCert?.x509Certificate?.publicKey,
       },
       getCrypto()?.crypto ?? crypto ?? global.crypto
     )
@@ -235,7 +236,7 @@ const validateX509CertificateChainImpl = async ({
       }
     }
 
-    foundTrustAnchor = foundTrustAnchor ?? trustedCerts?.find((trusted) => isSameCertificate(trusted.x509Certificate, cert.x509Certificate))
+    foundTrustAnchor = foundTrustAnchor ?? trustedCerts?.find((trusted) => isSameCertificate(trusted.x509Certificate, currentCert.x509Certificate))
 
     if (i === 0 && chainLength === 1 && allowSingleNoCAChainElement) {
       return {
