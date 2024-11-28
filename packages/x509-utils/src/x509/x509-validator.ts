@@ -134,7 +134,8 @@ export const validateX509CertificateChain = async ({
     }
   }
 
-  const certs = pemOrDerChain.map(pemOrDerToX509Certificate)
+  // x5c always starts with the leaf cert at index 0 and then the cas. Our internal pkijs service expects it the other way around
+  const certs = pemOrDerChain.map(pemOrDerToX509Certificate).reverse()
   const trustedCerts = trustedPEMs ? trustedPEMs.map(pemOrDerToX509Certificate) : undefined
   defaultCryptoEngine()
 
