@@ -5,10 +5,11 @@ import {
   ExternalJwkInfo,
   TrustedAnchor,
 } from '../types'
-import { IAgentContext } from '@veramo/core'
-import { IOIDFClient } from '@sphereon/ssi-sdk.oidf-client'
-import { contextHasPlugin } from '@sphereon/ssi-sdk.agent-config'
-import { IJwsValidationResult } from '../types/IJwtService'
+import {IAgentContext} from '@veramo/core'
+import {IOIDFClient} from '@sphereon/ssi-sdk.oidf-client'
+import {contextHasPlugin} from '@sphereon/ssi-sdk.agent-config'
+import {IJwsValidationResult, JwsPayload} from '../types/IJwtService'
+import {decodeBase64url} from "@veramo/utils";
 
 /**
  * Resolves an OIDF Entity ID against multiple trust anchors to establish trusted relationships
@@ -42,6 +43,7 @@ export async function resolveExternalOIDFEntityIdIdentifier(
   const errorList: Record<TrustedAnchor, ErrorMessage> = {}
   const jwkInfos: Array<ExternalJwkInfo> = []
 
+  let payload: JwsPayload | undefined
   for (const trustAnchor of trustAnchors) {
     const resolveResult = await context.agent.resolveTrustChain({
       entityIdentifier: identifier,
@@ -70,6 +72,7 @@ export async function resolveExternalOIDFEntityIdIdentifier(
         continue
       }
 
+      payload = JSON.parse(decodeBase64url(jwtVerifyResult.jws.payload))
       const signature = jwtVerifyResult.jws.signatures[0]
       if (signature.identifier.jwks.length === 0) {
         errorList[trustAnchor] = 'No JWK was present in the trust anchor signature'
@@ -88,6 +91,7 @@ export async function resolveExternalOIDFEntityIdIdentifier(
     trustedAnchors: Array.from(trustedAnchors),
     ...(Object.keys(errorList).length > 0 && { errorList }),
     jwks: jwkInfos,
-    trustEstablished: trustedAnchors.size > 0
+    jwtPayload: payload,
+    trustEstablished: trustedAnchors.size > 0,
   }
 }
