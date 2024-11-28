@@ -36,7 +36,6 @@ import {
 } from '../types'
 import { resolveExternalOIDFEntityIdIdentifier } from '.'
 
-
 export async function resolveExternalIdentifier(
   opts: ExternalIdentifierOpts & {
     crypto?: Crypto

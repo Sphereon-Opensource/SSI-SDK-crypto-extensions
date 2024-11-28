@@ -1,4 +1,4 @@
-import {X509Certificate} from "@peculiar/x509";
+import { X509Certificate } from '@peculiar/x509'
 import { Certificate } from 'pkijs'
 import * as u8a from 'uint8arrays'
 // @ts-ignore
@@ -45,7 +45,7 @@ export function x5cToPemCertChain(x5c: string[], maxDepth?: number): string {
 }
 
 export const pemOrDerToX509Certificate = (cert: string | Uint8Array | X509Certificate): Certificate => {
-  let DER: string| undefined = typeof cert === 'string' ?  cert : undefined
+  let DER: string | undefined = typeof cert === 'string' ? cert : undefined
   if (typeof cert === 'object' && !(cert instanceof Uint8Array)) {
     // X509Certificate object
     return Certificate.fromBER(cert.rawData)

@@ -32,11 +32,13 @@ import {
   JwsJsonFlattened,
   JwsJsonGeneral,
   JwsJsonGeneralWithIdentifiers,
-  JwsJsonSignature, JwsJsonSignatureWithIdentifier,
+  JwsJsonSignature,
+  JwsJsonSignatureWithIdentifier,
   JwsHeader,
   JwsPayload,
   PreparedJwsObject,
-  VerifyJwsArgs, JweHeader,
+  VerifyJwsArgs,
+  JweHeader,
 } from '../types/IJwtService'
 
 const payloadToBytes = (payload: string | JwsPayload | Uint8Array): Uint8Array => {
@@ -412,11 +414,7 @@ async function resolveExternalIdentifierFromJwsHeader(
   }
 }
 
-function loadJWK(
-  providedJwk: JWK | undefined,
-  protectedHeader: JwsHeader,
-  jws: JwsJsonGeneral,
-): JWK | undefined {
+function loadJWK(providedJwk: JWK | undefined, protectedHeader: JwsHeader, jws: JwsJsonGeneral): JWK | undefined {
   if (providedJwk) {
     return providedJwk
   }
