@@ -9,6 +9,7 @@ import { IAgentContext } from '@veramo/core'
 import { IOIDFClient } from '@sphereon/ssi-sdk.oidf-client'
 import { contextHasPlugin } from '@sphereon/ssi-sdk.agent-config'
 import { IJwsValidationResult } from '../types/IJwtService'
+import {decodeBase64url} from "@veramo/utils";
 
 /**
  * Resolves an OIDF Entity ID against multiple trust anchors to establish trusted relationships
@@ -71,7 +72,7 @@ export async function resolveExternalOIDFEntityIdIdentifier(
         continue
       }
 
-      payload = JSON.parse(jwtVerifyResult.jws.payload)
+      payload = JSON.parse(decodeBase64url(jwtVerifyResult.jws.payload))
       const signature = jwtVerifyResult.jws.signatures[0]
       if (signature.identifier.jwks.length === 0) {
         errorList[trustAnchor] = 'No JWK was present in the trust anchor signature'
