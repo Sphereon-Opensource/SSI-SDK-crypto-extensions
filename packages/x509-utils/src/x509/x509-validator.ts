@@ -41,6 +41,7 @@ export type X509ValidationResult = {
   error: boolean
   critical: boolean
   message: string
+  detailMessage?: string
   verificationTime: Date
   certificateChain?: Array<CertificateInfo>
   trustAnchor?: CertificateInfo
@@ -178,20 +179,22 @@ const validateX509CertificateChainImpl = async ({
   for (let i = 0; i < chainLength; i++) {
     const currentCert = chain[i]
     const previousCert = i > 0 ? chain[i - 1] : undefined
-    if (blindlyTrusted.some((trusted) => areCertificatesEqual(trusted.certificate, currentCert.certificate))) {
+    const blindlyTrustedCert = blindlyTrusted.find((trusted) => areCertificatesEqual(trusted.certificate, currentCert.certificate))
+    if (blindlyTrustedCert) {
       console.log(`Certificate chain validation success as single cert if blindly trusted. WARNING: ONLY USE FOR TESTING PURPOSES.`)
       return {
         error: false,
         critical: false,
         message: `Certificate chain validation success as single cert if blindly trusted. WARNING: ONLY USE FOR TESTING PURPOSES.`,
-        trustAnchor: foundTrustAnchor?.certificateInfo,
+        detailMessage: `Blindly trusted certificate ${blindlyTrustedCert.certificateInfo.subject.dn.DN} was found in the chain.`,
+        trustAnchor: blindlyTrustedCert?.certificateInfo,
         verificationTime,
         certificateChain: chain.map((cert) => cert.certificateInfo),
         ...(client && { client }),
       }
     }
-    if (i > 0) {
-      if (currentCert.x509Certificate.issuer !== chain[i - 1].x509Certificate.subject) {
+    if (previousCert) {
+      if (currentCert.x509Certificate.issuer !== previousCert.x509Certificate.subject) {
         if (!reversed && !disallowReversedChain) {
           return await validateX509CertificateChainImpl({
             reversed: true,
@@ -205,6 +208,7 @@ const validateX509CertificateChainImpl = async ({
           error: true,
           critical: true,
           message: `Certificate chain validation failed for ${leafCert.certificateInfo.subject.dn.DN}.`,
+          detailMessage: `The certificate ${currentCert.certificateInfo.subject.dn.DN} with issuer ${currentCert.x509Certificate.issuer}, is not signed by the previous certificate ${previousCert?.certificateInfo.subject.dn.DN} with subject string ${previousCert?.x509Certificate.subject}.`,
           verificationTime,
           ...(client && { client }),
         }
@@ -231,6 +235,7 @@ const validateX509CertificateChainImpl = async ({
         error: true,
         critical: true,
         message: `Certificate chain validation failed for ${leafCert.certificateInfo.subject.dn.DN}.`,
+        detailMessage: `Verification of the certificate ${currentCert.certificateInfo.subject.dn.DN} with issuer ${currentCert.x509Certificate.issuer} failed. Public key: ${JSON.stringify(currentCert.certificateInfo.publicKeyJWK)}.`,
         verificationTime,
         ...(client && { client }),
       }
@@ -250,11 +255,12 @@ const validateX509CertificateChainImpl = async ({
     }
   }
 
-  if (foundTrustAnchor) {
+  if (foundTrustAnchor?.certificateInfo) {
     return {
       error: false,
       critical: false,
       message: `Certificate chain was valid`,
+      detailMessage: `The leaf certificate ${leafCert.certificateInfo.subject.dn.DN} is part of a chain with trust anchor ${foundTrustAnchor?.certificateInfo.subject.dn.DN}.`,
       trustAnchor: foundTrustAnchor?.certificateInfo,
       verificationTime,
       ...(client && { client }),
@@ -265,6 +271,7 @@ const validateX509CertificateChainImpl = async ({
     error: true,
     critical: true,
     message: `Certificate chain validation failed for ${leafCert.certificateInfo.subject.dn.DN}.`,
+    detailMessage: `No trust anchor was found in the chain. between ${chain[0].certificateInfo.subject.dn.DN} and ${chain[chain.length - 1].certificateInfo.subject.dn.DN}.`,
     verificationTime,
     ...(client && { client }),
   }

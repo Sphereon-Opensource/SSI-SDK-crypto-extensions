@@ -246,6 +246,7 @@ describe('functions: validateX5cCertificateChain', () => {
 
   it('should not validate with an untrusted root certificate', async () => {
     const result = await validateX509CertificateChain({ chain: validChain, trustAnchors: [externalTestCert] })
+    console.log(JSON.stringify(result, null, 2))
     expect(result).toMatchObject({
       critical: true,
       error: true,
