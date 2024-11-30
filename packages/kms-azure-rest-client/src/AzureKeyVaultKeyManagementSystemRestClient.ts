@@ -4,7 +4,6 @@ import {KeyMetadata} from './index'
 import {calculateJwkThumbprint} from '@sphereon/ssi-sdk-ext.key-utils'
 import * as AzureRestClient from "@sphereon/kms-azure-rest-client"
 import {JWK} from "@sphereon/ssi-types";
-import {ServerConfiguration} from "@sphereon/kms-azure-rest-client";
 
 interface AbstractKeyManagementSystemOptions {
     applicationId: string
@@ -20,7 +19,7 @@ export class AzureKeyVaultKeyManagementSystemRestClient extends AbstractKeyManag
         super()
 
         const config = AzureRestClient.createConfiguration({
-            baseServer: new ServerConfiguration(options.vaultUrl, {}),
+            baseServer: new AzureRestClient.ServerConfiguration(options.vaultUrl, {}),
             authMethods: {
                 apiKeyScheme: options.apiKey
             },
