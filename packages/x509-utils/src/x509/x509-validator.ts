@@ -235,7 +235,9 @@ const validateX509CertificateChainImpl = async ({
         error: true,
         critical: true,
         message: `Certificate chain validation failed for ${leafCert.certificateInfo.subject.dn.DN}.`,
-        detailMessage: `Verification of the certificate ${currentCert.certificateInfo.subject.dn.DN} with issuer ${currentCert.x509Certificate.issuer} failed. Public key: ${JSON.stringify(currentCert.certificateInfo.publicKeyJWK)}.`,
+        detailMessage: `Verification of the certificate ${currentCert.certificateInfo.subject.dn.DN} with issuer ${
+          currentCert.x509Certificate.issuer
+        } failed. Public key: ${JSON.stringify(currentCert.certificateInfo.publicKeyJWK)}.`,
         verificationTime,
         ...(client && { client }),
       }
@@ -271,7 +273,9 @@ const validateX509CertificateChainImpl = async ({
     error: true,
     critical: true,
     message: `Certificate chain validation failed for ${leafCert.certificateInfo.subject.dn.DN}.`,
-    detailMessage: `No trust anchor was found in the chain. between ${chain[0].certificateInfo.subject.dn.DN} and ${chain[chain.length - 1].certificateInfo.subject.dn.DN}.`,
+    detailMessage: `No trust anchor was found in the chain. between ${chain[0].certificateInfo.subject.dn.DN} and ${
+      chain[chain.length - 1].certificateInfo.subject.dn.DN
+    }.`,
     verificationTime,
     ...(client && { client }),
   }

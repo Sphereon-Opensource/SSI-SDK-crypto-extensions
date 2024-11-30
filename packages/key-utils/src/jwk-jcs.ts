@@ -1,5 +1,5 @@
-import type {ByteView} from 'multiformats/codecs/interface'
-import {TextDecoder, TextEncoder} from 'web-encoding'
+import type { ByteView } from 'multiformats/codecs/interface'
+import { TextDecoder, TextEncoder } from 'web-encoding'
 
 const textEncoder = new TextEncoder()
 const textDecoder = new TextDecoder()
@@ -22,7 +22,7 @@ function check(value: unknown, description: string) {
  * @param value - The value to check.
  */
 function assertObject(value: unknown) {
-  if (!value || typeof (value) !== 'object') {
+  if (!value || typeof value !== 'object') {
     throw new Error('Value must be an object')
   }
 }

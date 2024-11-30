@@ -14,7 +14,7 @@ import {
   JwkKeyType,
   JwkKeyTypeString,
 } from '@sphereon/ssi-types'
-import {removeNulls} from "./functions";
+import { removeNulls } from './functions'
 
 export function coseKeyToJwk(coseKey: ICoseKeyJson): JWK {
   const { x5chain, key_ops, crv, alg, baseIV, kty, ...rest } = coseKey
