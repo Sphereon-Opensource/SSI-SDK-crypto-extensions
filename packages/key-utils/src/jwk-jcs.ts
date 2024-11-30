@@ -1,6 +1,5 @@
-import { TextDecoder, TextEncoder } from 'web-encoding'
-import isPlainObject from 'lodash.isplainobject'
-import type { ByteView } from 'multiformats/codecs/interface'
+import type {ByteView} from 'multiformats/codecs/interface'
+import {TextDecoder, TextEncoder} from 'web-encoding'
 
 const textEncoder = new TextEncoder()
 const textDecoder = new TextDecoder()
@@ -22,9 +21,9 @@ function check(value: unknown, description: string) {
  *
  * @param value - The value to check.
  */
-function validatePlainObject(value: unknown) {
-  if (!isPlainObject(value)) {
-    throw new Error('JWK must be an object')
+function assertObject(value: unknown) {
+  if (!value || typeof (value) !== 'object') {
+    throw new Error('Value must be an object')
   }
 }
 
@@ -37,7 +36,7 @@ function validatePlainObject(value: unknown) {
  * @param jwk - The JWK to check.
  */
 export function validateJwk(jwk: any) {
-  validatePlainObject(jwk)
+  assertObject(jwk)
   // Check JWK required members based on the key type
   switch (jwk.kty) {
     /**

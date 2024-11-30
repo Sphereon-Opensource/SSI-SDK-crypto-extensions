@@ -36,7 +36,7 @@ export interface IImportProvidedOrGeneratedKeyArgs {
 }
 export interface IKeyOpts {
   key?: Partial<MinimalImportableKey> // Optional key to import with only privateKeyHex mandatory. If not specified a key with random kid will be created
-  type?: Exclude<TKeyType, 'Secp384r1' | 'Secp521r1'> // The key type. Defaults to Secp256k1
+  type?: Exclude<TKeyType, 'Secp384r1' | 'Secp521r1'> // The key type. Defaults to Secp256k1. The exclude is there as we do not support it yet for key generation
   use?: JwkKeyUse // The key use
   x509?: X509Opts
 }
