@@ -1,11 +1,11 @@
 import {randomBytes} from '@ethersproject/random'
-import {bls12_381} from "@noble/curves/bls12-381";
-import {ed25519} from '@noble/curves/ed25519';
-import {p256} from '@noble/curves/p256';
-import {p384} from "@noble/curves/p384";
-import {p521} from "@noble/curves/p521";
-import {secp256k1} from '@noble/curves/secp256k1';
-import {sha256, sha384, sha512} from '@noble/hashes/sha2'
+import {bls12_381} from "@noble/curves/bls12-381.js";
+import {ed25519} from '@noble/curves/ed25519.js';
+import {p256} from '@noble/curves/p256.js';
+import {p384} from "@noble/curves/p384.js";
+import {p521} from "@noble/curves/p521.js";
+import {secp256k1} from '@noble/curves/secp256k1.js';
+import {sha256, sha384, sha512} from '@noble/hashes/sha2.js'
 import {
     generateRSAKeyAsPEM,
     hexToBase64,
