@@ -664,10 +664,10 @@ importers:
         specifier: ^5.7.0
         version: 5.7.0
       '@noble/curves':
-        specifier: ^1.7.0
+        specifier: 1.7.0
         version: 1.7.0
       '@noble/hashes':
-        specifier: ^1.6.1
+        specifier: 1.6.1
         version: 1.6.1
       '@sphereon/ssi-sdk-ext.x509-utils':
         specifier: workspace:*
@@ -752,12 +752,6 @@ importers:
 
   packages/kms-local:
     dependencies:
-      '@noble/curves':
-        specifier: ^1.7.0
-        version: 1.7.0
-      '@noble/hashes':
-        specifier: ^1.6.1
-        version: 1.6.1
       '@sphereon/ssi-sdk-ext.did-utils':
         specifier: workspace:*
         version: link:../did-utils

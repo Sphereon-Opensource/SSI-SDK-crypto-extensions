@@ -6,8 +6,8 @@ import {p256} from '@noble/curves/p256';
 import {p384} from "@noble/curves/p384";
 import {p521} from "@noble/curves/p521";
 import {secp256k1} from '@noble/curves/secp256k1';
-// import {sha256, sha384, sha512};
-const { sha256, sha384, sha512 } = require('./node_modules/@noble/hashes/sha2.js');
+import { sha256, } from '@noble/hashes/sha256'
+import { sha384, sha512 } from '@noble/hashes/sha512'
 import { generateRSAKeyAsPEM, hexToBase64, hexToPEM, PEMToJwk, privateKeyHexFromPEM } from '@sphereon/ssi-sdk-ext.x509-utils'
 import { JoseCurve, JoseSignatureAlgorithm, JWK, JwkKeyType, Loggers } from '@sphereon/ssi-types'
 import { generateKeyPair as generateSigningKeyPair } from '@stablelib/ed25519'
