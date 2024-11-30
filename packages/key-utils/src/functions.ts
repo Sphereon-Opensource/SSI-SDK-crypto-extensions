@@ -1,12 +1,12 @@
 import { randomBytes } from '@ethersproject/random'
 // Do not change these require statements to imports before we change to ESM. Breaks external CJS packages depending on this module
-const { bls12_381 } = require('@noble/curves/bls12-381')
-const { ed25519 } = require('@noble/curves/ed25519')
-const { p256 } = require('@noble/curves/p256')
-const { p384 } = require('@noble/curves/p384')
-const { p521 } = require('@noble/curves/p521')
-const { secp256k1 } = require('@noble/curves/secp256k1')
-const { sha256, sha384, sha512 } = require('@noble/hashes/sha2')
+import {bls12_381} from "@noble/curves/bls12-381";
+import {ed25519} from '@noble/curves/ed25519';
+import {p256} from '@noble/curves/p256';
+import {p384} from "@noble/curves/p384";
+import {p521} from "@noble/curves/p521";
+import {secp256k1} from '@noble/curves/secp256k1';
+import {sha256, sha384, sha512} from '@noble/hashes/sha2'
 import { generateRSAKeyAsPEM, hexToBase64, hexToPEM, PEMToJwk, privateKeyHexFromPEM } from '@sphereon/ssi-sdk-ext.x509-utils'
 import { JoseCurve, JoseSignatureAlgorithm, JWK, JwkKeyType, Loggers } from '@sphereon/ssi-types'
 import { generateKeyPair as generateSigningKeyPair } from '@stablelib/ed25519'
