@@ -3,7 +3,7 @@ import { IKey, MinimalImportableKey } from '@veramo/core'
 export const JWK_JCS_PUB_NAME = 'jwk_jcs-pub' as const
 export const JWK_JCS_PUB_PREFIX = 0xeb51
 
-export type TKeyType = 'Ed25519' | 'Secp256k1' | 'Secp256r1' | 'X25519' | 'Bls12381G1' | 'Bls12381G2' | 'RSA'
+export type TKeyType = 'Ed25519' | 'Secp256k1' | 'Secp256r1' | 'Secp384r1' | 'Secp521r1' | 'X25519' | 'Bls12381G1' | 'Bls12381G2' | 'RSA'
 
 export enum Key {
   Ed25519 = 'Ed25519',
@@ -55,5 +55,7 @@ export type SignatureAlgorithmFromKeyTypeArgs = {
 }
 
 export type KeyTypeFromCryptographicSuiteArgs = {
-  suite: string
+  crv?: string
+  kty?: string
+  alg?: string
 }

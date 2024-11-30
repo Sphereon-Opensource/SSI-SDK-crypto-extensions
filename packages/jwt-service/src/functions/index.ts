@@ -10,7 +10,7 @@ import {
   ManagedIdentifierResult,
   resolveExternalJwkIdentifier,
 } from '@sphereon/ssi-sdk-ext.identifier-resolution'
-import { keyTypeFromCryptographicSuite, verifySignatureWithSubtle } from '@sphereon/ssi-sdk-ext.key-utils'
+import { keyTypeFromCryptographicSuite, verifyRawSignature } from '@sphereon/ssi-sdk-ext.key-utils'
 import { contextHasPlugin } from '@sphereon/ssi-sdk.agent-config'
 import { JWK } from '@sphereon/ssi-types'
 import { IAgentContext } from '@veramo/core'
@@ -323,12 +323,12 @@ export const verifyJws = async (args: VerifyJwsArgs, context: IAgentContext<IIde
           signature: sigWithId.signature,
           data,
           publicKeyHex,
-          type: keyTypeFromCryptographicSuite({ suite: jwkInfo.jwk.crv ?? 'ES256' }),
+          type: keyTypeFromCryptographicSuite({ crv: jwkInfo.jwk.crv ?? 'ES256' }),
           // no kms arg, as the current key manager needs a bit more work
         })
       } else {
         const signature = base64ToBytes(sigWithId.signature)
-        valid = await verifySignatureWithSubtle({ data, signature, key: jwkInfo.jwk })
+        valid = await verifyRawSignature({ data, signature, key: jwkInfo.jwk })
       }
       if (!valid) {
         errorMessages.push(`Signature ${index} was not valid`)

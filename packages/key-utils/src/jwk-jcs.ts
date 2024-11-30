@@ -36,7 +36,7 @@ function validatePlainObject(value: unknown) {
  *
  * @param jwk - The JWK to check.
  */
-function validateJwk(jwk: any) {
+export function validateJwk(jwk: any) {
   validatePlainObject(jwk)
   // Check JWK required members based on the key type
   switch (jwk.kty) {
