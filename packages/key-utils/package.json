@@ -14,8 +14,6 @@
     "@sphereon/ssi-sdk-ext.x509-utils": "workspace:*",
     "@sphereon/ssi-types": "0.30.2-feature.SDK.41.oidf.support.286",
     "@stablelib/ed25519": "^1.0.3",
-    "@stablelib/sha256": "^1.0.1",
-    "@stablelib/sha512": "^1.0.1",
     "@noble/curves": "1.7.0",
     "@noble/hashes": "1.6.1",
     "micro-rsa-dsa-dh": "^0.1.0",
