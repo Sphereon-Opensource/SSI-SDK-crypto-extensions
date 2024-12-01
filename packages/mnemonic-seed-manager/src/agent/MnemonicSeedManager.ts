@@ -1,4 +1,5 @@
-import * as crypto from 'crypto'
+import {bytesToHex} from "@noble/hashes/utils";
+import {shaHasher} from "@sphereon/ssi-sdk-ext.key-utils";
 import { derivePath, getMasterKeyFromSeed, getPublicKey } from 'ed25519-hd-key'
 import { IAgentPlugin, ManagedKeyInfo } from '@veramo/core'
 import { AbstractSecretBox } from '@veramo/key-manager'
@@ -79,7 +80,7 @@ export class MnemonicSeedManager implements IAgentPlugin {
   private async saveMnemonicInfo(args: IMnemonicInfoStoreArgs): Promise<IMnemonicInfoResult> {
     if (args.mnemonic && this.secretBox) {
       const mnemonic = args.mnemonic.join(' ')
-      const hash = crypto.createHash('sha256').update(mnemonic).digest('hex')
+      const hash = bytesToHex(shaHasher(mnemonic, 'sha256'))
       const mnemonicInfo = new MnemonicEntity()
       mnemonicInfo.id = args.id ? args.id : hash
       mnemonicInfo.hash = hash

@@ -18,7 +18,6 @@ let databaseFile = ':memory:'
 let dbConnection: OrPromise<DataSource>
 let agent: TAgent<IKeyManager & IIdentifierResolution & IJwtService>
 
-
 const setup = async (): Promise<boolean> => {
   const db: OrPromise<DataSource> = new DataSource({
     type: 'sqlite',

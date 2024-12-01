@@ -14,10 +14,11 @@ import {
   JwkKeyType,
   JwkKeyTypeString,
 } from '@sphereon/ssi-types'
+import { removeNulls } from './functions'
 
 export function coseKeyToJwk(coseKey: ICoseKeyJson): JWK {
   const { x5chain, key_ops, crv, alg, baseIV, kty, ...rest } = coseKey
-  return {
+  return removeNulls({
     ...rest,
     kty: coseToJoseKty(kty),
     ...(crv && { crv: coseToJoseCurve(crv) }),
@@ -25,12 +26,12 @@ export function coseKeyToJwk(coseKey: ICoseKeyJson): JWK {
     ...(alg && { alg: coseToJoseSignatureAlg(alg) }),
     ...(baseIV && { iv: baseIV }),
     ...(x5chain && { x5c: x5chain }),
-  } satisfies JWK
+  }) satisfies JWK
 }
 
 export function jwkToCoseKey(jwk: JWK): ICoseKeyJson {
   const { x5c, key_ops, crv, alg, iv, kty, ...rest } = jwk
-  return {
+  return removeNulls({
     ...rest,
     kty: joseToCoseKty(kty),
     ...(crv && { crv: joseToCoseCurve(crv) }),
@@ -38,7 +39,7 @@ export function jwkToCoseKey(jwk: JWK): ICoseKeyJson {
     ...(alg && { alg: joseToCoseSignatureAlg(alg) }),
     ...(iv && { baseIV: iv }),
     ...(x5c && { x5chain: x5c }),
-  } satisfies ICoseKeyJson
+  } satisfies ICoseKeyJson)
 }
 
 export function coseToJoseKty(kty: ICoseKeyType): JwkKeyType {
