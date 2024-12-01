@@ -1,5 +1,6 @@
 import * as u8a from 'uint8arrays'
 import { HashAlgorithm, KeyVisibility } from '../types'
+import {globalCrypto} from "./crypto";
 import { cryptoSubtleImportRSAKey, RSAEncryptionSchemes, RSASignatureSchemes } from './rsa-key'
 import { PEMToJwk } from './x509-utils'
 
@@ -51,7 +52,7 @@ export class RSASigner {
   public async sign(data: Uint8Array): Promise<string> {
     const input = data
     const key = await this.getKey()
-    const signature = this.bufferToString(await crypto.subtle.sign(this.getImportParams(), key, input))
+    const signature = this.bufferToString(await globalCrypto(false).subtle.sign(this.getImportParams(), key, input))
     if (!signature) {
       throw Error('Could not sign input data')
     }
@@ -73,7 +74,7 @@ export class RSASigner {
       delete verifyJwk.key_ops
       key = await cryptoSubtleImportRSAKey(verifyJwk, this.scheme, this.hashAlgorithm)
     }
-    const verificationResult = await crypto.subtle.verify(this.getImportParams(), key, u8a.fromString(jws, 'base64url'), input)
+    const verificationResult = await globalCrypto(false).subtle.verify(this.getImportParams(), key, u8a.fromString(jws, 'base64url'), input)
     return verificationResult
   }
 }

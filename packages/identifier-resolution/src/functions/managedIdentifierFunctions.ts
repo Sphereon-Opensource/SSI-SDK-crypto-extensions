@@ -1,5 +1,5 @@
 import { getFirstKeyWithRelation } from '@sphereon/ssi-sdk-ext.did-utils'
-import { calculateJwkThumbprint, coseKeyToJwk, toJwk } from '@sphereon/ssi-sdk-ext.key-utils'
+import {calculateJwkThumbprint, coseKeyToJwk, globalCrypto, toJwk} from '@sphereon/ssi-sdk-ext.key-utils'
 import { pemOrDerToX509Certificate } from '@sphereon/ssi-sdk-ext.x509-utils'
 import { contextHasDidManager, contextHasKeyManager } from '@sphereon/ssi-sdk.agent-config'
 import { ICoseKeyJson, JWK } from '@sphereon/ssi-types'
@@ -246,7 +246,7 @@ export async function getManagedX5cIdentifier(
   } else if (!contextHasKeyManager(context)) {
     return Promise.reject(Error(`Cannot get X5c identifier if KeyManager plugin is not enabled!`))
   }
-  const cryptoImpl = opts.crypto ?? crypto
+  const cryptoImpl = globalCrypto(false, opts.crypto)
   const certificate = pemOrDerToX509Certificate(x5c[0])
   const cryptoEngine = new CryptoEngine({ name: 'identifier_resolver_managed', crypto: cryptoImpl })
   setEngine(cryptoEngine.name, cryptoEngine)
