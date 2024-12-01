@@ -1,3 +1,4 @@
+import {JWK} from "@sphereon/ssi-types";
 import type {ByteView} from 'multiformats/codecs/interface'
 import {TextDecoder, TextEncoder} from 'web-encoding'
 
@@ -80,14 +81,14 @@ export function validateJwk(jwk: any, opts?: { crvOptional?: boolean }) {
  * @param jwk - The JWK to canonicalize.
  * @returns The JWK with only the required members, ordered lexicographically.
  */
-export function minimalJwk(jwk: any) {
+export function minimalJwk(jwk: any): JWK {
     // "default" case is not needed
     // eslint-disable-next-line default-case
     switch (jwk.kty) {
         case 'EC':
-            return {crv: jwk.crv, kty: jwk.kty, x: jwk.x, y: jwk.y}
+            return {...(jwk.crv && {crv: jwk.crv}), kty: jwk.kty, x: jwk.x, y: jwk.y}
         case 'OKP':
-            return {crv: jwk.crv, kty: jwk.kty, x: jwk.x}
+            return {...(jwk.crv && {crv: jwk.crv}), kty: jwk.kty, x: jwk.x}
         case 'RSA':
             return {e: jwk.e, kty: jwk.kty, n: jwk.n}
     }

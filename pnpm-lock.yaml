@@ -678,12 +678,6 @@ importers:
       '@stablelib/ed25519':
         specifier: ^1.0.3
         version: 1.0.3
-      '@stablelib/sha256':
-        specifier: ^1.0.1
-        version: 1.0.1
-      '@stablelib/sha512':
-        specifier: ^1.0.1
-        version: 1.0.1
       '@trust/keyto':
         specifier: ^1.0.1
         version: 1.0.1
