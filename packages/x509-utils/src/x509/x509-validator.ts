@@ -7,6 +7,7 @@ import x509 from 'js-x509-utils'
 import { AltName, AttributeTypeAndValue, Certificate, CryptoEngine, getCrypto, id_SubjectAltName, setEngine } from 'pkijs'
 import { container } from 'tsyringe'
 import * as u8a from 'uint8arrays'
+import {globalCrypto} from "./crypto";
 import { areCertificatesEqual, derToPEM, pemOrDerToX509Certificate } from './x509-utils'
 
 export type DNInfo = {
@@ -45,7 +46,7 @@ export type X509ValidationResult = {
 
 const defaultCryptoEngine = () => {
   const name = 'crypto'
-  setEngine(name, new CryptoEngine({ name, crypto: crypto }))
+  setEngine(name, new CryptoEngine({ name, crypto: globalCrypto(false) }))
   return getCrypto(true)
 }
 
