@@ -729,7 +729,7 @@ export async function verifyRawSignature({
   }
 
   const key = removeNulls(inputKey)
-  validateJwk(key)
+  validateJwk(key, {crvOptional: true})
   const keyType = keyTypeFromCryptographicSuite({ crv: key.crv, kty: key.kty, alg: key.alg })
   const publicKeyHex = await jwkToRawHexKey(key)
 
