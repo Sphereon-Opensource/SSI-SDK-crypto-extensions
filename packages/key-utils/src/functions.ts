@@ -1,12 +1,12 @@
 import { randomBytes } from '@ethersproject/random'
 // Do not change these require statements to imports before we change to ESM. Breaks external CJS packages depending on this module
-import {bls12_381} from "@noble/curves/bls12-381";
-import {ed25519} from '@noble/curves/ed25519';
-import {p256} from '@noble/curves/p256';
-import {p384} from "@noble/curves/p384";
-import {p521} from "@noble/curves/p521";
-import {secp256k1} from '@noble/curves/secp256k1';
-import { sha256, } from '@noble/hashes/sha256'
+import { bls12_381 } from '@noble/curves/bls12-381'
+import { ed25519 } from '@noble/curves/ed25519'
+import { p256 } from '@noble/curves/p256'
+import { p384 } from '@noble/curves/p384'
+import { p521 } from '@noble/curves/p521'
+import { secp256k1 } from '@noble/curves/secp256k1'
+import { sha256 } from '@noble/hashes/sha256'
 import { sha384, sha512 } from '@noble/hashes/sha512'
 import { generateRSAKeyAsPEM, hexToBase64, hexToPEM, PEMToJwk, privateKeyHexFromPEM } from '@sphereon/ssi-sdk-ext.x509-utils'
 import { JoseCurve, JoseSignatureAlgorithm, JWK, JwkKeyType, Loggers } from '@sphereon/ssi-types'
@@ -698,7 +698,6 @@ export function removeNulls<T>(obj: T | any) {
   return obj
 }
 
-
 export const globalCrypto = (setGlobal: boolean, suppliedCrypto?: Crypto): Crypto => {
   let webcrypto: Crypto
   if (typeof suppliedCrypto !== 'undefined') {
@@ -750,7 +749,7 @@ export async function verifyRawSignature({
   }
 
   const key = removeNulls(inputKey)
-  validateJwk(key, {crvOptional: true})
+  validateJwk(key, { crvOptional: true })
   const keyType = keyTypeFromCryptographicSuite({ crv: key.crv, kty: key.kty, alg: key.alg })
   const publicKeyHex = await jwkToRawHexKey(key)
 

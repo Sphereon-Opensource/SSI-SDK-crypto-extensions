@@ -53,23 +53,9 @@ export type X509ValidationResult = {
 }
 
 const defaultCryptoEngine = () => {
-  if (typeof self !== 'undefined') {
-    if ('crypto' in self) {
-      let engineName = 'webcrypto'
-      if ('webkitSubtle' in self.crypto) {
-        engineName = 'safari'
-      }
-      setEngine(engineName, new CryptoEngine({ name: engineName, crypto: crypto }))
-    }
-  } else if (typeof crypto !== 'undefined' && 'webcrypto' in crypto) {
-    const name = 'NodeJS ^15'
-    const nodeCrypto = crypto.webcrypto
-    // @ts-ignore
-    setEngine(name, new CryptoEngine({ name, crypto: nodeCrypto }))
-  } else if (typeof crypto !== 'undefined' && typeof crypto.subtle !== 'undefined') {
-    const name = 'crypto'
-    setEngine(name, new CryptoEngine({ name, crypto: crypto }))
-  }
+  const name = 'crypto'
+  setEngine(name, new CryptoEngine({ name, crypto: crypto }))
+  return getCrypto(true)
 }
 
 export const getCertificateInfo = async (
@@ -78,14 +64,17 @@ export const getCertificateInfo = async (
     sanTypeFilter: SubjectAlternativeGeneralName | SubjectAlternativeGeneralName[]
   }
 ): Promise<CertificateInfo> => {
-  const publicKeyJWK = await getCertificateSubjectPublicKeyJWK(certificate)
+  var publicKeyJWK: JWK | undefined
+  try {
+    publicKeyJWK = (await getCertificateSubjectPublicKeyJWK(certificate)) as JWK
+  } catch (e) {}
   return {
     issuer: { dn: getIssuerDN(certificate) },
     subject: {
       dn: getSubjectDN(certificate),
       subjectAlternativeNames: getSubjectAlternativeNames(certificate, { typeFilter: opts?.sanTypeFilter }),
     },
-    publicKeyJWK: publicKeyJWK,
+    publicKeyJWK,
     notBefore: certificate.notBefore.value,
     notAfter: certificate.notAfter.value,
     // certificate
@@ -171,7 +160,20 @@ const validateX509CertificateChainImpl = async ({
   // x5c always starts with the leaf cert at index 0 and then the cas. Our internal pkijs service expects it the other way around
   const chain = await Promise.all(pemOrDerChain.map((raw) => parseCertificate(raw)))
   const trustedCerts = trustedPEMs ? await Promise.all(trustedPEMs.map((raw) => parseCertificate(raw))) : undefined
-  const blindlyTrusted = (await Promise.all(blindlyTrustedAnchors.map((raw) => parseCertificate(raw)))) ?? []
+  const blindlyTrusted =
+    (
+      await Promise.all(
+        blindlyTrustedAnchors.map((raw) => {
+          try {
+            return parseCertificate(raw)
+          } catch (e) {
+            // @ts-ignore
+            console.log(`Failed to parse blindly trusted certificate ${raw}. Error: ${e.message}`)
+            return undefined
+          }
+        })
+      )
+    ).filter((cert): cert is ParsedCertificate => cert !== undefined) ?? []
   const leafCert = chain[chain.length - 1]
 
   const chainLength = chain.length
@@ -484,7 +486,7 @@ const getDNString = (typesAndValues: AttributeTypeAndValue[]): string => {
     .join(',')
 }
 
-export const getCertificateSubjectPublicKeyJWK = async (pemOrDerCert: string | Uint8Array | Certificate): Promise<JsonWebKey> => {
+export const getCertificateSubjectPublicKeyJWK = async (pemOrDerCert: string | Uint8Array | Certificate): Promise<JWK> => {
   const pemOrDerStr =
     typeof pemOrDerCert === 'string'
       ? pemOrDerCert
@@ -493,14 +495,21 @@ export const getCertificateSubjectPublicKeyJWK = async (pemOrDerCert: string | U
       : pemOrDerCert.toString('base64')
   const pem = derToPEM(pemOrDerStr)
   const certificate = pemOrDerToX509Certificate(pem)
+  var jwk: JWK | undefined
   try {
     const subtle = getCrypto(true).subtle
-    const pk = await certificate.getPublicKey()
-    return await subtle.exportKey('jwk', pk)
+    const pk = await certificate.getPublicKey(undefined, defaultCryptoEngine())
+    jwk = (await subtle.exportKey('jwk', pk)) as JWK | undefined
   } catch (error: any) {
     console.log(`Error in primary get JWK from cert:`, error?.message)
   }
-  return await x509.toJwk(pem, 'pem')
+  if (!jwk) {
+    jwk = (await x509.toJwk(pem, 'pem')) as JWK
+  }
+  if (!jwk) {
+    throw Error(`Failed to get JWK from certificate ${pem}`)
+  }
+  return jwk
 }
 
 /**

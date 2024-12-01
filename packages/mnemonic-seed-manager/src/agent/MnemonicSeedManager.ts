@@ -1,5 +1,5 @@
-import {bytesToHex} from "@noble/hashes/utils";
-import {shaHasher} from "@sphereon/ssi-sdk-ext.key-utils";
+import { bytesToHex } from '@noble/hashes/utils'
+import { shaHasher } from '@sphereon/ssi-sdk-ext.key-utils'
 import { derivePath, getMasterKeyFromSeed, getPublicKey } from 'ed25519-hd-key'
 import { IAgentPlugin, ManagedKeyInfo } from '@veramo/core'
 import { AbstractSecretBox } from '@veramo/key-manager'

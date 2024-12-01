@@ -1,5 +1,5 @@
 import { getFirstKeyWithRelation } from '@sphereon/ssi-sdk-ext.did-utils'
-import {calculateJwkThumbprint, coseKeyToJwk, globalCrypto, toJwk} from '@sphereon/ssi-sdk-ext.key-utils'
+import { calculateJwkThumbprint, coseKeyToJwk, globalCrypto, toJwk } from '@sphereon/ssi-sdk-ext.key-utils'
 import { pemOrDerToX509Certificate } from '@sphereon/ssi-sdk-ext.x509-utils'
 import { contextHasDidManager, contextHasKeyManager } from '@sphereon/ssi-sdk.agent-config'
 import { ICoseKeyJson, JWK } from '@sphereon/ssi-types'

@@ -1,6 +1,6 @@
 import * as u8a from 'uint8arrays'
 import { HashAlgorithm } from '../types'
-import {globalCrypto} from "./crypto";
+import { globalCrypto } from './crypto'
 
 import { derToPEM } from './x509-utils'
 
@@ -58,7 +58,6 @@ export const cryptoSubtleImportRSAKey = async (
   const importParams: RsaHashedImportParams = { name: scheme, hash: hashName }
   return await globalCrypto(false).subtle.importKey('jwk', jwk as JsonWebKey, importParams, false, usage(jwk))
 }
-
 
 export const generateRSAKeyAsPEM = async (
   scheme: RSAEncryptionSchemes | RSASignatureSchemes,

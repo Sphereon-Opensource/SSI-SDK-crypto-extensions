@@ -1,4 +1,4 @@
-import {globalCrypto} from "@sphereon/ssi-sdk-ext.key-utils";
+import { globalCrypto } from '@sphereon/ssi-sdk-ext.key-utils'
 import { IAgentPlugin } from '@veramo/core'
 import {
   createJwsCompact,

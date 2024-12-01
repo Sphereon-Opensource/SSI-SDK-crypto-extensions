@@ -1,5 +1,5 @@
 import { didDocumentToJwks, getAgentResolver, jwkTtoPublicKeyHex } from '@sphereon/ssi-sdk-ext.did-utils'
-import {calculateJwkThumbprint, coseKeyToJwk, globalCrypto} from '@sphereon/ssi-sdk-ext.key-utils'
+import { calculateJwkThumbprint, coseKeyToJwk, globalCrypto } from '@sphereon/ssi-sdk-ext.key-utils'
 import {
   getSubjectDN,
   pemOrDerToX509Certificate,
