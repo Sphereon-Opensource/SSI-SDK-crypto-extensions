@@ -110,7 +110,7 @@ export const validateX509CertificateChain = async ({
   // We allow 1 reversal. We reverse by default as the implementation expects the root ca first, whilst x5c is the opposite. Reversed becomes true if the impl reverses the chain
   return await validateX509CertificateChainImpl({
     reversed: false,
-    chain: pemOrDerChain.reverse(),
+    chain: [...pemOrDerChain].reverse(),
     trustAnchors,
     verificationTime,
     opts,
@@ -149,8 +149,11 @@ const validateX509CertificateChainImpl = async ({
   }
   defaultCryptoEngine()
 
-  // x5c always starts with the leaf cert at index 0 and then the cas. Our internal pkijs service expects it the other way around
+  // x5c always starts with the leaf cert at index 0 and then the cas. Our internal pkijs service expects it the other way around. Before calling this function the change has been revered
   const chain = await Promise.all(pemOrDerChain.map((raw) => parseCertificate(raw)))
+  const x5cOrdereredChain = reversed ? [...chain] : [...chain].reverse()
+  console.log(`x5c orderered chain (reverse: ${reversed}): ${x5cOrdereredChain.map((cert) => cert.certificateInfo.subject.dn.DN).join(', ')}`)
+
   const trustedCerts = trustedPEMs ? await Promise.all(trustedPEMs.map((raw) => parseCertificate(raw))) : undefined
   const blindlyTrusted =
     (
@@ -166,7 +169,7 @@ const validateX509CertificateChainImpl = async ({
         })
       )
     ).filter((cert): cert is ParsedCertificate => cert !== undefined) ?? []
-  const leafCert = chain[chain.length - 1]
+  const leafCert = x5cOrdereredChain[0]
 
   const chainLength = chain.length
   var foundTrustAnchor: ParsedCertificate | undefined = undefined
@@ -183,7 +186,7 @@ const validateX509CertificateChainImpl = async ({
         detailMessage: `Blindly trusted certificate ${blindlyTrustedCert.certificateInfo.subject.dn.DN} was found in the chain.`,
         trustAnchor: blindlyTrustedCert?.certificateInfo,
         verificationTime,
-        certificateChain: chain.map((cert) => cert.certificateInfo),
+        certificateChain: x5cOrdereredChain.map((cert) => cert.certificateInfo),
         ...(client && { client }),
       }
     }
@@ -192,7 +195,7 @@ const validateX509CertificateChainImpl = async ({
         if (!reversed && !disallowReversedChain) {
           return await validateX509CertificateChainImpl({
             reversed: true,
-            chain: pemOrDerChain.reverse(),
+            chain: [...pemOrDerChain].reverse(),
             opts,
             verificationTime,
             trustAnchors,
@@ -201,7 +204,7 @@ const validateX509CertificateChainImpl = async ({
         return {
           error: true,
           critical: true,
-          certificateChain: chain.map((cert) => cert.certificateInfo),
+          certificateChain: x5cOrdereredChain.map((cert) => cert.certificateInfo),
           message: `Certificate chain validation failed for ${leafCert.certificateInfo.subject.dn.DN}.`,
           detailMessage: `The certificate ${currentCert.certificateInfo.subject.dn.DN} with issuer ${currentCert.x509Certificate.issuer}, is not signed by the previous certificate ${previousCert?.certificateInfo.subject.dn.DN} with subject string ${previousCert?.x509Certificate.subject}.`,
           verificationTime,
@@ -220,7 +223,7 @@ const validateX509CertificateChainImpl = async ({
       if (i == 0 && !reversed && !disallowReversedChain) {
         return await validateX509CertificateChainImpl({
           reversed: true,
-          chain: pemOrDerChain.reverse(),
+          chain: [...pemOrDerChain].reverse(),
           opts,
           verificationTime,
           trustAnchors,
@@ -230,7 +233,7 @@ const validateX509CertificateChainImpl = async ({
         error: true,
         critical: true,
         message: `Certificate chain validation failed for ${leafCert.certificateInfo.subject.dn.DN}.`,
-        certificateChain: chain.map((cert) => cert.certificateInfo),
+        certificateChain: x5cOrdereredChain.map((cert) => cert.certificateInfo),
         detailMessage: `Verification of the certificate ${currentCert.certificateInfo.subject.dn.DN} with issuer ${
           currentCert.x509Certificate.issuer
         } failed. Public key: ${JSON.stringify(currentCert.certificateInfo.publicKeyJWK)}.`,
@@ -246,7 +249,7 @@ const validateX509CertificateChainImpl = async ({
         error: false,
         critical: false,
         message: `Certificate chain succeeded as allow single cert result is allowed: ${leafCert.certificateInfo.subject.dn.DN}.`,
-        certificateChain: chain.map((cert) => cert.certificateInfo),
+        certificateChain: x5cOrdereredChain.map((cert) => cert.certificateInfo),
         trustAnchor: foundTrustAnchor?.certificateInfo,
         verificationTime,
         ...(client && { client }),
@@ -259,7 +262,7 @@ const validateX509CertificateChainImpl = async ({
       error: false,
       critical: false,
       message: `Certificate chain was valid`,
-      certificateChain: chain.map((cert) => cert.certificateInfo),
+      certificateChain: x5cOrdereredChain.map((cert) => cert.certificateInfo),
       detailMessage: `The leaf certificate ${leafCert.certificateInfo.subject.dn.DN} is part of a chain with trust anchor ${foundTrustAnchor?.certificateInfo.subject.dn.DN}.`,
       trustAnchor: foundTrustAnchor?.certificateInfo,
       verificationTime,
@@ -271,9 +274,9 @@ const validateX509CertificateChainImpl = async ({
     error: true,
     critical: true,
     message: `Certificate chain validation failed for ${leafCert.certificateInfo.subject.dn.DN}.`,
-    certificateChain: chain.map((cert) => cert.certificateInfo),
-    detailMessage: `No trust anchor was found in the chain. between ${chain[0].certificateInfo.subject.dn.DN} and ${
-      chain[chain.length - 1].certificateInfo.subject.dn.DN
+    certificateChain: x5cOrdereredChain.map((cert) => cert.certificateInfo),
+    detailMessage: `No trust anchor was found in the chain. between (intermediate) CA ${x5cOrdereredChain[chain.length - 1].certificateInfo.subject.dn.DN} and leaf ${
+        x5cOrdereredChain[0].certificateInfo.subject.dn.DN
     }.`,
     verificationTime,
     ...(client && { client }),

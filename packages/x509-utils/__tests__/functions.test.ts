@@ -142,7 +142,7 @@ describe('functions: validateX5cCertificateChain', () => {
       'QlHHFydMdgaXAiEA1Ib82mhHIYDziE0DDbHEAXOs98al+7dpo8fPGVGTeKI=\n' +
       '-----END CERTIFICATE-----'
     const result = await validateX509CertificateChain({
-      chain: [sphereonCA, sphereonTest],
+      chain: [sphereonTest, sphereonCA],
       trustAnchors: [sphereonSDJWTCA],
       opts: { trustRootWhenNoAnchors: false } /*, trustedCerts: [sphereonCA]*/,
     })
@@ -175,7 +175,7 @@ describe('functions: validateX5cCertificateChain', () => {
   // TODO disabled as cert expired
   xit('should validate a valid certificate chain without providing a CA as trust anchor, but with trustRoot enabled', async () => {
     const result = await validateX509CertificateChain({
-      chain: [walletPEM, sphereonCA],
+      chain: [walletPEM],
       trustAnchors: [sphereonCA],
       opts: {
         client: {
