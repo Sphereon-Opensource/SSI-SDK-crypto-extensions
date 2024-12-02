@@ -1,6 +1,6 @@
-import {JoseSignatureAlgorithm, JWK} from '@sphereon/ssi-types'
+import { JoseSignatureAlgorithm, JWK } from '@sphereon/ssi-types'
 import * as u8a from 'uint8arrays'
-import {generatePrivateKeyHex, jwkToRawHexKey, Key, padLeft, toJwk, verifyRawSignature} from '../src'
+import { generatePrivateKeyHex, jwkToRawHexKey, Key, padLeft, toJwk, verifyRawSignature } from '../src'
 
 describe('functions: key generator', () => {
   it('Secp256k1 should generate random keys', async () => {
@@ -68,19 +68,18 @@ describe('functions: Leftpad', () => {
 describe('functions: verifySignature', () => {
   it('should convert jwk to hex', async () => {
     const publicKeyHex =
-        '04c92ac29c7e06ba171a5ed3730f8a3243645a679827352963e2c7d7127537e6108ddd439d9d34f827f39cf3dc96471433c14f0022b55cba66d18c76687bdf94a7'
+      '04c92ac29c7e06ba171a5ed3730f8a3243645a679827352963e2c7d7127537e6108ddd439d9d34f827f39cf3dc96471433c14f0022b55cba66d18c76687bdf94a7'
     const jwk: JWK = {
-      alg:"ES256", kid:"https://oidf-dev.vault.azure.net/keys/test-key-39ca8c0e-1a7e-4356-8a61-f7edc80f3bbe/da7e0883d3f04a06a48ba40c0eaaa690", kty:"EC", x:"ySrCnH4GuhcaXtNzD4oyQ2RaZ5gnNSlj4sfXEnU35hA", y:"jd1DnZ00+CfznPPclkcUM8FPACK1XLpm0Yx2aHvflKc"
+      alg: 'ES256',
+      kid: 'https://oidf-dev.vault.azure.net/keys/test-key-39ca8c0e-1a7e-4356-8a61-f7edc80f3bbe/da7e0883d3f04a06a48ba40c0eaaa690',
+      kty: 'EC',
+      x: 'ySrCnH4GuhcaXtNzD4oyQ2RaZ5gnNSlj4sfXEnU35hA',
+      y: 'jd1DnZ00+CfznPPclkcUM8FPACK1XLpm0Yx2aHvflKc',
     }
 
-    const hex =   await jwkToRawHexKey(jwk)
-    expect(
-      hex
-    ).toEqual(publicKeyHex)
+    const hex = await jwkToRawHexKey(jwk)
+    expect(hex).toEqual(publicKeyHex)
   })
-
-
-
 
   it('should verify signature with secp256k1', async () => {
     const publicKeyHex =
@@ -96,9 +95,6 @@ describe('functions: verifySignature', () => {
       })
     ).resolves.toEqual(true)
   })
-
-
-
 
   it('should verify signature with secp256r1', async () => {
     const publicKeyHex =
