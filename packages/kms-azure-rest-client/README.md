@@ -1,9 +1,8 @@
-
 <!--suppress HtmlDeprecatedAttribute -->
 <h1 align="center">
   <br>
   <a href="https://www.sphereon.com"><img src="https://sphereon.com/content/themes/sphereon/assets/img/logo.svg" alt="Sphereon" width="400"></a>
-  <br>Sphereon's Azure KeyVault Key Management System Plugin
+  <br>Sphereon's Azure KeyVault Key Management System REST Client Plugin
   <br>
 </h1>
 
@@ -32,32 +31,30 @@ yarn add @sphereon/ssi-sdk-ext.kms-azure-rest-client
 To create a key, you need to specify the key type and optionally provide metadata, such as a key alias. Below is an example of how to create a key using the `AzureKeyVaultKeyManagementSystemRestClient`:
 
 ```typescript
-import {
-  AzureKeyVaultKeyManagementSystemRestClient,
-} from '@sphereon/kms-azure-rest-client';
+import { AzureKeyVaultKeyManagementSystemRestClient } from '@sphereon/kms-azure-rest-client'
 
 const options = {
   applicationId: 'azure-keyvault-test',
   vaultUrl: 'https://example.vault.azure.net/',
   apiKey: 'your-api-key-here',
-};
+}
 
-const keyManagementSystem = new AzureKeyVaultKeyManagementSystemRestClient(options);
+const keyManagementSystem = new AzureKeyVaultKeyManagementSystemRestClient(options)
 
 async function createKeyExample() {
   try {
     const key = await keyManagementSystem.createKey({
       type: 'Secp256r1',
       meta: { keyAlias: 'my-secure-key' },
-    });
+    })
 
-    console.log('Key created:', key);
+    console.log('Key created:', key)
   } catch (error) {
-    console.error('Error creating key:', error);
+    console.error('Error creating key:', error)
   }
 }
 
-createKeyExample();
+createKeyExample()
 ```
 
 ### Signing Data
@@ -70,15 +67,15 @@ async function signExample() {
     const signature = await keyManagementSystem.sign({
       keyRef: { kid: 'your-key-id' },
       data: new TextEncoder().encode('data-to-sign'),
-    });
+    })
 
-    console.log('Signature:', signature);
+    console.log('Signature:', signature)
   } catch (error) {
-    console.error('Error signing data:', error);
+    console.error('Error signing data:', error)
   }
 }
 
-signExample();
+signExample()
 ```
 
 ### Verifying Data
@@ -92,15 +89,15 @@ async function verifyExample() {
       keyRef: { kid: 'your-key-id' },
       data: new TextEncoder().encode('data-to-verify'),
       signature: 'signature-to-verify',
-    });
+    })
 
-    console.log('Is signature valid?', isValid);
+    console.log('Is signature valid?', isValid)
   } catch (error) {
-    console.error('Error verifying signature:', error);
+    console.error('Error verifying signature:', error)
   }
 }
 
-verifyExample();
+verifyExample()
 ```
 
 ## Configuration
@@ -114,6 +111,7 @@ The `AzureKeyVaultKeyManagementSystemRestClient` requires the following configur
 ## Limitations
 
 This implementation currently supports the following key operations:
+
 - `createKey`
 - `sign`
 - `verify`
