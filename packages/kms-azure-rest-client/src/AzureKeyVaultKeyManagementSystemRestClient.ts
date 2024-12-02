@@ -3,6 +3,7 @@ import {AbstractKeyManagementSystem} from '@veramo/key-manager'
 import {KeyMetadata} from './index'
 import * as AzureRestClient from './js-client'
 import {jwkToRawHexKey} from '@sphereon/ssi-sdk-ext.key-utils'
+import {JWK} from "@sphereon/ssi-types";
 
 interface AbstractKeyManagementSystemOptions {
   applicationId: string
@@ -40,6 +41,11 @@ export class AzureKeyVaultKeyManagementSystemRestClient extends AbstractKeyManag
     }
     const createKeyResponse = await this.client.createEcKey(options)
 
+    const jwk : JWK = {
+      kty: 'EC',
+      x: createKeyResponse.key?.x!,
+      y: createKeyResponse.key?.y!
+    }
 
     return {
       kid: createKeyResponse.key?.id!,
@@ -50,7 +56,7 @@ export class AzureKeyVaultKeyManagementSystemRestClient extends AbstractKeyManag
         algorithms: [createKeyResponse.key?.curveName ?? 'ES256'],
         kmsKeyRef: options.keyName
       },
-      publicKeyHex: jwkToRawHexKey(createKeyResponse.key!),
+      publicKeyHex: await jwkToRawHexKey(jwk),
     }
   }
 
