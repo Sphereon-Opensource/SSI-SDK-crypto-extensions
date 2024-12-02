@@ -276,7 +276,7 @@ export const jwkToRawHexKey = async (jwk: JWK): Promise<string> => {
   if (jwk.kty === 'RSA') {
     return rsaJwkToRawHexKey(jwk)
   } else if (jwk.kty === 'EC') {
-    return '04' + ecJwkToRawHexKey(jwk)
+    return ecJwkToRawHexKey(jwk)
   } else if (jwk.kty === 'OKP') {
     return okpJwkToRawHexKey(jwk)
   } else if (jwk.kty === 'oct') {
@@ -296,8 +296,9 @@ function rsaJwkToRawHexKey(jwk: JsonWebKey): string {
     throw new Error("RSA JWK must contain 'n' and 'e' properties.")
   }
 
-  const modulus = u8a.fromString(jwk.n, 'base64url') // 'n' is the modulus
-  const exponent = u8a.fromString(jwk.e, 'base64url') // 'e' is the exponent
+  // We are converting from base64 to base64url to be sure. The spec uses base64url, but in the wild we sometimes encounter a base64 string
+  const modulus = u8a.fromString(jwk.n.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''), 'base64url') // 'n' is the modulus
+  const exponent = u8a.fromString(jwk.e.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''), 'base64url') // 'e' is the exponent
 
   return u8a.toString(modulus, 'hex') + u8a.toString(exponent, 'hex')
 }
@@ -312,10 +313,11 @@ function ecJwkToRawHexKey(jwk: JsonWebKey): string {
     throw new Error("EC JWK must contain 'x' and 'y' properties.")
   }
 
-  const x = u8a.fromString(jwk.x, 'base64url')
-  const y = u8a.fromString(jwk.y, 'base64url')
+  // We are converting from base64 to base64url to be sure. The spec uses base64url, but in the wild we sometimes encounter a base64 string
+  const x = u8a.fromString(jwk.x.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''), 'base64url')
+  const y = u8a.fromString(jwk.y.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''), 'base64url')
 
-  return u8a.toString(x, 'hex') + u8a.toString(y, 'hex')
+  return '04' + u8a.toString(x, 'hex') + u8a.toString(y, 'hex')
 }
 
 /**
@@ -328,7 +330,8 @@ function okpJwkToRawHexKey(jwk: JsonWebKey): string {
     throw new Error("OKP JWK must contain 'x' property.")
   }
 
-  const x = u8a.fromString(jwk.x, 'base64url')
+  // We are converting from base64 to base64url to be sure. The spec uses base64url, but in the wild we sometimes encounter a base64 string
+  const x = u8a.fromString(jwk.x.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''), 'base64url')
 
   return u8a.toString(x, 'hex')
 }
@@ -343,7 +346,8 @@ function octJwkToRawHexKey(jwk: JsonWebKey): string {
     throw new Error("Octet JWK must contain 'k' property.")
   }
 
-  const key = u8a.fromString(jwk.k, 'base64url')
+  // We are converting from base64 to base64url to be sure. The spec uses base64url, but in the wild we sometimes encounter a base64 string
+  const key = u8a.fromString(jwk.k.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''), 'base64url')
 
   return u8a.toString(key, 'hex')
 }
