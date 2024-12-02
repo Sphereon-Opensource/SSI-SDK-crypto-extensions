@@ -42,13 +42,13 @@ export class AzureKeyVaultKeyManagementSystemRestClient extends AbstractKeyManag
     const createKeyResponse = await this.client.createEcKey(options)
 
     return {
-      kid: createKeyResponse.key?.id!,
+      kid: createKeyResponse.name!,
       kms: this.id,
       type,
       meta: {
-        alias: options.keyName,
+        alias: createKeyResponse.name!,
         algorithms: [createKeyResponse.key?.curveName ?? 'ES256'],
-        kmsKeyRef: options.keyName
+        kmsKeyRef: createKeyResponse.id!
       },
       publicKeyHex: this.ecJwkToRawHexKey(createKeyResponse.key!),
     }
