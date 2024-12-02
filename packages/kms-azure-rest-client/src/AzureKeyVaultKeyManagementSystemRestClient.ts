@@ -1,7 +1,8 @@
-import { IKey, ManagedKeyInfo, MinimalImportableKey, TKeyType } from '@veramo/core'
-import { AbstractKeyManagementSystem } from '@veramo/key-manager'
-import { KeyMetadata } from './index'
+import {IKey, ManagedKeyInfo, MinimalImportableKey, TKeyType} from '@veramo/core'
+import {AbstractKeyManagementSystem} from '@veramo/key-manager'
+import {KeyMetadata} from './index'
 import * as AzureRestClient from './js-client'
+import {toBase64url} from '@sphereon/ssi-sdk-ext.key-utils';
 
 interface AbstractKeyManagementSystemOptions {
   applicationId: string
@@ -48,7 +49,10 @@ export class AzureKeyVaultKeyManagementSystemRestClient extends AbstractKeyManag
         algorithms: [createKeyResponse.key?.curveName ?? 'ES256'],
         kmsKeyRef: options.keyName
       },
-      publicKeyHex: createKeyResponse.key?.x! + createKeyResponse.key?.y!,
+      publicKeyHex:
+          '04' +
+          toBase64url(createKeyResponse.key?.x!) +
+          toBase64url(createKeyResponse.key?.y!),
     }
   }
 
