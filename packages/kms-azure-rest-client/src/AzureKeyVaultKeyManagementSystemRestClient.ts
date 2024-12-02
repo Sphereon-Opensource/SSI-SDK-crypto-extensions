@@ -48,7 +48,7 @@ export class AzureKeyVaultKeyManagementSystemRestClient extends AbstractKeyManag
         algorithms: [createKeyResponse.key?.curveName ?? 'ES256'],
         kmsKeyRef: options.keyName
       },
-      publicKeyHex: Buffer.from(createKeyResponse.key!.toString(), 'utf8').toString('base64'),
+      publicKeyHex: createKeyResponse.key?.x! + createKeyResponse.key?.y!,
     }
   }
 
