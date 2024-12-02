@@ -158,7 +158,6 @@ const validateX509CertificateChainImpl = async ({
   // x5c always starts with the leaf cert at index 0 and then the cas. Our internal pkijs service expects it the other way around. Before calling this function the change has been revered
   const chain = await Promise.all(pemOrDerChain.map((raw) => parseCertificate(raw)))
   const x5cOrdereredChain = reversed ? [...chain] : [...chain].reverse()
-  console.log(`x5c orderered chain (reverse: ${reversed}): ${x5cOrdereredChain.map((cert) => cert.certificateInfo.subject.dn.DN).join(', ')}`)
 
   const trustedCerts = trustedPEMs ? await Promise.all(trustedPEMs.map((raw) => parseCertificate(raw))) : undefined
   const blindlyTrusted =
@@ -227,7 +226,7 @@ const validateX509CertificateChainImpl = async ({
     )
     if (!result) {
       // First cert needs to be self signed
-      if (i == 0) {
+      if (i == 0 && !reversed && !disallowReversedChain) {
         return await validateX509CertificateChainImpl({
           reversed: true,
           chain: [...pemOrDerChain].reverse(),
