@@ -33,7 +33,7 @@ export class AzureKeyVaultKeyManagementSystemRestClient extends AbstractKeyManag
     const curveName = this.mapKeyTypeCurveName(type)
 
     const options: AzureRestClient.CreateEcKeyRequest = {
-      keyName: `key-${crypto.randomUUID()}`,
+      keyName: meta?.keyAlias,
       curveName,
       operations: meta && 'keyOperations' in meta ? meta.keyOperations : ['sign', 'verify'],
     }
