@@ -2,7 +2,7 @@ import {IKey, ManagedKeyInfo, MinimalImportableKey, TKeyType} from '@veramo/core
 import {AbstractKeyManagementSystem} from '@veramo/key-manager'
 import {KeyMetadata} from './index'
 import * as AzureRestClient from './js-client'
-import * as u8a from 'uint8arrays'
+import {jwkToRawHexKey} from '@sphereon/ssi-sdk-ext.key-utils'
 
 interface AbstractKeyManagementSystemOptions {
   applicationId: string
@@ -40,8 +40,6 @@ export class AzureKeyVaultKeyManagementSystemRestClient extends AbstractKeyManag
     }
     const createKeyResponse = await this.client.createEcKey(options)
 
-    const x = u8a.fromString(createKeyResponse.key!.x!, 'base64url')
-    const y = u8a.fromString(createKeyResponse.key!.y!, 'base64url')
 
     return {
       kid: createKeyResponse.key?.id!,
@@ -52,7 +50,7 @@ export class AzureKeyVaultKeyManagementSystemRestClient extends AbstractKeyManag
         algorithms: [createKeyResponse.key?.curveName ?? 'ES256'],
         kmsKeyRef: options.keyName
       },
-      publicKeyHex: '04' + u8a.toString(x, 'hex') + u8a.toString(y, 'hex')
+      publicKeyHex: jwkToRawHexKey(createKeyResponse.key!),
     }
   }
 
