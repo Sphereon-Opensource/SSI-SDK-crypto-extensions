@@ -33,7 +33,7 @@ export class AzureKeyVaultKeyManagementSystemRestClient extends AbstractKeyManag
     const curveName = this.mapKeyTypeCurveName(type)
 
     const options: AzureRestClient.CreateEcKeyRequest = {
-      keyName: meta?.keyAlias,
+      keyName: meta?.keyAlias.replace("_", "-"),
       curveName,
       operations: meta && 'keyOperations' in meta ? meta.keyOperations : ['sign', 'verify'],
     }
