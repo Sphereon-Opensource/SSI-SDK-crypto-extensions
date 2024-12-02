@@ -90,7 +90,7 @@ export class AzureKeyVaultKeyManagementSystemRestClient extends AbstractKeyManag
     }
     const signResponse = await this.client.signPayload({
       keyName: args.keyRef.kid,
-      payload: new TextDecoder().decode(args.data),
+      payload: u8a.toString(args.data),
     })
     return signResponse.signature
   }
