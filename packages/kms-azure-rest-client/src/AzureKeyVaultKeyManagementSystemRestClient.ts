@@ -1,9 +1,7 @@
 import { IKey, ManagedKeyInfo, MinimalImportableKey, TKeyType } from '@veramo/core'
 import { AbstractKeyManagementSystem } from '@veramo/key-manager'
 import { KeyMetadata } from './index'
-import { calculateJwkThumbprint } from '@sphereon/ssi-sdk-ext.key-utils'
 import * as AzureRestClient from '@sphereon/kms-azure-rest-client'
-import { JWK } from '@sphereon/ssi-types'
 
 interface AbstractKeyManagementSystemOptions {
   applicationId: string
@@ -35,7 +33,7 @@ export class AzureKeyVaultKeyManagementSystemRestClient extends AbstractKeyManag
     const curveName = this.mapKeyTypeCurveName(type)
 
     const options: AzureRestClient.CreateEcKeyRequest = {
-      keyName: meta?.keyAlias || `key-${crypto.randomUUID()}`,
+      keyName: `key-${crypto.randomUUID()}`,
       curveName,
       operations: meta && 'keyOperations' in meta ? meta.keyOperations : ['sign', 'verify'],
     }
@@ -47,11 +45,8 @@ export class AzureKeyVaultKeyManagementSystemRestClient extends AbstractKeyManag
       type,
       meta: {
         alias: options.keyName,
-        algorithms: [createKeyResponse.key?.curveName ?? 'PS256'],
-        jwkThumbprint: calculateJwkThumbprint({
-          jwk: { ...createKeyResponse.key, kty: 'EC', crv: 'P-256' } as JWK,
-          digestAlgorithm: this.keyTypeToDigestAlgorithm(type),
-        }),
+        algorithms: [createKeyResponse.key?.curveName ?? 'ES256'],
+        kmsKeyRef: options.keyName
       },
       publicKeyHex: Buffer.from(createKeyResponse.key!.toString(), 'utf8').toString('base64'),
     }
