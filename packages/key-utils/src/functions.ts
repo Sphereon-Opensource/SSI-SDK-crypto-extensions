@@ -729,10 +729,9 @@ export const globalCrypto = (setGlobal: boolean, suppliedCrypto?: Crypto): Crypt
   return webcrypto
 }
 
-export const sanitizedJwk = (inputJwk: JWK | JsonWebKey): JWK => {
-  if (typeof inputJwk['toJsonDTO'] === 'function') {
-    inputJwk = inputJwk['toJsonDTO']() // KMP code can expose this. It converts a KMP JWK with mangled names into a clean JWK
-  }
+export const sanitizedJwk = (input: JWK | JsonWebKey): JWK => {
+  const inputJwk = typeof input['toJsonDTO'] === 'function' ? input['toJsonDTO']() : {...input} as JWK // KMP code can expose this. It converts a KMP JWK with mangled names into a clean JWK
+
   const jwk = {
     ...inputJwk,
     ...(inputJwk.x && { x: base64ToBase64Url(inputJwk.x as string) }),
