@@ -4,6 +4,7 @@ import {KeyMetadata} from './index'
 import * as AzureRestClient from './js-client'
 import {jwkToRawHexKey} from '@sphereon/ssi-sdk-ext.key-utils'
 import {JWK} from "@sphereon/ssi-types";
+import * as u8a from 'uint8arrays'
 
 interface AbstractKeyManagementSystemOptions {
   applicationId: string
@@ -39,13 +40,8 @@ export class AzureKeyVaultKeyManagementSystemRestClient extends AbstractKeyManag
       curveName,
       operations: meta && 'keyOperations' in meta ? meta.keyOperations : ['sign', 'verify'],
     }
-    const createKeyResponse = await this.client.createEcKey(options)
 
-    const jwk : JWK = {
-      kty: 'EC',
-      x: createKeyResponse.key?.x!,
-      y: createKeyResponse.key?.y!
-    }
+    const createKeyResponse = await this.client.createEcKey(options)
 
     return {
       kid: createKeyResponse.key?.id!,
@@ -56,8 +52,20 @@ export class AzureKeyVaultKeyManagementSystemRestClient extends AbstractKeyManag
         algorithms: [createKeyResponse.key?.curveName ?? 'ES256'],
         kmsKeyRef: options.keyName
       },
-      publicKeyHex: await jwkToRawHexKey(jwk),
+      publicKeyHex: this.ecJwkToRawHexKey(createKeyResponse.key!),
     }
+  }
+
+  private ecJwkToRawHexKey(jwk: JsonWebKey): string {
+    if (!jwk.x || !jwk.y) {
+      throw new Error("EC JWK must contain 'x' and 'y' properties.")
+    }
+
+    // We are converting from base64 to base64url to be sure. The spec uses base64url, but in the wild we sometimes encounter a base64 string
+    const x = u8a.fromString(jwk.x.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''), 'base64url')
+    const y = u8a.fromString(jwk.y.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''), 'base64url')
+
+    return '04' + u8a.toString(x, 'hex') + u8a.toString(y, 'hex')
   }
 
   private mapKeyTypeCurveName = (type: TKeyType) => {
