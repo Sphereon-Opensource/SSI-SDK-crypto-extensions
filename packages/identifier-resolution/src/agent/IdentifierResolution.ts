@@ -1,3 +1,4 @@
+import { globalCrypto } from '@sphereon/ssi-sdk-ext.key-utils'
 import { IAgentContext, IAgentPlugin, IDIDManager, IKeyManager } from '@veramo/core'
 import { ExternalIdentifierOIDFEntityIdOpts, ExternalIdentifierOIDFEntityIdResult } from '../types'
 import { schema } from '..'
@@ -64,7 +65,7 @@ export class IdentifierResolution implements IAgentPlugin {
    * TODO: Add a cache, as we are retrieving the same keys/info quite often
    */
   constructor(opts?: { crypto?: Crypto }) {
-    this._crypto = opts?.crypto ?? global.crypto
+    this._crypto = globalCrypto(false, opts?.crypto)
   }
 
   /**

@@ -1,3 +1,4 @@
+import { globalCrypto } from '@sphereon/ssi-sdk-ext.key-utils'
 import { IAgentPlugin } from '@veramo/core'
 import {
   createJwsCompact,
@@ -89,7 +90,7 @@ export class JwtService implements IAgentPlugin {
     const apvVal = protectedHeader.apv ?? args.apv
     const apv = apvVal ? u8a.fromString(apvVal, 'base64url') : undefined
 
-    const pubKey = await crypto.subtle.importKey(
+    const pubKey = await globalCrypto(false).subtle.importKey(
       'jwk',
       jwkInfo.jwk,
       {

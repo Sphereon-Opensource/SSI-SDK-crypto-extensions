@@ -1,5 +1,5 @@
 import { didDocumentToJwks, getAgentResolver, jwkTtoPublicKeyHex } from '@sphereon/ssi-sdk-ext.did-utils'
-import { calculateJwkThumbprint, coseKeyToJwk } from '@sphereon/ssi-sdk-ext.key-utils'
+import { calculateJwkThumbprint, coseKeyToJwk, globalCrypto } from '@sphereon/ssi-sdk-ext.key-utils'
 import {
   getSubjectDN,
   pemOrDerToX509Certificate,
@@ -113,7 +113,7 @@ export async function resolveExternalX5cIdentifier(
   if (!jwks || jwks.length === 0) {
     const cryptoEngine = new CryptoEngine({
       name: 'identifier_resolver_external',
-      crypto: opts.crypto ?? global.crypto,
+      crypto: globalCrypto(false, opts.crypto),
     })
     setEngine(cryptoEngine.name, cryptoEngine)
     jwks = await Promise.all(

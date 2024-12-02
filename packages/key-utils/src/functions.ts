@@ -1,13 +1,24 @@
 import { randomBytes } from '@ethersproject/random'
+// Do not change these require statements to imports before we change to ESM. Breaks external CJS packages depending on this module
+import { bls12_381 } from '@noble/curves/bls12-381'
+import { ed25519 } from '@noble/curves/ed25519'
+import { p256 } from '@noble/curves/p256'
+import { p384 } from '@noble/curves/p384'
+import { p521 } from '@noble/curves/p521'
+import { secp256k1 } from '@noble/curves/secp256k1'
+import { sha256 } from '@noble/hashes/sha256'
+import { sha384, sha512 } from '@noble/hashes/sha512'
 import { generateRSAKeyAsPEM, hexToBase64, hexToPEM, PEMToJwk, privateKeyHexFromPEM } from '@sphereon/ssi-sdk-ext.x509-utils'
-import { JoseCurve, JoseSignatureAlgorithm, JwkKeyType, JWK, Loggers } from '@sphereon/ssi-types'
+import { JoseCurve, JoseSignatureAlgorithm, JWK, JwkKeyType, Loggers } from '@sphereon/ssi-types'
 import { generateKeyPair as generateSigningKeyPair } from '@stablelib/ed25519'
 import { IAgentContext, IKey, IKeyManager, ManagedKeyInfo, MinimalImportableKey } from '@veramo/core'
 
 import { JsonWebKey } from 'did-resolver'
 import elliptic from 'elliptic'
+import * as rsa from 'micro-rsa-dsa-dh/rsa.js'
 import * as u8a from 'uint8arrays'
 import { digestMethodParams } from './digest-methods'
+import { validateJwk } from './jwk-jcs'
 import {
   ENC_KEY_ALGS,
   IImportProvidedOrGeneratedKeyArgs,
@@ -255,6 +266,89 @@ export const toJwk = (
 }
 
 /**
+ * Convert a JWK to a raw hex key.
+ * Currently supports `RSA` and `EC` keys. Extendable for other key types.
+ * @param jwk - The JSON Web Key object.
+ * @returns A string representing the key in raw hexadecimal format.
+ */
+export const jwkToRawHexKey = async (jwk: JWK): Promise<string> => {
+  // TODO: Probably makes sense to have an option to do the same for private keys
+  if (jwk.kty === 'RSA') {
+    return rsaJwkToRawHexKey(jwk)
+  } else if (jwk.kty === 'EC') {
+    return '04' + ecJwkToRawHexKey(jwk)
+  } else if (jwk.kty === 'OKP') {
+    return okpJwkToRawHexKey(jwk)
+  } else if (jwk.kty === 'oct') {
+    return octJwkToRawHexKey(jwk)
+  } else {
+    throw new Error(`Unsupported key type: ${jwk.kty}`)
+  }
+}
+
+/**
+ * Convert an RSA JWK to a raw hex key.
+ * @param jwk - The RSA JWK object.
+ * @returns A string representing the RSA key in raw hexadecimal format.
+ */
+function rsaJwkToRawHexKey(jwk: JsonWebKey): string {
+  if (!jwk.n || !jwk.e) {
+    throw new Error("RSA JWK must contain 'n' and 'e' properties.")
+  }
+
+  const modulus = u8a.fromString(jwk.n, 'base64url') // 'n' is the modulus
+  const exponent = u8a.fromString(jwk.e, 'base64url') // 'e' is the exponent
+
+  return u8a.toString(modulus, 'hex') + u8a.toString(exponent, 'hex')
+}
+
+/**
+ * Convert an EC JWK to a raw hex key.
+ * @param jwk - The EC JWK object.
+ * @returns A string representing the EC key in raw hexadecimal format.
+ */
+function ecJwkToRawHexKey(jwk: JsonWebKey): string {
+  if (!jwk.x || !jwk.y) {
+    throw new Error("EC JWK must contain 'x' and 'y' properties.")
+  }
+
+  const x = u8a.fromString(jwk.x, 'base64url')
+  const y = u8a.fromString(jwk.y, 'base64url')
+
+  return u8a.toString(x, 'hex') + u8a.toString(y, 'hex')
+}
+
+/**
+ * Convert an EC JWK to a raw hex key.
+ * @param jwk - The EC JWK object.
+ * @returns A string representing the EC key in raw hexadecimal format.
+ */
+function okpJwkToRawHexKey(jwk: JsonWebKey): string {
+  if (!jwk.x) {
+    throw new Error("OKP JWK must contain 'x' property.")
+  }
+
+  const x = u8a.fromString(jwk.x, 'base64url')
+
+  return u8a.toString(x, 'hex')
+}
+
+/**
+ * Convert an octet JWK to a raw hex key.
+ * @param jwk - The octet JWK object.
+ * @returns A string representing the octet key in raw hexadecimal format.
+ */
+function octJwkToRawHexKey(jwk: JsonWebKey): string {
+  if (!jwk.k) {
+    throw new Error("Octet JWK must contain 'k' property.")
+  }
+
+  const key = u8a.fromString(jwk.k, 'base64url')
+
+  return u8a.toString(key, 'hex')
+}
+
+/**
  * Determines the use param based upon the key/signature type or supplied use value.
  *
  * @param type The key type
@@ -377,16 +471,29 @@ const toEd25519OrX25519Jwk = (
 }
 
 const toRSAJwk = (publicKeyHex: string, opts?: { use?: JwkKeyUse; key?: IKey | MinimalImportableKey }): JWK => {
-  const { key } = opts ?? {}
-  // const publicKey = publicKeyHex
-  // assertProperKeyLength(publicKey, [2048, 3072, 4096])
-
-  if (key?.meta?.publicKeyJwk) {
-    return key.meta.publicKeyJwk as JWK
+  const meta = opts?.key?.meta
+  if (meta?.publicKeyJwk || meta?.publicKeyPEM) {
+    if (meta?.publicKeyJwk) {
+      return meta.publicKeyJwk as JWK
+    }
+    const publicKeyPEM = meta?.publicKeyPEM ?? hexToPEM(publicKeyHex, 'public')
+    return PEMToJwk(publicKeyPEM, 'public') as JWK
   }
 
-  const publicKeyPEM = key?.meta?.publicKeyPEM ?? hexToPEM(publicKeyHex, 'public')
-  return PEMToJwk(publicKeyPEM, 'public') as JWK
+  // exponent (e) is 5 chars long, rest is modulus (n)
+  // const publicKey = publicKeyHex
+  // assertProperKeyLength(publicKey, [2048, 3072, 4096])
+  const exponent = publicKeyHex.slice(-5)
+  const modulus = publicKeyHex.slice(0, -5)
+  // const modulusBitLength  = (modulus.length / 2) * 8
+
+  // const alg = modulusBitLength === 2048 ? JoseSignatureAlgorithm.RS256 : modulusBitLength === 3072 ? JoseSignatureAlgorithm.RS384 : modulusBitLength === 4096 ? JoseSignatureAlgorithm.RS512 : undefined
+  return {
+    kty: 'RSA',
+    n: hexToBase64(modulus, 'base64url'),
+    e: hexToBase64(exponent, 'base64url'),
+    // ...(alg && { alg }),
+  }
 }
 
 export const padLeft = (args: { data: string; size?: number; padString?: string }): string => {
@@ -527,6 +634,10 @@ export const signatureAlgorithmFromKeyType = (args: SignatureAlgorithmFromKeyTyp
       return JoseSignatureAlgorithm.EdDSA
     case 'Secp256r1':
       return JoseSignatureAlgorithm.ES256
+    case 'Secp384r1':
+      return JoseSignatureAlgorithm.ES384
+    case 'Secp521r1':
+      return JoseSignatureAlgorithm.ES512
     case 'Secp256k1':
       return JoseSignatureAlgorithm.ES256K
     default:
@@ -536,9 +647,22 @@ export const signatureAlgorithmFromKeyType = (args: SignatureAlgorithmFromKeyTyp
 
 // TODO improve this conversion for jwt and jsonld, not a fan of current structure
 export const keyTypeFromCryptographicSuite = (args: KeyTypeFromCryptographicSuiteArgs): TKeyType => {
-  const { suite } = args
-  switch (suite) {
+  const { crv, kty, alg } = args
+
+  switch (alg) {
+    case 'RSASSA-PSS':
+    case 'RS256':
+    case 'RS384':
+    case 'RS512':
+    case 'PS256':
+    case 'PS384':
+    case 'PS512':
+      return 'RSA'
+  }
+
+  switch (crv) {
     case 'EdDSA':
+    case 'Ed25519':
     case 'Ed25519Signature2018':
     case 'Ed25519Signature2020':
     case 'JcsEd25519Signature2020':
@@ -546,50 +670,153 @@ export const keyTypeFromCryptographicSuite = (args: KeyTypeFromCryptographicSuit
     case 'JsonWebSignature2020':
     case 'ES256':
     case 'ECDSA':
+    case 'P-256':
       return 'Secp256r1'
+    case 'ES384':
+    case 'P-384':
+      return 'Secp384r1'
+    case 'ES512':
+    case 'P-521':
+      return 'Secp521r1'
     case 'EcdsaSecp256k1Signature2019':
+    case 'secp256k1':
     case 'ES256K':
       return 'Secp256k1'
-    default:
-      throw new Error(`Cryptographic suite '${suite}' not supported`)
   }
+  if (kty) {
+    return kty as TKeyType
+  }
+
+  throw new Error(`Cryptographic suite '${crv}' not supported`)
 }
 
-export async function verifySignatureWithSubtle({
+export function removeNulls<T>(obj: T | any) {
+  Object.keys(obj).forEach((key) => {
+    if (obj[key] && typeof obj[key] === 'object') removeNulls(obj[key])
+    else if (obj[key] == null) delete obj[key]
+  })
+  return obj
+}
+
+export const globalCrypto = (setGlobal: boolean, suppliedCrypto?: Crypto): Crypto => {
+  let webcrypto: Crypto
+  if (typeof suppliedCrypto !== 'undefined') {
+    webcrypto = suppliedCrypto
+  } else if (typeof crypto !== 'undefined') {
+    webcrypto = crypto
+  } else if (typeof global.crypto !== 'undefined') {
+    webcrypto = global.crypto
+  } else if (typeof global.window?.crypto?.subtle !== 'undefined') {
+    webcrypto = global.window.crypto
+  } else {
+    webcrypto = require('crypto') as Crypto
+  }
+  if (setGlobal) {
+    global.crypto = webcrypto
+  }
+
+  return webcrypto
+}
+
+/**
+ *
+ */
+export async function verifyRawSignature({
   data,
   signature,
-  key,
-  crypto: cryptoArg,
+  key: inputKey,
+  opts,
 }: {
   data: Uint8Array
   signature: Uint8Array
-  key: JsonWebKey
-  crypto?: Crypto
+  key: JWK
+  opts?: {
+    signatureAlg?: JoseSignatureAlgorithm
+  }
 }) {
-  let { alg, crv } = key
-  if (alg === 'ES256' || !alg) {
-    alg = 'ECDSA'
+  /**
+   * Converts a Base64URL-encoded JWK property to a BigInt.
+   * @param jwkProp - The Base64URL-encoded string.
+   * @returns The BigInt representation of the decoded value.
+   */
+  function jwkPropertyToBigInt(jwkProp: string): bigint {
+    // Decode Base64URL to Uint8Array
+    const byteArray = u8a.fromString(jwkProp, 'base64url')
+
+    // Convert Uint8Array to hexadecimal string and then to BigInt
+    const hex = u8a.toString(byteArray, 'hex')
+    return BigInt(`0x${hex}`)
   }
 
-  const subtle = cryptoArg?.subtle ?? crypto.subtle
-  const publicKey = await subtle.importKey(
-    'jwk',
-    key,
-    {
-      name: alg,
-      namedCurve: crv,
-    } as EcKeyImportParams,
-    true,
-    ['verify']
-  )
+  const key = removeNulls(inputKey)
+  validateJwk(key, { crvOptional: true })
+  const keyType = keyTypeFromCryptographicSuite({ crv: key.crv, kty: key.kty, alg: key.alg })
+  const publicKeyHex = await jwkToRawHexKey(key)
 
-  return subtle.verify(
-    {
-      name: alg as string,
-      hash: 'SHA-256', // fixme; make arg
-    },
-    publicKey,
-    signature,
-    data
-  )
+  // TODO: We really should look at the signature alg first if provided! From key type should be the last resort
+  switch (keyType) {
+    case 'Secp256k1':
+      return secp256k1.verify(signature, data, publicKeyHex, { format: 'compact', prehash: true })
+    case 'Secp256r1':
+      return p256.verify(signature, data, publicKeyHex, { format: 'compact', prehash: true })
+    case 'Secp384r1':
+      return p384.verify(signature, data, publicKeyHex, { format: 'compact', prehash: true })
+    case 'Secp521r1':
+      return p521.verify(signature, data, publicKeyHex, { format: 'compact', prehash: true })
+    case 'Ed25519':
+      return ed25519.verify(signature, data, u8a.fromString(publicKeyHex, 'hex'))
+    case 'Bls12381G1':
+    case 'Bls12381G2':
+      return bls12_381.verify(signature, data, u8a.fromString(publicKeyHex, 'hex'))
+    case 'RSA': {
+      const signatureAlgorithm = opts?.signatureAlg ?? JoseSignatureAlgorithm.PS256
+      const hashAlg =
+        signatureAlgorithm === (JoseSignatureAlgorithm.RS512 || JoseSignatureAlgorithm.PS512)
+          ? sha512
+          : signatureAlgorithm === (JoseSignatureAlgorithm.RS384 || JoseSignatureAlgorithm.PS384)
+          ? sha384
+          : sha256
+      switch (signatureAlgorithm) {
+        case JoseSignatureAlgorithm.RS256:
+          return rsa.PKCS1_SHA256.verify(
+            {
+              n: jwkPropertyToBigInt(key.n),
+              e: jwkPropertyToBigInt(key.e),
+            },
+            data,
+            signature
+          )
+        case JoseSignatureAlgorithm.RS384:
+          return rsa.PKCS1_SHA384.verify(
+            {
+              n: jwkPropertyToBigInt(key.n),
+              e: jwkPropertyToBigInt(key.e),
+            },
+            data,
+            signature
+          )
+        case JoseSignatureAlgorithm.RS512:
+          return rsa.PKCS1_SHA512.verify(
+            {
+              n: jwkPropertyToBigInt(key.n),
+              e: jwkPropertyToBigInt(key.e),
+            },
+            data,
+            signature
+          )
+        case JoseSignatureAlgorithm.PS256:
+        case JoseSignatureAlgorithm.PS384:
+        case JoseSignatureAlgorithm.PS512:
+          return rsa.PSS(hashAlg, rsa.mgf1(hashAlg)).verify(
+            {
+              n: jwkPropertyToBigInt(key.n),
+              e: jwkPropertyToBigInt(key.e),
+            },
+            data,
+            signature
+          )
+      }
+    }
+  }
+  throw Error(`Unsupported key type for signature validation: ${keyType}`)
 }

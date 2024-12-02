@@ -1,4 +1,4 @@
-import { calculateJwkThumbprintForKey, toJwk, verifySignatureWithSubtle } from '@sphereon/ssi-sdk-ext.key-utils'
+import { calculateJwkThumbprintForKey, toJwk, verifyRawSignature } from '@sphereon/ssi-sdk-ext.key-utils'
 import { IKey, KeyMetadata, ManagedKeyInfo } from '@veramo/core'
 import { AbstractKeyManagementSystem, AbstractKeyStore, KeyManager as VeramoKeyManager } from '@veramo/key-manager'
 
@@ -93,7 +93,7 @@ export class SphereonKeyManager extends VeramoKeyManager {
         return await kms.verify(args)
       }
     }
-    return await verifySignatureWithSubtle({
+    return await verifyRawSignature({
       key: toJwk(args.publicKeyHex, args.type),
       data: args.data,
       signature: u8a.fromString(args.signature, 'utf-8'),
