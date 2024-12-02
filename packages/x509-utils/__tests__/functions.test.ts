@@ -254,6 +254,22 @@ describe('functions: validateX5cCertificateChain', () => {
     })
   })
 
+  it('should validate with allowNoTrustAnchorsFound', async () => {
+    const verificationDate = new Date('2024-08-07')
+    const result = await validateX509CertificateChain({
+      chain: validChain,
+      verificationTime: verificationDate,
+      trustAnchors: [externalTestCert],
+      opts: { allowNoTrustAnchorsFound: true },
+    })
+    console.log(JSON.stringify(result, null, 2))
+    expect(result).toMatchObject({
+      critical: false,
+      error: false,
+      message: 'Certificate chain was valid',
+    })
+  })
+
   it('should validate with a valid verification date', async () => {
     const verificationDate = new Date('2024-07-07')
     const result = await validateX509CertificateChain({

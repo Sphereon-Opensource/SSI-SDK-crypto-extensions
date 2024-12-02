@@ -7,7 +7,7 @@ import x509 from 'js-x509-utils'
 import { AltName, AttributeTypeAndValue, Certificate, CryptoEngine, getCrypto, id_SubjectAltName, setEngine } from 'pkijs'
 import { container } from 'tsyringe'
 import * as u8a from 'uint8arrays'
-import {globalCrypto} from "./crypto";
+import { globalCrypto } from './crypto'
 import { areCertificatesEqual, derToPEM, pemOrDerToX509Certificate } from './x509-utils'
 
 export type DNInfo = {
@@ -74,6 +74,9 @@ export const getCertificateInfo = async (
 }
 
 export type X509CertificateChainValidationOpts = {
+  // If no trust anchor is found, but the chain itself checks out, allow. (defaults to false:)
+  allowNoTrustAnchorsFound?: boolean
+
   // Trust the supplied root from the chain, when no anchors are being passed in.
   trustRootWhenNoAnchors?: boolean
   // Do not perform a chain validation check if the chain only has a single value. This means only the certificate itself will be validated. No chain checks for CA certs will be performed. Only used when the cert has no issuer
@@ -96,6 +99,8 @@ export const validateX509CertificateChain = async ({
   trustAnchors,
   verificationTime = new Date(),
   opts = {
+    // If no trust anchor is found, but the chain itself checks out, allow. (defaults to false:)
+    allowNoTrustAnchorsFound: false,
     trustRootWhenNoAnchors: false,
     allowSingleNoCAChainElement: true,
     blindlyTrustedAnchors: [],
@@ -131,6 +136,7 @@ const validateX509CertificateChainImpl = async ({
 }): Promise<X509ValidationResult> => {
   const verificationTime: Date = typeof verifyAt === 'string' ? new Date(verifyAt) : verifyAt
   const {
+    allowNoTrustAnchorsFound = false,
     trustRootWhenNoAnchors = false,
     allowSingleNoCAChainElement = true,
     blindlyTrustedAnchors = [],
@@ -220,7 +226,8 @@ const validateX509CertificateChainImpl = async ({
       getCrypto()?.crypto ?? crypto ?? global.crypto
     )
     if (!result) {
-      if (i == 0 && !reversed && !disallowReversedChain) {
+      // First cert needs to be self signed
+      if (i == 0) {
         return await validateX509CertificateChainImpl({
           reversed: true,
           chain: [...pemOrDerChain].reverse(),
@@ -229,6 +236,7 @@ const validateX509CertificateChainImpl = async ({
           trustAnchors,
         })
       }
+
       return {
         error: true,
         critical: true,
@@ -257,13 +265,15 @@ const validateX509CertificateChainImpl = async ({
     }
   }
 
-  if (foundTrustAnchor?.certificateInfo) {
+  if (foundTrustAnchor?.certificateInfo || allowNoTrustAnchorsFound) {
     return {
       error: false,
       critical: false,
       message: `Certificate chain was valid`,
       certificateChain: x5cOrdereredChain.map((cert) => cert.certificateInfo),
-      detailMessage: `The leaf certificate ${leafCert.certificateInfo.subject.dn.DN} is part of a chain with trust anchor ${foundTrustAnchor?.certificateInfo.subject.dn.DN}.`,
+      detailMessage: foundTrustAnchor
+        ? `The leaf certificate ${leafCert.certificateInfo.subject.dn.DN} is part of a chain with trust anchor ${foundTrustAnchor?.certificateInfo.subject.dn.DN}.`
+        : `The leaf certificate ${leafCert.certificateInfo.subject.dn.DN} and chain were valid, but no trust anchor has been found. Ignoring as user allowed (allowNoTrustAnchorsFound: ${allowNoTrustAnchorsFound}).)`,
       trustAnchor: foundTrustAnchor?.certificateInfo,
       verificationTime,
       ...(client && { client }),
@@ -275,9 +285,9 @@ const validateX509CertificateChainImpl = async ({
     critical: true,
     message: `Certificate chain validation failed for ${leafCert.certificateInfo.subject.dn.DN}.`,
     certificateChain: x5cOrdereredChain.map((cert) => cert.certificateInfo),
-    detailMessage: `No trust anchor was found in the chain. between (intermediate) CA ${x5cOrdereredChain[chain.length - 1].certificateInfo.subject.dn.DN} and leaf ${
-        x5cOrdereredChain[0].certificateInfo.subject.dn.DN
-    }.`,
+    detailMessage: `No trust anchor was found in the chain. between (intermediate) CA ${
+      x5cOrdereredChain[chain.length - 1].certificateInfo.subject.dn.DN
+    } and leaf ${x5cOrdereredChain[0].certificateInfo.subject.dn.DN}.`,
     verificationTime,
     ...(client && { client }),
   }
