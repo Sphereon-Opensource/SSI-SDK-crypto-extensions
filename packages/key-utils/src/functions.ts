@@ -181,7 +181,7 @@ export const toBase64url = (input: string): string => u8a.toString(u8a.fromStrin
  */
 export const calculateJwkThumbprint = (args: { jwk: JWK; digestAlgorithm?: 'sha256' | 'sha512' }): string => {
   const { digestAlgorithm = 'sha256' } = args
-  const jwk = sanatizedJwk(args.jwk)
+  const jwk = sanitizedJwk(args.jwk)
   let components
   switch (jwk.kty) {
     case 'EC':
@@ -264,7 +264,7 @@ export const toJwk = (
   if (!jwk.kid && !noKidThumbprint) {
     jwk['kid'] = calculateJwkThumbprint({ jwk })
   }
-  return sanatizedJwk(jwk)
+  return sanitizedJwk(jwk)
 }
 
 /**
@@ -275,7 +275,7 @@ export const toJwk = (
  */
 export const jwkToRawHexKey = async (jwk: JWK): Promise<string> => {
   // TODO: Probably makes sense to have an option to do the same for private keys
-  jwk = sanatizedJwk(jwk)
+  jwk = sanitizedJwk(jwk)
   if (jwk.kty === 'RSA') {
     return rsaJwkToRawHexKey(jwk)
   } else if (jwk.kty === 'EC') {
@@ -295,7 +295,7 @@ export const jwkToRawHexKey = async (jwk: JWK): Promise<string> => {
  * @returns A string representing the RSA key in raw hexadecimal format.
  */
 function rsaJwkToRawHexKey(jwk: JsonWebKey): string {
-  jwk = sanatizedJwk(jwk)
+  jwk = sanitizedJwk(jwk)
   if (!jwk.n || !jwk.e) {
     throw new Error("RSA JWK must contain 'n' and 'e' properties.")
   }
@@ -313,7 +313,7 @@ function rsaJwkToRawHexKey(jwk: JsonWebKey): string {
  * @returns A string representing the EC key in raw hexadecimal format.
  */
 function ecJwkToRawHexKey(jwk: JsonWebKey): string {
-  jwk = sanatizedJwk(jwk)
+  jwk = sanitizedJwk(jwk)
   if (!jwk.x || !jwk.y) {
     throw new Error("EC JWK must contain 'x' and 'y' properties.")
   }
@@ -331,7 +331,7 @@ function ecJwkToRawHexKey(jwk: JsonWebKey): string {
  * @returns A string representing the EC key in raw hexadecimal format.
  */
 function okpJwkToRawHexKey(jwk: JsonWebKey): string {
-  jwk = sanatizedJwk(jwk)
+  jwk = sanitizedJwk(jwk)
   if (!jwk.x) {
     throw new Error("OKP JWK must contain 'x' property.")
   }
@@ -348,7 +348,7 @@ function okpJwkToRawHexKey(jwk: JsonWebKey): string {
  * @returns A string representing the octet key in raw hexadecimal format.
  */
 function octJwkToRawHexKey(jwk: JsonWebKey): string {
-  jwk = sanatizedJwk(jwk)
+  jwk = sanitizedJwk(jwk)
   if (!jwk.k) {
     throw new Error("Octet JWK must contain 'k' property.")
   }
@@ -415,7 +415,7 @@ const toSecp256k1Jwk = (keyHex: string, opts?: { use?: JwkKeyUse; isPrivateKey?:
   const keyPair = opts?.isPrivateKey ? secp256k1.keyFromPrivate(keyBytes) : secp256k1.keyFromPublic(keyBytes)
   const pubPoint = keyPair.getPublic()
 
-  return sanatizedJwk({
+  return sanitizedJwk({
     alg: JoseSignatureAlgorithm.ES256K,
     ...(use !== undefined && { use }),
     kty: JwkKeyType.EC,
@@ -446,7 +446,7 @@ const toSecp256r1Jwk = (keyHex: string, opts?: { use?: JwkKeyUse; isPrivateKey?:
   logger.debug(`keyBytes length: ${keyBytes}`)
   const keyPair = opts?.isPrivateKey ? secp256r1.keyFromPrivate(keyBytes) : secp256r1.keyFromPublic(keyBytes)
   const pubPoint = keyPair.getPublic()
-  return sanatizedJwk({
+  return sanitizedJwk({
     alg: JoseSignatureAlgorithm.ES256,
     ...(use !== undefined && { use }),
     kty: JwkKeyType.EC,
@@ -472,7 +472,7 @@ const toEd25519OrX25519Jwk = (
 ): JWK => {
   assertProperKeyLength(publicKeyHex, 64)
   const { use } = opts ?? {}
-  return sanatizedJwk({
+  return sanitizedJwk({
     alg: JoseSignatureAlgorithm.EdDSA,
     ...(use !== undefined && { use }),
     kty: JwkKeyType.OKP,
@@ -499,7 +499,7 @@ const toRSAJwk = (publicKeyHex: string, opts?: { use?: JwkKeyUse; key?: IKey | M
   // const modulusBitLength  = (modulus.length / 2) * 8
 
   // const alg = modulusBitLength === 2048 ? JoseSignatureAlgorithm.RS256 : modulusBitLength === 3072 ? JoseSignatureAlgorithm.RS384 : modulusBitLength === 4096 ? JoseSignatureAlgorithm.RS512 : undefined
-  return sanatizedJwk({
+  return sanitizedJwk({
     kty: 'RSA',
     n: hexToBase64(modulus, 'base64url'),
     e: hexToBase64(exponent, 'base64url'),
@@ -729,7 +729,10 @@ export const globalCrypto = (setGlobal: boolean, suppliedCrypto?: Crypto): Crypt
   return webcrypto
 }
 
-export const sanatizedJwk = (inputJwk: JWK | JsonWebKey): JWK => {
+export const sanitizedJwk = (inputJwk: JWK | JsonWebKey): JWK => {
+  if (typeof inputJwk['toJsonDTO'] === 'function') {
+    inputJwk = inputJwk['toJsonDTO']() // KMP code can expose this. It converts a KMP JWK with mangled names into a clean JWK
+  }
   const jwk = {
     ...inputJwk,
     ...(inputJwk.x && { x: base64ToBase64Url(inputJwk.x as string) }),
@@ -779,7 +782,7 @@ export async function verifyRawSignature({
 
   try {
     debug(`verifyRawSignature for: ${inputKey}`)
-    const jwk = sanatizedJwk(inputKey)
+    const jwk = sanitizedJwk(inputKey)
     validateJwk(jwk, { crvOptional: true })
     const keyType = keyTypeFromCryptographicSuite({ crv: jwk.crv, kty: jwk.kty, alg: jwk.alg })
     const publicKeyHex = await jwkToRawHexKey(jwk)
