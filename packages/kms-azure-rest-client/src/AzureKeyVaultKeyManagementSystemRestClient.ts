@@ -2,8 +2,6 @@ import {IKey, ManagedKeyInfo, MinimalImportableKey, TKeyType} from '@veramo/core
 import {AbstractKeyManagementSystem} from '@veramo/key-manager'
 import {KeyMetadata} from './index'
 import * as AzureRestClient from './js-client'
-import {jwkToRawHexKey} from '@sphereon/ssi-sdk-ext.key-utils'
-import {JWK} from "@sphereon/ssi-types";
 import * as u8a from 'uint8arrays'
 
 interface AbstractKeyManagementSystemOptions {
