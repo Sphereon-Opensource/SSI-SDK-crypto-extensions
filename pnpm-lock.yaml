@@ -224,7 +224,7 @@ importers:
         version: link:../key-utils
       '@transmute/did-key-bls12381':
         specifier: 0.3.0-unstable.10
-        version: 0.3.0-unstable.10(encoding@0.1.13)
+        version: 0.3.0-unstable.10(encoding@0.1.13)(expo@52.0.11(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(encoding@0.1.13)(react-native@0.76.3(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(encoding@0.1.13)(react@18.3.1))(react@18.3.1))(react-native@0.76.3(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(encoding@0.1.13)(react@18.3.1))(web-streams-polyfill@3.3.3)
       '@veramo/core':
         specifier: 4.2.0
         version: 4.2.0(patch_hash=c5oempznsz4br5w3tcuk2i2mau)
@@ -744,8 +744,8 @@ importers:
   packages/kms-azure-rest-client:
     dependencies:
       '@sphereon/kms-azure-rest-client':
-        specifier: file:../../../kms-azure-rest-server/js-client
-        version: file:../kms-azure-rest-server/js-client
+        specifier: file:./src/js-client
+        version: link:src/js-client
       '@sphereon/ssi-sdk-ext.did-utils':
         specifier: workspace:*
         version: link:../did-utils
@@ -765,6 +765,25 @@ importers:
       '@types/text-encoding':
         specifier: 0.0.39
         version: 0.0.39
+
+  packages/kms-azure-rest-client/src/js-client:
+    dependencies:
+      es6-promise:
+        specifier: ^4.2.4
+        version: 4.2.8
+      url-parse:
+        specifier: ^1.4.3
+        version: 1.5.10
+      whatwg-fetch:
+        specifier: ^3.0.0
+        version: 3.6.20
+    devDependencies:
+      '@types/url-parse':
+        specifier: 1.4.4
+        version: 1.4.4
+      typescript:
+        specifier: 5.6.3
+        version: 5.6.3
 
   packages/kms-local:
     dependencies:
@@ -2761,9 +2780,6 @@ packages:
     resolution: {integrity: sha512-uAZZExVy+ug9JLircejWa5eLtAZ7bnBP6xb7DO2+86LRsHNLh2k2jMWJYxp+iWtGHTsh6RYsZl14ScQLvjiQ/A==}
     bundledDependencies: []
 
-  '@sphereon/kms-azure-rest-client@file:../kms-azure-rest-server/js-client':
-    resolution: {directory: ../kms-azure-rest-server/js-client, type: directory}
-
   '@sphereon/musap-native@0.0.1-next.154':
     resolution: {integrity: sha512-WNdL0bAYV+YnyAdruoHV9nvWh9gag2ELBhbkXYSvynBv5kLBv2sOQ670+GfiLzoAkgl5xyre58QHVM65zzY8Dw==}
 
@@ -3140,6 +3156,9 @@ packages:
 
   '@types/text-encoding@0.0.39':
     resolution: {integrity: sha512-gRPvgL1aMgP6Pv92Rs310cJvVQ86DSF62E7K30g1FoGmmYWXoNuXT8PV835iAVeiAZkRwr2IW37KuyDn9ljmeA==}
+
+  '@types/url-parse@1.4.4':
+    resolution: {integrity: sha512-KtQLad12+4T/NfSxpoDhmr22+fig3T7/08QCgmutYA6QSznSRmEtuL95GrhVV40/0otTEdFc+etRcCTqhh1q5Q==}
 
   '@types/varint@6.0.3':
     resolution: {integrity: sha512-DHukoGWdJ2aYkveZJTB2rN2lp6m7APzVsoJQ7j/qy1fQxyamJTPD5xQzCMoJ2Qtgn0mE3wWeNOpbTyBFvF+dyA==}
@@ -12175,12 +12194,6 @@ snapshots:
       '@js-joda/timezone': 2.3.0(@js-joda/core@5.6.3)
       format-util: 1.0.5
 
-  '@sphereon/kms-azure-rest-client@file:../kms-azure-rest-server/js-client':
-    dependencies:
-      es6-promise: 4.2.8
-      url-parse: 1.5.10
-      whatwg-fetch: 3.6.20
-
   '@sphereon/musap-native@0.0.1-next.154': {}
 
   '@sphereon/musap-react-native@0.0.1-next.154(react-native@0.76.3(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(encoding@0.1.13)(react@18.3.1))(react@18.3.1)':
@@ -12669,7 +12682,7 @@ snapshots:
 
   '@transmute/did-context@0.6.1-unstable.37': {}
 
-  '@transmute/did-key-bls12381@0.3.0-unstable.10(encoding@0.1.13)':
+  '@transmute/did-key-bls12381@0.3.0-unstable.10(encoding@0.1.13)(expo@52.0.11(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(encoding@0.1.13)(react-native@0.76.3(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(encoding@0.1.13)(react@18.3.1))(react@18.3.1))(react-native@0.76.3(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(encoding@0.1.13)(react@18.3.1))(web-streams-polyfill@3.3.3)':
     dependencies:
       '@transmute/bls12381-key-pair': 0.7.0-unstable.81(encoding@0.1.13)
       '@transmute/did-key-common': 0.3.0-unstable.10(encoding@0.1.13)(expo@52.0.11(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(encoding@0.1.13)(react-native@0.76.3(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(encoding@0.1.13)(react@18.3.1))(react@18.3.1))(react-native@0.76.3(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(encoding@0.1.13)(react@18.3.1))(web-streams-polyfill@3.3.3)
@@ -12997,6 +13010,8 @@ snapshots:
       '@types/serve-static': 1.15.7
 
   '@types/text-encoding@0.0.39': {}
+
+  '@types/url-parse@1.4.4': {}
 
   '@types/varint@6.0.3':
     dependencies:
