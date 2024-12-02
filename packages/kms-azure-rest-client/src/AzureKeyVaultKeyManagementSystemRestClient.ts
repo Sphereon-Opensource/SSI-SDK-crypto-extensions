@@ -2,8 +2,6 @@ import {IKey, ManagedKeyInfo, MinimalImportableKey, TKeyType} from '@veramo/core
 import {AbstractKeyManagementSystem} from '@veramo/key-manager'
 import {KeyMetadata} from './index'
 import * as AzureRestClient from './js-client'
-import * as u8a from 'uint8arrays'
-import {  toBase64url} from "@sphereon/ssi-sdk-ext.key-utils"
 
 interface AbstractKeyManagementSystemOptions {
   applicationId: string
