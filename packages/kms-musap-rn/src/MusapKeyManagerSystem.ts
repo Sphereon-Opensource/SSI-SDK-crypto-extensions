@@ -73,12 +73,12 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
     if (meta === undefined || !('keyAlias' in meta)) {
       return Promise.reject(Error('a unique keyAlias field is required for MUSAP'))
     }
-    
-    if (this.sscdType == 'EXTERNAL') {  
+
+    if (this.sscdType == 'EXTERNAL') {
       const existingKeys: MusapKey[] = (this.musapClient.listKeys()) as MusapKey[]
       const extKey = existingKeys.find(musapKey => musapKey.sscdType as string === 'External Signature') // FIXME returning does not match SscdType enum
       if (extKey) {
-        extKey.algorithm = 'ecc_ed25519' // FIXME MUSAP announces key as rsa2k, but it's actually EC
+        extKey.algorithm = 'eccp256r1' // FIXME MUSAP announces key as rsa2k, but it's actually EC
         return this.asMusapKeyInfo(extKey)
       }
       return Promise.reject(Error(`No external key was bound yet for sscd ${this.sscdId}`))
@@ -172,6 +172,9 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
     const data = new TextDecoder().decode(args.data as Uint8Array)
 
     const key: MusapKey = this.musapClient.getKeyById(args.keyRef.kid) as MusapKey
+    if (key.sscdType as string === 'External Signature') {
+      key.algorithm = 'eccp256r1' // FIXME MUSAP announces key as rsa2k, but it's actually EC
+    }
     const signatureReq: SignatureReq = {
       keyUri: key.keyUri,
       data,
@@ -191,7 +194,7 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
   private asMusapKeyInfo(args: MusapKey): ManagedKeyInfo {
     const { keyId, publicKey, ...metadata }: KeyMetadata = { ...args }
     const keyType = this.mapAlgorithmTypeToKeyType(args.algorithm)
-    
+
     const pemBinary = PEMToBinary(args.publicKey.pem) // The der is flawed, it's not binary but a string [123, 4567]
     const publicKeyBinary = isAsn1Der(pemBinary) ? asn1DerToRawPublicKey(pemBinary, keyType) : pemBinary
     const publicKeyHex = isRawCompressedPublicKey(publicKeyBinary) // TODO In the future I think it's better to have an option in KeyGenReq to specify which public key format we want back. Now it's different in iOS vs Android and we need to handle that inconsistency afterwards
