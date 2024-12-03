@@ -14,6 +14,7 @@ import {
   isX5cIdentifier,
   JwkInfo,
 } from './common'
+import {JwsPayload} from "./IJwtService";
 
 /**
  * Use whenever we need to resolve an external identifier. We can pass in kids, DIDs, and x5chains
@@ -172,6 +173,7 @@ export interface ExternalIdentifierOIDFEntityIdResult extends IExternalIdentifie
   method: 'entity_id'
   trustedAnchors: Array<TrustedAnchor>
   errorList?: Record<TrustedAnchor, ErrorMessage>
+  jwtPayload?: JwsPayload
   trustEstablished: boolean
 }
 
