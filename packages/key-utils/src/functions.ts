@@ -802,7 +802,7 @@ export async function verifyRawSignature({
       case 'Bls12381G2':
         return bls12_381.verify(signature, data, u8a.fromString(publicKeyHex, 'hex'))
       case 'RSA': {
-        const signatureAlgorithm = opts?.signatureAlg ?? JoseSignatureAlgorithm.PS256
+        const signatureAlgorithm = opts?.signatureAlg ?? jwk.alg as JoseSignatureAlgorithm | undefined ?? JoseSignatureAlgorithm.PS256
         const hashAlg =
           signatureAlgorithm === (JoseSignatureAlgorithm.RS512 || JoseSignatureAlgorithm.PS512)
             ? sha512
