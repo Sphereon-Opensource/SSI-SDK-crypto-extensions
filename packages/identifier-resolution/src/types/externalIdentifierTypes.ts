@@ -5,7 +5,8 @@ import { IParsedDID } from '@sphereon/ssi-types'
 import { DIDDocument, DIDDocumentSection, DIDResolutionResult } from '@veramo/core'
 import {
   isCoseKeyIdentifier,
-  isDidIdentifier, isOIDFEntityIdIdentifier,
+  isDidIdentifier,
+  isOIDFEntityIdIdentifier,
   isJwkIdentifier,
   isJwksUrlIdentifier,
   isKidIdentifier,
@@ -111,7 +112,7 @@ export type ExternalIdentifierOIDFEntityIdOpts = Omit<ExternalIdentifierOptsBase
 
 export function isExternalIdentifierOIDFEntityIdOpts(opts: ExternalIdentifierOptsBase): opts is ExternalIdentifierOIDFEntityIdOpts {
   const { identifier } = opts
-  return ('method' in opts && opts.method === 'entity_id' || 'trustAnchors' in opts) && isOIDFEntityIdIdentifier(identifier)
+  return (('method' in opts && opts.method === 'entity_id') || 'trustAnchors' in opts) && isOIDFEntityIdIdentifier(identifier)
 }
 
 export type ExternalIdentifierX5cOpts = Omit<ExternalIdentifierOptsBase, 'method'> &
@@ -131,7 +132,13 @@ export function isExternalIdentifierX5cOpts(opts: ExternalIdentifierOptsBase): o
 export type ExternalIdentifierMethod = 'did' | 'jwk' | 'x5c' | 'kid' | 'cose_key' | 'oidc-discovery' | 'jwks-url' | 'oid4vci-issuer' | 'entity_id'
 
 export type ExternalIdentifierResult = IExternalIdentifierResultBase &
-  (ExternalIdentifierDidResult | ExternalIdentifierX5cResult | ExternalIdentifierJwkResult | ExternalIdentifierOIDFEntityIdResult | ExternalIdentifierCoseKeyResult )
+  (
+    | ExternalIdentifierDidResult
+    | ExternalIdentifierX5cResult
+    | ExternalIdentifierJwkResult
+    | ExternalIdentifierOIDFEntityIdResult
+    | ExternalIdentifierCoseKeyResult
+  )
 
 export interface IExternalIdentifierResultBase {
   method: ExternalIdentifierMethod

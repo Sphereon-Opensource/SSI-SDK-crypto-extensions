@@ -1,4 +1,4 @@
-import { calculateJwkThumbprintForKey, toJwk, verifySignatureWithSubtle } from '@sphereon/ssi-sdk-ext.key-utils'
+import { calculateJwkThumbprintForKey, toJwk, verifyRawSignature } from '@sphereon/ssi-sdk-ext.key-utils'
 import { IKey, KeyMetadata, ManagedKeyInfo } from '@veramo/core'
 import { AbstractKeyManagementSystem, AbstractKeyStore, KeyManager as VeramoKeyManager } from '@veramo/key-manager'
 
@@ -76,13 +76,13 @@ export class SphereonKeyManager extends VeramoKeyManager {
   //FIXME extend the IKeyManagerSignArgs.data to be a string or array of strings
 
   async keyManagerSign(args: ISphereonKeyManagerSignArgs): Promise<string> {
-    const keyInfo = await this.keyManagerGet({kid: args.keyRef})
+    const keyInfo = await this.keyManagerGet({ kid: args.keyRef })
     const kms = this.getKmsByName(keyInfo.kms)
     if (keyInfo.type === 'Bls12381G2') {
       return await kms.sign({ keyRef: keyInfo, data: typeof args.data === 'string' ? u8a.fromString(args.data) : args.data })
     }
     // @ts-ignore // we can pass in uint8arrays as well, which the super also can handle but does not expose in its types
-    return await super.keyManagerSign({...args, keyRef: keyInfo.kid})
+    return await super.keyManagerSign({ ...args, keyRef: keyInfo.kid })
   }
 
   async keyManagerVerify(args: ISphereonKeyManagerVerifyArgs): Promise<boolean> {
@@ -93,7 +93,7 @@ export class SphereonKeyManager extends VeramoKeyManager {
         return await kms.verify(args)
       }
     }
-    return await verifySignatureWithSubtle({
+    return await verifyRawSignature({
       key: toJwk(args.publicKeyHex, args.type),
       data: args.data,
       signature: u8a.fromString(args.signature, 'utf-8'),

@@ -43,7 +43,6 @@ describe('@sphereon/did-provider-key', () => {
     expect(identifier.keys.length).toBe(1)
   })
 
-
   it('should create identifier without provided key Ed25519', async () => {
     const options = {
       type: Key.Ed25519,
@@ -54,7 +53,6 @@ describe('@sphereon/did-provider-key', () => {
     expect(identifier.did).toBeDefined()
   })
 
-
   it('should create identifier without provided key Secp256r1', async () => {
     const options = {
       type: Key.Secp256r1,
@@ -64,7 +62,6 @@ describe('@sphereon/did-provider-key', () => {
     expect(identifier).toBeDefined()
     expect(identifier.did).toBeDefined()
   })
-
 
   it('should create identifier without provided key Secp256k1', async () => {
     const options = {
@@ -88,7 +85,6 @@ describe('@sphereon/did-provider-key', () => {
     expect(identifier).toBeDefined()
     expect(identifier.did).toBe('did:key:z6MknvX3iMSuMSMCebC4Z7Cve4u7p7VdfTShx93b8nCff3c6')
   })
-
 
   it('should create consistent identifier with provided key Secp256r1', async () => {
     const options = {

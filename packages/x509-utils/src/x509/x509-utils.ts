@@ -1,3 +1,4 @@
+import { X509Certificate } from '@peculiar/x509'
 import { Certificate } from 'pkijs'
 import * as u8a from 'uint8arrays'
 // @ts-ignore
@@ -43,13 +44,18 @@ export function x5cToPemCertChain(x5c: string[], maxDepth?: number): string {
   return pem
 }
 
-export const pemOrDerToX509Certificate = (cert: string | Uint8Array): Certificate => {
-  if (typeof cert !== 'string') {
+export const pemOrDerToX509Certificate = (cert: string | Uint8Array | X509Certificate): Certificate => {
+  let DER: string | undefined = typeof cert === 'string' ? cert : undefined
+  if (typeof cert === 'object' && !(cert instanceof Uint8Array)) {
+    // X509Certificate object
+    return Certificate.fromBER(cert.rawData)
+  } else if (typeof cert !== 'string') {
     return Certificate.fromBER(cert)
-  }
-  let DER = cert
-  if (cert.includes('CERTIFICATE')) {
+  } else if (cert.includes('CERTIFICATE')) {
     DER = PEMToDer(cert)
+  }
+  if (!DER) {
+    throw Error('Invalid cert input value supplied. PEM, DER, Bytes and X509Certificate object are supported')
   }
   return Certificate.fromBER(u8a.fromString(DER, 'base64pad'))
 }

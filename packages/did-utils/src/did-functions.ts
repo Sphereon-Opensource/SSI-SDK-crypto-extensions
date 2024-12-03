@@ -5,6 +5,7 @@ import {
     getKms,
     JwkKeyUse,
     keyTypeFromCryptographicSuite,
+    sanitizedJwk,
     signatureAlgorithmFromKey,
     TKeyType,
     toJwk,
@@ -344,7 +345,7 @@ export function jwkTtoPublicKeyHex(jwk: JWK): string {
     // todo: Hacky way to convert this to a VM. Should extract the logic from the below methods
     // @ts-ignore
     const vm: _ExtendedVerificationMethod = {
-        publicKeyJwk: jwk,
+        publicKeyJwk: sanitizedJwk(jwk),
     }
     return extractPublicKeyHexWithJwkSupport(vm)
 }
@@ -360,24 +361,28 @@ export function jwkTtoPublicKeyHex(jwk: JWK): string {
  */
 export function extractPublicKeyHexWithJwkSupport(pk: _ExtendedVerificationMethod, convert = false): string {
     if (pk.publicKeyJwk) {
-        if (pk.publicKeyJwk.kty === 'EC') {
-            const curve = pk.publicKeyJwk.crv ? toEcLibCurve(pk.publicKeyJwk.crv): 'p256'
-            const ec = new elliptic.ec(curve)
-
-            const xHex = base64ToHex(pk.publicKeyJwk.x!, 'base64url')
-            const yHex = base64ToHex(pk.publicKeyJwk.y!, 'base64url')
+        const jwk = sanitizedJwk(pk.publicKeyJwk)
+        if (jwk.kty === 'EC') {
+            const curve = jwk.crv ? toEcLibCurve(jwk.crv) : 'p256'
+            const xHex = base64ToHex(jwk.x!, 'base64url')
+            const yHex = base64ToHex(jwk.y!, 'base64url')
             const prefix = '04' // isEven(yHex) ? '02' : '03'
             // Uncompressed Hex format: 04<x><y>
             // Compressed Hex format: 02<x> (for even y) or 03<x> (for uneven y)
             const hex = `${prefix}${xHex}${yHex}`
-            // We return directly as we don't want to convert the result back into Uint8Array and then convert again to hex as the elliptic lib already returns hex strings
-            const publicKeyHex = ec.keyFromPublic(hex, 'hex').getPublic(true, 'hex')
-            // This returns a short form (x) with 02 or 03 prefix
-            return publicKeyHex
-        } else if (pk.publicKeyJwk.crv === 'Ed25519') {
-            return u8a.toString(u8a.fromString(pk.publicKeyJwk.x!, 'base64url'), 'base16')
-        } else if (pk.publicKeyJwk.kty === 'RSA') {
-            return hexKeyFromPEMBasedJwk(pk.publicKeyJwk, 'public')
+            try {
+                const ec = new elliptic.ec(curve)
+                // We return directly as we don't want to convert the result back into Uint8Array and then convert again to hex as the elliptic lib already returns hex strings
+                const publicKeyHex = ec.keyFromPublic(hex, 'hex').getPublic(true, 'hex')
+                // This returns a short form (x) with 02 or 03 prefix
+                return publicKeyHex
+            } catch (error: any) {
+                console.error(`Error converting EC with elliptic lib curve ${curve} from JWK to hex. x: ${jwk.x}, y: ${jwk.y}, error: ${error}`, error)
+            }
+        } else if (jwk.crv === 'Ed25519') {
+            return u8a.toString(u8a.fromString(jwk.x!, 'base64url'), 'base16')
+        } else if (jwk.kty === 'RSA') {
+            return hexKeyFromPEMBasedJwk(jwk, 'public')
         }
     }
     // delegate the other types to the original Veramo function
@@ -404,15 +409,16 @@ interface LegacyVerificationMethod extends VerificationMethod {
  */
 export function extractPublicKeyHex(pk: _ExtendedVerificationMethod, convert: boolean = false): string {
     let keyBytes = extractPublicKeyBytes(pk)
+    const jwk = pk.publicKeyJwk ? sanitizedJwk(pk.publicKeyJwk) : undefined
     if (convert) {
         if (
             ['Ed25519', 'Ed25519VerificationKey2018', 'Ed25519VerificationKey2020'].includes(pk.type) ||
-            (pk.type === 'JsonWebKey2020' && pk.publicKeyJwk?.crv === 'Ed25519')
+            (pk.type === 'JsonWebKey2020' && jwk?.crv === 'Ed25519')
         ) {
             keyBytes = convertPublicKeyToX25519(keyBytes)
         } else if (
             !['X25519', 'X25519KeyAgreementKey2019', 'X25519KeyAgreementKey2020'].includes(pk.type) &&
-            !(pk.type === 'JsonWebKey2020' && pk.publicKeyJwk?.crv === 'X25519')
+            !(pk.type === 'JsonWebKey2020' && jwk?.crv === 'X25519')
         ) {
             return ''
         }
@@ -421,7 +427,7 @@ export function extractPublicKeyHex(pk: _ExtendedVerificationMethod, convert: bo
 }
 
 function toEcLibCurve(input: string) {
-    return input.toLowerCase().replace("-", "").replace("_", "")
+    return input.toLowerCase().replace('-', '').replace('_', '')
 }
 
 function extractPublicKeyBytes(pk: VerificationMethod): Uint8Array {
@@ -434,14 +440,8 @@ function extractPublicKeyBytes(pk: VerificationMethod): Uint8Array {
     } else if (pk.publicKeyHex) {
         return hexToBytes(pk.publicKeyHex)
     } else if (pk.publicKeyJwk?.crv && pk.publicKeyJwk.x && pk.publicKeyJwk.y) {
-        const secp = new elliptic.ec(toEcLibCurve(pk.publicKeyJwk.crv))
         return hexToBytes(
-            secp
-                .keyFromPublic({
-                    x: base64ToHex(pk.publicKeyJwk.x, 'base64url'),
-                    y: base64ToHex(pk.publicKeyJwk.y, 'base64url'),
-                })
-                .getPublic('hex')
+            extractPublicKeyHexWithJwkSupport(pk)
         )
     } else if (pk.publicKeyJwk && (pk.publicKeyJwk.crv === 'Ed25519' || pk.publicKeyJwk.crv === 'X25519') && pk.publicKeyJwk.x) {
         return base64ToBytes(pk.publicKeyJwk.x)
@@ -453,13 +453,13 @@ export function verificationMethodToJwk(vm: VerificationMethod): JWK {
     let jwk: JWK | undefined = vm.publicKeyJwk as JWK
     if (!jwk) {
         let publicKeyHex = vm.publicKeyHex ?? u8a.toString(extractPublicKeyBytes(vm), 'hex')
-        jwk = toJwk(publicKeyHex, keyTypeFromCryptographicSuite({suite: vm.type}))
+        jwk = toJwk(publicKeyHex, keyTypeFromCryptographicSuite({crv: vm.type}))
     }
     if (!jwk) {
         throw Error(`Could not convert verification method to jwk`)
     }
     jwk.kid = vm.id
-    return jwk
+    return sanitizedJwk(jwk)
 }
 
 function didDocumentSectionToJwks(
@@ -467,11 +467,11 @@ function didDocumentSectionToJwks(
     searchForVerificationMethods?: (VerificationMethod | string)[],
     verificationMethods?: VerificationMethod[]
 ) {
-    const jwks = (searchForVerificationMethods ?? [])
+    const jwks = new Set((searchForVerificationMethods ?? [])
         .map((vmOrId) => (typeof vmOrId === 'object' ? vmOrId : verificationMethods?.find((vm) => vm.id === vmOrId)))
         .filter(isDefined)
-        .map((vm) => verificationMethodToJwk(vm))
-    return {didDocumentSection, jwks: jwks}
+        .map((vm) => verificationMethodToJwk(vm)))
+    return {didDocumentSection, jwks: Array.from(jwks)}
 }
 
 export type DidDocumentJwks = Record<Exclude<DIDDocumentSection, 'publicKey' | 'service'>, Array<JWK>>
@@ -542,8 +542,8 @@ export async function mapIdentifierKeysToDocWithJwkSupport(
     const extendedKeys: _ExtendedIKey[] = documentKeys
         .map((verificationMethod) => {
             /*if (verificationMethod.type !== 'JsonWebKey2020') {
-                                                                                                        return null
-                                                                                                      }*/
+                                                                                                              return null
+                                                                                                            }*/
             const localKey = localKeys.find(
                 (localKey) =>
                     localKey.publicKeyHex === verificationMethod.publicKeyHex ||

@@ -9,7 +9,7 @@ import {
   isKeyIdentifier,
   isKidIdentifier,
   isX5cIdentifier,
-  JwkInfo
+  JwkInfo,
 } from './common'
 
 /**

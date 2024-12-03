@@ -5,7 +5,8 @@ import {
   jwkJcsEncode,
   JwkKeyUse,
   TKeyType,
-  toJwk, toRawCompressedHexPublicKey,
+  toJwk,
+  toRawCompressedHexPublicKey,
 } from '@sphereon/ssi-sdk-ext.key-utils'
 import { IAgentContext, IIdentifier, IKey, IKeyManager, IService } from '@veramo/core'
 import { AbstractIdentifierProvider } from '@veramo/did-manager'
@@ -48,7 +49,7 @@ export class SphereonKeyDidProvider extends AbstractIdentifierProvider {
         type?: TKeyType
         codecName?: 'EBSI' | 'jwk_jcs-pub' | Multicodec.CodecName
         key?: {
-          type?: TKeyType
+          type?: Exclude<TKeyType, 'Secp384r1' | 'Secp521r1'>
           privateKeyHex: string
         }
       }
@@ -58,15 +59,19 @@ export class SphereonKeyDidProvider extends AbstractIdentifierProvider {
     let codecName = (options?.codecName?.toUpperCase() === 'EBSI' ? (JWK_JCS_PUB_NAME as Multicodec.CodecName) : options?.codecName) as
       | CodeNameType
       | undefined
-    const keyType: TKeyType = options?.type ?? options?.key?.type  ?? (codecName === JWK_JCS_PUB_NAME ? 'Secp256r1' : 'Secp256k1')
+    const keyType = (options?.type ?? options?.key?.type ?? (codecName === JWK_JCS_PUB_NAME ? 'Secp256r1' : 'Secp256k1')) as Exclude<
+      TKeyType,
+      'Secp384r1' | 'Secp521r1'
+    >
     // console.log(`keytype: ${keyType}, codecName: ${codecName}`)
 
-    const key = await importProvidedOrGeneratedKey({
+    const key = await importProvidedOrGeneratedKey(
+      {
         kms: kms ?? this.kms,
         alias: alias,
         options: { ...options, type: keyType },
       },
-      context,
+      context
     )
 
     let methodSpecificId: string | undefined
@@ -89,7 +94,9 @@ export class SphereonKeyDidProvider extends AbstractIdentifierProvider {
       if (codecName) {
         // methodSpecificId  = bytesToMultibase({bytes: u8a.fromString(key.publicKeyHex, 'hex'), codecName})
         methodSpecificId = u8a
-          .toString(Multibase.encode('base58btc', Multicodec.addPrefix(codecName as Multicodec.CodecName, u8a.fromString(compressedPublicKeyHex, 'hex'))))
+          .toString(
+            Multibase.encode('base58btc', Multicodec.addPrefix(codecName as Multicodec.CodecName, u8a.fromString(compressedPublicKeyHex, 'hex')))
+          )
           .toString()
       }
     }

@@ -1,6 +1,6 @@
-import { TextDecoder, TextEncoder } from 'web-encoding'
-import isPlainObject from 'lodash.isplainobject'
+import { JWK } from '@sphereon/ssi-types'
 import type { ByteView } from 'multiformats/codecs/interface'
+import { TextDecoder, TextEncoder } from 'web-encoding'
 
 const textEncoder = new TextEncoder()
 const textDecoder = new TextDecoder()
@@ -10,8 +10,12 @@ const textDecoder = new TextDecoder()
  *
  * @param value - The value to check.
  * @param description - Description of the value to check.
+ * @param optional
  */
-function check(value: unknown, description: string) {
+function check(value: unknown, description: string, optional: boolean = false) {
+  if (optional && !value) {
+    return
+  }
   if (typeof value !== 'string' || !value) {
     throw new Error(`${description} missing or invalid`)
   }
@@ -22,9 +26,9 @@ function check(value: unknown, description: string) {
  *
  * @param value - The value to check.
  */
-function validatePlainObject(value: unknown) {
-  if (!isPlainObject(value)) {
-    throw new Error('JWK must be an object')
+function assertObject(value: unknown) {
+  if (!value || typeof value !== 'object') {
+    throw new Error('Value must be an object')
   }
 }
 
@@ -35,16 +39,20 @@ function validatePlainObject(value: unknown) {
  * @see https://www.rfc-editor.org/rfc/rfc8037#section-2
  *
  * @param jwk - The JWK to check.
+ * @param opts
  */
-function validateJwk(jwk: any) {
-  validatePlainObject(jwk)
+export function validateJwk(jwk: any, opts?: { crvOptional?: boolean }) {
+  assertObject(jwk)
+  const { crvOptional = false } = opts ?? {}
+  check(jwk.kty, '"kty" (Key Type) Parameter', false)
+
   // Check JWK required members based on the key type
   switch (jwk.kty) {
     /**
      * @see https://www.rfc-editor.org/rfc/rfc7518#section-6.2.1
      */
     case 'EC':
-      check(jwk.crv, '"crv" (Curve) Parameter')
+      check(jwk.crv, '"crv" (Curve) Parameter', crvOptional)
       check(jwk.x, '"x" (X Coordinate) Parameter')
       check(jwk.y, '"y" (Y Coordinate) Parameter')
       break
@@ -52,7 +60,7 @@ function validateJwk(jwk: any) {
      * @see https://www.rfc-editor.org/rfc/rfc8037#section-2
      */
     case 'OKP':
-      check(jwk.crv, '"crv" (Subtype of Key Pair) Parameter')
+      check(jwk.crv, '"crv" (Subtype of Key Pair) Parameter', crvOptional) // Shouldn't this one always be true as crv is not always present?
       check(jwk.x, '"x" (Public Key) Parameter')
       break
     /**
@@ -73,14 +81,14 @@ function validateJwk(jwk: any) {
  * @param jwk - The JWK to canonicalize.
  * @returns The JWK with only the required members, ordered lexicographically.
  */
-export function minimalJwk(jwk: any) {
+export function minimalJwk(jwk: any): JWK {
   // "default" case is not needed
   // eslint-disable-next-line default-case
   switch (jwk.kty) {
     case 'EC':
-      return { crv: jwk.crv, kty: jwk.kty, x: jwk.x, y: jwk.y }
+      return { ...(jwk.crv && { crv: jwk.crv }), kty: jwk.kty, x: jwk.x, y: jwk.y }
     case 'OKP':
-      return { crv: jwk.crv, kty: jwk.kty, x: jwk.x }
+      return { ...(jwk.crv && { crv: jwk.crv }), kty: jwk.kty, x: jwk.x }
     case 'RSA':
       return { e: jwk.e, kty: jwk.kty, n: jwk.n }
   }

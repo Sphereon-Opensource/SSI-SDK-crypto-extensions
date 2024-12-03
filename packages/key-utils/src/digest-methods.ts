@@ -1,9 +1,10 @@
-import { hash as sha256 } from '@stablelib/sha256'
-import { hash as sha512 } from '@stablelib/sha512'
+import { sha256 } from '@noble/hashes/sha256'
+import { sha384, sha512 } from '@noble/hashes/sha512'
+import { Hasher } from '@sphereon/ssi-types'
 import * as u8a from 'uint8arrays'
 import { SupportedEncodings } from 'uint8arrays/to-string'
 
-export type HashAlgorithm = 'SHA-256' | 'SHA-512'
+export type HashAlgorithm = 'SHA-256' | 'SHA-384' | 'SHA-512'
 export type TDigestMethod = (input: string, encoding?: SupportedEncodings) => string
 
 export const digestMethodParams = (
@@ -11,13 +12,24 @@ export const digestMethodParams = (
 ): { hashAlgorithm: HashAlgorithm; digestMethod: TDigestMethod; hash: (data: Uint8Array) => Uint8Array } => {
   if (hashAlgorithm === 'SHA-256') {
     return { hashAlgorithm: 'SHA-256', digestMethod: sha256DigestMethod, hash: sha256 }
+  } else if (hashAlgorithm === 'SHA-384') {
+    return { hashAlgorithm: 'SHA-384', digestMethod: sha384DigestMethod, hash: sha384 }
   } else {
     return { hashAlgorithm: 'SHA-512', digestMethod: sha512DigestMethod, hash: sha512 }
   }
 }
 
+export const shaHasher: Hasher = (input: string, alg: string): Uint8Array => {
+  const hashAlgorithm: HashAlgorithm = alg.includes('384') ? 'SHA-384' : alg.includes('512') ? 'SHA-512' : 'SHA-256'
+  return digestMethodParams(hashAlgorithm).hash(u8a.fromString(input, 'utf-8'))
+}
+
 const sha256DigestMethod = (input: string, encoding: SupportedEncodings = 'base16'): string => {
   return u8a.toString(sha256(u8a.fromString(input, 'utf-8')), encoding)
+}
+
+const sha384DigestMethod = (input: string, encoding: SupportedEncodings = 'base16'): string => {
+  return u8a.toString(sha384(u8a.fromString(input, 'utf-8')), encoding)
 }
 
 const sha512DigestMethod = (input: string, encoding: SupportedEncodings = 'base16'): string => {
