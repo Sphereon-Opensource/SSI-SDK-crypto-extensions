@@ -73,6 +73,17 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
     if (meta === undefined || !('keyAlias' in meta)) {
       return Promise.reject(Error('a unique keyAlias field is required for MUSAP'))
     }
+    
+    if (this.sscdType == 'EXTERNAL') {  
+      const existingKeys: MusapKey[] = (this.musapClient.listKeys()) as MusapKey[]
+      const extKey = existingKeys.find(musapKey => musapKey.sscdType as string === 'External Signature') // FIXME returning does not match SscdType enum
+      if (extKey) {
+        const managedKeyInfo = this.asMusapKeyInfo(extKey)
+        managedKeyInfo.type = 'Secp256r1' // FIXME MUSAP announces key as rsa2k, but it's actually EC
+        return managedKeyInfo
+      }
+      return Promise.reject(Error(`No external key was bound yet for sscd ${this.sscdId}`))
+    }
 
     const keyGenReq = {
       keyAlgorithm: this.mapKeyTypeToAlgorithmType(type),
