@@ -30,13 +30,7 @@ const keyCodecs = {
 } as const
 
 export class SphereonKeyDidProvider extends AbstractIdentifierProvider {
-  private readonly kms: string
-
-  constructor(options: { defaultKms: string }) {
-    super()
-    this.kms = options.defaultKms
-  }
-
+ 
   async createIdentifier(
     {
       kms,
@@ -67,7 +61,7 @@ export class SphereonKeyDidProvider extends AbstractIdentifierProvider {
 
     const key = await importProvidedOrGeneratedKey(
       {
-        kms: kms ?? this.kms,
+        kms: kms,
         alias: alias,
         options: { ...options, type: keyType },
       },
