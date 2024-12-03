@@ -22,9 +22,7 @@ let agent: TAgent<IKeyManager & IDIDManager & IIdentifierResolution>
 
 const DID_METHOD = 'did:jwk'
 
-const jwkDIDProvider = new JwkDIDProvider({
-  defaultKms: 'mem',
-})
+const jwkDIDProvider = new JwkDIDProvider()
 
 const setup = async (): Promise<boolean> => {
   const db: OrPromise<DataSource> = new DataSource({
