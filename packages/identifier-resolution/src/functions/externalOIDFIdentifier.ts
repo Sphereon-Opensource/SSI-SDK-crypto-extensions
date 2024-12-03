@@ -2,7 +2,7 @@ import { ErrorMessage, ExternalIdentifierOIDFEntityIdOpts, ExternalIdentifierOID
 import { IAgentContext } from '@veramo/core'
 import { IOIDFClient } from '@sphereon/ssi-sdk.oidf-client'
 import { contextHasPlugin } from '@sphereon/ssi-sdk.agent-config'
-import { IJwsValidationResult } from '../types/IJwtService'
+import {IJwsValidationResult, JwsPayload} from '../types/IJwtService'
 import * as u8a from 'uint8arrays'
 /**
  * Resolves an OIDF Entity ID against multiple trust anchors to establish trusted relationships
