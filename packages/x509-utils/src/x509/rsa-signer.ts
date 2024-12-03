@@ -1,6 +1,6 @@
 import * as u8a from 'uint8arrays'
 import { HashAlgorithm, KeyVisibility } from '../types'
-import {globalCrypto} from "./crypto";
+import { globalCrypto } from './crypto'
 import { cryptoSubtleImportRSAKey, RSAEncryptionSchemes, RSASignatureSchemes } from './rsa-key'
 import { PEMToJwk } from './x509-utils'
 

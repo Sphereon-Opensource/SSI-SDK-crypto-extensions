@@ -142,7 +142,7 @@ describe('functions: validateX5cCertificateChain', () => {
       'QlHHFydMdgaXAiEA1Ib82mhHIYDziE0DDbHEAXOs98al+7dpo8fPGVGTeKI=\n' +
       '-----END CERTIFICATE-----'
     const result = await validateX509CertificateChain({
-      chain: [sphereonCA, sphereonTest],
+      chain: [sphereonTest, sphereonCA],
       trustAnchors: [sphereonSDJWTCA],
       opts: { trustRootWhenNoAnchors: false } /*, trustedCerts: [sphereonCA]*/,
     })
@@ -175,7 +175,7 @@ describe('functions: validateX5cCertificateChain', () => {
   // TODO disabled as cert expired
   xit('should validate a valid certificate chain without providing a CA as trust anchor, but with trustRoot enabled', async () => {
     const result = await validateX509CertificateChain({
-      chain: [walletPEM, sphereonCA],
+      chain: [walletPEM],
       trustAnchors: [sphereonCA],
       opts: {
         client: {
@@ -251,6 +251,22 @@ describe('functions: validateX5cCertificateChain', () => {
       critical: true,
       error: true,
       message: 'Certificate chain validation failed for CN=wallet.test.sphereon.com.',
+    })
+  })
+
+  it('should validate with allowNoTrustAnchorsFound', async () => {
+    const verificationDate = new Date('2024-08-07')
+    const result = await validateX509CertificateChain({
+      chain: validChain,
+      verificationTime: verificationDate,
+      trustAnchors: [externalTestCert],
+      opts: { allowNoTrustAnchorsFound: true },
+    })
+    console.log(JSON.stringify(result, null, 2))
+    expect(result).toMatchObject({
+      critical: false,
+      error: false,
+      message: 'Certificate chain was valid',
     })
   })
 

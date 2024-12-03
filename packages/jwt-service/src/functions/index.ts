@@ -1,4 +1,3 @@
-import { jwkTtoPublicKeyHex } from '@sphereon/ssi-sdk-ext.did-utils'
 import {
   ensureManagedIdentifierResult,
   ExternalIdentifierDidOpts,
@@ -10,12 +9,10 @@ import {
   ManagedIdentifierResult,
   resolveExternalJwkIdentifier,
 } from '@sphereon/ssi-sdk-ext.identifier-resolution'
-import { keyTypeFromCryptographicSuite, verifyRawSignature } from '@sphereon/ssi-sdk-ext.key-utils'
-import { contextHasPlugin } from '@sphereon/ssi-sdk.agent-config'
+import { verifyRawSignature } from '@sphereon/ssi-sdk-ext.key-utils'
 import { JWK } from '@sphereon/ssi-types'
 import { IAgentContext } from '@veramo/core'
-import { bytesToBase64url, decodeJoseBlob, encodeJoseBlob } from '@veramo/utils'
-import { base64ToBytes } from '@veramo/utils'
+import { base64ToBytes, bytesToBase64url, decodeJoseBlob, encodeJoseBlob } from '@veramo/utils'
 import * as u8a from 'uint8arrays'
 import {
   CreateJwsCompactArgs,
@@ -26,19 +23,19 @@ import {
   isJwsCompact,
   isJwsJsonFlattened,
   isJwsJsonGeneral,
+  JweHeader,
   Jws,
   JwsCompact,
+  JwsHeader,
   JwsIdentifierMode,
   JwsJsonFlattened,
   JwsJsonGeneral,
   JwsJsonGeneralWithIdentifiers,
   JwsJsonSignature,
   JwsJsonSignatureWithIdentifier,
-  JwsHeader,
   JwsPayload,
   PreparedJwsObject,
   VerifyJwsArgs,
-  JweHeader,
 } from '../types/IJwtService'
 
 const payloadToBytes = (payload: string | JwsPayload | Uint8Array): Uint8Array => {
@@ -317,7 +314,7 @@ export const verifyJws = async (args: VerifyJwsArgs, context: IAgentContext<IIde
       let valid: boolean
       const data = u8a.fromString(`${sigWithId.protected}.${jws.payload}`, 'utf-8')
       const jwkInfo = sigWithId.identifier.jwks[0]
-      if (sigWithId.header?.alg === 'RSA' && contextHasPlugin(context, 'keyManagerVerify')) {
+      /* if (sigWithId.header?.alg === 'RSA' && contextHasPlugin(context, 'keyManagerVerify')) {
         const publicKeyHex = jwkTtoPublicKeyHex(jwkInfo.jwk)
         valid = await context.agent.keyManagerVerify({
           signature: sigWithId.signature,
@@ -326,10 +323,10 @@ export const verifyJws = async (args: VerifyJwsArgs, context: IAgentContext<IIde
           type: keyTypeFromCryptographicSuite({ crv: jwkInfo.jwk.crv ?? 'ES256' }),
           // no kms arg, as the current key manager needs a bit more work
         })
-      } else {
-        const signature = base64ToBytes(sigWithId.signature)
-        valid = await verifyRawSignature({ data, signature, key: jwkInfo.jwk })
-      }
+      } else {*/
+      const signature = base64ToBytes(sigWithId.signature)
+      valid = await verifyRawSignature({ data, signature, key: jwkInfo.jwk })
+      // }
       if (!valid) {
         errorMessages.push(`Signature ${index} was not valid`)
       }
@@ -341,7 +338,7 @@ export const verifyJws = async (args: VerifyJwsArgs, context: IAgentContext<IIde
     })
   )
   const error = errorMessages.length !== 0
-  return {
+  const result = {
     name: 'jws',
     jws,
     error,
@@ -349,6 +346,10 @@ export const verifyJws = async (args: VerifyJwsArgs, context: IAgentContext<IIde
     message: error ? errorMessages.join(', ') : 'Signature validated',
     verificationTime: new Date(),
   } satisfies IJwsValidationResult
+  if (error) {
+    console.log(`Error verifying jws signature: ` + { ...result })
+  }
+  return result
 }
 
 export const toJwsJsonGeneral = async ({ jws }: { jws: Jws }, context: IAgentContext<any>): Promise<JwsJsonGeneral> => {

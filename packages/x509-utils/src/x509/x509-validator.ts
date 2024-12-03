@@ -4,18 +4,10 @@ import { AlgorithmProvider, X509Certificate } from '@peculiar/x509'
 // import {calculateJwkThumbprint} from "@sphereon/ssi-sdk-ext.key-utils";
 import { JWK } from '@sphereon/ssi-types'
 import x509 from 'js-x509-utils'
-import {
-  AltName,
-  AttributeTypeAndValue,
-  Certificate,
-  CertificateChainValidationEngine,
-  CryptoEngine,
-  getCrypto,
-  id_SubjectAltName,
-  setEngine,
-} from 'pkijs'
+import { AltName, AttributeTypeAndValue, Certificate, CryptoEngine, getCrypto, id_SubjectAltName, setEngine } from 'pkijs'
 import { container } from 'tsyringe'
 import * as u8a from 'uint8arrays'
+import { globalCrypto } from './crypto'
 import { areCertificatesEqual, derToPEM, pemOrDerToX509Certificate } from './x509-utils'
 
 export type DNInfo = {
@@ -53,23 +45,9 @@ export type X509ValidationResult = {
 }
 
 const defaultCryptoEngine = () => {
-  if (typeof self !== 'undefined') {
-    if ('crypto' in self) {
-      let engineName = 'webcrypto'
-      if ('webkitSubtle' in self.crypto) {
-        engineName = 'safari'
-      }
-      setEngine(engineName, new CryptoEngine({ name: engineName, crypto: crypto }))
-    }
-  } else if (typeof crypto !== 'undefined' && 'webcrypto' in crypto) {
-    const name = 'NodeJS ^15'
-    const nodeCrypto = crypto.webcrypto
-    // @ts-ignore
-    setEngine(name, new CryptoEngine({ name, crypto: nodeCrypto }))
-  } else if (typeof crypto !== 'undefined' && typeof crypto.subtle !== 'undefined') {
-    const name = 'crypto'
-    setEngine(name, new CryptoEngine({ name, crypto: crypto }))
-  }
+  const name = 'crypto'
+  setEngine(name, new CryptoEngine({ name, crypto: globalCrypto(false) }))
+  return getCrypto(true)
 }
 
 export const getCertificateInfo = async (
@@ -78,14 +56,17 @@ export const getCertificateInfo = async (
     sanTypeFilter: SubjectAlternativeGeneralName | SubjectAlternativeGeneralName[]
   }
 ): Promise<CertificateInfo> => {
-  const publicKeyJWK = await getCertificateSubjectPublicKeyJWK(certificate)
+  let publicKeyJWK: JWK | undefined
+  try {
+    publicKeyJWK = (await getCertificateSubjectPublicKeyJWK(certificate)) as JWK
+  } catch (e) {}
   return {
     issuer: { dn: getIssuerDN(certificate) },
     subject: {
       dn: getSubjectDN(certificate),
       subjectAlternativeNames: getSubjectAlternativeNames(certificate, { typeFilter: opts?.sanTypeFilter }),
     },
-    publicKeyJWK: publicKeyJWK,
+    publicKeyJWK,
     notBefore: certificate.notBefore.value,
     notAfter: certificate.notAfter.value,
     // certificate
@@ -93,6 +74,9 @@ export const getCertificateInfo = async (
 }
 
 export type X509CertificateChainValidationOpts = {
+  // If no trust anchor is found, but the chain itself checks out, allow. (defaults to false:)
+  allowNoTrustAnchorsFound?: boolean
+
   // Trust the supplied root from the chain, when no anchors are being passed in.
   trustRootWhenNoAnchors?: boolean
   // Do not perform a chain validation check if the chain only has a single value. This means only the certificate itself will be validated. No chain checks for CA certs will be performed. Only used when the cert has no issuer
@@ -115,6 +99,8 @@ export const validateX509CertificateChain = async ({
   trustAnchors,
   verificationTime = new Date(),
   opts = {
+    // If no trust anchor is found, but the chain itself checks out, allow. (defaults to false:)
+    allowNoTrustAnchorsFound: false,
     trustRootWhenNoAnchors: false,
     allowSingleNoCAChainElement: true,
     blindlyTrustedAnchors: [],
@@ -129,7 +115,7 @@ export const validateX509CertificateChain = async ({
   // We allow 1 reversal. We reverse by default as the implementation expects the root ca first, whilst x5c is the opposite. Reversed becomes true if the impl reverses the chain
   return await validateX509CertificateChainImpl({
     reversed: false,
-    chain: pemOrDerChain.reverse(),
+    chain: [...pemOrDerChain].reverse(),
     trustAnchors,
     verificationTime,
     opts,
@@ -150,6 +136,7 @@ const validateX509CertificateChainImpl = async ({
 }): Promise<X509ValidationResult> => {
   const verificationTime: Date = typeof verifyAt === 'string' ? new Date(verifyAt) : verifyAt
   const {
+    allowNoTrustAnchorsFound = false,
     trustRootWhenNoAnchors = false,
     allowSingleNoCAChainElement = true,
     blindlyTrustedAnchors = [],
@@ -168,11 +155,26 @@ const validateX509CertificateChainImpl = async ({
   }
   defaultCryptoEngine()
 
-  // x5c always starts with the leaf cert at index 0 and then the cas. Our internal pkijs service expects it the other way around
+  // x5c always starts with the leaf cert at index 0 and then the cas. Our internal pkijs service expects it the other way around. Before calling this function the change has been revered
   const chain = await Promise.all(pemOrDerChain.map((raw) => parseCertificate(raw)))
+  const x5cOrdereredChain = reversed ? [...chain] : [...chain].reverse()
+
   const trustedCerts = trustedPEMs ? await Promise.all(trustedPEMs.map((raw) => parseCertificate(raw))) : undefined
-  const blindlyTrusted = (await Promise.all(blindlyTrustedAnchors.map((raw) => parseCertificate(raw)))) ?? []
-  const leafCert = chain[chain.length - 1]
+  const blindlyTrusted =
+    (
+      await Promise.all(
+        blindlyTrustedAnchors.map((raw) => {
+          try {
+            return parseCertificate(raw)
+          } catch (e) {
+            // @ts-ignore
+            console.log(`Failed to parse blindly trusted certificate ${raw}. Error: ${e.message}`)
+            return undefined
+          }
+        })
+      )
+    ).filter((cert): cert is ParsedCertificate => cert !== undefined) ?? []
+  const leafCert = x5cOrdereredChain[0]
 
   const chainLength = chain.length
   var foundTrustAnchor: ParsedCertificate | undefined = undefined
@@ -189,7 +191,7 @@ const validateX509CertificateChainImpl = async ({
         detailMessage: `Blindly trusted certificate ${blindlyTrustedCert.certificateInfo.subject.dn.DN} was found in the chain.`,
         trustAnchor: blindlyTrustedCert?.certificateInfo,
         verificationTime,
-        certificateChain: chain.map((cert) => cert.certificateInfo),
+        certificateChain: x5cOrdereredChain.map((cert) => cert.certificateInfo),
         ...(client && { client }),
       }
     }
@@ -198,7 +200,7 @@ const validateX509CertificateChainImpl = async ({
         if (!reversed && !disallowReversedChain) {
           return await validateX509CertificateChainImpl({
             reversed: true,
-            chain: pemOrDerChain.reverse(),
+            chain: [...pemOrDerChain].reverse(),
             opts,
             verificationTime,
             trustAnchors,
@@ -207,6 +209,7 @@ const validateX509CertificateChainImpl = async ({
         return {
           error: true,
           critical: true,
+          certificateChain: x5cOrdereredChain.map((cert) => cert.certificateInfo),
           message: `Certificate chain validation failed for ${leafCert.certificateInfo.subject.dn.DN}.`,
           detailMessage: `The certificate ${currentCert.certificateInfo.subject.dn.DN} with issuer ${currentCert.x509Certificate.issuer}, is not signed by the previous certificate ${previousCert?.certificateInfo.subject.dn.DN} with subject string ${previousCert?.x509Certificate.subject}.`,
           verificationTime,
@@ -222,19 +225,22 @@ const validateX509CertificateChainImpl = async ({
       getCrypto()?.crypto ?? crypto ?? global.crypto
     )
     if (!result) {
+      // First cert needs to be self signed
       if (i == 0 && !reversed && !disallowReversedChain) {
         return await validateX509CertificateChainImpl({
           reversed: true,
-          chain: pemOrDerChain.reverse(),
+          chain: [...pemOrDerChain].reverse(),
           opts,
           verificationTime,
           trustAnchors,
         })
       }
+
       return {
         error: true,
         critical: true,
         message: `Certificate chain validation failed for ${leafCert.certificateInfo.subject.dn.DN}.`,
+        certificateChain: x5cOrdereredChain.map((cert) => cert.certificateInfo),
         detailMessage: `Verification of the certificate ${currentCert.certificateInfo.subject.dn.DN} with issuer ${
           currentCert.x509Certificate.issuer
         } failed. Public key: ${JSON.stringify(currentCert.certificateInfo.publicKeyJWK)}.`,
@@ -250,6 +256,7 @@ const validateX509CertificateChainImpl = async ({
         error: false,
         critical: false,
         message: `Certificate chain succeeded as allow single cert result is allowed: ${leafCert.certificateInfo.subject.dn.DN}.`,
+        certificateChain: x5cOrdereredChain.map((cert) => cert.certificateInfo),
         trustAnchor: foundTrustAnchor?.certificateInfo,
         verificationTime,
         ...(client && { client }),
@@ -257,12 +264,15 @@ const validateX509CertificateChainImpl = async ({
     }
   }
 
-  if (foundTrustAnchor?.certificateInfo) {
+  if (foundTrustAnchor?.certificateInfo || allowNoTrustAnchorsFound) {
     return {
       error: false,
       critical: false,
       message: `Certificate chain was valid`,
-      detailMessage: `The leaf certificate ${leafCert.certificateInfo.subject.dn.DN} is part of a chain with trust anchor ${foundTrustAnchor?.certificateInfo.subject.dn.DN}.`,
+      certificateChain: x5cOrdereredChain.map((cert) => cert.certificateInfo),
+      detailMessage: foundTrustAnchor
+        ? `The leaf certificate ${leafCert.certificateInfo.subject.dn.DN} is part of a chain with trust anchor ${foundTrustAnchor?.certificateInfo.subject.dn.DN}.`
+        : `The leaf certificate ${leafCert.certificateInfo.subject.dn.DN} and chain were valid, but no trust anchor has been found. Ignoring as user allowed (allowNoTrustAnchorsFound: ${allowNoTrustAnchorsFound}).)`,
       trustAnchor: foundTrustAnchor?.certificateInfo,
       verificationTime,
       ...(client && { client }),
@@ -273,9 +283,10 @@ const validateX509CertificateChainImpl = async ({
     error: true,
     critical: true,
     message: `Certificate chain validation failed for ${leafCert.certificateInfo.subject.dn.DN}.`,
-    detailMessage: `No trust anchor was found in the chain. between ${chain[0].certificateInfo.subject.dn.DN} and ${
-      chain[chain.length - 1].certificateInfo.subject.dn.DN
-    }.`,
+    certificateChain: x5cOrdereredChain.map((cert) => cert.certificateInfo),
+    detailMessage: `No trust anchor was found in the chain. between (intermediate) CA ${
+      x5cOrdereredChain[chain.length - 1].certificateInfo.subject.dn.DN
+    } and leaf ${x5cOrdereredChain[0].certificateInfo.subject.dn.DN}.`,
     verificationTime,
     ...(client && { client }),
   }
@@ -292,7 +303,7 @@ export const getX509AlgorithmProvider = (): AlgorithmProvider => {
 
 export type ParsedCertificate = {
   publicKeyInfo: SubjectPublicKeyInfo
-  publicKeyJwk: JWK
+  publicKeyJwk?: JWK
   publicKeyRaw: Uint8Array
   publicKeyAlgorithm: Algorithm
   certificateInfo: CertificateInfo
@@ -304,7 +315,12 @@ export const parseCertificate = async (rawCert: string | Uint8Array): Promise<Pa
   const x509Certificate = new X509Certificate(rawCert)
   const publicKeyInfo = AsnParser.parse(x509Certificate.publicKey.rawData, SubjectPublicKeyInfo)
   const publicKeyRaw = new Uint8Array(publicKeyInfo.subjectPublicKey)
-  const publicKeyJwk: JWK = (await getCertificateSubjectPublicKeyJWK(new Uint8Array(x509Certificate.rawData))) as JWK
+  let publicKeyJwk: JWK | undefined = undefined
+  try {
+    publicKeyJwk = (await getCertificateSubjectPublicKeyJWK(new Uint8Array(x509Certificate.rawData))) as JWK
+  } catch (e: any) {
+    console.error(e.message)
+  }
   const certificate = pemOrDerToX509Certificate(rawCert)
   const certificateInfo = await getCertificateInfo(certificate)
   const publicKeyAlgorithm = getX509AlgorithmProvider().toWebAlgorithm(publicKeyInfo.algorithm)
@@ -318,129 +334,142 @@ export const parseCertificate = async (rawCert: string | Uint8Array): Promise<Pa
     x509Certificate,
   }
 }
+/*
 
-/**
+/!**
  *
  * @param pemOrDerChain The order must be that the Certs signing another cert must come one after another. So first the signing cert, then any cert signing that cert and so on
  * @param trustedPEMs
  * @param verificationTime
  * @param opts
- */
+ *!/
 export const validateX509CertificateChainOrg = async ({
-  chain: pemOrDerChain,
-  trustAnchors,
-  verificationTime = new Date(),
-  opts = {
-    trustRootWhenNoAnchors: false,
-    allowSingleNoCAChainElement: true,
-    blindlyTrustedAnchors: [],
-  },
-}: {
-  chain: (Uint8Array | string)[]
-  trustAnchors?: string[]
-  verificationTime?: Date
-  opts?: X509CertificateChainValidationOpts
+                                                          chain: pemOrDerChain,
+                                                          trustAnchors,
+                                                          verificationTime = new Date(),
+                                                          opts = {
+                                                              trustRootWhenNoAnchors: false,
+                                                              allowSingleNoCAChainElement: true,
+                                                              blindlyTrustedAnchors: [],
+                                                          },
+                                                      }: {
+    chain: (Uint8Array | string)[]
+    trustAnchors?: string[]
+    verificationTime?: Date
+    opts?: X509CertificateChainValidationOpts
 }): Promise<X509ValidationResult> => {
-  const { trustRootWhenNoAnchors = false, allowSingleNoCAChainElement = true, blindlyTrustedAnchors = [], client } = opts
-  const trustedPEMs = trustRootWhenNoAnchors && !trustAnchors ? [pemOrDerChain[pemOrDerChain.length - 1]] : trustAnchors
+    const {
+        trustRootWhenNoAnchors = false,
+        allowSingleNoCAChainElement = true,
+        blindlyTrustedAnchors = [],
+        client
+    } = opts
+    const trustedPEMs = trustRootWhenNoAnchors && !trustAnchors ? [pemOrDerChain[pemOrDerChain.length - 1]] : trustAnchors
 
-  if (pemOrDerChain.length === 0) {
-    return {
-      error: true,
-      critical: true,
-      message: 'Certificate chain in DER or PEM format must not be empty',
-      verificationTime,
-    }
-  }
-
-  // x5c always starts with the leaf cert at index 0 and then the cas. Our internal pkijs service expects it the other way around
-  const certs = pemOrDerChain.map(pemOrDerToX509Certificate).reverse()
-  const trustedCerts = trustedPEMs ? trustedPEMs.map(pemOrDerToX509Certificate) : undefined
-  defaultCryptoEngine()
-
-  if (pemOrDerChain.length === 1) {
-    const singleCert = typeof pemOrDerChain[0] === 'string' ? pemOrDerChain[0] : u8a.toString(pemOrDerChain[0], 'base64pad')
-    const cert = pemOrDerToX509Certificate(singleCert)
-    if (client) {
-      const validation = await validateCertificateChainMatchesClientIdScheme(cert, client.clientId, client.clientIdScheme)
-      if (validation.error) {
-        return validation
-      }
-    }
-    if (blindlyTrustedAnchors.includes(singleCert)) {
-      console.log(`Certificate chain validation success as single cert if blindly trusted. WARNING: ONLY USE FOR TESTING PURPOSES.`)
-      return {
-        error: false,
-        critical: true,
-        message: `Certificate chain validation success as single cert if blindly trusted. WARNING: ONLY USE FOR TESTING PURPOSES.`,
-        verificationTime,
-        certificateChain: [await getCertificateInfo(cert)],
-        ...(client && { client }),
-      }
-    }
-    if (allowSingleNoCAChainElement) {
-      const subjectDN = getSubjectDN(cert).DN
-      if (!getIssuerDN(cert).DN || getIssuerDN(cert).DN === subjectDN) {
-        const passed = await cert.verify()
+    if (pemOrDerChain.length === 0) {
         return {
-          error: !passed,
-          critical: true,
-          message: `Certificate chain validation for ${subjectDN}: ${passed ? 'successful' : 'failed'}.`,
-          verificationTime,
-          certificateChain: [await getCertificateInfo(cert)],
-          ...(client && { client }),
+            error: true,
+            critical: true,
+            message: 'Certificate chain in DER or PEM format must not be empty',
+            verificationTime,
         }
-      }
     }
-  }
 
-  const validationEngine = new CertificateChainValidationEngine({
-    certs /*crls: [crl1],   ocsps: [ocsp1], */,
-    checkDate: verificationTime,
-    trustedCerts,
-  })
+    // x5c always starts with the leaf cert at index 0 and then the cas. Our internal pkijs service expects it the other way around
+    const certs = pemOrDerChain.map(pemOrDerToX509Certificate).reverse()
+    const trustedCerts = trustedPEMs ? trustedPEMs.map(pemOrDerToX509Certificate) : undefined
+    defaultCryptoEngine()
 
-  try {
-    const verification = await validationEngine.verify()
-    if (!verification.result || !verification.certificatePath) {
-      return {
-        error: true,
-        critical: true,
-        message: verification.resultMessage !== '' ? verification.resultMessage : `Certificate chain validation failed.`,
-        verificationTime,
-        ...(client && { client }),
-      }
+    if (pemOrDerChain.length === 1) {
+        const singleCert = typeof pemOrDerChain[0] === 'string' ? pemOrDerChain[0] : u8a.toString(pemOrDerChain[0], 'base64pad')
+        const cert = pemOrDerToX509Certificate(singleCert)
+        if (client) {
+            const validation = await validateCertificateChainMatchesClientIdScheme(cert, client.clientId, client.clientIdScheme)
+            if (validation.error) {
+                return validation
+            }
+        }
+        if (blindlyTrustedAnchors.includes(singleCert)) {
+            console.log(`Certificate chain validation success as single cert if blindly trusted. WARNING: ONLY USE FOR TESTING PURPOSES.`)
+            return {
+                error: false,
+                critical: true,
+                message: `Certificate chain validation success as single cert if blindly trusted. WARNING: ONLY USE FOR TESTING PURPOSES.`,
+                verificationTime,
+                certificateChain: [await getCertificateInfo(cert)],
+                ...(client && {client}),
+            }
+        }
+        if (allowSingleNoCAChainElement) {
+            const subjectDN = getSubjectDN(cert).DN
+            if (!getIssuerDN(cert).DN || getIssuerDN(cert).DN === subjectDN) {
+                const passed = await cert.verify()
+                return {
+                    error: !passed,
+                    critical: true,
+                    message: `Certificate chain validation for ${subjectDN}: ${passed ? 'successful' : 'failed'}.`,
+                    verificationTime,
+                    certificateChain: [await getCertificateInfo(cert)],
+                    ...(client && {client}),
+                }
+            }
+        }
     }
-    const certPath = verification.certificatePath
-    if (client) {
-      const clientIdValidation = await validateCertificateChainMatchesClientIdScheme(certs[0], client.clientId, client.clientIdScheme)
-      if (clientIdValidation.error) {
-        return clientIdValidation
-      }
+
+    const validationEngine = new CertificateChainValidationEngine({
+        certs /!*crls: [crl1],   ocsps: [ocsp1], *!/,
+        checkDate: verificationTime,
+        trustedCerts,
+    })
+
+    try {
+        const verification = await validationEngine.verify()
+        if (!verification.result || !verification.certificatePath) {
+            return {
+                error: true,
+                critical: true,
+                message: verification.resultMessage !== '' ? verification.resultMessage : `Certificate chain validation failed.`,
+                verificationTime,
+                ...(client && {client}),
+            }
+        }
+        const certPath = verification.certificatePath
+        if (client) {
+            const clientIdValidation = await validateCertificateChainMatchesClientIdScheme(certs[0], client.clientId, client.clientIdScheme)
+            if (clientIdValidation.error) {
+                return clientIdValidation
+            }
+        }
+        let certInfos: Array<CertificateInfo> | undefined
+
+        for (const certificate of certPath) {
+            try {
+                certInfos?.push(await getCertificateInfo(certificate))
+            } catch (e: any) {
+                console.log(`Error getting certificate info ${e.message}`)
+            }
+        }
+
+
+        return {
+            error: false,
+            critical: false,
+            message: `Certificate chain was valid`,
+            verificationTime,
+            certificateChain: certInfos,
+            ...(client && {client}),
+        }
+    } catch (error: any) {
+        return {
+            error: true,
+            critical: true,
+            message: `Certificate chain was invalid, ${error.message ?? '<unknown error>'}`,
+            verificationTime,
+            ...(client && {client}),
+        }
     }
-    const certInfos: Array<CertificateInfo> = await Promise.all(
-      certPath.map(async (certificate) => {
-        return getCertificateInfo(certificate)
-      })
-    )
-    return {
-      error: false,
-      critical: false,
-      message: `Certificate chain was valid`,
-      verificationTime,
-      certificateChain: certInfos,
-      ...(client && { client }),
-    }
-  } catch (error: any) {
-    return {
-      error: true,
-      critical: true,
-      message: `Certificate chain was invalid, ${error.message ?? '<unknown error>'}`,
-      verificationTime,
-      ...(client && { client }),
-    }
-  }
 }
+*/
 
 const rdnmap: Record<string, string> = {
   '2.5.4.6': 'C',
@@ -484,23 +513,34 @@ const getDNString = (typesAndValues: AttributeTypeAndValue[]): string => {
     .join(',')
 }
 
-export const getCertificateSubjectPublicKeyJWK = async (pemOrDerCert: string | Uint8Array | Certificate): Promise<JsonWebKey> => {
+export const getCertificateSubjectPublicKeyJWK = async (pemOrDerCert: string | Uint8Array | Certificate): Promise<JWK> => {
   const pemOrDerStr =
     typeof pemOrDerCert === 'string'
-      ? pemOrDerCert
+      ? u8a.toString(u8a.fromString(pemOrDerCert, 'base64pad'), 'base64pad')
       : pemOrDerCert instanceof Uint8Array
       ? u8a.toString(pemOrDerCert, 'base64pad')
-      : pemOrDerCert.toString('base64')
+      : u8a.toString(u8a.fromString(pemOrDerCert.toString('base64'), 'base64pad'), 'base64pad')
   const pem = derToPEM(pemOrDerStr)
   const certificate = pemOrDerToX509Certificate(pem)
+  var jwk: JWK | undefined
   try {
     const subtle = getCrypto(true).subtle
-    const pk = await certificate.getPublicKey()
-    return await subtle.exportKey('jwk', pk)
+    const pk = await certificate.getPublicKey(undefined, defaultCryptoEngine())
+    jwk = (await subtle.exportKey('jwk', pk)) as JWK | undefined
   } catch (error: any) {
     console.log(`Error in primary get JWK from cert:`, error?.message)
   }
-  return await x509.toJwk(pem, 'pem')
+  if (!jwk) {
+    try {
+      jwk = (await x509.toJwk(pem, 'pem')) as JWK
+    } catch (error: any) {
+      console.log(`Error in secondary get JWK from cert as well:`, error?.message)
+    }
+  }
+  if (!jwk) {
+    throw Error(`Failed to get JWK from certificate ${pem}`)
+  }
+  return jwk
 }
 
 /**

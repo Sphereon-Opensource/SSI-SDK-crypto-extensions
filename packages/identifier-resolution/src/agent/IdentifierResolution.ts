@@ -1,4 +1,4 @@
-import {globalCrypto} from "@sphereon/ssi-sdk-ext.key-utils";
+import { globalCrypto } from '@sphereon/ssi-sdk-ext.key-utils'
 import { IAgentContext, IAgentPlugin, IDIDManager, IKeyManager } from '@veramo/core'
 import { ExternalIdentifierOIDFEntityIdOpts, ExternalIdentifierOIDFEntityIdResult } from '../types'
 import { schema } from '..'
