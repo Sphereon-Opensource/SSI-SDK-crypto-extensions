@@ -51,6 +51,12 @@
     },
     {
       "path": "jwt-service"
+    },
+    {
+      "path": "kms-azure"
+    },
+    {
+      "path": "kms-azure-rest-client"
     }
   ]
 }

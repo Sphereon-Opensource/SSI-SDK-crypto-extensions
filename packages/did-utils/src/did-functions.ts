@@ -205,12 +205,12 @@ export const getPrimaryIdentifier = async (context: IAgentContext<IDIDManager>, 
 }
 
 export const createIdentifier = async (context: IAgentContext<IDIDManager>, opts?: CreateIdentifierOpts): Promise<IIdentifier> => {
-    return await context.agent.didManagerCreate({
-        kms: await getKms(context, opts?.createOpts?.kms),
-        ...(opts?.method && {provider: `${DID_PREFIX}${opts?.method}`}),
-        alias: opts?.createOpts?.alias ?? `${IdentifierAliasEnum.PRIMARY}-${opts?.method}-${opts?.createOpts?.options?.type}-${new Date().toUTCString()}`,
-        options: opts?.createOpts?.options,
-    })
+  return await context.agent.didManagerCreate({
+    kms: await getKms(context, opts?.createOpts?.kms),
+    ...(opts?.method && { provider: `${DID_PREFIX}${opts?.method}` }),
+    alias: opts?.createOpts?.alias ?? `${IdentifierAliasEnum.PRIMARY}-${opts?.method}-${opts?.createOpts?.options?.type}-${new Date().getTime()}`,
+    options: opts?.createOpts?.options,
+  })
 }
 
 export const getFirstKeyWithRelationFromDIDDoc = async (
