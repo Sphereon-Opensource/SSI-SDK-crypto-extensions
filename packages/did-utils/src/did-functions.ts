@@ -467,11 +467,11 @@ function didDocumentSectionToJwks(
     searchForVerificationMethods?: (VerificationMethod | string)[],
     verificationMethods?: VerificationMethod[]
 ) {
-    const jwks = (searchForVerificationMethods ?? [])
+    const jwks = new Set((searchForVerificationMethods ?? [])
         .map((vmOrId) => (typeof vmOrId === 'object' ? vmOrId : verificationMethods?.find((vm) => vm.id === vmOrId)))
         .filter(isDefined)
-        .map((vm) => verificationMethodToJwk(vm))
-    return {didDocumentSection, jwks: jwks}
+        .map((vm) => verificationMethodToJwk(vm)))
+    return {didDocumentSection, jwks: Array.from(jwks)}
 }
 
 export type DidDocumentJwks = Record<Exclude<DIDDocumentSection, 'publicKey' | 'service'>, Array<JWK>>
