@@ -15,7 +15,9 @@ const method = require('@or13/did-jwk')
 
 const DID_METHOD = 'did:jwk'
 
-const jwkDIDProvider = new JwkDIDProvider()
+const jwkDIDProvider = new JwkDIDProvider({
+  defaultKms: 'mem',
+})
 
 const agent = createAgent<IKeyManager & DIDManager & IResolver>({
   plugins: [

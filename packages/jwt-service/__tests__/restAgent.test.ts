@@ -30,7 +30,9 @@ const basePath = '/agent'
 
 const DID_METHOD = 'did:jwk'
 
-const jwkDIDProvider = new JwkDIDProvider()
+const jwkDIDProvider = new JwkDIDProvider({
+  defaultKms: 'mem',
+})
 
 let serverAgent: IAgent
 let clientAgent: TAgent<IKeyManager & IDIDManager & IIdentifierResolution & IJwtService>

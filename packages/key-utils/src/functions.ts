@@ -101,7 +101,7 @@ const keyMetaAlgorithmsFromKeyType = (type: string | TKeyType) => {
  */
 export async function importProvidedOrGeneratedKey(
   args: IImportProvidedOrGeneratedKeyArgs & {
-    kms?: string
+    kms: string
   },
   context: IAgentContext<IKeyManager>
 ): Promise<IKey> {
@@ -134,7 +134,7 @@ export async function importProvidedOrGeneratedKey(
   if (privateKeyHex) {
     return context.agent.keyManagerImport({
       ...key,
-      kms: args.kms ?? '',
+      kms: args.kms,
       type,
       privateKeyHex: privateKeyHex!,
     })
@@ -142,7 +142,7 @@ export async function importProvidedOrGeneratedKey(
 
   return context.agent.keyManagerCreate({
     type,
-    kms: args.kms ?? '',
+    kms: args.kms,
     meta: {
       ...key?.meta,
       algorithms: keyMetaAlgorithmsFromKeyType(type),

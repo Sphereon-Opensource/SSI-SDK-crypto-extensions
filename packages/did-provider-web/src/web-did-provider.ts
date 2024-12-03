@@ -15,6 +15,12 @@ type IContext = IAgentContext<IKeyManager>
  * @public
  */
 export class WebDIDProvider extends AbstractIdentifierProvider {
+  private readonly defaultKms: string
+
+  constructor(options: { defaultKms: string }) {
+    super()
+    this.defaultKms = options.defaultKms
+  }
 
   async createIdentifier(args: ICreateIdentifierArgs, context: IContext): Promise<Omit<IIdentifier, 'provider'>> {
     const { kms, alias } = args
@@ -25,7 +31,7 @@ export class WebDIDProvider extends AbstractIdentifierProvider {
     }
     const keyOpts = Array.isArray(opts.keys) ? opts.keys : [opts.keys as IKeyOpts]
     const keys = await Promise.all(
-      keyOpts.map((keyOpt: IKeyOpts) => importProvidedOrGeneratedKey({ kms: kms, options: keyOpt }, context))
+      keyOpts.map((keyOpt: IKeyOpts) => importProvidedOrGeneratedKey({ kms: kms ?? this.defaultKms, options: keyOpt }, context))
     )
 
     const controllerIdx = keyOpts.findIndex((opt) => opt.isController)

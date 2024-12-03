@@ -13,7 +13,9 @@ const PRIVATE_KEY_HEX = '7dd923e40f4615ac496119f7e793cc2899e99b64b88ca8603db9867
 
 // const jwk = toJwk(PRIVATE_KEY_HEX, 'Secp256k1', { isPrivateKey: true })
 // console.log(JSON.stringify(jwk, null, 2))
-const keyDIDProvider = new SphereonKeyDidProvider()
+const keyDIDProvider = new SphereonKeyDidProvider({
+  defaultKms: 'mem',
+})
 
 const agent = createAgent<IKeyManager, DIDManager>({
   plugins: [

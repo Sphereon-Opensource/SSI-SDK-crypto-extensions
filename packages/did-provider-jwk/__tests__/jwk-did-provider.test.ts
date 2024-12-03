@@ -10,7 +10,9 @@ import { JwkKeyUse } from '@sphereon/ssi-sdk-ext.key-utils'
 const DID_METHOD = 'did:jwk'
 const PRIVATE_KEY_HEX = '7dd923e40f4615ac496119f7e793cc2899e99b64b88ca8603db986700089532b'
 
-const jwkDIDProvider = new JwkDIDProvider()
+const jwkDIDProvider = new JwkDIDProvider({
+  defaultKms: 'mem',
+})
 
 const agent = createAgent<IKeyManager, DIDManager>({
   plugins: [

@@ -5,7 +5,7 @@ export type OydCreateIdentifierOptions = {
 }
 
 export type OydDidHoldKeysArgs = {
-  kms?: string
+  kms: string
   options: HoldKeysOpts
 }
 
