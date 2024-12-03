@@ -28,15 +28,15 @@ export class SphereonKeyManager extends VeramoKeyManager {
   // local store reference, given the superclass store is private, and we need additional functions/calls
   private kmsStore: AbstractKeyStore
   private readonly availableKmses: Record<string, AbstractKeyManagementSystem>
-  public readonly defaultKms: string
+  public readonly _defaultKms: string
   readonly kmsMethods: ISphereonKeyManager
 
   constructor(options: { store: AbstractKeyStore; kms: Record<string, AbstractKeyManagementSystem>; defaultKms?: string }) {
     super({ store: options.store, kms: options.kms })
     this.kmsStore = options.store
     this.availableKmses = options.kms
-    this.defaultKms = options.defaultKms ?? Object.keys(this.availableKmses)[0]
-    if (!Object.keys(this.availableKmses).includes(this.defaultKms)) {
+    this._defaultKms = options.defaultKms ?? Object.keys(this.availableKmses)[0]
+    if (!Object.keys(this.availableKmses).includes(this._defaultKms)) {
       throw Error(`Default KMS needs to be listed in the kms object as well. Found kms-es: ${Object.keys(this.availableKmses).join(',')}`)
     }
     const methods = this.methods
@@ -47,11 +47,11 @@ export class SphereonKeyManager extends VeramoKeyManager {
   }
 
   keyManagerGetDefaultKeyManagementSystem(): Promise<string> {
-    return Promise.resolve(this.defaultKms)
+    return Promise.resolve(this._defaultKms)
   }
 
   override async keyManagerCreate(args: ISphereonKeyManagerCreateArgs): Promise<ManagedKeyInfo> {
-    const kms = this.getKmsByName(args.kms ?? this.defaultKms)
+    const kms = this.getKmsByName(args.kms ?? this._defaultKms)
     const meta: KeyMetadata = { ...args.meta, ...(args.opts && { opts: args.opts }) }
     if (hasKeyOptions(meta) && meta.opts?.ephemeral && !meta.opts.expiration?.removalDate) {
       // Make sure we set a delete date on an ephemeral key
@@ -61,7 +61,7 @@ export class SphereonKeyManager extends VeramoKeyManager {
       }
     }
     const partialKey = await kms.createKey({ type: args.type, meta })
-    const key: IKey = { ...partialKey, kms: args.kms ?? this.defaultKms }
+    const key: IKey = { ...partialKey, kms: args.kms ?? this._defaultKms }
     key.meta = { ...meta, ...key.meta }
     key.meta.jwkThumbprint = key.meta.jwkThumbprint ?? calculateJwkThumbprintForKey({ key })
 
@@ -148,5 +148,25 @@ export class SphereonKeyManager extends VeramoKeyManager {
         throw new Error(`Key with kid ${kid} not found`)
       }
     }
+  }
+
+
+  get defaultKms(): string {
+    return this._defaultKms
+  }
+
+  set defaultKms(value: string) {
+    if (!Object.keys(this.availableKmses).includes(value)) {
+      throw Error(`Default KMS needs to be listed in the kms object as well. Found kms-es: ${Object.keys(this.availableKmses).join(',')}`)
+    }
+    Object.defineProperty(this, '_defaultKms', {
+      value,
+      writable: false,
+      configurable: false
+    })
+  }
+
+  setKms(name: string, kms: AbstractKeyManagementSystem): void {
+    this.availableKmses[name] = kms
   }
 }

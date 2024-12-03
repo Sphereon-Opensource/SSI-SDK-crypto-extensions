@@ -78,9 +78,8 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
       const existingKeys: MusapKey[] = (this.musapClient.listKeys()) as MusapKey[]
       const extKey = existingKeys.find(musapKey => musapKey.sscdType as string === 'External Signature') // FIXME returning does not match SscdType enum
       if (extKey) {
-        const managedKeyInfo = this.asMusapKeyInfo(extKey)
-        managedKeyInfo.type = 'Secp256r1' // FIXME MUSAP announces key as rsa2k, but it's actually EC
-        return managedKeyInfo
+        extKey.algorithm = 'eccp256r1' // FIXME MUSAP announces key as rsa2k, but it's actually EC
+        return this.asMusapKeyInfo(extKey)
       }
       return Promise.reject(Error(`No external key was bound yet for sscd ${this.sscdId}`))
     }
@@ -127,6 +126,7 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
         return 'Secp256k1'
       case 'eccp256r1':
         return 'Secp256r1'
+      case 'rsa2k':
       case 'rsa4k':
         return 'RSA'
       default:
@@ -189,6 +189,7 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
   private asMusapKeyInfo(args: MusapKey): ManagedKeyInfo {
     const { keyId, publicKey, ...metadata }: KeyMetadata = { ...args }
     const keyType = this.mapAlgorithmTypeToKeyType(args.algorithm)
+    
     const pemBinary = PEMToBinary(args.publicKey.pem) // The der is flawed, it's not binary but a string [123, 4567]
     const publicKeyBinary = isAsn1Der(pemBinary) ? asn1DerToRawPublicKey(pemBinary, keyType) : pemBinary
     const publicKeyHex = isRawCompressedPublicKey(publicKeyBinary) // TODO In the future I think it's better to have an option in KeyGenReq to specify which public key format we want back. Now it's different in iOS vs Android and we need to handle that inconsistency afterwards
