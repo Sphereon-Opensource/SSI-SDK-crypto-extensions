@@ -78,7 +78,7 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
       const existingKeys: MusapKey[] = (this.musapClient.listKeys()) as MusapKey[]
       const extKey = existingKeys.find(musapKey => musapKey.sscdType as string === 'External Signature') // FIXME returning does not match SscdType enum
       if (extKey) {
-        extKey.algorithm = 'eccp256r1' // FIXME MUSAP announces key as rsa2k, but it's actually EC
+        extKey.algorithm = 'ecc_ed25519' // FIXME MUSAP announces key as rsa2k, but it's actually EC
         return this.asMusapKeyInfo(extKey)
       }
       return Promise.reject(Error(`No external key was bound yet for sscd ${this.sscdId}`))
@@ -126,6 +126,8 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
         return 'Secp256k1'
       case 'eccp256r1':
         return 'Secp256r1'
+      case 'ecc_ed25519':
+        return 'Ed25519'
       case 'rsa2k':
       case 'rsa4k':
         return 'RSA'

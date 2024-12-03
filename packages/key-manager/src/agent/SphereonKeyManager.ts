@@ -28,7 +28,7 @@ export class SphereonKeyManager extends VeramoKeyManager {
   // local store reference, given the superclass store is private, and we need additional functions/calls
   private kmsStore: AbstractKeyStore
   private readonly availableKmses: Record<string, AbstractKeyManagementSystem>
-  public readonly _defaultKms: string
+  public _defaultKms: string
   readonly kmsMethods: ISphereonKeyManager
 
   constructor(options: { store: AbstractKeyStore; kms: Record<string, AbstractKeyManagementSystem>; defaultKms?: string }) {
@@ -155,15 +155,11 @@ export class SphereonKeyManager extends VeramoKeyManager {
     return this._defaultKms
   }
 
-  set defaultKms(value: string) {
-    if (!Object.keys(this.availableKmses).includes(value)) {
+  set defaultKms(kms: string) {
+    if (!Object.keys(this.availableKmses).includes(kms)) {
       throw Error(`Default KMS needs to be listed in the kms object as well. Found kms-es: ${Object.keys(this.availableKmses).join(',')}`)
     }
-    Object.defineProperty(this, '_defaultKms', {
-      value,
-      writable: false,
-      configurable: false
-    })
+    this._defaultKms = kms
   }
 
   setKms(name: string, kms: AbstractKeyManagementSystem): void {
