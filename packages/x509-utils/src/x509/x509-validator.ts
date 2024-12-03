@@ -516,10 +516,10 @@ const getDNString = (typesAndValues: AttributeTypeAndValue[]): string => {
 export const getCertificateSubjectPublicKeyJWK = async (pemOrDerCert: string | Uint8Array | Certificate): Promise<JWK> => {
   const pemOrDerStr =
     typeof pemOrDerCert === 'string'
-      ? pemOrDerCert
+      ? u8a.toString(u8a.fromString(pemOrDerCert, 'base64pad'), 'base64pad')
       : pemOrDerCert instanceof Uint8Array
       ? u8a.toString(pemOrDerCert, 'base64pad')
-      : pemOrDerCert.toString('base64')
+      : u8a.toString(u8a.fromString(pemOrDerCert.toString('base64'), 'base64pad'), 'base64pad')
   const pem = derToPEM(pemOrDerStr)
   const certificate = pemOrDerToX509Certificate(pem)
   var jwk: JWK | undefined
