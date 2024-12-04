@@ -13,9 +13,9 @@ type IContext = IAgentContext<IKeyManager>
  * @public
  */
 export class OydDIDProvider extends AbstractIdentifierProvider {
-  private defaultKms: string
+  private defaultKms?: string
 
-  constructor(options: { defaultKms: string }) {
+  constructor(options: { defaultKms?: string }) {
     super()
     this.defaultKms = options.defaultKms
   }
@@ -48,6 +48,7 @@ export class OydDIDProvider extends AbstractIdentifierProvider {
     const keyType: OydDidSupportedKeyTypes = options?.keyType || 'Ed25519'
     const key = await this.holdKeys(
       {
+        // @ts-ignore
         kms: kms || this.defaultKms,
         options: {
           keyType,
@@ -102,6 +103,7 @@ export class OydDIDProvider extends AbstractIdentifierProvider {
   private async holdKeys(args: OydDidHoldKeysArgs, context: IContext): Promise<IKey> {
     if (args.options.privateKeyHex) {
       return context.agent.keyManagerImport({
+        // @ts-ignore
         kms: args.kms || this.defaultKms,
         type: args.options.keyType,
         kid: args.options.kid,
@@ -113,6 +115,7 @@ export class OydDIDProvider extends AbstractIdentifierProvider {
     }
     return context.agent.keyManagerCreate({
       type: args.options.keyType,
+      // @ts-ignore
       kms: args.kms || this.defaultKms,
       meta: {
         algorithms: ['Ed25519'],
