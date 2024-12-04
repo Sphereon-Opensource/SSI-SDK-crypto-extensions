@@ -23,7 +23,8 @@ export class JwkDIDProvider extends AbstractIdentifierProvider {
   async createIdentifier(args: ICreateIdentifierArgs, context: IRequiredContext): Promise<Omit<IIdentifier, 'provider'>> {
     const key = await importProvidedOrGeneratedKey(
       {
-        kms: args.kms ?? this.defaultKms ?? '',
+        // @ts-ignore
+        kms: args.kms ?? this.defaultKms,
         alias: args.alias,
         options: args.options,
       },
