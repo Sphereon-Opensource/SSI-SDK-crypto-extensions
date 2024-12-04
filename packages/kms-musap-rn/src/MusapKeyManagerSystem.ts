@@ -137,8 +137,12 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
   }
 
   async deleteKey({ kid }: { kid: string }): Promise<boolean> {
-    try {
-      void this.musapClient.removeKey(kid)
+      try {
+        const key: MusapKey = this.musapClient.getKeyById(kid) as MusapKey
+        if (key.sscdType as string === 'External Signature') {
+          return true // we can't remove a eSim key because this would mean onboarding again
+        }
+        void this.musapClient.removeKey(kid)
       return true
     } catch (error) {
       console.warn('Failed to delete key:', error)
