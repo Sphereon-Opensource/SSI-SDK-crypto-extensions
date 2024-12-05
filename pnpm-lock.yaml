@@ -224,7 +224,7 @@ importers:
         version: link:../key-utils
       '@transmute/did-key-bls12381':
         specifier: 0.3.0-unstable.10
-        version: 0.3.0-unstable.10(encoding@0.1.13)(web-streams-polyfill@3.3.3)
+        version: 0.3.0-unstable.10(encoding@0.1.13)(expo@51.0.38(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(encoding@0.1.13))(react-native@0.76.0(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(encoding@0.1.13)(react@18.3.1))(web-streams-polyfill@3.3.3)
       '@veramo/core':
         specifier: 4.2.0
         version: 4.2.0(patch_hash=c5oempznsz4br5w3tcuk2i2mau)
@@ -815,8 +815,8 @@ importers:
   packages/kms-musap-rn:
     dependencies:
       '@sphereon/musap-react-native':
-        specifier: 0.2.1-unstable.161
-        version: 0.2.1-unstable.161(react-native@0.76.0(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(encoding@0.1.13)(react@18.3.1))(react@18.3.1)
+        specifier: 0.2.1-next.164
+        version: 0.2.1-next.164(react-native@0.76.0(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(encoding@0.1.13)(react@18.3.1))(react@18.3.1)
       '@sphereon/ssi-sdk-ext.key-utils':
         specifier: workspace:*
         version: link:../key-utils
@@ -2848,11 +2848,11 @@ packages:
     resolution: {integrity: sha512-uAZZExVy+ug9JLircejWa5eLtAZ7bnBP6xb7DO2+86LRsHNLh2k2jMWJYxp+iWtGHTsh6RYsZl14ScQLvjiQ/A==}
     bundledDependencies: []
 
-  '@sphereon/musap-native@0.2.1-unstable.161':
-    resolution: {integrity: sha512-i9XW+LdZcc+hVGjM4Dnntwe53BMzhde4Wihe1Ufgxoi7NL/TK5xnlucKFp6dWt4MR4wbttga44ar6sEkv8mV9w==}
+  '@sphereon/musap-native@0.2.1-next.164':
+    resolution: {integrity: sha512-rZGdwCSV/Hvy0GyMra7h9ie7Ru2g4I5m8mCsymqyrCozPyyyVuGsff/mJJmwBt69zTxJmb5bnR25Sdh8E2fdlA==}
 
-  '@sphereon/musap-react-native@0.2.1-unstable.161':
-    resolution: {integrity: sha512-c5ERKr4XOqojr9chqxJ76NZtgneuYJgYl0AZPdi1Nl9b8jq6KpHKorpWK+2iKWsyYnVUaXXbdu2c3v829gyNJg==}
+  '@sphereon/musap-react-native@0.2.1-next.164':
+    resolution: {integrity: sha512-qtgE5ctEpEc7ArEaJNYv51n89+NF1xTvcYA9Ck+qZ/UO6nr13bc8fFCVrynWaMbE6C/aB/SLCGfY/raGymZXkQ==}
     peerDependencies:
       react: '*'
       react-native: '*'
@@ -12454,11 +12454,11 @@ snapshots:
       '@js-joda/timezone': 2.3.0(@js-joda/core@5.6.3)
       format-util: 1.0.5
 
-  '@sphereon/musap-native@0.2.1-unstable.161': {}
+  '@sphereon/musap-native@0.2.1-next.164': {}
 
-  '@sphereon/musap-react-native@0.2.1-unstable.161(react-native@0.76.0(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(encoding@0.1.13)(react@18.3.1))(react@18.3.1)':
+  '@sphereon/musap-react-native@0.2.1-next.164(react-native@0.76.0(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(encoding@0.1.13)(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@sphereon/musap-native': 0.2.1-unstable.161
+      '@sphereon/musap-native': 0.2.1-next.164
       react: 18.3.1
       react-native: 0.76.0(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(encoding@0.1.13)(react@18.3.1)
 
@@ -12942,7 +12942,7 @@ snapshots:
 
   '@transmute/did-context@0.6.1-unstable.37': {}
 
-  '@transmute/did-key-bls12381@0.3.0-unstable.10(encoding@0.1.13)(web-streams-polyfill@3.3.3)':
+  '@transmute/did-key-bls12381@0.3.0-unstable.10(encoding@0.1.13)(expo@51.0.38(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(encoding@0.1.13))(react-native@0.76.0(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(encoding@0.1.13)(react@18.3.1))(web-streams-polyfill@3.3.3)':
     dependencies:
       '@transmute/bls12381-key-pair': 0.7.0-unstable.81(encoding@0.1.13)
       '@transmute/did-key-common': 0.3.0-unstable.10(encoding@0.1.13)(expo@51.0.38(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(encoding@0.1.13))(react-native@0.76.0(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(encoding@0.1.13)(react@18.3.1))(web-streams-polyfill@3.3.3)
