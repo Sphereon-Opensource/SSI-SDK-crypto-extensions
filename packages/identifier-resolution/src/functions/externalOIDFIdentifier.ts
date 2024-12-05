@@ -1,10 +1,4 @@
-import {
-  ErrorMessage,
-  ExternalIdentifierOIDFEntityIdOpts,
-  ExternalIdentifierOIDFEntityIdResult,
-  ExternalJwkInfo,
-  TrustedAnchor,
-} from '../types'
+import { ErrorMessage, ExternalIdentifierOIDFEntityIdOpts, ExternalIdentifierOIDFEntityIdResult, ExternalJwkInfo, TrustedAnchor } from '../types'
 import { IAgentContext } from '@veramo/core'
 import { IOIDFClient } from '@sphereon/ssi-sdk.oidf-client'
 import { contextHasPlugin } from '@sphereon/ssi-sdk.agent-config'
@@ -45,7 +39,7 @@ export async function resolveExternalOIDFEntityIdIdentifier(
   for (const trustAnchor of trustAnchors) {
     const resolveResult = await context.agent.resolveTrustChain({
       entityIdentifier: identifier,
-      trustAnchors: [trustAnchor]
+      trustAnchors: [trustAnchor],
     })
 
     if (resolveResult.error || !resolveResult.trustChain) {
@@ -56,7 +50,7 @@ export async function resolveExternalOIDFEntityIdIdentifier(
         errorList[trustAnchor] = 'Trust chain is empty'
         continue
       }
-      
+
       const jwt = trustChain[0]
       const jwtVerifyResult: IJwsValidationResult = await context.agent.jwtVerifyJwsSignature({ jws: jwt })
 
@@ -76,7 +70,8 @@ export async function resolveExternalOIDFEntityIdIdentifier(
         continue
       }
 
-      if(jwkInfos.length === 0) { // We need the entity JWK only once
+      if (jwkInfos.length === 0) {
+        // We need the entity JWK only once
         jwkInfos.push(...signature.identifier.jwks)
       }
       trustedAnchors.add(trustAnchor)
@@ -88,6 +83,6 @@ export async function resolveExternalOIDFEntityIdIdentifier(
     trustedAnchors: Array.from(trustedAnchors),
     ...(Object.keys(errorList).length > 0 && { errorList }),
     jwks: jwkInfos,
-    trustEstablished: trustedAnchors.size > 0
+    trustEstablished: trustedAnchors.size > 0,
   }
 }

@@ -94,7 +94,7 @@ const setup = async (): Promise<boolean> => {
         defaultProvider: DID_METHOD,
         store: new MemoryDIDStore(),
       }),
-      new IdentifierResolution({ crypto: global.crypto }),
+      new IdentifierResolution(),
     ],
   })
 

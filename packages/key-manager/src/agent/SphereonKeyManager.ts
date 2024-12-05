@@ -1,4 +1,4 @@
-import { calculateJwkThumbprintForKey, toJwk, verifySignatureWithSubtle } from '@sphereon/ssi-sdk-ext.key-utils'
+import { calculateJwkThumbprintForKey, toJwk, verifyRawSignature } from '@sphereon/ssi-sdk-ext.key-utils'
 import { IKey, KeyMetadata, ManagedKeyInfo } from '@veramo/core'
 import { AbstractKeyManagementSystem, AbstractKeyStore, KeyManager as VeramoKeyManager } from '@veramo/key-manager'
 
@@ -28,15 +28,15 @@ export class SphereonKeyManager extends VeramoKeyManager {
   // local store reference, given the superclass store is private, and we need additional functions/calls
   private kmsStore: AbstractKeyStore
   private readonly availableKmses: Record<string, AbstractKeyManagementSystem>
-  public readonly defaultKms: string
+  public _defaultKms: string
   readonly kmsMethods: ISphereonKeyManager
 
   constructor(options: { store: AbstractKeyStore; kms: Record<string, AbstractKeyManagementSystem>; defaultKms?: string }) {
     super({ store: options.store, kms: options.kms })
     this.kmsStore = options.store
     this.availableKmses = options.kms
-    this.defaultKms = options.defaultKms ?? Object.keys(this.availableKmses)[0]
-    if (!Object.keys(this.availableKmses).includes(this.defaultKms)) {
+    this._defaultKms = options.defaultKms ?? Object.keys(this.availableKmses)[0]
+    if (!Object.keys(this.availableKmses).includes(this._defaultKms)) {
       throw Error(`Default KMS needs to be listed in the kms object as well. Found kms-es: ${Object.keys(this.availableKmses).join(',')}`)
     }
     const methods = this.methods
@@ -47,11 +47,11 @@ export class SphereonKeyManager extends VeramoKeyManager {
   }
 
   keyManagerGetDefaultKeyManagementSystem(): Promise<string> {
-    return Promise.resolve(this.defaultKms)
+    return Promise.resolve(this._defaultKms)
   }
 
   override async keyManagerCreate(args: ISphereonKeyManagerCreateArgs): Promise<ManagedKeyInfo> {
-    const kms = this.getKmsByName(args.kms ?? this.defaultKms)
+    const kms = this.getKmsByName(args.kms ?? this._defaultKms)
     const meta: KeyMetadata = { ...args.meta, ...(args.opts && { opts: args.opts }) }
     if (hasKeyOptions(meta) && meta.opts?.ephemeral && !meta.opts.expiration?.removalDate) {
       // Make sure we set a delete date on an ephemeral key
@@ -61,7 +61,7 @@ export class SphereonKeyManager extends VeramoKeyManager {
       }
     }
     const partialKey = await kms.createKey({ type: args.type, meta })
-    const key: IKey = { ...partialKey, kms: args.kms ?? this.defaultKms }
+    const key: IKey = { ...partialKey, kms: args.kms ?? this._defaultKms }
     key.meta = { ...meta, ...key.meta }
     key.meta.jwkThumbprint = key.meta.jwkThumbprint ?? calculateJwkThumbprintForKey({ key })
 
@@ -76,13 +76,13 @@ export class SphereonKeyManager extends VeramoKeyManager {
   //FIXME extend the IKeyManagerSignArgs.data to be a string or array of strings
 
   async keyManagerSign(args: ISphereonKeyManagerSignArgs): Promise<string> {
-    const keyInfo = await this.keyManagerGet({kid: args.keyRef})
+    const keyInfo = await this.keyManagerGet({ kid: args.keyRef })
     const kms = this.getKmsByName(keyInfo.kms)
     if (keyInfo.type === 'Bls12381G2') {
       return await kms.sign({ keyRef: keyInfo, data: typeof args.data === 'string' ? u8a.fromString(args.data) : args.data })
     }
     // @ts-ignore // we can pass in uint8arrays as well, which the super also can handle but does not expose in its types
-    return await super.keyManagerSign({...args, keyRef: keyInfo.kid})
+    return await super.keyManagerSign({ ...args, keyRef: keyInfo.kid })
   }
 
   async keyManagerVerify(args: ISphereonKeyManagerVerifyArgs): Promise<boolean> {
@@ -93,7 +93,7 @@ export class SphereonKeyManager extends VeramoKeyManager {
         return await kms.verify(args)
       }
     }
-    return await verifySignatureWithSubtle({
+    return await verifyRawSignature({
       key: toJwk(args.publicKeyHex, args.type),
       data: args.data,
       signature: u8a.fromString(args.signature, 'utf-8'),
@@ -148,5 +148,21 @@ export class SphereonKeyManager extends VeramoKeyManager {
         throw new Error(`Key with kid ${kid} not found`)
       }
     }
+  }
+
+
+  get defaultKms(): string {
+    return this._defaultKms
+  }
+
+  set defaultKms(kms: string) {
+    if (!Object.keys(this.availableKmses).includes(kms)) {
+      throw Error(`Default KMS needs to be listed in the kms object as well. Found kms-es: ${Object.keys(this.availableKmses).join(',')}`)
+    }
+    this._defaultKms = kms
+  }
+
+  setKms(name: string, kms: AbstractKeyManagementSystem): void {
+    this.availableKmses[name] = kms
   }
 }

@@ -12,9 +12,9 @@ const debug = Debug('sphereon:did-provider-jwk')
  * @public
  */
 export class JwkDIDProvider extends AbstractIdentifierProvider {
-  private readonly defaultKms: string
+  private readonly defaultKms?: string
 
-  constructor(options: { defaultKms: string }) {
+  constructor(options: { defaultKms?: string }) {
     super()
     this.defaultKms = options.defaultKms
   }
@@ -23,6 +23,7 @@ export class JwkDIDProvider extends AbstractIdentifierProvider {
   async createIdentifier(args: ICreateIdentifierArgs, context: IRequiredContext): Promise<Omit<IIdentifier, 'provider'>> {
     const key = await importProvidedOrGeneratedKey(
       {
+        // @ts-ignore
         kms: args.kms ?? this.defaultKms,
         alias: args.alias,
         options: args.options,

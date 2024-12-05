@@ -1,5 +1,6 @@
 import * as u8a from 'uint8arrays'
 import { HashAlgorithm } from '../types'
+import { globalCrypto } from './crypto'
 
 import { derToPEM } from './x509-utils'
 
@@ -55,7 +56,7 @@ export const cryptoSubtleImportRSAKey = async (
   const hashName = hashAlgorithm ? hashAlgorithm : jwk.alg ? `SHA-${jwk.alg.substring(2)}` : 'SHA-256'
 
   const importParams: RsaHashedImportParams = { name: scheme, hash: hashName }
-  return await crypto.subtle.importKey('jwk', jwk as JsonWebKey, importParams, false, usage(jwk))
+  return await globalCrypto(false).subtle.importKey('jwk', jwk as JsonWebKey, importParams, false, usage(jwk))
 }
 
 export const generateRSAKeyAsPEM = async (
@@ -73,8 +74,8 @@ export const generateRSAKeyAsPEM = async (
   }
   const keyUsage: KeyUsage[] = scheme === 'RSA-PSS' || scheme === 'RSASSA-PKCS1-V1_5' ? ['sign', 'verify'] : ['encrypt', 'decrypt']
 
-  const keypair = await crypto.subtle.generateKey(params, true, keyUsage)
-  const pkcs8 = await crypto.subtle.exportKey('pkcs8', keypair.privateKey)
+  const keypair = await globalCrypto(false).subtle.generateKey(params, true, keyUsage)
+  const pkcs8 = await globalCrypto(false).subtle.exportKey('pkcs8', keypair.privateKey)
 
   const uint8Array = new Uint8Array(pkcs8)
   return derToPEM(u8a.toString(uint8Array, 'base64pad'), 'RSA PRIVATE KEY')

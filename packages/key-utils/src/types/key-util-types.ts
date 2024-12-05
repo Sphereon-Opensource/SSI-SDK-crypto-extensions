@@ -3,7 +3,7 @@ import { IKey, MinimalImportableKey } from '@veramo/core'
 export const JWK_JCS_PUB_NAME = 'jwk_jcs-pub' as const
 export const JWK_JCS_PUB_PREFIX = 0xeb51
 
-export type TKeyType = 'Ed25519' | 'Secp256k1' | 'Secp256r1' | 'X25519' | 'Bls12381G1' | 'Bls12381G2' | 'RSA'
+export type TKeyType = 'Ed25519' | 'Secp256k1' | 'Secp256r1' | 'Secp384r1' | 'Secp521r1' | 'X25519' | 'Bls12381G1' | 'Bls12381G2' | 'RSA'
 
 export enum Key {
   Ed25519 = 'Ed25519',
@@ -36,7 +36,7 @@ export interface IImportProvidedOrGeneratedKeyArgs {
 }
 export interface IKeyOpts {
   key?: Partial<MinimalImportableKey> // Optional key to import with only privateKeyHex mandatory. If not specified a key with random kid will be created
-  type?: TKeyType // The key type. Defaults to Secp256k1
+  type?: Exclude<TKeyType, 'Secp384r1' | 'Secp521r1'> // The key type. Defaults to Secp256k1. The exclude is there as we do not support it yet for key generation
   use?: JwkKeyUse // The key use
   x509?: X509Opts
 }
@@ -55,5 +55,7 @@ export type SignatureAlgorithmFromKeyTypeArgs = {
 }
 
 export type KeyTypeFromCryptographicSuiteArgs = {
-  suite: string
+  crv?: string
+  kty?: string
+  alg?: string
 }
