@@ -140,7 +140,7 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
       try {
         const key: MusapKey = this.musapClient.getKeyById(kid) as MusapKey
         if (key.sscdType as string === 'External Signature') {
-          return true // we can't remove a eSim key because this would mean onboarding again
+          return true // FIXME we can't remove a eSim key for now because this would mean onboarding again
         }
         void this.musapClient.removeKey(kid)
       return true
