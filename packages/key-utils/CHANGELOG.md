@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.27.0](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/compare/v0.26.0...v0.27.0) (2024-12-05)
+
+### Bug Fixes
+
+- Move away from using crypto.subtle for signature verifications, as it is too problematic in React-native. Replaced with audited noble implementations ([69ec9a6](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/commit/69ec9a68a655eb34060a70ba64d83ef0df770bac))
+- update x.509 test with latest cert ([175cd80](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/commit/175cd8041e4b7f8c761b5519d44ec0602e2be88c))
+
+### Features
+
+- make sure we convert JWK claims from base64 to base64url if they are not spec compliant ([918677b](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/commit/918677bc9cf062c0eff7d6eec5e83ee50d47f4e7))
+
 # [0.26.0](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/compare/v0.25.0...v0.26.0) (2024-11-26)
 
 **Note:** Version bump only for package @sphereon/ssi-sdk-ext.key-utils
