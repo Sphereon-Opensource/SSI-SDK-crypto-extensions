@@ -1,6 +1,6 @@
 {
   "name": "@sphereon/ssi-sdk-ext.jwt-service-test",
-  "version": "0.25.0",
+  "version": "0.27.0",
   "source": "src/index.ts",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -12,14 +12,13 @@
     "@sphereon/ssi-sdk.oidf-client": "0.30.2-feature.SDK.41.oidf.support.286",
     "@sphereon/ssi-sdk.resource-resolver": "0.30.2-feature.SDK.41.oidf.support.286",
     "@veramo/core": "4.2.0",
-    "@veramo/utils": "4.2.0",
     "@veramo/data-store": "4.2.0",
     "@veramo/key-manager": "4.2.0",
     "@veramo/kms-local": "4.2.0",
     "@veramo/remote-client": "4.2.0",
     "@veramo/remote-server": "4.2.0",
+    "@veramo/utils": "4.2.0",
     "typeorm": "0.3.20"
-
   },
   "private": true,
   "repository": "git@github.com:Sphereon-OpenSource/SSI-SDK-crypto-extensions.git",

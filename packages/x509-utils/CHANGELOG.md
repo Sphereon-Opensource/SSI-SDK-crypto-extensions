@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.27.0](https://github.com/Sphereon-OpenSource/ssi-sdk/compare/v0.26.0...v0.27.0) (2024-12-05)
+
+### Bug Fixes
+
+- default crypto engine ([503768f](https://github.com/Sphereon-OpenSource/ssi-sdk/commit/503768f6fa976585b6b2ae2c63652bad556cce20))
+- make sure we return the chain back in the original order ([683ddb7](https://github.com/Sphereon-OpenSource/ssi-sdk/commit/683ddb776b3b6d8e54bcf944cc4c32c7a7fecefc))
+- update x.509 test with latest cert ([175cd80](https://github.com/Sphereon-OpenSource/ssi-sdk/commit/175cd8041e4b7f8c761b5519d44ec0602e2be88c))
+- update x.509 x5c order ([3dbfe73](https://github.com/Sphereon-OpenSource/ssi-sdk/commit/3dbfe73665f102d9c51e180199348cc8288f2a9c))
+
+### Features
+
+- Allow non trusted certs ([b1c6ff7](https://github.com/Sphereon-OpenSource/ssi-sdk/commit/b1c6ff753ba397e3d7732d768c23699e83047f6d))
+- Allow non trusted certs ([8416546](https://github.com/Sphereon-OpenSource/ssi-sdk/commit/84165465629cefca755c7a64a7626278618ebb8f))
+- New x.509 validation implementation. Less features than previous version, but should work on RN ([c11d735](https://github.com/Sphereon-OpenSource/ssi-sdk/commit/c11d7358925eebdb63db63a28a97f7e179ae0246))
+
+# [0.26.0](https://github.com/Sphereon-OpenSource/ssi-sdk/compare/v0.25.0...v0.26.0) (2024-11-26)
+
+**Note:** Version bump only for package @sphereon/ssi-sdk-ext.x509-utils
+
 # [0.25.0](https://github.com/Sphereon-OpenSource/ssi-sdk/compare/v0.24.0...v0.25.0) (2024-10-28)
 
 ### Features

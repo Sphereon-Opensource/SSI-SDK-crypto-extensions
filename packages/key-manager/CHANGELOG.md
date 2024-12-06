@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.27.0](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/compare/v0.26.0...v0.27.0) (2024-12-05)
+
+### Bug Fixes
+
+- Move away from using crypto.subtle for signature verifications, as it is too problematic in React-native. Replaced with audited noble implementations ([69ec9a6](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/commit/69ec9a68a655eb34060a70ba64d83ef0df770bac))
+
+# [0.26.0](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/compare/v0.25.0...v0.26.0) (2024-11-26)
+
+### Bug Fixes
+
+- Make sure we can use thumbprints for signing ([679d3e7](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/commit/679d3e73ca984a57afda9c55222a9fc596a623ec))
+- Make sure we can use thumbprints for signing ([e64b326](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/commit/e64b3263f83eaa88b75a57d2d3bae8f5e0575c6d))
+
 # [0.25.0](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/compare/v0.24.0...v0.25.0) (2024-10-28)
 
 ### Features

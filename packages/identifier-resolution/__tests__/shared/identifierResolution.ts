@@ -57,8 +57,17 @@ export default (testContext: { getAgent: () => ConfiguredAgent; setup: () => Pro
       const did = identifier.did
 
       // These all contain a did or are an internal did identifier
-      await expect(agent.identifierExternalResolve({ identifier: did })).resolves.toMatchObject(resolvedDidMatcher)
-      await expect(agent.identifierExternalResolveByDid({ identifier: did })).resolves.toMatchObject(resolvedDidMatcher)
+      const didResult = await agent.identifierExternalResolve({ identifier: did })
+      console.log('==========================')
+      console.log(JSON.stringify(didResult, null, 2))
+      expect(didResult).toMatchObject(resolvedDidMatcher)
+
+      const did2Result = await agent.identifierExternalResolveByDid({ identifier: did })
+      console.log('==========================')
+      console.log(JSON.stringify(did2Result, null, 2))
+      console.log('==========================')
+
+      expect(did2Result).toMatchObject(resolvedDidMatcher)
     })
 
     it('should resolve x5c identifier by x5c array', async () => {
@@ -72,11 +81,14 @@ export default (testContext: { getAgent: () => ConfiguredAgent; setup: () => Pro
       expect(certResult.method).toEqual('x5c')
       expect(certResult.jwks.length).toEqual(2)
 
+
+
       const certResult2 = await agent.identifierExternalResolveByX5c({
         identifier: [sphereonTest, sphereonCA],
         trustAnchors: [sphereonCA],
         verificationTime,
       })
+
       expect(certResult2).toEqual(certResult)
       expect(certResult2.verificationResult).toBeDefined()
       expect(certResult2.verificationResult?.error).toBe(false)
@@ -167,6 +179,8 @@ const resolvedDidMatcher = {
           kid: expect.stringContaining('did:jwk:'),
           kty: 'EC',
           use: 'sig',
+          x: expect.anything(),
+          y: expect.anything()
         },
         type: 'JsonWebKey2020',
       },
@@ -246,9 +260,12 @@ const resolvedDidMatcher = {
         kid: expect.stringContaining('did:jwk:'),
         kty: 'EC',
         use: 'sig',
+        x: expect.anything(),
+        y: expect.anything()
       },
       jwkThumbprint: expect.anything(),
       kid: expect.stringContaining('did:jwk:'),
+      publicKeyHex: expect.anything()
     },
   ],
   method: 'did',

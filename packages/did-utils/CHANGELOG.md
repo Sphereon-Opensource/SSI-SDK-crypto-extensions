@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.27.0](https://github.com/Sphereon-OpenSource/ssi-sdk-crypto-extensions/compare/v0.26.0...v0.27.0) (2024-12-05)
+
+### Bug Fixes
+
+- Move away from using crypto.subtle for signature verifications, as it is too problematic in React-native. Replaced with audited noble implementations ([69ec9a6](https://github.com/Sphereon-OpenSource/ssi-sdk-crypto-extensions/commit/69ec9a68a655eb34060a70ba64d83ef0df770bac))
+
+# [0.26.0](https://github.com/Sphereon-OpenSource/ssi-sdk-crypto-extensions/compare/v0.25.0...v0.26.0) (2024-11-26)
+
+### Bug Fixes
+
+- Add support for P-384/521 external JWKs ([7f4a809](https://github.com/Sphereon-OpenSource/ssi-sdk-crypto-extensions/commit/7f4a8090121ee2aedae64af06ccc42e7b069bd6b))
+
+### Features
+
+- Add OYD DID support in enum ([01fe1d0](https://github.com/Sphereon-OpenSource/ssi-sdk-crypto-extensions/commit/01fe1d0168b6b8da929a85586eedb7d398a239a3))
+
 # [0.25.0](https://github.com/Sphereon-OpenSource/ssi-sdk-crypto-extensions/compare/v0.24.0...v0.25.0) (2024-10-28)
 
 ### Features

@@ -6,6 +6,7 @@ import {
   JwkKeyUse,
   TKeyType,
   toJwk,
+  toRawCompressedHexPublicKey,
 } from '@sphereon/ssi-sdk-ext.key-utils'
 import { IAgentContext, IIdentifier, IKey, IKeyManager, IService } from '@veramo/core'
 import { AbstractIdentifierProvider } from '@veramo/did-manager'
@@ -29,9 +30,9 @@ const keyCodecs = {
 } as const
 
 export class SphereonKeyDidProvider extends AbstractIdentifierProvider {
-  private readonly kms: string
+  private readonly kms?: string
 
-  constructor(options: { defaultKms: string }) {
+  constructor(options: { defaultKms?: string }) {
     super()
     this.kms = options.defaultKms
   }
@@ -48,6 +49,7 @@ export class SphereonKeyDidProvider extends AbstractIdentifierProvider {
         type?: TKeyType
         codecName?: 'EBSI' | 'jwk_jcs-pub' | Multicodec.CodecName
         key?: {
+          type?: Exclude<TKeyType, 'Secp384r1' | 'Secp521r1'>
           privateKeyHex: string
         }
       }
@@ -57,18 +59,26 @@ export class SphereonKeyDidProvider extends AbstractIdentifierProvider {
     let codecName = (options?.codecName?.toUpperCase() === 'EBSI' ? (JWK_JCS_PUB_NAME as Multicodec.CodecName) : options?.codecName) as
       | CodeNameType
       | undefined
-    const keyType: TKeyType = options?.type ?? (codecName === JWK_JCS_PUB_NAME ? 'Secp256r1' : 'Secp256k1')
+    const keyType = (options?.type ?? options?.key?.type ?? (codecName === JWK_JCS_PUB_NAME ? 'Secp256r1' : 'Secp256k1')) as Exclude<
+      TKeyType,
+      'Secp384r1' | 'Secp521r1'
+    >
     // console.log(`keytype: ${keyType}, codecName: ${codecName}`)
 
-    const key = await importProvidedOrGeneratedKey({
+    const key = await importProvidedOrGeneratedKey(
+      {
+        // @ts-ignore
         kms: kms ?? this.kms,
         alias: alias,
         options: { ...options, type: keyType },
       },
-      context,
+      context
     )
 
     let methodSpecificId: string | undefined
+
+    // did:key uses compressed pub keys
+    const compressedPublicKeyHex = toRawCompressedHexPublicKey(u8a.fromString(key.publicKeyHex, 'hex'), key.type)
     if (codecName === JWK_JCS_PUB_NAME) {
       const jwk = toJwk(key.publicKeyHex, keyType, { use: JwkKeyUse.Signature, key, noKidThumbprint: true })
       // console.log(`FIXME JWK: ${JSON.stringify(toJwk(privateKeyHex, keyType, { use: JwkKeyUse.Signature, key, isPrivateKey: true }), null, 2)}`)
@@ -77,7 +87,7 @@ export class SphereonKeyDidProvider extends AbstractIdentifierProvider {
       )
     } else if (codecName) {
       methodSpecificId = u8a.toString(
-        Multibase.encode('base58btc', Multicodec.addPrefix(codecName as Multicodec.CodecName, u8a.fromString(key.publicKeyHex, 'hex')))
+        Multibase.encode('base58btc', Multicodec.addPrefix(codecName as Multicodec.CodecName, u8a.fromString(compressedPublicKeyHex, 'hex')))
       )
     } else {
       codecName = keyCodecs[keyType]
@@ -85,7 +95,9 @@ export class SphereonKeyDidProvider extends AbstractIdentifierProvider {
       if (codecName) {
         // methodSpecificId  = bytesToMultibase({bytes: u8a.fromString(key.publicKeyHex, 'hex'), codecName})
         methodSpecificId = u8a
-          .toString(Multibase.encode('base58btc', Multicodec.addPrefix(codecName as Multicodec.CodecName, u8a.fromString(key.publicKeyHex, 'hex'))))
+          .toString(
+            Multibase.encode('base58btc', Multicodec.addPrefix(codecName as Multicodec.CodecName, u8a.fromString(compressedPublicKeyHex, 'hex')))
+          )
           .toString()
       }
     }

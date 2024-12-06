@@ -1,6 +1,6 @@
 {
   "name": "@sphereon/ssi-sdk-ext.mnemonic-seed-manager",
-  "version": "0.25.0",
+  "version": "0.27.0",
   "source": "src/index.ts",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -20,7 +20,8 @@
     "typeorm-postgres:migration:run": "npm run typeorm -- migration:run -c migration-postgres"
   },
   "dependencies": {
-    "@noble/hashes": "1.2.0",
+    "@noble/hashes": "^1.6.1",
+    "@sphereon/ssi-sdk-ext.key-utils": "workspace:*",
     "@veramo/core": "4.2.0",
     "@veramo/data-store": "4.2.0",
     "@veramo/key-manager": "4.2.0",

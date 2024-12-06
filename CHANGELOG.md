@@ -3,6 +3,39 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.27.0](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/compare/v0.26.0...v0.27.0) (2024-12-05)
+
+### Bug Fixes
+
+- add some additional tests for did:key ([59b1161](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/59b11614f67416a763b3f8eaedf0aad925666ec8))
+- default crypto engine ([503768f](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/503768f6fa976585b6b2ae2c63652bad556cce20))
+- make sure we return the chain back in the original order ([683ddb7](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/683ddb776b3b6d8e54bcf944cc4c32c7a7fecefc))
+- Move away from using crypto.subtle for signature verifications, as it is too problematic in React-native. Replaced with audited noble implementations ([69ec9a6](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/69ec9a68a655eb34060a70ba64d83ef0df770bac))
+- remove random uuid ([b968166](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/b968166eadb5f78d276657b89c6930c0fb97f08d))
+- update x.509 test with latest cert ([175cd80](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/175cd8041e4b7f8c761b5519d44ec0602e2be88c))
+- update x.509 x5c order ([3dbfe73](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/3dbfe73665f102d9c51e180199348cc8288f2a9c))
+
+### Features
+
+- Allow non trusted certs ([b1c6ff7](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/b1c6ff753ba397e3d7732d768c23699e83047f6d))
+- Allow non trusted certs ([8416546](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/84165465629cefca755c7a64a7626278618ebb8f))
+- implement azure keyvault rest client ([dc69703](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/dc697034da974e88d933088f5aaf551c27845a49))
+- make sure we convert JWK claims from base64 to base64url if they are not spec compliant ([918677b](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/918677bc9cf062c0eff7d6eec5e83ee50d47f4e7))
+- New x.509 validation implementation. Less features than previous version, but should work on RN ([c11d735](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/c11d7358925eebdb63db63a28a97f7e179ae0246))
+
+# [0.26.0](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/compare/v0.25.0...v0.26.0) (2024-11-26)
+
+### Bug Fixes
+
+- Add support for P-384/521 external JWKs ([7f4a809](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/7f4a8090121ee2aedae64af06ccc42e7b069bd6b))
+- Make sure we can use thumbprints for signing ([679d3e7](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/679d3e73ca984a57afda9c55222a9fc596a623ec))
+- Make sure we can use thumbprints for signing ([e64b326](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/e64b3263f83eaa88b75a57d2d3bae8f5e0575c6d))
+
+### Features
+
+- Add OYD DID support in enum ([01fe1d0](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/01fe1d0168b6b8da929a85586eedb7d398a239a3))
+- create kms-azure plugin structure ([61e1a61](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/61e1a61f7442acf376d5cc6e39cdacdc336b8aa3))
+
 # [0.25.0](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/compare/v0.24.0...v0.25.0) (2024-10-28)
 
 ### Bug Fixes
