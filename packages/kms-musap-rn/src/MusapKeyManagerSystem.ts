@@ -195,15 +195,75 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
     throw new Error('importKey is not implemented for MusapKeyManagementSystem.')
   }
 
+
+  private decodeMusapPublicKey = (args: { publicKey: { pem: string }, keyType: TKeyType }): string => {
+    const { publicKey, keyType } = args;
+
+    try {
+      // First try the normal PEM decoding path
+      const pemBinary = PEMToBinary(publicKey.pem)
+
+      // Check if we got a string that looks like base64 (might be double encoded)
+      const isDoubleEncoded = pemBinary.length > 0 &&
+        typeof Buffer.from(pemBinary).toString() === 'string' &&
+        Buffer.from(pemBinary).toString().startsWith('MF');
+
+      if (isDoubleEncoded) {
+        // Handle double-encoded case
+        const innerBase64 = Buffer.from(pemBinary).toString()
+        const actualDerBytes = Buffer.from(innerBase64, 'base64')
+
+        // For double-encoded case, we know the key data starts after the header
+        const keyDataStart = 24
+        const keyData = actualDerBytes.slice(keyDataStart)
+
+        // Convert to public key hex
+        let publicKeyHex = Buffer.from(keyData).toString('hex')
+
+        // If it's not compressed yet and doesn't start with 0x04 (uncompressed point marker), add it
+        if (publicKeyHex.length <= 128 && !publicKeyHex.startsWith('04')) {
+          publicKeyHex = '04' + publicKeyHex
+        }
+
+        // Ensure we have full 65 bytes for uncompressed keys
+        while (publicKeyHex.startsWith('04') && publicKeyHex.length < 130) {
+          publicKeyHex = publicKeyHex + '0'
+        }
+
+        // Now convert to compressed format if needed
+        if (publicKeyHex.startsWith('04') && publicKeyHex.length === 130) {
+          const xCoord = Buffer.from(publicKeyHex.slice(2, 66), 'hex')
+          const yCoord = Buffer.from(publicKeyHex.slice(66, 130), 'hex')
+          const prefix = Buffer.from([yCoord[31] % 2 === 0 ? 0x02 : 0x03])
+          const compressedKey = Buffer.concat([prefix, xCoord])
+          return compressedKey.toString('hex')
+        }
+
+        return publicKeyHex
+      }
+
+      // Not double encoded, proceed with normal path
+      const publicKeyBinary = isAsn1Der(pemBinary) ? asn1DerToRawPublicKey(pemBinary, keyType) : pemBinary
+      return isRawCompressedPublicKey(publicKeyBinary)
+        ? hexStringFromUint8Array(publicKeyBinary)
+        : toRawCompressedHexPublicKey(publicKeyBinary, keyType)
+
+    } catch (error) {
+      console.warn('Error decoding public key:', error)
+      // If all else fails, try direct conversion
+      return publicKey.pem
+    }
+  }
+
   private asMusapKeyInfo(args: MusapKey): ManagedKeyInfo {
     const { keyId, publicKey, ...metadata }: KeyMetadata = { ...args }
     const keyType = this.mapAlgorithmTypeToKeyType(args.algorithm)
 
-    const pemBinary = PEMToBinary(args.publicKey.pem) // The der is flawed, it's not binary but a string [123, 4567]
-    const publicKeyBinary = isAsn1Der(pemBinary) ? asn1DerToRawPublicKey(pemBinary, keyType) : pemBinary
-    const publicKeyHex = isRawCompressedPublicKey(publicKeyBinary) // TODO In the future I think it's better to have an option in KeyGenReq to specify which public key format we want back. Now it's different in iOS vs Android and we need to handle that inconsistency afterwards
-      ? hexStringFromUint8Array(publicKeyBinary)
-      : toRawCompressedHexPublicKey(publicKeyBinary, keyType)
+    const publicKeyHex = this.decodeMusapPublicKey({
+      publicKey: publicKey,
+      keyType: keyType
+    })
+
     const keyInfo: Partial<ManagedKeyInfo> = {
       kid: keyId,
       type: keyType,

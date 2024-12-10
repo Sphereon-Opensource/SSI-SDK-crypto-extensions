@@ -224,7 +224,7 @@ importers:
         version: link:../key-utils
       '@transmute/did-key-bls12381':
         specifier: 0.3.0-unstable.10
-        version: 0.3.0-unstable.10(encoding@0.1.13)(web-streams-polyfill@3.3.3)
+        version: 0.3.0-unstable.10(encoding@0.1.13)(expo@51.0.38(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(encoding@0.1.13))(react-native@0.76.0(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(encoding@0.1.13)(react@18.3.1))(web-streams-polyfill@3.3.3)
       '@veramo/core':
         specifier: 4.2.0
         version: 4.2.0(patch_hash=c5oempznsz4br5w3tcuk2i2mau)
@@ -12922,7 +12922,7 @@ snapshots:
 
   '@transmute/did-context@0.6.1-unstable.37': {}
 
-  '@transmute/did-key-bls12381@0.3.0-unstable.10(encoding@0.1.13)(web-streams-polyfill@3.3.3)':
+  '@transmute/did-key-bls12381@0.3.0-unstable.10(encoding@0.1.13)(expo@51.0.38(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(encoding@0.1.13))(react-native@0.76.0(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(encoding@0.1.13)(react@18.3.1))(web-streams-polyfill@3.3.3)':
     dependencies:
       '@transmute/bls12381-key-pair': 0.7.0-unstable.81(encoding@0.1.13)
       '@transmute/did-key-common': 0.3.0-unstable.10(encoding@0.1.13)(expo@51.0.38(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(encoding@0.1.13))(react-native@0.76.0(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(encoding@0.1.13)(react@18.3.1))(web-streams-polyfill@3.3.3)
