@@ -51,7 +51,7 @@ export function isCoseKeyIdentifier(identifier: ManagedIdentifierType): identifi
 }
 
 export function isOIDFEntityIdIdentifier(identifier: ManagedIdentifierType): identifier is string {
-  return typeof identifier === 'string' && identifier.startsWith('https://')
+  return typeof identifier === 'string' && identifier.startsWith('http')
 }
 
 export function isX5cIdentifier(identifier: ManagedIdentifierType | ExternalIdentifierType): identifier is string[] {
