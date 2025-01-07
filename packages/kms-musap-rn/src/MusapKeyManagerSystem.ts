@@ -115,6 +115,8 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
         return 'ECCP256R1'
       case 'RSA':
         return 'RSA2K'
+      case 'Ed25519':
+        return 'ECC_ED25519'
       default:
         throw new Error(`Key type ${type} is not supported by MUSAP`)
     }
