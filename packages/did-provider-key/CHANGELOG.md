@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.27.0](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/compare/v0.26.0...v0.27.0) (2024-12-05)
+
+### Bug Fixes
+
+- add some additional tests for did:key ([59b1161](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/commit/59b11614f67416a763b3f8eaedf0aad925666ec8))
+- update x.509 test with latest cert ([175cd80](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/commit/175cd8041e4b7f8c761b5519d44ec0602e2be88c))
+
 # [0.26.0](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/compare/v0.25.0...v0.26.0) (2024-11-26)
 
 **Note:** Version bump only for package @sphereon/ssi-sdk-ext.did-provider-key
