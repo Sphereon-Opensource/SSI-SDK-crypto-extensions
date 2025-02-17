@@ -48,7 +48,7 @@ export async function getManagedKidIdentifier(
   const key = await context.agent.keyManagerGet({ kid: opts.kmsKeyRef ?? opts.identifier })
   const jwk = toJwk(key.publicKeyHex, key.type, { key })
   const jwkThumbprint = (key.meta?.jwkThumbprint as string) ?? calculateJwkThumbprint({ jwk })
-  const kid = opts.kid ?? (key.meta?.verificationMethod?.id as string) ?? jwkThumbprint
+  const kid = opts.kid ?? (key.meta?.verificationMethod?.id as string) ?? key.kid ?? jwkThumbprint
   const issuer = opts.issuer ?? kid // The different identifiers should set the value. Defaults to the kid
   return {
     method,
