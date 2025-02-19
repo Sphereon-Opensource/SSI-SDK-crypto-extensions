@@ -40,16 +40,29 @@ export async function getManagedKidIdentifier(
   context: IAgentContext<IKeyManager>
 ): Promise<ManagedIdentifierKidResult> {
   const method = 'kid'
+  let key: IKey | undefined = undefined
+  let issuer: string | undefined = undefined
+  let kid: string | undefined = undefined
   if (!contextHasKeyManager(context)) {
     return Promise.reject(Error(`Cannot get Key/JWK identifier if KeyManager plugin is not enabled!`))
   } else if (opts.identifier.startsWith('did:')) {
-    return Promise.reject(Error(`managed kid resolution called but a did url was passed in. Please call the did resolution method`))
+    const did = opts.identifier.split('#')[0]
+    const didIdentifier = await getManagedDidIdentifier({...opts, method: 'did', identifier: did}, context)
+    key = didIdentifier.key
+    issuer = didIdentifier.issuer
+    kid = opts?.kid ?? (key.meta?.verificationMethod?.id as string) ?? didIdentifier.kid
   }
-  const key = await context.agent.keyManagerGet({ kid: opts.kmsKeyRef ?? opts.identifier })
+  if (!key) {
+    key = await context.agent.keyManagerGet({kid: opts.kmsKeyRef ?? opts.identifier})
+  }
   const jwk = toJwk(key.publicKeyHex, key.type, { key })
   const jwkThumbprint = (key.meta?.jwkThumbprint as string) ?? calculateJwkThumbprint({ jwk })
-  const kid = opts.kid ?? (key.meta?.verificationMethod?.id as string) ?? jwkThumbprint
-  const issuer = opts.issuer ?? kid // The different identifiers should set the value. Defaults to the kid
+  if (!kid) {
+    kid = opts.kid ?? (key.meta?.verificationMethod?.id as string) ?? jwkThumbprint
+  }
+  if (!issuer) {
+    issuer = opts.issuer ?? kid // The different identifiers should set the value. Defaults to the kid
+  }
   return {
     method,
     key,
