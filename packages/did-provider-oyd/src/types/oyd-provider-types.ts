@@ -1,19 +1,32 @@
+import { IKey } from '@veramo/core'
+
+export type OydConstructorOptions = {
+  defaultKms?: string;
+  clientManagedSecretMode?: CMSMOpts;
+}
+
 export type OydCreateIdentifierOptions = {
-  keyType?: OydDidSupportedKeyTypes
-  privateKeyHex?: string
-  keyUse?: KeyUse
+  keyType?: OydDidSupportedKeyTypes;
+  privateKeyHex?: string;
+  keyUse?: KeyUse;
+  csms?: boolean;
 }
 
 export type OydDidHoldKeysArgs = {
-  kms: string
-  options: HoldKeysOpts
+  kms: string;
+  options: HoldKeysOpts;
 }
 
 type HoldKeysOpts = {
-  keyType: OydDidSupportedKeyTypes
-  kid: string
-  publicKeyHex?: string
-  privateKeyHex?: string
+  keyType: OydDidSupportedKeyTypes;
+  kid: string;
+  publicKeyHex?: string;
+  privateKeyHex?: string;
+}
+
+export type CMSMOpts = {
+  publicKeyCallback: (kid: string, kms: string) => IKey;
+  signCallback: (kid: string, value: string) => string;
 }
 
 export enum SupportedKeyTypes {
@@ -23,6 +36,6 @@ export enum SupportedKeyTypes {
   X25519 = 'X25519',
 }
 
-export type OydDidSupportedKeyTypes = keyof typeof SupportedKeyTypes
+export type OydDidSupportedKeyTypes = keyof typeof SupportedKeyTypes;
 
-export type KeyUse = 'sig' | 'enc'
+export type KeyUse = 'sig' | 'enc';
