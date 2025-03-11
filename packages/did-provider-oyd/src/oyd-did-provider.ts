@@ -1,6 +1,6 @@
 import { IIdentifier, IKey, IService, IAgentContext, IKeyManager } from '@veramo/core'
 import { AbstractIdentifierProvider } from '@veramo/did-manager'
-import type { OydCreateIdentifierOptions, OydDidHoldKeysArgs, OydDidSupportedKeyTypes, CMSMOpts, OydConstructorOpts } from './types/oyd-provider-types.js'
+import type { OydCreateIdentifierOptions, OydDidHoldKeysArgs, OydDidSupportedKeyTypes, CMSMOpts, OydConstructorOptions } from './types/oyd-provider-types.js'
 import fetch from 'cross-fetch'
 
 import Debug from 'debug'
@@ -19,7 +19,7 @@ export class OydDIDProvider extends AbstractIdentifierProvider {
   constructor(options?: OydConstructorOptions) {
     super()
     this.defaultKms = options?.defaultKms || "";
-    this.cmsmOptions = options?.clientManagedSecretMode || null;
+    this.cmsmOptions = options?.clientManagedSecretMode || undefined;
   }
 
   async createIdentifier(
@@ -78,7 +78,7 @@ export class OydDIDProvider extends AbstractIdentifierProvider {
     { kms, options }: { kms?: string, options: OydCreateIdentifierOptions },
     context: IContext
   ): Promise<Omit<IIdentifier, 'provider'>> {
-    if(!this.cmsmOptions) return;
+    if(!this.cmsmOptions) throw new Error("did:oyd: no cmsm options defined!!");
 
     const createIdentifier = 'https://oydid-registrar.data-container.net/1.0/createIdentifier';
 
@@ -123,6 +123,8 @@ export class OydDIDProvider extends AbstractIdentifierProvider {
         "sig": signature
       }
     };
+
+    Object.assign(body_signed.options, options);
 
     let didDoc: any | undefined;  // do the request
     try {
