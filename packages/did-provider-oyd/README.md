@@ -1,4 +1,4 @@
-# OwnYourData did:oyd Provider
+# `did:oyd` Provider
 
 This package contains an implementation of the `AbstractIdentifierProvider` for the `did:oyd` method. Enabling creating and resolving of `did:oyd` entities, conforming to the [spec for OYDID](https://ownyourdata.github.io/oydid/)
 
