@@ -838,6 +838,9 @@ importers:
       text-encoding:
         specifier: ^0.7.0
         version: 0.7.0
+      uint8arrays:
+        specifier: ^3.1.1
+        version: 3.1.1
     devDependencies:
       '@types/text-encoding':
         specifier: 0.0.39
