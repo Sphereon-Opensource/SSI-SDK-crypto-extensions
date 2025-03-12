@@ -58,7 +58,7 @@ export async function getManagedKidIdentifier(
   const jwk = toJwk(key.publicKeyHex, key.type, { key })
   const jwkThumbprint = (key.meta?.jwkThumbprint as string) ?? calculateJwkThumbprint({ jwk })
   if (!kid) {
-    kid = opts.kid ?? (key.meta?.verificationMethod?.id as string) ?? jwkThumbprint
+    kid = opts.kid ?? (key.meta?.verificationMethod?.id as string) ?? key.kid ?? jwkThumbprint
   }
   if (!issuer) {
     issuer = opts.issuer ?? kid // The different identifiers should set the value. Defaults to the kid
