@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.28.0](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/compare/v0.27.0...v0.28.0) (2025-03-14)
+
+### Bug Fixes
+
+- Fixed jwt decoding ([8c2ba79](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/commit/8c2ba7951e23650a8b2df0a20db13109357fc284))
+- Fixed jwt type ([67b5af1](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/commit/67b5af10a1af66aaa03c225c0303cd323a2d5c80))
+- merging issue ([f1862bf](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/commit/f1862bf57b3488fffaad2222174ed6927e5e3a05))
+- potential undefined idOpts in legacy conversion ([7161cdc](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/commit/7161cdca6d24315f01b785ed437edb27ef49f0f3))
+
+### Features
+
+- Improve managed kid resolution in case we encounter a DID ([83d966d](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/commit/83d966d3b3b7a873f2c6aad441c05f32b16cc272))
+
 # [0.27.0](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/compare/v0.26.0...v0.27.0) (2024-12-05)
 
 **Note:** Version bump only for package @sphereon/ssi-sdk-ext.identifier-resolution
