@@ -56,11 +56,10 @@ export class OydDIDProvider extends AbstractIdentifierProvider {
       throw new Error('There has been a problem with the fetch operation: ' + error.toString());
     }
 
-    const keyType: OydDidSupportedKeyTypes = options?.keyType || 'Ed25519';
+    const keyType: OydDidSupportedKeyTypes = options?.keyType || 'Secp256r1';
     const key = await this.holdKeys(
       {
-        // @ts-ignore
-        kms: kms || this.defaultKms,
+        kms: kms ?? this.defaultKms,
         options: {
           keyType,
           kid: didDoc.did + '#key-doc',
@@ -85,7 +84,9 @@ export class OydDIDProvider extends AbstractIdentifierProvider {
     { kms, options }: { kms?: string, options: OydCreateIdentifierOptions },
     context: IContext
   ): Promise<Omit<IIdentifier, 'provider'>> {
-    if(!this.cmsmOptions) throw new Error("did:oyd: no cmsm options defined!!");
+    if(!this.cmsmOptions) {
+      throw new Error("did:oyd: no cmsm options defined!");
+    }
 
     const pubKey = this.cmsmOptions?.publicKeyCallback("default", "local"); // "default" is probably not right, TODO!!
     const kid = pubKey.kid;
@@ -149,7 +150,7 @@ export class OydDIDProvider extends AbstractIdentifierProvider {
       throw new Error('There has been a problem with the fetch operation: ' + error.toString());
     }
 
-    let oydKeyType: OydDidSupportedKeyTypes = "Ed25519";  // make this not static, TODO!!
+    let oydKeyType: OydDidSupportedKeyTypes = "Secp256r1";
 
     const key = await this.holdKeys(
       {
@@ -212,7 +213,7 @@ export class OydDIDProvider extends AbstractIdentifierProvider {
         kid: args.options.kid,
         privateKeyHex: args.options.privateKeyHex,
         meta: {
-          algorithms: ['Ed25519'],
+          algorithms: ['Secp256r1'],
         },
       });
     }
@@ -221,7 +222,7 @@ export class OydDIDProvider extends AbstractIdentifierProvider {
       // @ts-ignore
       kms: args.kms || this.defaultKms,
       meta: {
-        algorithms: ['Ed25519'],
+        algorithms: ['Secp256r1'],
       },
     });
   }
