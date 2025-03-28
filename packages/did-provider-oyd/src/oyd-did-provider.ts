@@ -5,6 +5,7 @@ import fetch from 'cross-fetch'
 
 import Debug from 'debug'
 const debug = Debug('veramo:oyd-did:identifier-provider')
+const OYDID_REGISTRAR_URL = 'https://oydid-registrar.data-container.net/1.0/createIdentifier';
 
 type IContext = IAgentContext<IKeyManager>
 
@@ -37,11 +38,9 @@ export class OydDIDProvider extends AbstractIdentifierProvider {
     }
 
     const body = { options };
-    const url = 'https://oydid-registrar.data-container.net/1.0/createIdentifier';
-
     let didDoc: any | undefined;
     try {
-      const response = await fetch(url, {
+      const response = await fetch(OYDID_REGISTRAR_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -88,8 +87,6 @@ export class OydDIDProvider extends AbstractIdentifierProvider {
   ): Promise<Omit<IIdentifier, 'provider'>> {
     if(!this.cmsmOptions) throw new Error("did:oyd: no cmsm options defined!!");
 
-    const createIdentifier = 'https://oydid-registrar.data-container.net/1.0/createIdentifier';
-
     const pubKey = this.cmsmOptions?.publicKeyCallback("default", "local"); // "default" is probably not right, TODO!!
     const kid = pubKey.kid;
     const keyType = pubKey.type;
@@ -104,7 +101,7 @@ export class OydDIDProvider extends AbstractIdentifierProvider {
 
     let signValue: any | undefined;  // do the request
     try {
-      const response = await fetch(createIdentifier, {
+      const response = await fetch(OYDID_REGISTRAR_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -136,7 +133,7 @@ export class OydDIDProvider extends AbstractIdentifierProvider {
 
     let didDoc: any | undefined;  // do the request
     try {
-      const response = await fetch(createIdentifier, {
+      const response = await fetch(OYDID_REGISTRAR_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -156,7 +153,6 @@ export class OydDIDProvider extends AbstractIdentifierProvider {
 
     const key = await this.holdKeys(
       {
-        // @ts-ignore
         kms: kms ?? this.defaultKms,
         options: {
           keyType: oydKeyType,
