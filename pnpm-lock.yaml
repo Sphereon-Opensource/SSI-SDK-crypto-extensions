@@ -224,7 +224,7 @@ importers:
         version: link:../key-utils
       '@transmute/did-key-bls12381':
         specifier: 0.3.0-unstable.10
-        version: 0.3.0-unstable.10(encoding@0.1.13)(web-streams-polyfill@3.3.3)
+        version: 0.3.0-unstable.10(encoding@0.1.13)
       '@veramo/core':
         specifier: 4.2.0
         version: 4.2.0(patch_hash=002e69343dc4b4eb8372715652188a9baf2969c8cbb6d43cf21855eb1b95027c)
@@ -289,7 +289,7 @@ importers:
         version: 0.27.0
       '@sphereon/ssi-sdk-ext.kms-local':
         specifier: ^0.27.0
-        version: 0.27.0(encoding@0.1.13)(pg@8.13.1)(sqlite3@5.1.7)(ts-node@10.9.2(@types/node@20.17.1)(typescript@5.6.3))
+        version: 0.27.0(encoding@0.1.13)(ts-node@10.9.2(@types/node@20.17.1)(typescript@5.6.3))
       '@sphereon/ssi-sdk.dev':
         specifier: 0.30.2-feature.SDK.41.oidf.support.286
         version: 0.30.2-feature.SDK.41.oidf.support.286(@types/node@20.17.1)
@@ -847,6 +847,9 @@ importers:
       text-encoding:
         specifier: ^0.7.0
         version: 0.7.0
+      uint8arrays:
+        specifier: ^3.1.1
+        version: 3.1.1
     devDependencies:
       '@types/text-encoding':
         specifier: 0.0.39
@@ -12542,7 +12545,7 @@ snapshots:
       - ts-node
       - typeorm-aurora-data-api-driver
 
-  '@sphereon/ssi-sdk-ext.did-utils@0.27.0(encoding@0.1.13)(pg@8.13.1)(sqlite3@5.1.7)(ts-node@10.9.2(@types/node@20.17.1)(typescript@5.6.3))':
+  '@sphereon/ssi-sdk-ext.did-utils@0.27.0(encoding@0.1.13)(ts-node@10.9.2(@types/node@20.17.1)(typescript@5.6.3))':
     dependencies:
       '@ethersproject/networks': 5.7.1
       '@ethersproject/transactions': 5.7.0
@@ -12711,9 +12714,9 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@sphereon/ssi-sdk-ext.kms-local@0.27.0(encoding@0.1.13)(pg@8.13.1)(sqlite3@5.1.7)(ts-node@10.9.2(@types/node@20.17.1)(typescript@5.6.3))':
+  '@sphereon/ssi-sdk-ext.kms-local@0.27.0(encoding@0.1.13)(ts-node@10.9.2(@types/node@20.17.1)(typescript@5.6.3))':
     dependencies:
-      '@sphereon/ssi-sdk-ext.did-utils': 0.27.0(encoding@0.1.13)(pg@8.13.1)(sqlite3@5.1.7)(ts-node@10.9.2(@types/node@20.17.1)(typescript@5.6.3))
+      '@sphereon/ssi-sdk-ext.did-utils': 0.27.0(encoding@0.1.13)(ts-node@10.9.2(@types/node@20.17.1)(typescript@5.6.3))
       '@sphereon/ssi-sdk-ext.key-utils': 0.27.0
       '@sphereon/ssi-sdk-ext.x509-utils': 0.27.0
       '@trust/keyto': 2.0.0-alpha1
@@ -13064,7 +13067,7 @@ snapshots:
 
   '@transmute/did-context@0.6.1-unstable.37': {}
 
-  '@transmute/did-key-bls12381@0.3.0-unstable.10(encoding@0.1.13)(web-streams-polyfill@3.3.3)':
+  '@transmute/did-key-bls12381@0.3.0-unstable.10(encoding@0.1.13)':
     dependencies:
       '@transmute/bls12381-key-pair': 0.7.0-unstable.81(encoding@0.1.13)
       '@transmute/did-key-common': 0.3.0-unstable.10(encoding@0.1.13)(expo@51.0.38(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(encoding@0.1.13))(react-native@0.76.0(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(encoding@0.1.13)(react@18.3.1))(web-streams-polyfill@3.3.3)
