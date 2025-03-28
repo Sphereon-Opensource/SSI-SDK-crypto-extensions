@@ -18,7 +18,7 @@ export class OydDIDProvider extends AbstractIdentifierProvider {
 
   constructor(options?: OydConstructorOptions) {
     super()
-    this.defaultKms = options?.defaultKms || "";
+    this.defaultKms = options?.defaultKms;
     this.cmsmOptions = options?.clientManagedSecretMode || undefined;
   }
 
@@ -26,7 +26,15 @@ export class OydDIDProvider extends AbstractIdentifierProvider {
     { kms, options }: { kms?: string; options: OydCreateIdentifierOptions },
     context: IContext
   ): Promise<Omit<IIdentifier, 'provider'>> {
-    if(this.cmsmOptions) return this.createIdentifierWithCMSM({ kms, options }, context);
+    if (this.cmsmOptions) {
+      const resolvedKms = kms || this.defaultKms;
+
+      if (!resolvedKms) {
+        throw new Error('KMS must be provided either as a parameter or via defaultKms.');
+      }
+
+      return this.createIdentifierWithCMSM({ kms: resolvedKms, options }, context);
+    }
 
     const body = { options };
     const url = 'https://oydid-registrar.data-container.net/1.0/createIdentifier';
@@ -149,7 +157,7 @@ export class OydDIDProvider extends AbstractIdentifierProvider {
     const key = await this.holdKeys(
       {
         // @ts-ignore
-        kms: kms || this.defaultKms,
+        kms: kms ?? this.defaultKms,
         options: {
           keyType: oydKeyType,
           kid: kid,
