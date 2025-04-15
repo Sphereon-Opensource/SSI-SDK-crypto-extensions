@@ -4,6 +4,7 @@ import { AbstractIdentifierProvider } from '@veramo/did-manager'
 import base64url from 'base64url'
 import Debug from 'debug'
 import { IAddKeyArgs, IAddServiceArgs, ICreateIdentifierArgs, IRemoveKeyArgs, IRequiredContext } from './types/jwk-provider-types'
+import { JsonWebKey } from '@sphereon/ssi-types'
 
 const debug = Debug('sphereon:did-provider-jwk')
 

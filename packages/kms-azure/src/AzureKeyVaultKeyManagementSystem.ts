@@ -88,6 +88,7 @@ export class AzureKeyVaultKeyManagementSystem extends AbstractKeyManagementSyste
       input: args.data,
     })
 
+    // @ts-ignore
     return Buffer.from(signature).toString('hex')
   }
 

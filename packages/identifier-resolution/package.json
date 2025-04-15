@@ -1,38 +1,49 @@
 {
   "name": "@sphereon/ssi-sdk-ext.identifier-resolution",
   "version": "0.28.0",
-  "source": "src/index.ts",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "source": "./src/index.ts",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    "import": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "require": {
+      "types": "./dist/index.d.cts",
+      "require": "./dist/index.cjs"
+    }
+  },
   "veramo": {
     "pluginInterfaces": {
       "IIdentifierResolution": "./src/types/IIdentifierResolution.ts"
     }
   },
   "scripts": {
-    "build": "tsc --build",
-    "build:clean": "tsc --build --clean && tsc --build",
+    "build": "tsup --config ../../tsup.config.ts --tsconfig ../../tsconfig.tsup.json",
     "generate-plugin-schema": "sphereon dev generate-plugin-schema"
   },
   "dependencies": {
-    "@sphereon/ssi-sdk-ext.did-utils": "workspace:*",
-    "@sphereon/ssi-sdk-ext.key-utils": "workspace:*",
-    "@sphereon/ssi-sdk-ext.x509-utils": "workspace:*",
-    "@sphereon/ssi-sdk.agent-config": "0.30.2-feature.SDK.41.oidf.support.286",
-    "@sphereon/ssi-sdk.oidf-client": " 0.30.2-feature.SDK.41.oidf.support.286",
-    "@sphereon/ssi-types": "0.30.2-feature.SDK.41.oidf.support.286",
+    "@sphereon/ssi-sdk-ext.did-utils": "workspace:^",
+    "@sphereon/ssi-sdk-ext.key-utils": "workspace:^",
+    "@sphereon/ssi-sdk-ext.x509-utils": "workspace:^",
+    "@sphereon/ssi-sdk.agent-config": " ^0.33",
+    "@sphereon/ssi-sdk.oidf-client": "  ^0.33",
+    "@sphereon/ssi-types": " ^0.33",
     "@veramo/core": "4.2.0",
     "@veramo/utils": "4.2.0",
     "debug": "^4.3.4",
     "pkijs": "^3.2.4",
-    "uint8arrays": "^3.1.1"
+    "uint8arrays": " ^5.1.0"
   },
   "devDependencies": {
-    "@sphereon/ssi-sdk-ext.did-provider-jwk": "workspace:*",
-    "@sphereon/ssi-sdk-ext.did-resolver-jwk": "workspace:*",
-    "@sphereon/ssi-sdk-ext.key-manager": "workspace:*",
-    "@sphereon/ssi-sdk-ext.kms-local": "workspace:*",
-    "@sphereon/ssi-sdk.dev": "0.30.2-feature.SDK.41.oidf.support.286",
+    "@sphereon/ssi-sdk-ext.did-provider-jwk": "workspace:^",
+    "@sphereon/ssi-sdk-ext.did-resolver-jwk": "workspace:^",
+    "@sphereon/ssi-sdk-ext.key-manager": "workspace:^",
+    "@sphereon/ssi-sdk-ext.kms-local": "workspace:^",
+    "@sphereon/ssi-sdk.dev": " ^0.33",
     "@veramo/data-store": "4.2.0",
     "@veramo/did-manager": "4.2.0",
     "@veramo/did-resolver": "4.2.0",
@@ -44,8 +55,8 @@
     "typeorm": "0.3.20"
   },
   "files": [
-    "dist/**/*",
-    "src/**/*",
+    "dist",
+    "src",
     "plugin.schema.json",
     "README.md",
     "LICENSE"

@@ -31,6 +31,7 @@ export function coseKeyToJwk(coseKey: ICoseKeyJson): JWK {
 
 export function jwkToCoseKey(jwk: JWK): ICoseKeyJson {
   const { x5c, key_ops, crv, alg, iv, kty, ...rest } = jwk
+
   return removeNulls({
     ...rest,
     kty: joseToCoseKty(kty),
@@ -39,6 +40,7 @@ export function jwkToCoseKey(jwk: JWK): ICoseKeyJson {
     ...(alg && { alg: joseToCoseSignatureAlg(alg) }),
     ...(iv && { baseIV: iv }),
     ...(x5c && { x5chain: x5c }),
+    // @ts-ignore
   } satisfies ICoseKeyJson)
 }
 

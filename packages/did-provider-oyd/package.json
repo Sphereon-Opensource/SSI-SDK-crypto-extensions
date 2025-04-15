@@ -2,9 +2,21 @@
   "name": "@sphereon/did-provider-oyd",
   "description": "OwnYourData plugin that can enable creation and control of did:oyd identifiers.",
   "version": "0.28.0",
-  "source": "src/index.ts",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "source": "./src/index.ts",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    "import": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "require": {
+      "types": "./dist/index.d.cts",
+      "require": "./dist/index.cjs"
+    }
+  },
   "scripts": {
     "build": "tsc",
     "extract-api": "sphereon dev extract-api"
@@ -17,15 +29,15 @@
     "did-resolver": "^4.1.0"
   },
   "devDependencies": {
-    "@sphereon/ssi-sdk.dev": "0.30.2-feature.SDK.41.oidf.support.286",
+    "@sphereon/ssi-sdk.dev": " ^0.33",
     "@types/debug": "4.1.8",
     "inquirer": "^9.1.4",
     "inquirer-autocomplete-prompt": "^3.0.0",
     "typescript": "5.2.2"
   },
   "files": [
-    "dist/**/*",
-    "src/**/*",
+    "dist",
+    "src",
     "README.md",
     "LICENSE"
   ],

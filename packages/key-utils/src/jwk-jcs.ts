@@ -1,5 +1,7 @@
-import { JWK } from '@sphereon/ssi-types'
+import { JsonWebKey, JWK } from '@sphereon/ssi-types'
+// @ts-ignore
 import type { ByteView } from 'multiformats/codecs/interface'
+// @ts-ignore
 import { TextDecoder, TextEncoder } from 'web-encoding'
 
 const textEncoder = new TextEncoder()

@@ -150,7 +150,6 @@ export class SphereonKeyManager extends VeramoKeyManager {
     }
   }
 
-
   get defaultKms(): string {
     return this._defaultKms
   }

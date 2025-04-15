@@ -5,6 +5,8 @@ import { contextHasDidManager, contextHasKeyManager } from '@sphereon/ssi-sdk.ag
 import { ICoseKeyJson, JWK } from '@sphereon/ssi-types'
 import { IAgentContext, IIdentifier, IKey, IKeyManager } from '@veramo/core'
 import { CryptoEngine, setEngine } from 'pkijs'
+// @ts-ignore
+import { Crypto} from '@types/node'
 import {
   IIdentifierResolution,
   isManagedIdentifierCoseKeyOpts,
@@ -47,13 +49,13 @@ export async function getManagedKidIdentifier(
     return Promise.reject(Error(`Cannot get Key/JWK identifier if KeyManager plugin is not enabled!`))
   } else if (opts.identifier.startsWith('did:')) {
     const did = opts.identifier.split('#')[0]
-    const didIdentifier = await getManagedDidIdentifier({...opts, method: 'did', identifier: did}, context)
+    const didIdentifier = await getManagedDidIdentifier({ ...opts, method: 'did', identifier: did }, context)
     key = didIdentifier.key
     issuer = didIdentifier.issuer
     kid = opts?.kid ?? (key.meta?.verificationMethod?.id as string) ?? didIdentifier.kid
   }
   if (!key) {
-    key = await context.agent.keyManagerGet({kid: opts.kmsKeyRef ?? opts.identifier})
+    key = await context.agent.keyManagerGet({ kid: opts.kmsKeyRef ?? opts.identifier })
   }
   const jwk = toJwk(key.publicKeyHex, key.type, { key })
   const jwkThumbprint = (key.meta?.jwkThumbprint as string) ?? calculateJwkThumbprint({ jwk })

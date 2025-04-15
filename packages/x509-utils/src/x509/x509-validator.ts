@@ -305,6 +305,7 @@ export type ParsedCertificate = {
   publicKeyInfo: SubjectPublicKeyInfo
   publicKeyJwk?: JWK
   publicKeyRaw: Uint8Array
+  // @ts-ignore
   publicKeyAlgorithm: Algorithm
   certificateInfo: CertificateInfo
   certificate: Certificate

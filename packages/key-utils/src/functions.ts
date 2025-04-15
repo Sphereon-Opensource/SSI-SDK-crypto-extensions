@@ -31,6 +31,8 @@ import {
   TKeyType,
 } from './types'
 
+// @ts-ignore
+import { Crypto } from '@types/node'
 export const logger = Loggers.DEFAULT.get('sphereon:key-utils')
 
 /**
@@ -717,10 +719,14 @@ export const globalCrypto = (setGlobal: boolean, suppliedCrypto?: Crypto): Crypt
     webcrypto = crypto
   } else if (typeof global.crypto !== 'undefined') {
     webcrypto = global.crypto
-  } else if (typeof global.window?.crypto?.subtle !== 'undefined') {
-    webcrypto = global.window.crypto
   } else {
-    webcrypto = require('crypto') as Crypto
+    // @ts-ignore
+    if (typeof global.window?.crypto?.subtle !== 'undefined') {
+      // @ts-ignore
+      webcrypto = global.window.crypto
+    } else {
+      webcrypto = import('crypto') as Crypto
+    }
   }
   if (setGlobal) {
     global.crypto = webcrypto
@@ -730,7 +736,7 @@ export const globalCrypto = (setGlobal: boolean, suppliedCrypto?: Crypto): Crypt
 }
 
 export const sanitizedJwk = (input: JWK | JsonWebKey): JWK => {
-  const inputJwk = typeof input['toJsonDTO'] === 'function' ? input['toJsonDTO']() : {...input} as JWK // KMP code can expose this. It converts a KMP JWK with mangled names into a clean JWK
+  const inputJwk = typeof input['toJsonDTO'] === 'function' ? input['toJsonDTO']() : ({ ...input } as JWK) // KMP code can expose this. It converts a KMP JWK with mangled names into a clean JWK
 
   const jwk = {
     ...inputJwk,
@@ -802,7 +808,7 @@ export async function verifyRawSignature({
       case 'Bls12381G2':
         return bls12_381.verify(signature, data, u8a.fromString(publicKeyHex, 'hex'))
       case 'RSA': {
-        const signatureAlgorithm = opts?.signatureAlg ?? jwk.alg as JoseSignatureAlgorithm | undefined ?? JoseSignatureAlgorithm.PS256
+        const signatureAlgorithm = opts?.signatureAlg ?? (jwk.alg as JoseSignatureAlgorithm | undefined) ?? JoseSignatureAlgorithm.PS256
         const hashAlg =
           signatureAlgorithm === (JoseSignatureAlgorithm.RS512 || JoseSignatureAlgorithm.PS512)
             ? sha512

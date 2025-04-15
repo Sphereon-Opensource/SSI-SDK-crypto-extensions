@@ -35,7 +35,8 @@ import {
   isExternalIdentifierX5cOpts,
 } from '../types'
 import { resolveExternalOIDFEntityIdIdentifier } from '.'
-
+// @ts-ignore
+import { Crypto} from '@types/node'
 export async function resolveExternalIdentifier(
   opts: ExternalIdentifierOpts & {
     crypto?: Crypto
@@ -245,18 +246,24 @@ export async function resolveExternalDidIdentifier(
   const didDocument = didResolutionResult.didDocument ?? undefined
   const didJwks = didDocument ? didDocumentToJwks(didDocument) : undefined
   const jwks = didJwks
-    ? Array.from(new Set(Array.from(
-          Object.values(didJwks)
-            .filter((jwks) => isDefined(jwks) && jwks.length > 0)
-            .flatMap((jwks) => jwks)
-      ).flatMap((jwk) => {
-        return {
-          jwk,
-          jwkThumbprint: calculateJwkThumbprint({ jwk }),
-          kid: jwk.kid,
-          publicKeyHex: jwkTtoPublicKeyHex(jwk),
-        }
-      }).map(jwk => JSON.stringify(jwk)))).map((jwks) => JSON.parse(jwks))
+    ? Array.from(
+        new Set(
+          Array.from(
+            Object.values(didJwks)
+              .filter((jwks) => isDefined(jwks) && jwks.length > 0)
+              .flatMap((jwks) => jwks)
+          )
+            .flatMap((jwk) => {
+              return {
+                jwk,
+                jwkThumbprint: calculateJwkThumbprint({ jwk }),
+                kid: jwk.kid,
+                publicKeyHex: jwkTtoPublicKeyHex(jwk),
+              }
+            })
+            .map((jwk) => JSON.stringify(jwk))
+        )
+      ).map((jwks) => JSON.parse(jwks))
     : []
 
   if (didResolutionResult?.didDocument) {

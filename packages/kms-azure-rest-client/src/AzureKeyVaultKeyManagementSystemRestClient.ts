@@ -1,8 +1,10 @@
-import {IKey, ManagedKeyInfo, MinimalImportableKey, TKeyType} from '@veramo/core'
-import {AbstractKeyManagementSystem} from '@veramo/key-manager'
-import {KeyMetadata} from './index'
+import { IKey, ManagedKeyInfo, MinimalImportableKey, TKeyType } from '@veramo/core'
+import { AbstractKeyManagementSystem } from '@veramo/key-manager'
+import { KeyMetadata } from './index'
 import * as AzureRestClient from './js-client'
 import * as u8a from 'uint8arrays'
+
+import { JsonWebKey } from '@sphereon/ssi-types'
 
 interface AbstractKeyManagementSystemOptions {
   applicationId: string
@@ -34,7 +36,7 @@ export class AzureKeyVaultKeyManagementSystemRestClient extends AbstractKeyManag
     const curveName = this.mapKeyTypeCurveName(type)
 
     const options: AzureRestClient.CreateEcKeyRequest = {
-      keyName: meta?.keyAlias.replace(/_/g, "-"),
+      keyName: meta?.keyAlias.replace(/_/g, '-'),
       curveName,
       operations: meta && 'keyOperations' in meta ? meta.keyOperations : ['sign', 'verify'],
     }
@@ -48,9 +50,9 @@ export class AzureKeyVaultKeyManagementSystemRestClient extends AbstractKeyManag
       meta: {
         alias: createKeyResponse.name!,
         algorithms: [createKeyResponse.key?.curveName ?? 'ES256'],
-        kmsKeyRef: createKeyResponse.id!
+        kmsKeyRef: createKeyResponse.id!,
       },
-      publicKeyHex: this.ecJwkToRawHexKey(createKeyResponse.key!),
+      publicKeyHex: this.ecJwkToRawHexKey(createKeyResponse.key as JsonWebKey),
     }
   }
 

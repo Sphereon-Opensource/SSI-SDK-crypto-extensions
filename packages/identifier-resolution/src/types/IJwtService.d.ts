@@ -7,7 +7,7 @@ import {
   IIdentifierResolution,
   ManagedIdentifierOptsOrResult,
   ManagedIdentifierResult,
-} from '@sphereon/ssi-sdk-ext.identifier-resolution'
+} from '../types'
 import { ClientIdScheme } from '@sphereon/ssi-sdk-ext.x509-utils'
 import { BaseJWK, IValidationResult, JoseSignatureAlgorithm, JoseSignatureAlgorithmString, JWK } from '@sphereon/ssi-types'
 import { IAgentContext, IKeyManager, IPluginMethodMap } from '@veramo/core'
@@ -25,6 +25,7 @@ export interface IJwtService extends IPluginMethodMap {
 export type IJwsValidationResult = IValidationResult & {
   jws: JwsJsonGeneralWithIdentifiers
 }
+
 export interface PreparedJws {
   protectedHeader: JwsHeader
   payload: Uint8Array

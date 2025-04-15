@@ -41,7 +41,7 @@ export const identifierResolutionContextMethods: Array<string> = [
   'identifierManagedGetByX5c',
   'identifierManagedGetByKey',
   'identifierManagedGetByOID4VCIssuer',
-  'identifierGetManagedByCoseKey',
+  'identifierManagedGetByCoseKey',
   'identifierExternalResolve',
   'identifierExternalResolveByDid',
   'identifierExternalResolveByX5c',

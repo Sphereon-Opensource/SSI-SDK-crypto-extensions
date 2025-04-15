@@ -14,7 +14,7 @@ import {
   isX5cIdentifier,
   JwkInfo,
 } from './common'
-import {JwsPayload} from "./IJwtService";
+import { JwsPayload } from './IJwtService'
 
 /**
  * Use whenever we need to resolve an external identifier. We can pass in kids, DIDs, and x5chains
