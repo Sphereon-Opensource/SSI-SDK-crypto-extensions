@@ -1,5 +1,5 @@
 // Copy of jwt-service typings since we cannot include that as devDependency due to cyclic dep
-
+/*
 import {
   ExternalIdentifierDidOpts,
   ExternalIdentifierResult,
@@ -7,7 +7,7 @@ import {
   IIdentifierResolution,
   ManagedIdentifierOptsOrResult,
   ManagedIdentifierResult,
-} from '../types'
+} from '../types'*/
 import { ClientIdScheme } from '@sphereon/ssi-sdk-ext.x509-utils'
 import { BaseJWK, IValidationResult, JoseSignatureAlgorithm, JoseSignatureAlgorithmString, JWK } from '@sphereon/ssi-types'
 import { IAgentContext, IKeyManager, IPluginMethodMap } from '@veramo/core'

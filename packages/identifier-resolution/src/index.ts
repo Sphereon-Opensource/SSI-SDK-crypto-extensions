@@ -6,6 +6,6 @@ export { schema }
 /**
  * @public
  */
+export * from './types'
 export { IdentifierResolution } from './agent/IdentifierResolution'
 export * from './functions'
-export * from './types'
