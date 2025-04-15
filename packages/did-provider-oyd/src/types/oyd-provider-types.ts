@@ -1,15 +1,23 @@
-import { IKey } from '@veramo/core'
+import { IKey, TKeyType } from '@veramo/core'
 
 export type OydConstructorOptions = {
   defaultKms?: string;
-  clientManagedSecretMode?: CMSMOpts;
+  clientManagedSecretMode?: CMSMCallbackOpts;
 }
 
 export type OydCreateIdentifierOptions = {
   keyType?: OydDidSupportedKeyTypes;
   privateKeyHex?: string;
+  kid?: string;
   keyUse?: KeyUse;
-  csms?: boolean;
+  cmsm?: CmsmOptions;
+  key?: IKey // Use the supplied key instead of looking it up in the KMS or creating a new one
+}
+
+
+export type CmsmOptions = {
+  enabled: boolean
+  create?: boolean
 }
 
 export type OydDidHoldKeysArgs = {
@@ -24,9 +32,9 @@ type HoldKeysOpts = {
   privateKeyHex?: string;
 }
 
-export type CMSMOpts = {
-  publicKeyCallback: (kid: string, kms: string) => IKey;
-  signCallback: (kid: string, value: string) => string;
+export type CMSMCallbackOpts = {
+  publicKeyCallback: (kid: string, kms?: string, create?: boolean, createKeyType?: TKeyType) => Promise<IKey>;
+  signCallback: (kid: string, value: string) => Promise<string>;
 }
 
 export enum SupportedKeyTypes {
