@@ -18,7 +18,7 @@
     }
   },
   "scripts": {
-    "build": "tsc"
+    "build": "tsup --config ../../tsup.config.ts --tsconfig ../../tsconfig.tsup.json"
   },
   "dependencies": {
     "@sphereon/ssi-sdk-ext.key-utils": "workspace:^",
@@ -29,7 +29,7 @@
     "lodash.isplainobject": "^4.0.6",
     "multiformats": "^9.9.0",
     "nist-weierstrauss": "1.4.1",
-    "uint8arrays": " ^5.1.0",
+    "uint8arrays": " 3.1.1",
     "varint": "^6.0.0",
     "web-encoding": "^1.1.5"
   },

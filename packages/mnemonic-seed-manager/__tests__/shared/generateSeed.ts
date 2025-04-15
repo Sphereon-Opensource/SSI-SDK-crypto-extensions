@@ -1,4 +1,5 @@
 import { IDataStore, IKeyManager, TAgent } from '@veramo/core'
+import { beforeAll, describe, expect, it } from 'vitest'
 
 import { IMnemonicSeedManager } from '../../src'
 

@@ -13,7 +13,9 @@ import { verifyRawSignature } from '@sphereon/ssi-sdk-ext.key-utils'
 import { JWK } from '@sphereon/ssi-types'
 import { IAgentContext } from '@veramo/core'
 import { base64ToBytes, bytesToBase64url, decodeJoseBlob, encodeJoseBlob } from '@veramo/utils'
-import * as u8a from 'uint8arrays'
+// @ts-ignore
+import { fromString } from 'uint8arrays/from-string'
+
 import {
   CreateJwsCompactArgs,
   CreateJwsFlattenedArgs,
@@ -41,7 +43,7 @@ import {
 const payloadToBytes = (payload: string | JwsPayload | Uint8Array): Uint8Array => {
   const isBytes = payload instanceof Uint8Array
   const isString = typeof payload === 'string'
-  return isBytes ? payload : isString ? u8a.fromString(payload, 'base64url') : u8a.fromString(JSON.stringify(payload), 'utf-8')
+  return isBytes ? payload : isString ? fromString(payload, 'base64url') : fromString(JSON.stringify(payload), 'utf-8')
 }
 
 export const prepareJwsObject = async (args: CreateJwsJsonArgs, context: IRequiredContext): Promise<PreparedJwsObject> => {
@@ -312,7 +314,7 @@ export const verifyJws = async (args: VerifyJwsArgs, context: IAgentContext<IIde
       // If we have a specific KMS agent plugin that can do the verification prefer that over the generic verification
       index++
       let valid: boolean
-      const data = u8a.fromString(`${sigWithId.protected}.${jws.payload}`, 'utf-8')
+      const data = fromString(`${sigWithId.protected}.${jws.payload}`, 'utf-8')
       const jwkInfo = sigWithId.identifier.jwks[0]
       /* if (sigWithId.header?.alg === 'RSA' && contextHasPlugin(context, 'keyManagerVerify')) {
         const publicKeyHex = jwkTtoPublicKeyHex(jwkInfo.jwk)

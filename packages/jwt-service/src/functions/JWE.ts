@@ -2,8 +2,14 @@ import { defaultRandomSource, randomBytes, RandomSource } from '@stablelib/rando
 import { base64ToBytes, bytesToBase64url, decodeBase64url } from '@veramo/utils'
 import * as jose from 'jose'
 import { JWEKeyManagementHeaderParameters, JWTDecryptOptions } from 'jose'
+// @ts-ignore
 import type { KeyLike } from 'jose/dist/types/types'
-import * as u8a from 'uint8arrays'
+// @ts-ignore
+import { fromString } from 'uint8arrays/from-string'
+// @ts-ignore
+import { toString } from 'uint8arrays/to-string'
+// @ts-ignore
+import { concat } from 'uint8arrays/concat'
 import {
   JweAlg,
   JweAlgs,
@@ -237,7 +243,7 @@ export class CompactJwtEncrypter implements JweEncrypter {
   }
 
   async encrypt(payload: Uint8Array, jweProtectedHeader: JweProtectedHeader, aad?: Uint8Array | undefined): Promise<EncryptionResult> {
-    const jwt = await this.encryptCompactJWT(JSON.parse(u8a.toString(payload)), jweProtectedHeader, aad)
+    const jwt = await this.encryptCompactJWT(JSON.parse(toString(payload)), jweProtectedHeader, aad)
     const [protectedHeader, encryptedKey, ivB64, payloadB64, tagB64] = jwt.split('.')
     //[jwe.protected, jwe.encrypted_key, jwe.iv, jwe.ciphertext, jwe.tag].join('.');
     console.log(`FIXME: TO EncryptionResult`)
@@ -335,7 +341,7 @@ export async function decryptJwe(jwe: JweJsonGeneral, decrypter: JweDecrypter): 
     return Promise.reject(Error(`Decrypter enc '${decrypter.enc}' does not support header enc '${protectedHeader.enc}'`))
   }
   const sealed = toWebCryptoCiphertext(jwe.ciphertext, jwe.tag)
-  const aad = u8a.fromString(jwe.aad ? `${jwe.protected}.${jwe.aad}` : jwe.protected)
+  const aad = fromString(jwe.aad ? `${jwe.protected}.${jwe.aad}` : jwe.protected)
   let cleartext = null
   if (protectedHeader.alg === 'dir' && decrypter.alg === 'dir') {
     cleartext = await decrypter.decrypt(sealed, base64ToBytes(jwe.iv), aad)
@@ -355,5 +361,5 @@ export async function decryptJwe(jwe: JweJsonGeneral, decrypter: JweDecrypter): 
 }
 
 export function toWebCryptoCiphertext(ciphertext: string, tag: string): Uint8Array {
-  return u8a.concat([base64ToBytes(ciphertext), base64ToBytes(tag)])
+  return concat([base64ToBytes(ciphertext), base64ToBytes(tag)])
 }

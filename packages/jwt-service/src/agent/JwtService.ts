@@ -2,7 +2,10 @@ import { IAgentPlugin } from '@veramo/core'
 import debug from 'debug'
 import { importJWK } from 'jose'
 
-import * as u8a from 'uint8arrays'
+// @ts-ignore
+import { fromString } from 'uint8arrays/from-string'
+// @ts-ignore
+import { toString } from 'uint8arrays/to-string'
 import {
   createJwsCompact,
   CreateJwsCompactArgs,
@@ -88,9 +91,9 @@ export class JwtService implements IAgentPlugin {
         return Promise.reject(Error(`Currently only ECDH-ES is supported for encryption. JWK alg ${jwkInfo.jwk.kty}, header alg ${alg}`)) // TODO: Probably we support way more already
       }
       const apuVal = protectedHeader.apu ?? args.apu
-      const apu = apuVal ? u8a.fromString(apuVal, 'base64url') : undefined
+      const apu = apuVal ? fromString(apuVal, 'base64url') : undefined
       const apvVal = protectedHeader.apv ?? args.apv
-      const apv = apvVal ? u8a.fromString(apvVal, 'base64url') : undefined
+      const apv = apvVal ? fromString(apvVal, 'base64url') : undefined
 
       const pubKey = await importJWK(jwkInfo.jwk)
       const encrypter = new CompactJwtEncrypter({

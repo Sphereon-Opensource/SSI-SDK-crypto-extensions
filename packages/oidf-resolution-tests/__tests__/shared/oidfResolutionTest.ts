@@ -1,8 +1,7 @@
-import { ExternalIdentifierOIDFEntityIdResult, ExternalIdentifierResult, IIdentifierResolution } from '../../../identifier-resolution/src/types' // FIXME fix when new types have been absorbed throughout ssi-sdk
-import { IKeyManager, TAgent } from '@veramo/core'
 import { IJwtService } from '@sphereon/ssi-sdk-ext.jwt-service'
-import { describe } from 'node:test'
-
+import { IKeyManager, TAgent } from '@veramo/core'
+import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import { ExternalIdentifierOIDFEntityIdResult, ExternalIdentifierResult, IIdentifierResolution } from '../../../identifier-resolution/src/types' // FIXME fix when new types have been absorbed throughout ssi-sdk
 type ConfiguredAgent = TAgent<IKeyManager & IIdentifierResolution & IJwtService>
 
 export default (testContext: { getAgent: () => ConfiguredAgent; setup: () => Promise<boolean>; tearDown: () => Promise<boolean> }) => {

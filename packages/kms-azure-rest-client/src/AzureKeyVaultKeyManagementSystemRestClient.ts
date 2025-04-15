@@ -2,7 +2,10 @@ import { IKey, ManagedKeyInfo, MinimalImportableKey, TKeyType } from '@veramo/co
 import { AbstractKeyManagementSystem } from '@veramo/key-manager'
 import { KeyMetadata } from './index'
 import * as AzureRestClient from './js-client'
-import * as u8a from 'uint8arrays'
+// @ts-ignore
+import { fromString } from 'uint8arrays/from-string'
+// @ts-ignore
+import { toString } from 'uint8arrays/to-string'
 
 import { JsonWebKey } from '@sphereon/ssi-types'
 
@@ -62,10 +65,10 @@ export class AzureKeyVaultKeyManagementSystemRestClient extends AbstractKeyManag
     }
 
     // We are converting from base64 to base64url to be sure. The spec uses base64url, but in the wild we sometimes encounter a base64 string
-    const x = u8a.fromString(jwk.x.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''), 'base64url')
-    const y = u8a.fromString(jwk.y.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''), 'base64url')
+    const x = fromString(jwk.x.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''), 'base64url')
+    const y = fromString(jwk.y.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''), 'base64url')
 
-    return '04' + u8a.toString(x, 'hex') + u8a.toString(y, 'hex')
+    return '04' + toString(x, 'hex') + toString(y, 'hex')
   }
 
   private mapKeyTypeCurveName = (type: TKeyType) => {
@@ -92,7 +95,7 @@ export class AzureKeyVaultKeyManagementSystemRestClient extends AbstractKeyManag
     }
     const signResponse = await this.client.signPayload({
       keyName: args.keyRef.kid,
-      payload: u8a.toString(args.data),
+      payload: toString(args.data),
     })
     return signResponse.signature
   }

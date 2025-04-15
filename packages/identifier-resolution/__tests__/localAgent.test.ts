@@ -1,19 +1,19 @@
 import { JwkDIDProvider } from '@sphereon/ssi-sdk-ext.did-provider-jwk'
 import { getDidJwkResolver } from '@sphereon/ssi-sdk-ext.did-resolver-jwk'
+import { SphereonKeyManager } from '@sphereon/ssi-sdk-ext.key-manager'
 import { SphereonKeyManagementSystem } from '@sphereon/ssi-sdk-ext.kms-local'
 import { createAgent, IDIDManager, IKeyManager, TAgent } from '@veramo/core'
 import { Entities, KeyStore, migrations, PrivateKeyStore } from '@veramo/data-store'
 import { DIDManager, MemoryDIDStore } from '@veramo/did-manager'
-import { SphereonKeyManager } from '@sphereon/ssi-sdk-ext.key-manager'
 import { DIDResolverPlugin } from '@veramo/did-resolver'
 import { SecretBox } from '@veramo/kms-local'
 import { OrPromise } from '@veramo/utils'
 import { Resolver } from 'did-resolver'
 import { DataSource } from 'typeorm'
+
+import { describe } from 'vitest'
 import { IdentifierResolution, IIdentifierResolution } from '../src'
 import identifierResolution from './shared/identifierResolution'
-
-jest.setTimeout(30000)
 
 const KMS_SECRET_KEY = 'd17c8674f5db9396f8eecccde25e882bb0336316bc411ae38dc1f3dcd7ed100f'
 let databaseFile = ':memory:'

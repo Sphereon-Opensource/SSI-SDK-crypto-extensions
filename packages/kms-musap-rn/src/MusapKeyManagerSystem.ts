@@ -30,7 +30,10 @@ import {
   isRawCompressedPublicKey,
   toRawCompressedHexPublicKey,
 } from '@sphereon/ssi-sdk-ext.key-utils'
-import * as u8a from 'uint8arrays'
+// @ts-ignore
+import { fromString } from 'uint8arrays/from-string'
+// @ts-ignore
+import { toString } from 'uint8arrays/to-string'
 
 export const logger = Loggers.DEFAULT.get('sphereon:musap-rn-kms')
 
@@ -203,19 +206,19 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
 
     // Check if we got a string that looks like base64 (might be double encoded)
     // Convert Uint8Array to string safely
-    const pemString = u8a.toString(pemBinary, 'utf8')
+    const pemString = toString(pemBinary, 'utf8')
     const isDoubleEncoded = pemBinary.length > 0 && typeof pemString === 'string' && pemString.startsWith('MF')
 
     if (isDoubleEncoded) {
       // Handle double-encoded case
-      const actualDerBytes = u8a.fromString(pemString, 'base64')
+      const actualDerBytes = fromString(pemString, 'base64')
 
       // For double-encoded case, we know the key data starts after the header
       const keyDataStart = 24
       const keyData = actualDerBytes.slice(keyDataStart)
 
       // Convert to public key hex
-      let publicKeyHex = u8a.toString(keyData, 'hex')
+      let publicKeyHex = toString(keyData, 'hex')
 
       // If it's not compressed yet and doesn't start with 0x04 (uncompressed point marker), add it
       if (publicKeyHex.length <= 128 && !publicKeyHex.startsWith('04')) {
@@ -229,13 +232,13 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
 
       // Now convert to compressed format if needed
       if (publicKeyHex.startsWith('04') && publicKeyHex.length === 130) {
-        const xCoord = u8a.fromString(publicKeyHex.slice(2, 66), 'hex')
-        const yCoord = u8a.fromString(publicKeyHex.slice(66, 130), 'hex')
+        const xCoord = fromString(publicKeyHex.slice(2, 66), 'hex')
+        const yCoord = fromString(publicKeyHex.slice(66, 130), 'hex')
         const prefix = new Uint8Array([yCoord[31] % 2 === 0 ? 0x02 : 0x03])
         const compressedKey = new Uint8Array(33) // 1 byte prefix + 32 bytes x coordinate
         compressedKey.set(prefix, 0)
         compressedKey.set(xCoord, 1)
-        return u8a.toString(compressedKey, 'hex')
+        return toString(compressedKey, 'hex')
       }
 
       return publicKeyHex

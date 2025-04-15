@@ -18,7 +18,7 @@
     }
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsup --config ../../tsup.config.ts --tsconfig ../../tsconfig.tsup.json",
     "extract-api": "sphereon dev extract-api"
   },
   "dependencies": {
@@ -32,7 +32,7 @@
     "did-resolver": "^4.1.0",
     "multibase": "^4.0.6",
     "multicodec": "^3.2.1",
-    "uint8arrays": " ^5.1.0"
+    "uint8arrays": " 3.1.1"
   },
   "devDependencies": {
     "@sphereon/ssi-sdk-ext.key-manager": "workspace:^",

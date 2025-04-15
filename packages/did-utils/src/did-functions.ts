@@ -29,7 +29,10 @@ import { createJWT, Signer } from 'did-jwt'
 import { DIDResolutionOptions, JsonWebKey, Resolvable, VerificationMethod } from 'did-resolver'
 // @ts-ignore
 import elliptic from 'elliptic'
-import * as u8a from 'uint8arrays'
+// @ts-ignore
+import { fromString } from 'uint8arrays/from-string'
+// @ts-ignore
+import { toString } from 'uint8arrays/to-string'
 import {
   CreateIdentifierOpts,
   CreateOrGetIdentifierOpts,
@@ -371,7 +374,7 @@ export function extractPublicKeyHexWithJwkSupport(pk: _ExtendedVerificationMetho
         console.error(`Error converting EC with elliptic lib curve ${curve} from JWK to hex. x: ${jwk.x}, y: ${jwk.y}, error: ${error}`, error)
       }
     } else if (jwk.crv === 'Ed25519') {
-      return u8a.toString(u8a.fromString(jwk.x!, 'base64url'), 'base16')
+      return toString(fromString(jwk.x!, 'base64url'), 'base16')
     } else if (jwk.kty === 'RSA') {
       return hexKeyFromPEMBasedJwk(jwk, 'public')
     }
@@ -441,7 +444,7 @@ function extractPublicKeyBytes(pk: VerificationMethod): Uint8Array {
 export function verificationMethodToJwk(vm: VerificationMethod): JWK {
   let jwk: JWK | undefined = vm.publicKeyJwk as JWK
   if (!jwk) {
-    let publicKeyHex = vm.publicKeyHex ?? u8a.toString(extractPublicKeyBytes(vm), 'hex')
+    let publicKeyHex = vm.publicKeyHex ?? toString(extractPublicKeyBytes(vm), 'hex')
     jwk = toJwk(publicKeyHex, keyTypeFromCryptographicSuite({ crv: vm.type }))
   }
   if (!jwk) {

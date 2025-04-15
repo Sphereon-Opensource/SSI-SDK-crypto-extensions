@@ -1,10 +1,10 @@
 // Brent Shambaugh <brent.shambaugh@gmail.com>. 2021.
 
-import * as u8a from 'uint8arrays'
-
 import * as nist_weierstrauss from 'nist-weierstrauss'
-import { base64urlPoint } from 'nist-weierstrauss'
-import { KeyToDidDocArgs } from '../types'
+import {base64urlPoint} from 'nist-weierstrauss'
+// @ts-ignore
+import {fromString} from 'uint8arrays/from-string'
+import {KeyToDidDocArgs} from '../types'
 
 /**
  * Constructs the document based on the method key
@@ -70,7 +70,7 @@ export function pubKeyBytesToXY(pubKeyBytes: Uint8Array): base64urlPoint {
   // compressed p-256 key, SEC format
   if (bytesCount == 33) {
     if (publicKeyHex.slice(0, 2) == '03' || publicKeyHex.slice(0, 2) == '02') {
-      const publicKey = u8a.fromString(publicKeyHex, 'base16')
+      const publicKey = fromString(publicKeyHex, 'base16')
       const point = nist_weierstrauss.secp256r1.ECPointDecompress(publicKey)
       return nist_weierstrauss.nist_weierstrauss_common.publicKeyIntToXY(point)
     }

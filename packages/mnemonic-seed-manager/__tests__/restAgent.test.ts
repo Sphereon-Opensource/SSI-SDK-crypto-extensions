@@ -1,24 +1,23 @@
-import { Server } from 'http'
-
 import { createAgent, IAgent, IAgentOptions, IDataStore, IKeyManager, TAgent } from '@veramo/core'
+import { Entities, KeyStore, migrations, PrivateKeyStore } from '@veramo/data-store'
+import { KeyManager } from '@veramo/key-manager'
+import { KeyManagementSystem, SecretBox } from '@veramo/kms-local'
 import { AgentRestClient } from '@veramo/remote-client'
 import { AgentRouter, RequestWithAgentRouter } from '@veramo/remote-server'
+import { OrPromise } from '@veramo/utils'
 
 // @ts-ignore
 import express from 'express'
+import { Server } from 'http'
 import { DataSource } from 'typeorm'
+
+import { describe } from 'vitest'
 
 import { IMnemonicSeedManager, MnemonicSeedManager, MnemonicSeedManagerEntities, MnemonicSeedManagerMigrations } from '../src'
 
 import mnemonicGenerator from './shared/generateMnemonic'
 import seedGenerator from './shared/generateSeed'
 import storeSeed from './shared/storeMnemonicInfo'
-import { KeyManager } from '@veramo/key-manager'
-import { Entities, KeyStore, migrations, PrivateKeyStore } from '@veramo/data-store'
-import { KeyManagementSystem, SecretBox } from '@veramo/kms-local'
-import { OrPromise } from '@veramo/utils'
-
-jest.setTimeout(30000)
 
 const databaseFile = ':memory:'
 const port = 13002

@@ -1,16 +1,16 @@
+import { createAgent, IDataStore, IKeyManager, TAgent } from '@veramo/core'
+import { Entities, KeyStore, migrations, PrivateKeyStore } from '@veramo/data-store'
+import { KeyManager } from '@veramo/key-manager'
+import { KeyManagementSystem, SecretBox } from '@veramo/kms-local'
+import { OrPromise } from '@veramo/utils'
 import { DataSource } from 'typeorm'
+
+import { describe } from 'vitest'
+import { IMnemonicSeedManager, MnemonicSeedManager, MnemonicSeedManagerEntities, MnemonicSeedManagerMigrations } from '../src'
 
 import mnemonicGenerator from './shared/generateMnemonic'
 import seedGenerator from './shared/generateSeed'
 import storeSeed from './shared/storeMnemonicInfo'
-import { createAgent, IDataStore, IKeyManager, TAgent } from '@veramo/core'
-import { KeyManager } from '@veramo/key-manager'
-import { IMnemonicSeedManager, MnemonicSeedManager, MnemonicSeedManagerEntities, MnemonicSeedManagerMigrations } from '../src'
-import { Entities, KeyStore, migrations, PrivateKeyStore } from '@veramo/data-store'
-import { KeyManagementSystem, SecretBox } from '@veramo/kms-local'
-import { OrPromise } from '@veramo/utils'
-
-jest.setTimeout(30000)
 
 const KMS_SECRET_KEY = 'd17c8674f5db9396f8eecccde25e882bb0336316bc411ae38dc1f3dcd7ed100f'
 let databaseFile = ':memory:'

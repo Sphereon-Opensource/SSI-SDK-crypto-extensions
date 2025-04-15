@@ -8,6 +8,7 @@ import { DIDResolverPlugin } from '@veramo/did-resolver'
 import { MemoryKeyStore, MemoryPrivateKeyStore } from '@veramo/key-manager'
 import base64url from 'base64url'
 import { Resolver } from 'did-resolver'
+import { describe, expect, it } from 'vitest'
 import { getDidJwkResolver, Key } from '../../did-resolver-jwk/src'
 import { JwkDIDProvider } from '../src'
 

@@ -36,7 +36,7 @@ import {
 } from '../types'
 import { resolveExternalOIDFEntityIdIdentifier } from '.'
 // @ts-ignore
-import { Crypto} from 'node'
+import { Crypto } from 'node'
 export async function resolveExternalIdentifier(
   opts: ExternalIdentifierOpts & {
     crypto?: Crypto

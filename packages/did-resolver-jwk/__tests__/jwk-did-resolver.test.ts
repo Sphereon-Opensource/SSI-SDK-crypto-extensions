@@ -1,6 +1,7 @@
 import { createAgent, DIDResolutionResult } from '@veramo/core'
 import { DIDResolverPlugin } from '@veramo/did-resolver'
 import { Resolver } from 'did-resolver'
+import { describe, expect, it } from 'vitest'
 import { ContextType, getDidJwkResolver, VerificationType, VocabType } from '../src'
 
 const agent = createAgent({

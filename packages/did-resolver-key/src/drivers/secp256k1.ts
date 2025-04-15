@@ -1,4 +1,5 @@
-import * as u8a from 'uint8arrays'
+// @ts-ignore
+import { toString } from 'uint8arrays/to-string'
 import { DIDDocument } from 'did-resolver'
 import { KeyToDidDocArgs } from '../types'
 
@@ -12,7 +13,7 @@ export const keyToDidDoc = ({ pubKeyBytes, fingerprint }: KeyToDidDocArgs): DIDD
         id: keyId,
         type: 'Secp256k1VerificationKey2018',
         controller: did,
-        publicKeyBase58: u8a.toString(pubKeyBytes, 'base58btc'),
+        publicKeyBase58: toString(pubKeyBytes, 'base58btc'),
       },
     ],
     authentication: [keyId],

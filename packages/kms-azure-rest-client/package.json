@@ -26,7 +26,7 @@
     "@sphereon/ssi-types": " ^0.33",
     "@veramo/core": "4.2.0",
     "@veramo/key-manager": "4.2.0",
-    "uint8arrays": " ^5.1.0"
+    "uint8arrays": " 3.1.1"
   },
   "devDependencies": {
     "@types/text-encoding": "0.0.39"

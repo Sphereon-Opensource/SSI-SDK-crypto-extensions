@@ -1,5 +1,6 @@
 import { toJwkFromKey } from '@sphereon/ssi-sdk-ext.key-utils'
 import { IDIDManager, IIdentifier, IKeyManager, TAgent } from '@veramo/core'
+import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 import { IIdentifierResolution } from '../../src'
 

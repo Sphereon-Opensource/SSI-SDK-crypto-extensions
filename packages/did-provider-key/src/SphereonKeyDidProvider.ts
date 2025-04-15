@@ -13,7 +13,10 @@ import { AbstractIdentifierProvider } from '@veramo/did-manager'
 import Debug from 'debug'
 import Multibase from 'multibase'
 import Multicodec from 'multicodec'
-import * as u8a from 'uint8arrays'
+// @ts-ignore
+import { fromString } from 'uint8arrays/from-string'
+// @ts-ignore
+import { toString } from 'uint8arrays/to-string'
 
 const debug = Debug('did-provider-key')
 
@@ -78,27 +81,25 @@ export class SphereonKeyDidProvider extends AbstractIdentifierProvider {
     let methodSpecificId: string | undefined
 
     // did:key uses compressed pub keys
-    const compressedPublicKeyHex = toRawCompressedHexPublicKey(u8a.fromString(key.publicKeyHex, 'hex'), key.type)
+    const compressedPublicKeyHex = toRawCompressedHexPublicKey(fromString(key.publicKeyHex, 'hex'), key.type)
     if (codecName === JWK_JCS_PUB_NAME) {
       const jwk = toJwk(key.publicKeyHex, keyType, { use: JwkKeyUse.Signature, key, noKidThumbprint: true })
       // console.log(`FIXME JWK: ${JSON.stringify(toJwk(privateKeyHex, keyType, { use: JwkKeyUse.Signature, key, isPrivateKey: true }), null, 2)}`)
-      methodSpecificId = u8a.toString(
-        Multibase.encode('base58btc', Multicodec.addPrefix(u8a.fromString(JWK_JCS_PUB_PREFIX.valueOf().toString(16), 'hex'), jwkJcsEncode(jwk)))
+      methodSpecificId = toString(
+        Multibase.encode('base58btc', Multicodec.addPrefix(fromString(JWK_JCS_PUB_PREFIX.valueOf().toString(16), 'hex'), jwkJcsEncode(jwk)))
       )
     } else if (codecName) {
-      methodSpecificId = u8a.toString(
-        Multibase.encode('base58btc', Multicodec.addPrefix(codecName as Multicodec.CodecName, u8a.fromString(compressedPublicKeyHex, 'hex')))
+      methodSpecificId = toString(
+        Multibase.encode('base58btc', Multicodec.addPrefix(codecName as Multicodec.CodecName, fromString(compressedPublicKeyHex, 'hex')))
       )
     } else {
       codecName = keyCodecs[keyType]
 
       if (codecName) {
         // methodSpecificId  = bytesToMultibase({bytes: u8a.fromString(key.publicKeyHex, 'hex'), codecName})
-        methodSpecificId = u8a
-          .toString(
-            Multibase.encode('base58btc', Multicodec.addPrefix(codecName as Multicodec.CodecName, u8a.fromString(compressedPublicKeyHex, 'hex')))
-          )
-          .toString()
+        methodSpecificId = toString(
+          Multibase.encode('base58btc', Multicodec.addPrefix(codecName as Multicodec.CodecName, fromString(compressedPublicKeyHex, 'hex')))
+        ).toString()
       }
     }
     if (!methodSpecificId) {

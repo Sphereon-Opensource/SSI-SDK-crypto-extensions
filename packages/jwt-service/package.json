@@ -39,7 +39,7 @@
     "debug": "^4.3.4",
     "jose": "^5.9.3",
     "jwt-decode": "^4.0.0",
-    "uint8arrays": " ^5.1.0"
+    "uint8arrays": " 3.1.1"
   },
   "devDependencies": {
     "@sphereon/ssi-sdk-ext.did-provider-jwk": "workspace:^",
@@ -55,7 +55,8 @@
     "@veramo/remote-server": "4.2.0",
     "did-resolver": "^4.1.0",
     "js-crypto-key-utils": "^1.0.7",
-    "typeorm": "0.3.20"
+    "express": "^4.21.2",
+    "typeorm": "0.3.22"
   },
   "files": [
     "dist",

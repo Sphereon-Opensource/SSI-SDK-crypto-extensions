@@ -17,11 +17,10 @@ import { Resolver } from 'did-resolver'
 import express from 'express'
 import { Server } from 'http'
 import { DataSource } from 'typeorm'
+import { describe } from 'vitest'
 
 import { IdentifierResolution, IIdentifierResolution } from '../src'
 import identifierResolution from './shared/identifierResolution'
-
-jest.setTimeout(30000)
 
 const databaseFile = ':memory:'
 const port = 14312

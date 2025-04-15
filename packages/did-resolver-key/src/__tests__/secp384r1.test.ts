@@ -1,11 +1,11 @@
 // Brent Shambaugh <brent.shambaugh@gmail.com>. 2021.
 
+import { base58btc } from 'multiformats/bases/base58'
+import * as u8a from 'uint8arrays'
 import * as varint from 'varint'
+import { describe, expect, it, test } from 'vitest'
 // import { base58btc } from 'multiformats/bases/base58'
 import * as mapper from '../drivers/secp384r1'
-import * as u8a from 'uint8arrays'
-
-import { base58btc } from 'multiformats/bases/base58'
 
 describe('Secp384r1 mapper', () => {
   it('Secp384r1 mapper successfully resolves the document from did:key from raw public key', async () => {

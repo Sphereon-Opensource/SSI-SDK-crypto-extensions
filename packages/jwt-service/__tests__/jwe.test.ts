@@ -1,4 +1,5 @@
 import * as u8a from 'uint8arrays'
+import { describe, it } from 'vitest'
 import { CompactJwtEncrypter } from '../src/functions/JWE'
 
 describe('JWE test', () => {

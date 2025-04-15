@@ -6,6 +6,7 @@ import { createAgent, IIdentifier, IKeyManager } from '@veramo/core'
 import { DIDManager, MemoryDIDStore } from '@veramo/did-manager'
 
 import { MemoryKeyStore, MemoryPrivateKeyStore } from '@veramo/key-manager'
+import { describe, expect, it } from 'vitest'
 import { SphereonKeyDidProvider } from '../src'
 
 const DID_METHOD = 'did:key'

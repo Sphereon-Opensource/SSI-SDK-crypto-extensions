@@ -1,6 +1,8 @@
 // @ts-ignore
 import { KeyUsage, CryptoKey, RsaHashedImportParams, RsaHashedKeyGenParams } from 'node'
-import * as u8a from 'uint8arrays'
+
+// @ts-ignore
+import { toString } from 'uint8arrays/to-string'
 import { HashAlgorithm } from '../types'
 import { globalCrypto } from './crypto'
 
@@ -81,5 +83,5 @@ export const generateRSAKeyAsPEM = async (
   const pkcs8 = await globalCrypto(false).subtle.exportKey('pkcs8', keypair.privateKey)
 
   const uint8Array = new Uint8Array(pkcs8)
-  return derToPEM(u8a.toString(uint8Array, 'base64pad'), 'RSA PRIVATE KEY')
+  return derToPEM(toString(uint8Array, 'base64pad'), 'RSA PRIVATE KEY')
 }

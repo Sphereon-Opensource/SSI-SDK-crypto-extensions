@@ -1,5 +1,6 @@
 import { IDataStore, IKeyManager, TAgent } from '@veramo/core'
-import { IMnemonicSeedManager, IMnemonicInfoResult } from '../../src'
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest'
+import { IMnemonicInfoResult, IMnemonicSeedManager } from '../../src'
 
 type ConfiguredAgent = TAgent<IMnemonicSeedManager & IKeyManager & IDataStore>
 

@@ -18,7 +18,7 @@
     }
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsup --config ../../tsup.config.ts --tsconfig ../../tsconfig.tsup.json",
     "extract-api": "sphereon dev extract-api"
   },
   "dependencies": {
@@ -33,7 +33,7 @@
     "@types/debug": "4.1.8",
     "inquirer": "^9.1.4",
     "inquirer-autocomplete-prompt": "^3.0.0",
-    "typescript": "5.2.2"
+    "typescript": "5.8.3"
   },
   "files": [
     "dist",
@@ -47,10 +47,5 @@
   "repository": "git@github.com:OwnYourData/veramo.git",
   "author": "Christoph Fabianek <christoph@ownyourdata.eu>",
   "keywords": [],
-  "license": "MIT",
-  "type": "module",
-  "moduleDirectories": [
-    "node_modules",
-    "src"
-  ]
+  "license": "MIT"
 }

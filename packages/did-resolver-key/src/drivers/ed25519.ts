@@ -1,4 +1,6 @@
-import * as u8a from 'uint8arrays'
+
+// @ts-ignore
+import { toString } from 'uint8arrays/to-string'
 import { DIDDocument } from 'did-resolver'
 // import { edwardsToMontgomery } from '@noble/curves/ed25519'
 import { convertPublicKeyToX25519 } from '@stablelib/ed25519'
@@ -11,7 +13,7 @@ function encodeKey(key: Uint8Array, encodeKey?: number) {
   // See js-multicodec for a general implementation
   bytes[1] = 0x01
   bytes.set(key, 2)
-  return `z${u8a.toString(bytes, 'base58btc')}`
+  return `z${toString(bytes, 'base58btc')}`
 }
 
 export const keyToDidDoc = (args: KeyToDidDocArgs) => {
@@ -36,7 +38,7 @@ const keyToDidDoc2018_2019 = ({ pubKeyBytes, fingerprint, contentType }: KeyToDi
   const keyId = `${did}#${fingerprint}`
 
   //todo: Move to noble lib. x25519 values differ between below methods. Current implementation is correct according to DID:key spec
-  // const pubKeyHex = u8a.toString(pubKeyBytes, 'base16')
+  // const pubKeyHex = toString(pubKeyBytes, 'base16')
   // const x25519PubBytes = edwardsToMontgomery(pubKeyHex)
   const x25519PubBytes = convertPublicKeyToX25519(pubKeyBytes)
 
@@ -55,13 +57,13 @@ const keyToDidDoc2018_2019 = ({ pubKeyBytes, fingerprint, contentType }: KeyToDi
         id: keyId,
         type: 'Ed25519VerificationKey2018',
         controller: did,
-        publicKeyBase58: u8a.toString(pubKeyBytes, 'base58btc'),
+        publicKeyBase58: toString(pubKeyBytes, 'base58btc'),
       },
       {
         id: x25519KeyId,
         type: 'X25519KeyAgreementKey2019',
         controller: did,
-        publicKeyBase58: u8a.toString(x25519PubBytes, 'base58btc'),
+        publicKeyBase58: toString(x25519PubBytes, 'base58btc'),
       },
     ],
     authentication: [keyId],

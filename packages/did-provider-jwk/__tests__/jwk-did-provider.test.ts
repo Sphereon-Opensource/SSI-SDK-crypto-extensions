@@ -1,15 +1,14 @@
+import { SphereonKeyManager } from '@sphereon/ssi-sdk-ext.key-manager'
+import { JwkKeyUse } from '@sphereon/ssi-sdk-ext.key-utils'
+import { SphereonKeyManagementSystem } from '@sphereon/ssi-sdk-ext.kms-local'
 import { createAgent, IIdentifier, IKeyManager } from '@veramo/core'
 import { DIDManager, MemoryDIDStore } from '@veramo/did-manager'
-import { SphereonKeyManager } from '@sphereon/ssi-sdk-ext.key-manager'
-import { SphereonKeyManagementSystem } from '@sphereon/ssi-sdk-ext.kms-local'
 import { MemoryKeyStore, MemoryPrivateKeyStore } from '@veramo/key-manager'
-import { JwkDIDProvider } from '../src'
-import { Key } from '../src'
-import { JwkKeyUse } from '@sphereon/ssi-sdk-ext.key-utils'
+import { describe, expect, it } from 'vitest'
+import { JwkDIDProvider, Key } from '../src'
 
 const DID_METHOD = 'did:jwk'
 const PRIVATE_KEY_HEX = '7dd923e40f4615ac496119f7e793cc2899e99b64b88ca8603db986700089532b'
-
 const jwkDIDProvider = new JwkDIDProvider({
   defaultKms: 'mem',
 })

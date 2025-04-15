@@ -1,11 +1,11 @@
 // @ts-nocheck
-// Brent Shambaugh <brent.shambaugh@gmail.com>. 2021.
-
+import { base58btc } from 'multiformats/bases/base58'
+import * as u8a from 'uint8arrays'
 import * as varint from 'varint'
+// Brent Shambaugh <brent.shambaugh@gmail.com>. 2021.
+import { describe, expect, it, test } from 'vitest'
 // import { base58btc } from 'multiformats/bases/base58'
 import * as mapper from '../drivers/secp256r1'
-import * as u8a from 'uint8arrays'
-import { base58btc } from 'multiformats/bases/base58'
 
 describe('Secp256r1 mapper', () => {
   it('successfully resolves the document from did:key from raw public key', async () => {

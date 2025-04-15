@@ -36,7 +36,7 @@
     "@veramo/utils": "4.2.0",
     "debug": "^4.3.4",
     "pkijs": "^3.2.4",
-    "uint8arrays": " ^5.1.0"
+    "uint8arrays": " 3.1.1"
   },
   "devDependencies": {
     "@sphereon/ssi-sdk-ext.did-provider-jwk": "workspace:^",
@@ -51,8 +51,9 @@
     "@veramo/kms-local": "4.2.0",
     "@veramo/remote-client": "4.2.0",
     "@veramo/remote-server": "4.2.0",
+    "express": "^4.21.2",
     "did-resolver": "^4.1.0",
-    "typeorm": "0.3.20"
+    "typeorm": "0.3.22"
   },
   "files": [
     "dist",

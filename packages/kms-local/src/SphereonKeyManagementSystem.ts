@@ -5,7 +5,8 @@ import { AbstractPrivateKeyStore, ManagedPrivateKey } from '@veramo/key-manager'
 import { KeyManagementSystem } from '@veramo/kms-local'
 import Debug from 'debug'
 import elliptic from 'elliptic'
-import * as u8a from 'uint8arrays'
+// @ts-ignore
+import { fromString } from 'uint8arrays/from-string'
 import { KeyType, ManagedKeyInfoArgs } from './index'
 import {
   hexToPEM,
@@ -171,7 +172,7 @@ export class SphereonKeyManagementSystem extends KeyManagementSystem {
         }
         break
       case 'Secp256k1': {
-        const privateBytes = u8a.fromString(args.privateKeyHex.toLowerCase(), 'base16')
+        const privateBytes = fromString(args.privateKeyHex.toLowerCase(), 'base16')
         const secp256k1 = new elliptic.ec('secp256k1')
         const keyPair = secp256k1.keyFromPrivate(privateBytes, 'hex')
         const publicKeyHex = keyPair.getPublic(true, 'hex')
@@ -187,7 +188,7 @@ export class SphereonKeyManagementSystem extends KeyManagementSystem {
         break
       }
       case 'Secp256r1': {
-        const privateBytes = u8a.fromString(args.privateKeyHex.toLowerCase(), 'base16')
+        const privateBytes = fromString(args.privateKeyHex.toLowerCase(), 'base16')
         const secp256r1 = new elliptic.ec('p256')
         const keyPair = secp256r1.keyFromPrivate(privateBytes, 'hex')
         const publicKeyHex = keyPair.getPublic(true, 'hex')

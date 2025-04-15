@@ -17,7 +17,10 @@ import debug from 'debug'
 import { JsonWebKey } from 'did-resolver'
 import elliptic from 'elliptic'
 import * as rsa from 'micro-rsa-dsa-dh/rsa.js'
-import * as u8a from 'uint8arrays'
+// @ts-ignore
+import { fromString } from 'uint8arrays/from-string'
+// @ts-ignore
+import { toString } from 'uint8arrays/to-string'
 import { digestMethodParams } from './digest-methods'
 import { validateJwk } from './jwk-jcs'
 import {
@@ -60,13 +63,13 @@ export const generatePrivateKeyHex = async (type: TKeyType): Promise<string> => 
   switch (type) {
     case 'Ed25519': {
       const keyPairEd25519 = generateSigningKeyPair()
-      return u8a.toString(keyPairEd25519.secretKey, 'base16')
+      return toString(keyPairEd25519.secretKey, 'base16')
     }
     // The Secp256 types use the same method to generate the key
     case 'Secp256r1':
     case 'Secp256k1': {
       const privateBytes = randomBytes(32)
-      return u8a.toString(privateBytes, 'base16')
+      return toString(privateBytes, 'base16')
     }
     case 'RSA': {
       const pem = await generateRSAKeyAsPEM('RSA-PSS', 'SHA-256', 2048)
@@ -175,7 +178,7 @@ const assertJwkClaimPresent = (value: unknown, description: string) => {
     throw new Error(`${description} missing or invalid`)
   }
 }
-export const toBase64url = (input: string): string => u8a.toString(u8a.fromString(input), 'base64url')
+export const toBase64url = (input: string): string => toString(fromString(input), 'base64url')
 
 /**
  * Calculate the JWK thumbprint
@@ -303,10 +306,10 @@ function rsaJwkToRawHexKey(jwk: JsonWebKey): string {
   }
 
   // We are converting from base64 to base64url to be sure. The spec uses base64url, but in the wild we sometimes encounter a base64 string
-  const modulus = u8a.fromString(jwk.n.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''), 'base64url') // 'n' is the modulus
-  const exponent = u8a.fromString(jwk.e.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''), 'base64url') // 'e' is the exponent
+  const modulus = fromString(jwk.n.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''), 'base64url') // 'n' is the modulus
+  const exponent = fromString(jwk.e.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''), 'base64url') // 'e' is the exponent
 
-  return u8a.toString(modulus, 'hex') + u8a.toString(exponent, 'hex')
+  return toString(modulus, 'hex') + toString(exponent, 'hex')
 }
 
 /**
@@ -321,10 +324,10 @@ function ecJwkToRawHexKey(jwk: JsonWebKey): string {
   }
 
   // We are converting from base64 to base64url to be sure. The spec uses base64url, but in the wild we sometimes encounter a base64 string
-  const x = u8a.fromString(jwk.x.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''), 'base64url')
-  const y = u8a.fromString(jwk.y.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''), 'base64url')
+  const x = fromString(jwk.x.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''), 'base64url')
+  const y = fromString(jwk.y.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''), 'base64url')
 
-  return '04' + u8a.toString(x, 'hex') + u8a.toString(y, 'hex')
+  return '04' + toString(x, 'hex') + toString(y, 'hex')
 }
 
 /**
@@ -339,9 +342,9 @@ function okpJwkToRawHexKey(jwk: JsonWebKey): string {
   }
 
   // We are converting from base64 to base64url to be sure. The spec uses base64url, but in the wild we sometimes encounter a base64 string
-  const x = u8a.fromString(jwk.x.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''), 'base64url')
+  const x = fromString(jwk.x.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''), 'base64url')
 
-  return u8a.toString(x, 'hex')
+  return toString(x, 'hex')
 }
 
 /**
@@ -356,9 +359,9 @@ function octJwkToRawHexKey(jwk: JsonWebKey): string {
   }
 
   // We are converting from base64 to base64url to be sure. The spec uses base64url, but in the wild we sometimes encounter a base64 string
-  const key = u8a.fromString(jwk.k.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''), 'base64url')
+  const key = fromString(jwk.k.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''), 'base64url')
 
-  return u8a.toString(key, 'hex')
+  return toString(key, 'hex')
 }
 
 /**
@@ -413,7 +416,7 @@ const toSecp256k1Jwk = (keyHex: string, opts?: { use?: JwkKeyUse; isPrivateKey?:
   }
 
   const secp256k1 = new elliptic.ec('secp256k1')
-  const keyBytes = u8a.fromString(keyHex, 'base16')
+  const keyBytes = fromString(keyHex, 'base16')
   const keyPair = opts?.isPrivateKey ? secp256k1.keyFromPrivate(keyBytes) : secp256k1.keyFromPublic(keyBytes)
   const pubPoint = keyPair.getPublic()
 
@@ -444,7 +447,7 @@ const toSecp256r1Jwk = (keyHex: string, opts?: { use?: JwkKeyUse; isPrivateKey?:
   }
 
   const secp256r1 = new elliptic.ec('p256')
-  const keyBytes = u8a.fromString(keyHex, 'base16')
+  const keyBytes = fromString(keyHex, 'base16')
   logger.debug(`keyBytes length: ${keyBytes}`)
   const keyPair = opts?.isPrivateKey ? secp256r1.keyFromPrivate(keyBytes) : secp256r1.keyFromPublic(keyBytes)
   const pubPoint = keyPair.getPublic()
@@ -623,16 +626,16 @@ export const toRawCompressedHexPublicKey = (rawPublicKey: Uint8Array, keyType: T
       logger.debug(`converted public key ${hexStringFromUint8Array(rawPublicKey)} to ${resultKey}`)
       return resultKey
     }
-    return u8a.toString(rawPublicKey, 'base16')
+    return toString(rawPublicKey, 'base16')
   } else if (keyType === 'Ed25519') {
     // Ed25519 keys are always in compressed form
-    return u8a.toString(rawPublicKey, 'base16')
+    return toString(rawPublicKey, 'base16')
   }
 
   throw new Error(`Unsupported key type: ${keyType}`)
 }
 
-export const hexStringFromUint8Array = (value: Uint8Array): string => u8a.toString(value, 'base16')
+export const hexStringFromUint8Array = (value: Uint8Array): string => toString(value, 'base16')
 
 export const signatureAlgorithmFromKey = async (args: SignatureAlgorithmFromKeyArgs): Promise<JoseSignatureAlgorithm> => {
   const { key } = args
@@ -778,10 +781,10 @@ export async function verifyRawSignature({
    */
   function jwkPropertyToBigInt(jwkProp: string): bigint {
     // Decode Base64URL to Uint8Array
-    const byteArray = u8a.fromString(jwkProp, 'base64url')
+    const byteArray = fromString(jwkProp, 'base64url')
 
     // Convert Uint8Array to hexadecimal string and then to BigInt
-    const hex = u8a.toString(byteArray, 'hex')
+    const hex = toString(byteArray, 'hex')
     return BigInt(`0x${hex}`)
   }
 
@@ -803,10 +806,10 @@ export async function verifyRawSignature({
       case 'Secp521r1':
         return p521.verify(signature, data, publicKeyHex, { format: 'compact', prehash: true })
       case 'Ed25519':
-        return ed25519.verify(signature, data, u8a.fromString(publicKeyHex, 'hex'))
+        return ed25519.verify(signature, data, fromString(publicKeyHex, 'hex'))
       case 'Bls12381G1':
       case 'Bls12381G2':
-        return bls12_381.verify(signature, data, u8a.fromString(publicKeyHex, 'hex'))
+        return bls12_381.verify(signature, data, fromString(publicKeyHex, 'hex'))
       case 'RSA': {
         const signatureAlgorithm = opts?.signatureAlg ?? (jwk.alg as JoseSignatureAlgorithm | undefined) ?? JoseSignatureAlgorithm.PS256
         const hashAlg =

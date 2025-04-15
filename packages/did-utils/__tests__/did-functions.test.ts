@@ -1,5 +1,6 @@
-import { base64ToHex, hexKeyFromPEMBasedJwk, jwkToPEM } from '../../x509-utils/src'
 import elliptic from 'elliptic'
+import { describe, expect, it } from 'vitest'
+import { base64ToHex, hexKeyFromPEMBasedJwk, jwkToPEM } from '../../x509-utils/src'
 import { isEvenHexString } from '../src'
 
 describe('functions: DID ', () => {

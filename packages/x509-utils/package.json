@@ -30,10 +30,10 @@
     "js-x509-utils": "^1.0.7",
     "pkijs": "^3.2.4",
     "tsyringe": "^4.8.0",
-    "uint8arrays": " ^5.1.0"
+    "uint8arrays": " 3.1.1"
   },
   "devDependencies": {
-    "typescript": "^5.5.4",
+    "typescript": "5.8.3",
     "@types/node": "20.17.1"
   },
   "files": [
