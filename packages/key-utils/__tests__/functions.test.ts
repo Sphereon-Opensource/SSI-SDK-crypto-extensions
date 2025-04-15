@@ -2,6 +2,7 @@ import { JoseSignatureAlgorithm, JWK } from '@sphereon/ssi-types'
 import * as u8a from 'uint8arrays'
 import { generatePrivateKeyHex, jwkToRawHexKey, Key, padLeft, toJwk, verifyRawSignature } from '../src'
 
+
 describe('functions: key generator', () => {
   it('Secp256k1 should generate random keys', async () => {
     const key1 = await generatePrivateKeyHex(Key.Secp256k1)

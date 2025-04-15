@@ -6,7 +6,7 @@ import { ICoseKeyJson, JWK } from '@sphereon/ssi-types'
 import { IAgentContext, IIdentifier, IKey, IKeyManager } from '@veramo/core'
 import { CryptoEngine, setEngine } from 'pkijs'
 // @ts-ignore
-import { Crypto} from '@types/node'
+import { Crypto} from 'node'
 import {
   IIdentifierResolution,
   isManagedIdentifierCoseKeyOpts,

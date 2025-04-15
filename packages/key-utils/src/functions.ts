@@ -32,7 +32,7 @@ import {
 } from './types'
 
 // @ts-ignore
-import { Crypto } from '@types/node'
+import { Crypto } from 'node'
 export const logger = Loggers.DEFAULT.get('sphereon:key-utils')
 
 /**

@@ -5,7 +5,7 @@ import { cryptoSubtleImportRSAKey, RSAEncryptionSchemes, RSASignatureSchemes } f
 import { PEMToJwk } from './x509-utils'
 import { JsonWebKey } from '@sphereon/ssi-types'
 // @ts-ignore
-import { CryptoKey, RsaPssParams, AlgorithmIdentifier } from '@types/node'
+import { CryptoKey, RsaPssParams, AlgorithmIdentifier } from 'node'
 export class RSASigner {
   private readonly hashAlgorithm: HashAlgorithm
   private readonly jwk: JsonWebKey

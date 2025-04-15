@@ -1,5 +1,5 @@
 // @ts-ignore
-import { KeyUsage, CryptoKey, RsaHashedImportParams, RsaHashedKeyGenParams } from '@types/node'
+import { KeyUsage, CryptoKey, RsaHashedImportParams, RsaHashedKeyGenParams } from 'node'
 import * as u8a from 'uint8arrays'
 import { HashAlgorithm } from '../types'
 import { globalCrypto } from './crypto'
