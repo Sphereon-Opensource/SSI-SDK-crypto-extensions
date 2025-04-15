@@ -35,11 +35,11 @@ import {
   isExternalIdentifierX5cOpts,
 } from '../types'
 import { resolveExternalOIDFEntityIdIdentifier } from '.'
-// @ts-ignore
-import { Crypto } from 'node'
+
+import { webcrypto } from 'node:crypto'
 export async function resolveExternalIdentifier(
   opts: ExternalIdentifierOpts & {
-    crypto?: Crypto
+    crypto?: webcrypto.Crypto
   },
   context: IAgentContext<any>
 ): Promise<ExternalIdentifierResult> {
@@ -66,7 +66,7 @@ export async function resolveExternalIdentifier(
 
 export async function resolveExternalX5cIdentifier(
   opts: ExternalIdentifierX5cOpts & {
-    crypto?: Crypto
+    crypto?: webcrypto.Crypto
   },
   context: IAgentContext<IResolver & IDIDManager>
 ): Promise<ExternalIdentifierX5cResult> {

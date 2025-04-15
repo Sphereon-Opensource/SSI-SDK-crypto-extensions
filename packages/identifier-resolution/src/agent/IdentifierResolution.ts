@@ -34,12 +34,14 @@ import {
 } from '../types'
 import { IOIDFClient } from '@sphereon/ssi-sdk.oidf-client'
 
+import { webcrypto } from 'node:crypto'
+
 /**
  * @public
  */
 export class IdentifierResolution implements IAgentPlugin {
-  // @ts-ignore
-  readonly _crypto: Crypto
+
+  readonly _crypto: webcrypto.Crypto
 
   readonly schema = schema.IMnemonicInfoGenerator
   readonly methods: IIdentifierResolution = {
@@ -66,8 +68,7 @@ export class IdentifierResolution implements IAgentPlugin {
    * TODO: Add a cache, as we are retrieving the same keys/info quite often
    */
   constructor(opts?: {
-    // @ts-ignore
-    crypto?: Crypto
+    crypto?: webcrypto.Crypto
   }) {
     this._crypto = globalCrypto(false, opts?.crypto)
   }

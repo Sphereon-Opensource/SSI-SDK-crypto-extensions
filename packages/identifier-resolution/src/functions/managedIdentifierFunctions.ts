@@ -5,8 +5,7 @@ import { contextHasDidManager, contextHasKeyManager } from '@sphereon/ssi-sdk.ag
 import { ICoseKeyJson, JWK } from '@sphereon/ssi-types'
 import { IAgentContext, IIdentifier, IKey, IKeyManager } from '@veramo/core'
 import { CryptoEngine, setEngine } from 'pkijs'
-// @ts-ignore
-import { Crypto } from 'node'
+import { webcrypto } from 'node:crypto'
 import {
   IIdentifierResolution,
   isManagedIdentifierCoseKeyOpts,
@@ -82,7 +81,7 @@ export async function getManagedKidIdentifier(
 
 export function isManagedIdentifierResult(
   identifier: ManagedIdentifierOptsOrResult & {
-    crypto?: Crypto
+    crypto?: webcrypto.Crypto
   }
 ): identifier is ManagedIdentifierResult {
   return 'key' in identifier && 'kmsKeyRef' in identifier && 'method' in identifier && 'opts' in identifier && 'jwkThumbprint' in identifier
@@ -95,7 +94,7 @@ export function isManagedIdentifierResult(
  */
 export async function ensureManagedIdentifierResult(
   identifier: ManagedIdentifierOptsOrResult & {
-    crypto?: Crypto
+    crypto?: webcrypto.Crypto
   },
   context: IAgentContext<IKeyManager>
 ): Promise<ManagedIdentifierResult> {
@@ -249,7 +248,7 @@ export async function getManagedJwkIdentifier(
 
 export async function getManagedX5cIdentifier(
   opts: ManagedIdentifierX5cOpts & {
-    crypto?: Crypto
+    crypto?: webcrypto.Crypto
   },
   context: IAgentContext<IKeyManager>
 ): Promise<ManagedIdentifierX5cResult> {
@@ -333,7 +332,7 @@ export async function getManagedOID4VCIssuerIdentifier(
 
 export async function getManagedIdentifier(
   opts: ManagedIdentifierOptsOrResult & {
-    crypto?: Crypto
+    crypto?: webcrypto.Crypto
   },
   context: IAgentContext<IKeyManager>
 ): Promise<ManagedIdentifierResult> {
