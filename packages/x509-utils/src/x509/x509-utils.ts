@@ -1,9 +1,8 @@
 import { X509Certificate } from '@peculiar/x509'
 import { Certificate } from 'pkijs'
 // @ts-ignore
-import { fromString } from 'uint8arrays/from-string'
-// @ts-ignore
-import { toString } from 'uint8arrays/to-string'
+import * as u8a from 'uint8arrays'
+const { fromString, toString } = u8a
 // @ts-ignore
 import keyto from '@trust/keyto'
 import { KeyVisibility } from '../types'

@@ -2,7 +2,8 @@
 import { KeyUsage, CryptoKey, RsaHashedImportParams, RsaHashedKeyGenParams } from 'node'
 
 // @ts-ignore
-import { toString } from 'uint8arrays/to-string'
+import * as u8a from 'uint8arrays'
+const { toString } = u8a
 import { HashAlgorithm } from '../types'
 import { globalCrypto } from './crypto'
 

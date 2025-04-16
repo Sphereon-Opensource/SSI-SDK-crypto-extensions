@@ -31,9 +31,8 @@ import {
   toRawCompressedHexPublicKey,
 } from '@sphereon/ssi-sdk-ext.key-utils'
 // @ts-ignore
-import { fromString } from 'uint8arrays/from-string'
-// @ts-ignore
-import { toString } from 'uint8arrays/to-string'
+import * as u8a from 'uint8arrays'
+const { fromString, toString } = u8a
 
 export const logger = Loggers.DEFAULT.get('sphereon:musap-rn-kms')
 

@@ -18,9 +18,8 @@ import { JsonWebKey } from 'did-resolver'
 import elliptic from 'elliptic'
 import * as rsa from 'micro-rsa-dsa-dh/rsa.js'
 // @ts-ignore
-import { fromString } from 'uint8arrays/from-string'
-// @ts-ignore
-import { toString } from 'uint8arrays/to-string'
+import * as u8a from 'uint8arrays'
+const { fromString, toString } = u8a
 import { digestMethodParams } from './digest-methods'
 import { validateJwk } from './jwk-jcs'
 import {

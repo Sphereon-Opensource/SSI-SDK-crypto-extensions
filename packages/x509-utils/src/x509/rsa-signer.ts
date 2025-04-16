@@ -1,7 +1,6 @@
 // @ts-ignore
-import { fromString } from 'uint8arrays/from-string'
-// @ts-ignore
-import { toString } from 'uint8arrays/to-string'
+import * as u8a from 'uint8arrays'
+const { fromString, toString } = u8a
 import { HashAlgorithm, KeyVisibility } from '../types'
 import { globalCrypto } from './crypto'
 import { cryptoSubtleImportRSAKey, RSAEncryptionSchemes, RSASignatureSchemes } from './rsa-key'

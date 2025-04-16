@@ -6,7 +6,8 @@ import { KeyManagementSystem } from '@veramo/kms-local'
 import Debug from 'debug'
 import elliptic from 'elliptic'
 // @ts-ignore
-import { fromString } from 'uint8arrays/from-string'
+import * as u8a from 'uint8arrays'
+const { fromString } = u8a
 import { KeyType, ManagedKeyInfoArgs } from './index'
 import {
   hexToPEM,

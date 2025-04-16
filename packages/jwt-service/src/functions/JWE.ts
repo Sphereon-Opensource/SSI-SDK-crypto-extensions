@@ -5,11 +5,8 @@ import { JWEKeyManagementHeaderParameters, JWTDecryptOptions } from 'jose'
 // @ts-ignore
 import type { KeyLike } from 'jose/dist/types/types'
 // @ts-ignore
-import { fromString } from 'uint8arrays/from-string'
-// @ts-ignore
-import { toString } from 'uint8arrays/to-string'
-// @ts-ignore
-import { concat } from 'uint8arrays/concat'
+import * as u8a from 'uint8arrays'
+const { fromString, toString, concat } = u8a
 import {
   JweAlg,
   JweAlgs,

@@ -14,7 +14,8 @@ import { JWK } from '@sphereon/ssi-types'
 import { IAgentContext } from '@veramo/core'
 import { base64ToBytes, bytesToBase64url, decodeJoseBlob, encodeJoseBlob } from '@veramo/utils'
 // @ts-ignore
-import { fromString } from 'uint8arrays/from-string'
+import * as u8a from 'uint8arrays'
+const { fromString } = u8a
 
 import {
   CreateJwsCompactArgs,

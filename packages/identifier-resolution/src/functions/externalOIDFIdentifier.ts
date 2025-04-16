@@ -4,9 +4,8 @@ import { IOIDFClient } from '@sphereon/ssi-sdk.oidf-client'
 import { contextHasPlugin } from '@sphereon/ssi-sdk.agent-config'
 import { IJwsValidationResult, JwsPayload } from '../types/IJwtService'
 // @ts-ignore
-import { fromString } from 'uint8arrays/from-string'
-// @ts-ignore
-import { toString } from 'uint8arrays/to-string'
+import * as u8a from 'uint8arrays'
+const { fromString, toString } = u8a
 /**
  * Resolves an OIDF Entity ID against multiple trust anchors to establish trusted relationships
  *

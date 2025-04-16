@@ -2,8 +2,7 @@ import { calculateJwkThumbprintForKey, toJwk, verifyRawSignature } from '@sphere
 import { IKey, KeyMetadata, ManagedKeyInfo } from '@veramo/core'
 import { AbstractKeyManagementSystem, AbstractKeyStore, KeyManager as VeramoKeyManager } from '@veramo/key-manager'
 // @ts-ignore
-import { fromString } from 'uint8arrays/from-string'
-
+import * as u8a from 'uint8arrays'
 import {
   hasKeyOptions,
   IKeyManagerGetArgs,
@@ -13,6 +12,8 @@ import {
   ISphereonKeyManagerSignArgs,
   ISphereonKeyManagerVerifyArgs,
 } from '../types/ISphereonKeyManager'
+
+const { fromString } = u8a
 
 export const sphereonKeyManagerMethods: Array<string> = [
   'keyManagerCreate',

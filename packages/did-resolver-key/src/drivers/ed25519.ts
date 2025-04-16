@@ -1,6 +1,6 @@
-
 // @ts-ignore
-import { toString } from 'uint8arrays/to-string'
+import * as u8a from 'uint8arrays'
+const { toString } = u8a
 import { DIDDocument } from 'did-resolver'
 // import { edwardsToMontgomery } from '@noble/curves/ed25519'
 import { convertPublicKeyToX25519 } from '@stablelib/ed25519'

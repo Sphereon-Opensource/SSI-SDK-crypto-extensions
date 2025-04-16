@@ -40,7 +40,6 @@ import { webcrypto } from 'node:crypto'
  * @public
  */
 export class IdentifierResolution implements IAgentPlugin {
-
   readonly _crypto: webcrypto.Crypto
 
   readonly schema = schema.IMnemonicInfoGenerator
@@ -67,9 +66,7 @@ export class IdentifierResolution implements IAgentPlugin {
   /**
    * TODO: Add a cache, as we are retrieving the same keys/info quite often
    */
-  constructor(opts?: {
-    crypto?: webcrypto.Crypto
-  }) {
+  constructor(opts?: { crypto?: webcrypto.Crypto }) {
     this._crypto = globalCrypto(false, opts?.crypto)
   }
 

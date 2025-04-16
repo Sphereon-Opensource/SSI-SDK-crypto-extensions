@@ -1,7 +1,8 @@
 // Brent Shambaugh <brent.shambaugh@gmail.com>. 2021.
 
 // @ts-ignore
-import { fromString } from 'uint8arrays/from-string'
+import * as u8a from 'uint8arrays'
+const { fromString } = u8a
 
 import * as nist_weierstrauss from 'nist-weierstrauss'
 import { base64urlPoint } from 'nist-weierstrauss'

@@ -7,9 +7,8 @@ import x509 from 'js-x509-utils'
 import { AltName, AttributeTypeAndValue, Certificate, CryptoEngine, getCrypto, id_SubjectAltName, setEngine } from 'pkijs'
 import { container } from 'tsyringe'
 // @ts-ignore
-import { fromString } from 'uint8arrays/from-string'
-// @ts-ignore
-import { toString } from 'uint8arrays/to-string'
+import * as u8a from 'uint8arrays'
+const { fromString, toString } = u8a
 import { globalCrypto } from './crypto'
 import { areCertificatesEqual, derToPEM, pemOrDerToX509Certificate } from './x509-utils'
 
