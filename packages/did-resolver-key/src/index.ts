@@ -1,4 +1,5 @@
-import { decode } from 'varint'
+import varint from 'varint';
+const { decode } = varint;
 // @ts-ignore
 import { base58btc } from 'multiformats/bases/base58'
 import ed25519 from './drivers/ed25519'

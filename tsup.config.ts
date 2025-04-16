@@ -15,7 +15,7 @@ export default defineConfig({
   // onSuccess: "tsc -p ../../../../tsconfig.build.json --emitDeclarationOnly",
   shims: true,
   sourcemap: true,
-  splitting: false,
+  splitting: true,
   outDir: 'dist',
   clean: true,
   skipNodeModulesBundle: false
