@@ -45,10 +45,10 @@ export async function resolveExternalOIDFEntityIdIdentifier(
       trustAnchors: [trustAnchor],
     })
 
-    if (resolveResult.error || !resolveResult.trustChain) {
+    if (resolveResult.errorMessage || !resolveResult.trustChain) {
       errorList[trustAnchor] = resolveResult.errorMessage ?? 'unspecified'
     } else {
-      const trustChain: ReadonlyArray<string> = resolveResult.trustChain.asJsReadonlyArrayView()
+      const trustChain = resolveResult.trustChain
       if (trustChain.length === 0) {
         errorList[trustAnchor] = 'Trust chain is empty'
         continue

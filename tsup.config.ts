@@ -11,7 +11,7 @@ export default defineConfig({
   platform: 'neutral',
   cjsInterop: true,
   experimentalDts: false,
-  external: ['whatwg-fetch', 'crypto', 'stream'],
+  external: ['whatwg-fetch', 'crypto', 'stream', 'whatwg-url'],
   // onSuccess: "tsc -p ../../../../tsconfig.build.json --emitDeclarationOnly",
   shims: true,
   sourcemap: true,
