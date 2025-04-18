@@ -11,12 +11,12 @@ export default defineConfig({
   platform: 'neutral',
   cjsInterop: true,
   experimentalDts: false,
-  external: ['whatwg-fetch', 'crypto', 'stream', 'whatwg-url'],
+  external: ['whatwg-fetch', 'crypto', 'node:crypto' ,'stream', 'whatwg-url'],
   // onSuccess: "tsc -p ../../../../tsconfig.build.json --emitDeclarationOnly",
   shims: true,
   sourcemap: true,
-  splitting: true,
+  splitting: false,
   outDir: 'dist',
   clean: true,
-  skipNodeModulesBundle: false
+  skipNodeModulesBundle: true
 })
