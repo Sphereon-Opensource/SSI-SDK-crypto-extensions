@@ -1,5 +1,6 @@
+import { Loggers } from '@sphereon/ssi-types'
 import { IAgentPlugin } from '@veramo/core'
-import debug from 'debug'
+const logger = Loggers.DEFAULT.get("sphereon:jwt-service")
 import { importJWK } from 'jose'
 
 // @ts-ignore
@@ -71,7 +72,7 @@ export class JwtService implements IAgentPlugin {
     const { payload, protectedHeader = { alg: args.alg, enc: args.enc }, recipientKey, issuer, expirationTime, audience } = args
 
     try {
-      debug(`JWE Encrypt: ${JSON.stringify(args, null, 2)}`)
+      logger.debug(`JWE Encrypt: ${JSON.stringify(args, null, 2)}`)
 
       const alg = jweAlg(args.alg) ?? jweAlg(protectedHeader.alg) ?? 'ECDH-ES'
       const enc = jweEnc(args.enc) ?? jweEnc(protectedHeader.enc) ?? 'A256GCM'
