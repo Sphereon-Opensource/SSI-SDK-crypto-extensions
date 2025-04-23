@@ -48,7 +48,7 @@ export class OydDIDProvider extends AbstractIdentifierProvider {
   ): Promise<Omit<IIdentifier, 'provider'>> {
     const resolvedKms = await this.assertedKms(kms, this.defaultKms)
 
-    if (options.cmsm && options.cmsm.enabled !== false) {
+    if ((this.cmsmCallbackOpts && !options.cmsm) || (options.cmsm && options.cmsm.enabled !== false)) {
       if (!this.cmsmCallbackOpts) {
         return Promise.reject(Error('did:oyd: no cmsm options defined on oyd did provider, but cmsm was enabled on the call!'))
       }
