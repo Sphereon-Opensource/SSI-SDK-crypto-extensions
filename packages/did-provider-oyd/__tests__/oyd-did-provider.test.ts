@@ -34,7 +34,7 @@ const agent = createAgent<IKeyManager & IDIDManager>({
 
 describe('@sphereon/did-provider-oyd', () => {
   it('should create identifier', async () => {
-    const identifier: IIdentifier = await agent.didManagerCreate()
+    const identifier: IIdentifier = await agent.didManagerCreate( { options: { keyType: 'Secp256r1', kid: 'test', cmsm: {enabled: false} } })
 
     expect(identifier).toBeDefined()
     expect(identifier.keys.length).toBe(1)
@@ -42,7 +42,7 @@ describe('@sphereon/did-provider-oyd', () => {
 
   // FIXME: Enabled when CMSM is working
   it.skip('should create identifier with CMSM', async () => {
-    const identifier: IIdentifier = await agent.didManagerCreate( { options: { keyType: 'Secp256r1', kid: 'test', cmsm: {enabled: true, create: true} } })
+    const identifier: IIdentifier = await agent.didManagerCreate( { options: { keyType: 'Secp256r1', kid: 'test-cmsm', cmsm: {enabled: true, create: true} } })
 
     console.log(identifier)
     expect(identifier).toBeDefined()
