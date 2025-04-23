@@ -55,7 +55,12 @@ export class OydDIDProvider extends AbstractIdentifierProvider {
       return await this.createIdentifierWithCMSM({ kms: resolvedKms, options }, context)
     }
 
-    const body = { options }
+    const body = {
+      options: {
+        cmsm: false,
+        key_type: options.keyType ?? 'Secp256r1',
+      },
+    }
     let didDoc: any | undefined
     try {
       const response = await fetch(OYDID_REGISTRAR_URL, {
@@ -109,7 +114,9 @@ export class OydDIDProvider extends AbstractIdentifierProvider {
     }
 
     const assertedKms = await this.assertedKms(kms, this.defaultKms)
-    const pubKey = options.key ?? (await cmsmCallbackOpts.publicKeyCallback(options.kid ?? 'default', assertedKms, options.cmsm?.create !== false, options.keyType)) // "default" is probably not right, TODO!!
+    const pubKey =
+      options.key ??
+      (await cmsmCallbackOpts.publicKeyCallback(options.kid ?? 'default', assertedKms, options.cmsm?.create !== false, options.keyType)) // "default" is probably not right, TODO!!
     const kid = pubKey.kid
     const keyType = pubKey.type
 
@@ -250,7 +257,9 @@ export class OydDIDProvider extends AbstractIdentifierProvider {
   }
 }
 
-export function defaultOydCmsmPublicKeyCallback(keyManager: KeyManager): (kid: string, kms?: string, create?: boolean, createKeyType?: TKeyType) => Promise<IKey> {
+export function defaultOydCmsmPublicKeyCallback(
+  keyManager: KeyManager
+): (kid: string, kms?: string, create?: boolean, createKeyType?: TKeyType) => Promise<IKey> {
   return async (kid: string, kms?: string, create?: boolean, createKeyType?: TKeyType): Promise<IKey> => {
     try {
       const existing = await keyManager.keyManagerGet({ kid })
@@ -277,7 +286,9 @@ export function defaultOydCmsmSignCallback(keyManager: KeyManager): (kid: string
 export class DefaultOydCmsmCallbacks implements CMSMCallbackOpts {
   constructor(private keyManager: KeyManager) {}
 
-  publicKeyCallback: (kid: string, kms?: string, create?: boolean, createKeyType?: TKeyType) => Promise<IKey> = defaultOydCmsmPublicKeyCallback(this.keyManager)
+  publicKeyCallback: (kid: string, kms?: string, create?: boolean, createKeyType?: TKeyType) => Promise<IKey> = defaultOydCmsmPublicKeyCallback(
+    this.keyManager
+  )
 
   signCallback: (kid: string, value: string) => Promise<string> = defaultOydCmsmSignCallback(this.keyManager)
 }
