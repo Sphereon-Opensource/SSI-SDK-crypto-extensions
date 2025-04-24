@@ -1,16 +1,20 @@
-import { IIdentifier, IKey, IService, IAgentContext, IKeyManager, TKeyType } from '@veramo/core'
+import { IAgentContext, IIdentifier, IKey, IKeyManager, IService, TKeyType } from '@veramo/core'
 import { AbstractIdentifierProvider } from '@veramo/did-manager'
 import { KeyManager } from '@veramo/key-manager'
+import fetch from 'cross-fetch'
+import Multibase from 'multibase'
+import Multicodec from 'multicodec'
+
+import * as u8a from 'uint8arrays'
+
+import Debug from 'debug'
 import type {
+  CMSMCallbackOpts,
+  OydConstructorOptions,
   OydCreateIdentifierOptions,
   OydDidHoldKeysArgs,
   OydDidSupportedKeyTypes,
-  CMSMCallbackOpts,
-  OydConstructorOptions,
 } from './types/oyd-provider-types.js'
-import fetch from 'cross-fetch'
-
-import Debug from 'debug'
 
 const debug = Debug('veramo:oyd-did:identifier-provider')
 const OYDID_REGISTRAR_URL = 'https://oydid-registrar.data-container.net/1.0/createIdentifier'
@@ -119,12 +123,13 @@ export class OydDIDProvider extends AbstractIdentifierProvider {
       (await cmsmCallbackOpts.publicKeyCallback(options.kid ?? 'default', assertedKms, options.cmsm?.create !== false, options.keyType)) // "default" is probably not right, TODO!!
     const kid = pubKey.kid
     const keyType = pubKey.type
+    const key = base58btc({publicKeyHex: pubKey.publicKeyHex, keyType})
 
     let signValue: any | undefined // do the request
     try {
       const body_create = {
         // specify the Identifier options for the registrar
-        key: kid,
+        key: key,
         options: {
           cmsm: true,
           key_type: keyType,
@@ -151,15 +156,17 @@ export class OydDIDProvider extends AbstractIdentifierProvider {
     const { sign } = signValue
     const signature = await cmsmCallbackOpts.signCallback(kid, sign)
 
+
     const body_signed = {
-      key: kid,
+      key,
       options: {
         cmsm: true,
+        key_type: keyType,
         sig: signature,
       },
     }
 
-    Object.assign(body_signed.options, options)
+    // Object.assign(body_signed.options, options)
 
     let didDoc: any | undefined // do the request
     try {
@@ -193,6 +200,10 @@ export class OydDIDProvider extends AbstractIdentifierProvider {
           },
           context
         );*/
+
+
+
+
 
     const identifier: Omit<IIdentifier, 'provider'> = {
       did: didDoc.did,
@@ -255,8 +266,32 @@ export class OydDIDProvider extends AbstractIdentifierProvider {
       },
     })
   }
+
+
+
 }
 
+const keyCodecs = {
+  RSA: 'rsa-pub',
+  Ed25519: 'ed25519-pub',
+  X25519: 'x25519-pub',
+  Secp256k1: 'secp256k1-pub',
+  Secp256r1: 'p256-pub',
+  Bls12381G1: 'bls12_381-g1-pub',
+  Bls12381G2: 'bls12_381-g2-pub',
+} as const
+
+const base58btc = ({publicKeyHex, keyType = 'Secp256r1'}:{publicKeyHex: string, keyType?: TKeyType}): string => {
+  const codecName = keyCodecs[keyType]
+
+
+  // methodSpecificId  = bytesToMultibase({bytes: u8a.fromString(key.publicKeyHex, 'hex'), codecName})
+  return u8a
+    .toString(
+      Multibase.encode('base58btc', Multicodec.addPrefix(codecName as Multicodec.CodecName, u8a.fromString(publicKeyHex, 'hex')))
+    )
+    .toString()
+}
 export function defaultOydCmsmPublicKeyCallback(
   keyManager: KeyManager
 ): (kid: string, kms?: string, create?: boolean, createKeyType?: TKeyType) => Promise<IKey> {
@@ -279,7 +314,7 @@ export function defaultOydCmsmPublicKeyCallback(
 
 export function defaultOydCmsmSignCallback(keyManager: KeyManager): (kid: string, data: string) => Promise<string> {
   return async (kid: string, data: string): Promise<string> => {
-    return keyManager.keyManagerSign({ keyRef: kid, data, encoding: 'base64' })
+    return keyManager.keyManagerSign({ keyRef: kid, data, encoding: 'utf-8' })
   }
 }
 

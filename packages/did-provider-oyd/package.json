@@ -14,7 +14,10 @@
     "@veramo/did-manager": "4.2.0",
     "cross-fetch": "^4.0.0",
     "debug": "^4.3.3",
-    "did-resolver": "^4.1.0"
+    "did-resolver": "^4.1.0",
+    "multibase": "^4.0.6",
+    "multicodec": "^3.2.1",
+    "uint8arrays": "^3.1.1"
   },
   "devDependencies": {
     "@sphereon/ssi-sdk-ext.key-manager": "workspace:*",
