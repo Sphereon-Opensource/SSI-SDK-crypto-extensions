@@ -5,7 +5,7 @@ import { SphereonKeyManagementSystem } from '@sphereon/ssi-sdk-ext.kms-local'
 import { MemoryKeyStore, MemoryPrivateKeyStore } from '@veramo/key-manager'
 import { OydDIDProvider } from '../src'
 import { DefaultOydCmsmCallbacks } from '../src/oyd-did-provider'
-
+const crypto = require('crypto');
 const DID_METHOD = 'did:oyd'
 
 
@@ -42,6 +42,8 @@ describe('@sphereon/did-provider-oyd', () => {
 
   // FIXME: Enabled when CMSM is working
   it('should create identifier with CMSM', async () => {
+    const privateKey = generatePrivateKeyHex()
+    console.log(`Private Key HEX: ${privateKey}`)
     const key = await agent.keyManagerCreate({type: 'Secp256r1', kms: 'mem'})
     console.log(`KEY:\n${JSON.stringify(key, null, 2)}`)
     console.log(`Public Key HEX: ${key.publicKeyHex}`)
@@ -54,3 +56,25 @@ describe('@sphereon/did-provider-oyd', () => {
   })
 
 })
+
+
+
+
+// The order of the secp256r1 curve:
+// n = 0xFFFFFFFF00000000FFFFFFFFFFFFFFFFBCE6FAADA7179E84F3B9CAC2FC632551
+const CURVE_ORDER = BigInt('0xFFFFFFFF00000000FFFFFFFFFFFFFFFFBCE6FAADA7179E84F3B9CAC2FC632551');
+
+function generatePrivateKeyHex() {
+  let d: bigint;
+  do {
+    // 32 random bytes → hex → BigInt
+    const buf = crypto.randomBytes(32);
+    d = BigInt('0x' + buf.toString('hex'));
+  } while (d == BigInt(0) || d >= CURVE_ORDER);
+
+  // back to hex, padded to 64 chars (32 bytes)
+  return d.toString(16).padStart(64, '0');
+}
+
+// Example usage:
+console.log(generatePrivateKeyHex());
