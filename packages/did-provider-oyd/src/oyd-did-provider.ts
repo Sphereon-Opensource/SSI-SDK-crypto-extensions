@@ -125,6 +125,7 @@ export class OydDIDProvider extends AbstractIdentifierProvider {
     const keyType = pubKey.type
     const key = base58btc({publicKeyHex: pubKey.publicKeyHex, keyType})
 
+    console.log(`Bae58 pubkey key: ${key}`)
     let signValue: any | undefined // do the request
     try {
       const body_create = {
@@ -135,6 +136,7 @@ export class OydDIDProvider extends AbstractIdentifierProvider {
           key_type: keyType,
         },
       }
+      console.log(`Create request:\n${JSON.stringify(body_create, null, 2)}\n`)
       const response = await fetch(OYDID_REGISTRAR_URL, {
         method: 'POST',
         headers: {
@@ -147,14 +149,18 @@ export class OydDIDProvider extends AbstractIdentifierProvider {
         return Promise.reject(Error('Network response was not ok: ' + response.statusText))
       }
       signValue = await response.json()
+      console.log(`Create response:\n${JSON.stringify(signValue, null, 2)}\n`)
     } catch (error: any) {
-      debug('Unexpected error from OydDID Registrar: ', error)
+      console.log('Unexpected error from OydDID Registrar: ', error)
       return Promise.reject(Error('There has been a problem with the fetch operation: ' + error.toString()))
     }
 
     // we received our value to sign, now we sign it!
     const { sign } = signValue
     const signature = await cmsmCallbackOpts.signCallback(kid, sign)
+
+    console.log(`Signature: ${signature}`)
+
 
 
     const body_signed = {
@@ -165,6 +171,7 @@ export class OydDIDProvider extends AbstractIdentifierProvider {
         sig: signature,
       },
     }
+    console.log(`Signed request:\n${JSON.stringify(body_signed, null, 2)}\n`)
 
     // Object.assign(body_signed.options, options)
 
@@ -178,6 +185,7 @@ export class OydDIDProvider extends AbstractIdentifierProvider {
         body: JSON.stringify(body_signed),
       })
       if (!response.ok) {
+        console.log(`Error response from OydDID Registrar: ${JSON.stringify(response.text)}${response.statusText}`, response)
         debug('Error response from OydDID Registrar: ', response)
         return Promise.reject(Error('Network response was not ok: ' + response.statusText))
       }

@@ -41,8 +41,12 @@ describe('@sphereon/did-provider-oyd', () => {
   })
 
   // FIXME: Enabled when CMSM is working
-  it.skip('should create identifier with CMSM', async () => {
-    const identifier: IIdentifier = await agent.didManagerCreate( { options: { keyType: 'Secp256r1', kid: 'test-cmsm', cmsm: {enabled: true, create: true} } })
+  it('should create identifier with CMSM', async () => {
+    const key = await agent.keyManagerCreate({type: 'Secp256r1', kms: 'mem'})
+    console.log(`KEY:\n${JSON.stringify(key, null, 2)}`)
+    console.log(`Public Key HEX: ${key.publicKeyHex}`)
+
+    const identifier: IIdentifier = await agent.didManagerCreate( { options: { keyType: 'Secp256r1', kid: 'test-cmsm', key, cmsm: {enabled: true, create: false} } })
 
     console.log(identifier)
     expect(identifier).toBeDefined()
