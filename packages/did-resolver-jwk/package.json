@@ -32,7 +32,7 @@
     "@or13/did-jwk": "^0.0.4",
     "@veramo/core": "4.2.0",
     "@veramo/did-resolver": "4.2.0",
-    "jose": "^4.14.6"
+    "jose": "^5.10.0"
   },
   "files": [
     "dist",

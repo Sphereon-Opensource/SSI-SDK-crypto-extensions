@@ -40,7 +40,7 @@
     "@sphereon/ssi-sdk-ext.kms-local": "workspace:*",
     "@veramo/did-resolver": "4.2.0",
     "@veramo/key-manager": "4.2.0",
-    "jose": "^4.14.6",
+    "jose": "^5.10.0",
     "uint8arrays": " 3.1.1"
   },
   "files": [

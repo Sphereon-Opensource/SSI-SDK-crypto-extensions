@@ -221,8 +221,8 @@ importers:
         specifier: 4.2.0
         version: 4.2.0
       jose:
-        specifier: ^4.14.6
-        version: 4.15.9
+        specifier: ^5.10.0
+        version: 5.10.0
       uint8arrays:
         specifier: ' 3.1.1'
         version: 3.1.1
@@ -237,7 +237,7 @@ importers:
         version: link:../key-utils
       '@transmute/did-key-bls12381':
         specifier: 0.3.0-unstable.10
-        version: 0.3.0-unstable.10(encoding@0.1.13)
+        version: 0.3.0-unstable.10(encoding@0.1.13)(web-streams-polyfill@3.3.3)
       '@veramo/core':
         specifier: 4.2.0
         version: 4.2.0(patch_hash=002e69343dc4b4eb8372715652188a9baf2969c8cbb6d43cf21855eb1b95027c)
@@ -385,8 +385,8 @@ importers:
         specifier: 4.2.0
         version: 4.2.0(encoding@0.1.13)
       jose:
-        specifier: ^4.14.6
-        version: 4.15.9
+        specifier: ^5.10.0
+        version: 5.10.0
 
   packages/did-resolver-key:
     dependencies:
@@ -597,7 +597,7 @@ importers:
         specifier: ^4.3.4
         version: 4.4.0
       jose:
-        specifier: ^5.9.3
+        specifier: ^5.10.0
         version: 5.10.0
       jwt-decode:
         specifier: ^4.0.0
@@ -3005,6 +3005,7 @@ packages:
 
   '@sphereon/kmp-mdoc-core@0.2.0-SNAPSHOT.26':
     resolution: {integrity: sha512-QXJ6R8ENiZV2rPMbn06cw5JKwqUYN1kzVRbYfONqE1PEXx1noQ4md7uxr2zSczi0ubKkNcbyYDNtIMTZIhGzmQ==}
+    bundledDependencies: []
 
   '@sphereon/musap-native@0.2.1-next.170':
     resolution: {integrity: sha512-WQnwVNdpD0Xbg9if/ThJy5XDUfnrkHJ52rXq3nTfbPsz3gGxXGVUoPcGOJhk/r4Un4FBzrPSghUye3HFpKc5hA==}
@@ -13600,7 +13601,7 @@ snapshots:
 
   '@transmute/did-context@0.6.1-unstable.37': {}
 
-  '@transmute/did-key-bls12381@0.3.0-unstable.10(encoding@0.1.13)':
+  '@transmute/did-key-bls12381@0.3.0-unstable.10(encoding@0.1.13)(web-streams-polyfill@3.3.3)':
     dependencies:
       '@transmute/bls12381-key-pair': 0.7.0-unstable.81(encoding@0.1.13)
       '@transmute/did-key-common': 0.3.0-unstable.10(encoding@0.1.13)(expo@52.0.46(@babel/core@7.26.10)(@babel/preset-env@7.26.9(@babel/core@7.26.10))(encoding@0.1.13)(react-native@0.79.1(@babel/core@7.26.10)(react@19.1.0))(react@19.1.0))(react-native@0.79.1(@babel/core@7.26.10)(react@19.1.0))(web-streams-polyfill@3.3.3)

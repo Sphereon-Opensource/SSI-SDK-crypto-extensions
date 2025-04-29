@@ -1,31 +1,28 @@
 import {
   ensureManagedIdentifierResult,
-  ExternalIdentifierDidOpts,
-  ExternalIdentifierX5cOpts,
-  IIdentifierResolution,
+  type ExternalIdentifierDidOpts,
+  type ExternalIdentifierX5cOpts,
+  type IIdentifierResolution,
   isManagedIdentifierDidResult,
   isManagedIdentifierX5cResult,
-  ManagedIdentifierMethod,
-  ManagedIdentifierResult,
+  type ManagedIdentifierMethod,
+  type ManagedIdentifierResult,
   resolveExternalJwkIdentifier,
 } from '@sphereon/ssi-sdk-ext.identifier-resolution'
 import { verifyRawSignature } from '@sphereon/ssi-sdk-ext.key-utils'
-import { JWK } from '@sphereon/ssi-types'
-import { IAgentContext } from '@veramo/core'
+import type { JWK } from '@sphereon/ssi-types'
+import type { IAgentContext } from '@veramo/core'
 import { base64ToBytes, bytesToBase64url, decodeJoseBlob, encodeJoseBlob } from '@veramo/utils'
 // @ts-ignore
 import * as u8a from 'uint8arrays'
 const { fromString } = u8a
 
-import {
+import type {
   CreateJwsCompactArgs,
   CreateJwsFlattenedArgs,
   CreateJwsJsonArgs,
   IJwsValidationResult,
   IRequiredContext,
-  isJwsCompact,
-  isJwsJsonFlattened,
-  isJwsJsonGeneral,
   JweHeader,
   Jws,
   JwsCompact,
@@ -40,6 +37,13 @@ import {
   PreparedJwsObject,
   VerifyJwsArgs,
 } from '../types/IJwtService'
+
+import {
+  isJwsCompact,
+  isJwsJsonFlattened,
+  isJwsJsonGeneral,
+} from '../types/IJwtService'
+
 
 const payloadToBytes = (payload: string | JwsPayload | Uint8Array): Uint8Array => {
   const isBytes = payload instanceof Uint8Array

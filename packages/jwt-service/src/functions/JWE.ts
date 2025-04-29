@@ -2,8 +2,9 @@ import { defaultRandomSource, randomBytes, type RandomSource } from '@stablelib/
 import { base64ToBytes, bytesToBase64url, decodeBase64url } from '@veramo/utils'
 import * as jose from 'jose'
 import type { JWEKeyManagementHeaderParameters, JWTDecryptOptions } from 'jose'
-// @ts-ignore
-import type { KeyLike } from 'jose/dist/types/types'
+// // @ts-ignore
+// import type { KeyLike } from 'jose/dist/types/types'
+export type KeyLike = { type: string }
 // @ts-ignore
 import * as u8a from 'uint8arrays'
 const { fromString, toString, concat } = u8a
