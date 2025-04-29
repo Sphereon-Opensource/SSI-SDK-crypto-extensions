@@ -4,11 +4,11 @@ import { KeyUsage, CryptoKey, RsaHashedImportParams, RsaHashedKeyGenParams } fro
 // @ts-ignore
 import * as u8a from 'uint8arrays'
 const { toString } = u8a
-import { HashAlgorithm } from '../types'
+import type { HashAlgorithm } from '../types'
 import { globalCrypto } from './crypto'
 
 import { derToPEM } from './x509-utils'
-import { JsonWebKey } from '@sphereon/ssi-types'
+import type { JsonWebKey } from '@sphereon/ssi-types'
 
 export type RSASignatureSchemes = 'RSASSA-PKCS1-V1_5' | 'RSA-PSS'
 

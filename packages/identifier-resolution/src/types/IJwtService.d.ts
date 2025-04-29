@@ -8,9 +8,9 @@ import {
   ManagedIdentifierOptsOrResult,
   ManagedIdentifierResult,
 } from '../types'*/
-import { ClientIdScheme } from '@sphereon/ssi-sdk-ext.x509-utils'
-import { BaseJWK, IValidationResult, JoseSignatureAlgorithm, JoseSignatureAlgorithmString, JWK } from '@sphereon/ssi-types'
-import { IAgentContext, IKeyManager, IPluginMethodMap } from '@veramo/core'
+import type { ClientIdScheme } from '@sphereon/ssi-sdk-ext.x509-utils'
+import type { BaseJWK, IValidationResult, JoseSignatureAlgorithm, JoseSignatureAlgorithmString, JWK } from '@sphereon/ssi-types'
+import type { IAgentContext, IKeyManager, IPluginMethodMap } from '@veramo/core'
 export type IRequiredContext = IAgentContext<IIdentifierResolution & IKeyManager>
 export declare const jwtServiceContextMethods: Array<string>
 export interface IJwtService extends IPluginMethodMap {

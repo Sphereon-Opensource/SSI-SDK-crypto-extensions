@@ -1,11 +1,11 @@
 // @ts-ignore
 import * as u8a from 'uint8arrays'
 const { fromString, toString } = u8a
-import { HashAlgorithm, KeyVisibility } from '../types'
+import type { HashAlgorithm, KeyVisibility } from '../types'
 import { globalCrypto } from './crypto'
 import { cryptoSubtleImportRSAKey, RSAEncryptionSchemes, RSASignatureSchemes } from './rsa-key'
 import { PEMToJwk } from './x509-utils'
-import { JsonWebKey } from '@sphereon/ssi-types'
+import type { JsonWebKey } from '@sphereon/ssi-types'
 // @ts-ignore
 import { CryptoKey, RsaPssParams, AlgorithmIdentifier } from 'node'
 export class RSASigner {

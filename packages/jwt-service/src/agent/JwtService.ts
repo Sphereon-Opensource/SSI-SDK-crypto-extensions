@@ -1,5 +1,5 @@
 import { Loggers } from '@sphereon/ssi-types'
-import { IAgentPlugin } from '@veramo/core'
+import type { IAgentPlugin } from '@veramo/core'
 const logger = Loggers.DEFAULT.get("sphereon:jwt-service")
 import { importJWK } from 'jose'
 
@@ -8,27 +8,27 @@ import * as u8a from 'uint8arrays'
 const { fromString } = u8a
 import {
   createJwsCompact,
-  CreateJwsCompactArgs,
-  CreateJwsFlattenedArgs,
-  CreateJwsJsonArgs,
+  type CreateJwsCompactArgs,
+  type CreateJwsFlattenedArgs,
+  type CreateJwsJsonArgs,
   createJwsJsonFlattened,
   createJwsJsonGeneral,
-  DecryptJweCompactJwtArgs,
-  EncryptJweCompactJwtArgs,
-  IJwsValidationResult,
-  IJwtService,
-  IRequiredContext,
+  type DecryptJweCompactJwtArgs,
+  type EncryptJweCompactJwtArgs,
+  type IJwsValidationResult,
+  type IJwtService,
+  type IRequiredContext,
   jweAlg,
   jweEnc,
-  JwsJsonFlattened,
-  JwsJsonGeneral,
-  JwtCompactResult,
+  type JwsJsonFlattened,
+  type JwsJsonGeneral,
+  type JwtCompactResult,
   JwtLogger,
-  PreparedJwsObject,
+  type PreparedJwsObject,
   prepareJwsObject,
   schema,
   verifyJws,
-  VerifyJwsArgs,
+  type VerifyJwsArgs,
 } from '..'
 import { CompactJwtEncrypter } from '../functions/JWE'
 

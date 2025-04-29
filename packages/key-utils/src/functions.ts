@@ -9,12 +9,12 @@ import { secp256k1 } from '@noble/curves/secp256k1'
 import { sha256 } from '@noble/hashes/sha256'
 import { sha384, sha512 } from '@noble/hashes/sha512'
 import { generateRSAKeyAsPEM, hexToBase64, hexToPEM, PEMToJwk, privateKeyHexFromPEM } from '@sphereon/ssi-sdk-ext.x509-utils'
-import { JoseCurve, JoseSignatureAlgorithm, JWK, JwkKeyType, Loggers } from '@sphereon/ssi-types'
+import { JoseCurve, JoseSignatureAlgorithm, type JWK, JwkKeyType, Loggers } from '@sphereon/ssi-types'
 import { generateKeyPair as generateSigningKeyPair } from '@stablelib/ed25519'
-import { IAgentContext, IKey, IKeyManager, ManagedKeyInfo, MinimalImportableKey } from '@veramo/core'
+import type { IAgentContext, IKey, IKeyManager, ManagedKeyInfo, MinimalImportableKey } from '@veramo/core'
 import debug from 'debug'
 
-import { JsonWebKey } from 'did-resolver'
+import type  { JsonWebKey } from 'did-resolver'
 import elliptic from 'elliptic'
 import * as rsa from 'micro-rsa-dsa-dh/rsa.js'
 // @ts-ignore
@@ -24,13 +24,13 @@ import { digestMethodParams } from './digest-methods'
 import { validateJwk } from './jwk-jcs'
 import {
   ENC_KEY_ALGS,
-  IImportProvidedOrGeneratedKeyArgs,
+  type IImportProvidedOrGeneratedKeyArgs,
   JwkKeyUse,
-  KeyTypeFromCryptographicSuiteArgs,
+  type KeyTypeFromCryptographicSuiteArgs,
   SIG_KEY_ALGS,
-  SignatureAlgorithmFromKeyArgs,
-  SignatureAlgorithmFromKeyTypeArgs,
-  TKeyType,
+  type SignatureAlgorithmFromKeyArgs,
+  type SignatureAlgorithmFromKeyTypeArgs,
+  type TKeyType,
 } from './types'
 
 // @ts-ignore

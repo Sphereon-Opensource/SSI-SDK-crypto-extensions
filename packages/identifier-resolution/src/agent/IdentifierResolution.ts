@@ -1,9 +1,9 @@
 import { globalCrypto } from '@sphereon/ssi-sdk-ext.key-utils'
-import { IAgentContext, IAgentPlugin, IDIDManager, IKeyManager } from '@veramo/core'
-import { ExternalIdentifierOIDFEntityIdOpts, ExternalIdentifierOIDFEntityIdResult } from '../types'
+import type { IAgentContext, IAgentPlugin, IDIDManager, IKeyManager } from '@veramo/core'
+import type { ExternalIdentifierOIDFEntityIdOpts, ExternalIdentifierOIDFEntityIdResult } from '../types'
 import { schema } from '../index'
 import { resolveExternalIdentifier, ensureManagedIdentifierResult } from '../functions'
-import {
+import type {
   ExternalIdentifierDidOpts,
   ExternalIdentifierDidResult,
   ExternalIdentifierOpts,
@@ -32,7 +32,7 @@ import {
   ManagedIdentifierOptsOrResult,
   ManagedIdentifierOID4VCIssuerOpts,
 } from '../types'
-import { IOIDFClient } from '@sphereon/ssi-sdk.oidf-client'
+import type { IOIDFClient } from '@sphereon/ssi-sdk.oidf-client'
 
 import { webcrypto } from 'node:crypto'
 

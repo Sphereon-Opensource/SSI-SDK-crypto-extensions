@@ -1,8 +1,8 @@
-import { ErrorMessage, ExternalIdentifierOIDFEntityIdOpts, ExternalIdentifierOIDFEntityIdResult, ExternalJwkInfo, TrustedAnchor } from '../types'
-import { IAgentContext } from '@veramo/core'
-import { IOIDFClient } from '@sphereon/ssi-sdk.oidf-client'
+import type { ErrorMessage, ExternalIdentifierOIDFEntityIdOpts, ExternalIdentifierOIDFEntityIdResult, ExternalJwkInfo, TrustedAnchor } from '../types'
+import type { IAgentContext } from '@veramo/core'
+import type { IOIDFClient } from '@sphereon/ssi-sdk.oidf-client'
 import { contextHasPlugin } from '@sphereon/ssi-sdk.agent-config'
-import { IJwsValidationResult, JwsPayload } from '../types/IJwtService'
+import type { IJwsValidationResult, JwsPayload } from '../types/IJwtService'
 // @ts-ignore
 import * as u8a from 'uint8arrays'
 const { fromString, toString } = u8a

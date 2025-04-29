@@ -1,4 +1,4 @@
-import {
+import type {
   ExternalIdentifierDidOpts,
   ExternalIdentifierResult,
   ExternalIdentifierX5cOpts,
@@ -6,9 +6,9 @@ import {
   ManagedIdentifierOptsOrResult,
   ManagedIdentifierResult,
 } from '@sphereon/ssi-sdk-ext.identifier-resolution'
-import { ClientIdScheme } from '@sphereon/ssi-sdk-ext.x509-utils'
-import { BaseJWK, IValidationResult, JoseSignatureAlgorithm, JoseSignatureAlgorithmString, JWK } from '@sphereon/ssi-types'
-import { IAgentContext, IKeyManager, IPluginMethodMap } from '@veramo/core'
+import type { ClientIdScheme } from '@sphereon/ssi-sdk-ext.x509-utils'
+import type { BaseJWK, IValidationResult, JoseSignatureAlgorithm, JoseSignatureAlgorithmString, JWK } from '@sphereon/ssi-types'
+import type { IAgentContext, IKeyManager, IPluginMethodMap } from '@veramo/core'
 
 export type IRequiredContext = IAgentContext<IIdentifierResolution & IKeyManager> // could we still interop with Veramo?
 

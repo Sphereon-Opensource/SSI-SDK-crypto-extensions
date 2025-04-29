@@ -1,18 +1,18 @@
 import {
   ICoseCurve,
-  ICoseKeyJson,
+  type ICoseKeyJson,
   ICoseKeyOperation,
   ICoseKeyType,
   ICoseSignatureAlgorithm,
   JoseCurve,
-  JoseCurveString,
+  type JoseCurveString,
   JoseKeyOperation,
-  JoseKeyOperationString,
+  type JoseKeyOperationString,
   JoseSignatureAlgorithm,
-  JoseSignatureAlgorithmString,
-  JWK,
+  type JoseSignatureAlgorithmString,
+  type JWK,
   JwkKeyType,
-  JwkKeyTypeString,
+  type JwkKeyTypeString,
 } from '@sphereon/ssi-types'
 import { removeNulls } from './functions'
 

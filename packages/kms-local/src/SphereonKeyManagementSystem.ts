@@ -1,14 +1,14 @@
-import { calculateJwkThumbprint, generatePrivateKeyHex, toJwk, X509Opts } from '@sphereon/ssi-sdk-ext.key-utils'
+import { calculateJwkThumbprint, generatePrivateKeyHex, toJwk, type X509Opts } from '@sphereon/ssi-sdk-ext.key-utils'
 
-import { IKey, ManagedKeyInfo, MinimalImportableKey, TKeyType } from '@veramo/core'
-import { AbstractPrivateKeyStore, ManagedPrivateKey } from '@veramo/key-manager'
+import type { IKey, ManagedKeyInfo, MinimalImportableKey, TKeyType } from '@veramo/core'
+import { AbstractPrivateKeyStore, type ManagedPrivateKey } from '@veramo/key-manager'
 import { KeyManagementSystem } from '@veramo/kms-local'
 import Debug from 'debug'
 import elliptic from 'elliptic'
 // @ts-ignore
 import * as u8a from 'uint8arrays'
 const { fromString } = u8a
-import { KeyType, ManagedKeyInfoArgs } from './index'
+import { KeyType, type ManagedKeyInfoArgs } from './index'
 import {
   hexToPEM,
   jwkToPEM,

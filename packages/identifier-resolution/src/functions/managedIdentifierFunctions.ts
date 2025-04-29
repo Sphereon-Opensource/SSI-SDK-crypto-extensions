@@ -2,22 +2,12 @@ import { getFirstKeyWithRelation } from '@sphereon/ssi-sdk-ext.did-utils'
 import { calculateJwkThumbprint, coseKeyToJwk, globalCrypto, toJwk } from '@sphereon/ssi-sdk-ext.key-utils'
 import { pemOrDerToX509Certificate } from '@sphereon/ssi-sdk-ext.x509-utils'
 import { contextHasDidManager, contextHasKeyManager } from '@sphereon/ssi-sdk.agent-config'
-import { ICoseKeyJson, JWK } from '@sphereon/ssi-types'
-import { IAgentContext, IIdentifier, IKey, IKeyManager } from '@veramo/core'
+import type { ICoseKeyJson, JWK } from '@sphereon/ssi-types'
+import type { IAgentContext, IIdentifier, IKey, IKeyManager } from '@veramo/core'
 import { CryptoEngine, setEngine } from 'pkijs'
 import { webcrypto } from 'node:crypto'
-import {
+import type {
   IIdentifierResolution,
-  isManagedIdentifierCoseKeyOpts,
-  isManagedIdentifierDidOpts,
-  isManagedIdentifierDidResult,
-  isManagedIdentifierOID4VCIssuerOpts,
-  isManagedIdentifierJwkOpts,
-  isManagedIdentifierJwkResult,
-  isManagedIdentifierKeyOpts,
-  isManagedIdentifierKeyResult,
-  isManagedIdentifierKidOpts,
-  isManagedIdentifierX5cOpts,
   ManagedIdentifierCoseKeyOpts,
   ManagedIdentifierCoseKeyResult,
   ManagedIdentifierDidOpts,
@@ -34,6 +24,19 @@ import {
   ManagedIdentifierResult,
   ManagedIdentifierX5cOpts,
   ManagedIdentifierX5cResult,
+} from '../types'
+
+import {
+  isManagedIdentifierCoseKeyOpts,
+  isManagedIdentifierDidOpts,
+  isManagedIdentifierDidResult,
+  isManagedIdentifierOID4VCIssuerOpts,
+  isManagedIdentifierJwkOpts,
+  isManagedIdentifierJwkResult,
+  isManagedIdentifierKeyOpts,
+  isManagedIdentifierKeyResult,
+  isManagedIdentifierKidOpts,
+  isManagedIdentifierX5cOpts,
 } from '../types'
 
 export async function getManagedKidIdentifier(

@@ -5,9 +5,9 @@ import * as u8a from 'uint8arrays'
 const { fromString, toString } = u8a
 // @ts-ignore
 import keyto from '@trust/keyto'
-import { KeyVisibility } from '../types'
+import type { KeyVisibility } from '../types'
 
-import { JsonWebKey } from '@sphereon/ssi-types'
+import type { JsonWebKey } from '@sphereon/ssi-types'
 // Based on (MIT licensed):
 // https://github.com/hildjj/node-posh/blob/master/lib/index.js
 export function pemCertChainTox5c(cert: string, maxDepth?: number): string[] {

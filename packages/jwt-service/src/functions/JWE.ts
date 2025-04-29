@@ -1,23 +1,23 @@
-import { defaultRandomSource, randomBytes, RandomSource } from '@stablelib/random'
+import { defaultRandomSource, randomBytes, type RandomSource } from '@stablelib/random'
 import { base64ToBytes, bytesToBase64url, decodeBase64url } from '@veramo/utils'
 import * as jose from 'jose'
-import { JWEKeyManagementHeaderParameters, JWTDecryptOptions } from 'jose'
+import type { JWEKeyManagementHeaderParameters, JWTDecryptOptions } from 'jose'
 // @ts-ignore
 import type { KeyLike } from 'jose/dist/types/types'
 // @ts-ignore
 import * as u8a from 'uint8arrays'
 const { fromString, toString, concat } = u8a
 import {
-  JweAlg,
+  type JweAlg,
   JweAlgs,
-  JweEnc,
+  type JweEnc,
   JweEncs,
-  JweHeader,
-  JweJsonGeneral,
-  JweProtectedHeader,
-  JweRecipient,
-  JweRecipientUnprotectedHeader,
-  JwsPayload,
+  type JweHeader,
+  type JweJsonGeneral,
+  type JweProtectedHeader,
+  type JweRecipient,
+  type JweRecipientUnprotectedHeader,
+  type JwsPayload,
 } from '../types/IJwtService'
 
 export interface EncryptionResult {

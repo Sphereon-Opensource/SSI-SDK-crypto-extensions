@@ -1,7 +1,7 @@
-import { ICoseKeyJson, JWK } from '@sphereon/ssi-types'
-import { IIdentifier, IKey } from '@veramo/core'
-import { ExternalIdentifierType } from './externalIdentifierTypes'
-import { ManagedIdentifierType } from './managedIdentifierTypes'
+import type { ICoseKeyJson, JWK } from '@sphereon/ssi-types'
+import type { IIdentifier, IKey } from '@veramo/core'
+import type { ExternalIdentifierType } from './externalIdentifierTypes'
+import type { ManagedIdentifierType } from './managedIdentifierTypes'
 
 export interface JwkInfo {
   jwk: JWK

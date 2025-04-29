@@ -1,5 +1,5 @@
-import { IAgentContext, IDIDManager, IKeyManager, IPluginMethodMap } from '@veramo/core'
-import {
+import type { IAgentContext, IDIDManager, IKeyManager, IPluginMethodMap } from '@veramo/core'
+import type {
   ExternalIdentifierCoseKeyOpts,
   ExternalIdentifierCoseKeyResult,
   ExternalIdentifierDidOpts,
@@ -13,7 +13,7 @@ import {
   ExternalIdentifierX5cOpts,
   ExternalIdentifierX5cResult,
 } from './externalIdentifierTypes'
-import {
+import type {
   ManagedIdentifierCoseKeyOpts,
   ManagedIdentifierCoseKeyResult,
   ManagedIdentifierDidOpts,

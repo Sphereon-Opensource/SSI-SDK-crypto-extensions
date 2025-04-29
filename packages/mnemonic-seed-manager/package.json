@@ -45,7 +45,7 @@
     "typeorm": "0.3.20"
   },
   "devDependencies": {
-    "@sphereon/ssi-sdk.dev": "0.33.1-feature.vcdm2.tsup.28",
+    "@sphereon/ssi-sdk.dev": "0.33.1-feature.jose.vcdm.56",
     "@types/bip39": "^3.0.0",
     "@veramo/cli": "4.2.0",
     "@types/node": "^20.17.1",

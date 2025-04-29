@@ -5,14 +5,14 @@ import {
   pemOrDerToX509Certificate,
   PEMToDer,
   validateX509CertificateChain,
-  X509ValidationResult,
+  type X509ValidationResult,
 } from '@sphereon/ssi-sdk-ext.x509-utils'
 import { contextHasPlugin } from '@sphereon/ssi-sdk.agent-config'
-import { IParsedDID, JWK, parseDid } from '@sphereon/ssi-types'
-import { IAgentContext, IDIDManager, IResolver } from '@veramo/core'
+import { type IParsedDID, type JWK, parseDid } from '@sphereon/ssi-types'
+import type { IAgentContext, IDIDManager, IResolver } from '@veramo/core'
 import { isDefined } from '@veramo/utils'
 import { CryptoEngine, setEngine } from 'pkijs'
-import {
+import type {
   ExternalIdentifierCoseKeyOpts,
   ExternalIdentifierCoseKeyResult,
   ExternalIdentifierDidOpts,
@@ -24,7 +24,9 @@ import {
   ExternalIdentifierResult,
   ExternalIdentifierX5cOpts,
   ExternalIdentifierX5cResult,
-  ExternalJwkInfo,
+  ExternalJwkInfo
+} from '../types'
+import {
   isExternalIdentifierCoseKeyOpts,
   isExternalIdentifierDidOpts,
   isExternalIdentifierJwkOpts,

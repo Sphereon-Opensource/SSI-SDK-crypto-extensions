@@ -1,5 +1,5 @@
-import { X509Opts } from '@sphereon/ssi-sdk-ext.key-utils'
-import { KeyMetadata, TKeyType } from '@veramo/core'
+import type { X509Opts } from '@sphereon/ssi-sdk-ext.key-utils'
+import type { KeyMetadata, TKeyType } from '@veramo/core'
 
 export { SphereonKeyManagementSystem } from './SphereonKeyManagementSystem'
 

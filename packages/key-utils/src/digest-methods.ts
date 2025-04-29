@@ -1,6 +1,6 @@
 import { sha256 } from '@noble/hashes/sha256'
 import { sha384, sha512 } from '@noble/hashes/sha512'
-import { HasherSync } from '@sphereon/ssi-types'
+import type { HasherSync } from '@sphereon/ssi-types'
 // @ts-ignore
 import * as u8a from 'uint8arrays'
 const { fromString, toString, SupportedEncodings } = u8a

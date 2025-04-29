@@ -7,18 +7,18 @@ import {
   keyTypeFromCryptographicSuite,
   sanitizedJwk,
   signatureAlgorithmFromKey,
-  TKeyType,
+  type TKeyType,
   toJwk,
 } from '@sphereon/ssi-sdk-ext.key-utils'
 import { base64ToHex, hexKeyFromPEMBasedJwk } from '@sphereon/ssi-sdk-ext.x509-utils'
 import { base58ToBytes, base64ToBytes, bytesToHex, hexToBytes, multibaseKeyToBytes } from '@sphereon/ssi-sdk.core'
-import { JWK } from '@sphereon/ssi-types'
+import type { JWK } from '@sphereon/ssi-types'
 import { convertPublicKeyToX25519 } from '@stablelib/ed25519'
-import { DIDDocument, DIDDocumentSection, DIDResolutionResult, IAgentContext, IDIDManager, IIdentifier, IKey, IResolver } from '@veramo/core'
+import type { DIDDocument, DIDDocumentSection, DIDResolutionResult, IAgentContext, IDIDManager, IIdentifier, IKey, IResolver } from '@veramo/core'
 import {
-  _ExtendedIKey,
-  _ExtendedVerificationMethod,
-  _NormalizedVerificationMethod,
+  type _ExtendedIKey,
+  type _ExtendedVerificationMethod,
+  type _NormalizedVerificationMethod,
   compressIdentifierSecp256k1Keys,
   convertIdentifierEncryptionKeys,
   getEthereumAddress,
@@ -26,22 +26,22 @@ import {
   mapIdentifierKeysToDoc,
 } from '@veramo/utils'
 import { createJWT, Signer } from 'did-jwt'
-import { DIDResolutionOptions, JsonWebKey, Resolvable, VerificationMethod } from 'did-resolver'
+import type { DIDResolutionOptions, JsonWebKey, Resolvable, VerificationMethod } from 'did-resolver'
 // @ts-ignore
 import elliptic from 'elliptic'
 // @ts-ignore
 import * as u8a from 'uint8arrays'
 const { fromString, toString } = u8a
 import {
-  CreateIdentifierOpts,
-  CreateOrGetIdentifierOpts,
+  type CreateIdentifierOpts,
+  type CreateOrGetIdentifierOpts,
   DID_PREFIX,
-  GetOrCreateResult,
-  GetSignerArgs,
+  type GetOrCreateResult,
+  type GetSignerArgs,
   IdentifierAliasEnum,
-  IdentifierProviderOpts,
-  IDIDOptions,
-  SignJwtArgs,
+  type IdentifierProviderOpts,
+  type IDIDOptions,
+  type SignJwtArgs,
   SupportedDidMethodEnum,
 } from './types'
 
