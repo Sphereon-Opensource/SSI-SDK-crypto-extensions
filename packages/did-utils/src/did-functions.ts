@@ -445,11 +445,13 @@ export function verificationMethodToJwk(vm: VerificationMethod, errorOnNotFound 
   let jwk: JWK | undefined = vm.publicKeyJwk as JWK
   if (!jwk) {
     let publicKeyHex = vm.publicKeyHex ?? toString(extractPublicKeyBytes(vm), 'hex')
-    jwk = toJwk(publicKeyHex, keyTypeFromCryptographicSuite({ crv: vm.type }))
+    if (publicKeyHex && publicKeyHex.trim() !== '') {
+      jwk = toJwk(publicKeyHex, keyTypeFromCryptographicSuite({ crv: vm.type }))
+    }
   }
   if (!jwk) {
     if (errorOnNotFound) {
-      throw Error(`Could not convert verification method to jwk`)
+      throw Error(`Could not convert verification method ${vm.id} to jwk`)
     }
     return null
   }
