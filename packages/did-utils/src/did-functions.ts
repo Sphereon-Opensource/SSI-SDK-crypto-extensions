@@ -441,14 +441,17 @@ function extractPublicKeyBytes(pk: VerificationMethod): Uint8Array {
   return new Uint8Array()
 }
 
-export function verificationMethodToJwk(vm: VerificationMethod): JWK {
+export function verificationMethodToJwk(vm: VerificationMethod, errorOnNotFound = true): JWK | null {
   let jwk: JWK | undefined = vm.publicKeyJwk as JWK
   if (!jwk) {
     let publicKeyHex = vm.publicKeyHex ?? toString(extractPublicKeyBytes(vm), 'hex')
     jwk = toJwk(publicKeyHex, keyTypeFromCryptographicSuite({ crv: vm.type }))
   }
   if (!jwk) {
-    throw Error(`Could not convert verification method to jwk`)
+    if (errorOnNotFound) {
+      throw Error(`Could not convert verification method to jwk`)
+    }
+    return null
   }
   jwk.kid = vm.id
   return sanitizedJwk(jwk)
@@ -463,7 +466,8 @@ function didDocumentSectionToJwks(
     (searchForVerificationMethods ?? [])
       .map((vmOrId) => (typeof vmOrId === 'object' ? vmOrId : verificationMethods?.find((vm) => vm.id === vmOrId)))
       .filter(isDefined)
-      .map((vm) => verificationMethodToJwk(vm))
+      .map((vm) => verificationMethodToJwk(vm, false))
+      .filter(isDefined)
   )
   return { didDocumentSection, jwks: Array.from(jwks) }
 }
