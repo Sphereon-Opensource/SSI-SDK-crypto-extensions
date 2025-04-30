@@ -31,6 +31,7 @@ import type { DIDResolutionOptions, JsonWebKey, Resolvable, VerificationMethod }
 import elliptic from 'elliptic'
 // @ts-ignore
 import * as u8a from 'uint8arrays'
+
 const { fromString, toString } = u8a
 import {
   type CreateIdentifierOpts,
@@ -505,10 +506,12 @@ export async function mapIdentifierKeysToDocWithJwkSupport(
     identifier,
     vmRelationship = 'verificationMethod',
     didDocument,
+    kmsKeyRef,
   }: {
     identifier: IIdentifier
     vmRelationship?: DIDDocumentSection
     didDocument?: DIDDocument
+    kmsKeyRef?: string
   },
   context: IAgentContext<IResolver & IDIDManager>
 ): Promise<_ExtendedIKey[]> {
@@ -528,6 +531,13 @@ export async function mapIdentifierKeysToDocWithJwkSupport(
 
   // dereference all key agreement keys from DID document and normalize
   const documentKeys: VerificationMethod[] = await dereferenceDidKeysWithJwkSupport(didDoc, vmRelationship, context)
+
+  if (kmsKeyRef) {
+    let found = keys.filter((key) => key.kid === kmsKeyRef)
+    if (found.length > 0) {
+      return found
+    }
+  }
 
   const localKeys = vmRelationship === 'keyAgreement' ? convertIdentifierEncryptionKeys(identifier) : compressIdentifierSecp256k1Keys(identifier)
 
@@ -552,7 +562,7 @@ export async function mapIdentifierKeysToDocWithJwkSupport(
     })
     .filter(isDefined)
 
-  return keys.concat(extendedKeys)
+  return Array.from(new Set(keys.concat(extendedKeys)))
 }
 
 /**
@@ -623,7 +633,7 @@ export async function getKey(
     kmsKeyRef?: string
   },
   context: IAgentContext<IResolver & IDIDManager>
-): Promise<IKey> {
+): Promise<_ExtendedIKey> {
   if (!identifier) {
     return Promise.reject(new Error(`No identifier provided to getKey method!`))
   }
@@ -631,26 +641,27 @@ export async function getKey(
   const kmsKeyRefParts = kmsKeyRef?.split(`#`)
   const kid = kmsKeyRefParts ? (kmsKeyRefParts?.length === 2 ? kmsKeyRefParts[1] : kmsKeyRefParts[0]) : undefined
   // todo: We really should do a keyRef and external kid here
-  let identifierKey = kmsKeyRef ? identifier.keys.find((key: IKey) => key.kid === kid || key?.meta?.jwkThumbprint === kid) : undefined
-  if (!identifierKey) {
-    const keys = await mapIdentifierKeysToDocWithJwkSupport({ identifier, vmRelationship: vmRelationship }, context)
-    if (!keys || keys.length === 0) {
-      throw new Error(`No keys found for verificationMethodSection: ${vmRelationship} and did ${identifier.did}`)
-    }
-    if (kmsKeyRef) {
-      identifierKey = keys.find(
-        (key: _ExtendedIKey) => key.meta.verificationMethod?.id === kmsKeyRef || (kid && key.meta.verificationMethod?.id?.includes(kid))
-      )
-    }
-    if (!identifierKey) {
-      identifierKey = keys.find(
-        (key: _ExtendedIKey) => key.meta.verificationMethod?.type === vmRelationship || key.meta.purposes?.includes(vmRelationship)
-      )
-    }
-    if (!identifierKey) {
-      identifierKey = keys[0]
-    }
+  // const keyRefKeys = kmsKeyRef ? identifier.keys.find((key: IKey) => key.kid === kid || key?.meta?.jwkThumbprint === kid) : undefined
+  let identifierKey: _ExtendedIKey | undefined = undefined
+
+  const keys = await mapIdentifierKeysToDocWithJwkSupport({ identifier, vmRelationship: vmRelationship, kmsKeyRef: kmsKeyRef }, context)
+  if (!keys || keys.length === 0) {
+    throw new Error(`No keys found for verificationMethodSection: ${vmRelationship} and did ${identifier.did}`)
   }
+  if (kmsKeyRef) {
+    identifierKey = keys.find(
+      (key: _ExtendedIKey) => key.meta.verificationMethod?.id === kmsKeyRef || (kid && key.meta.verificationMethod?.id?.includes(kid))
+    )
+  }
+  if (!identifierKey) {
+    identifierKey = keys.find(
+      (key: _ExtendedIKey) => key.meta.verificationMethod?.type === vmRelationship || key.meta.purposes?.includes(vmRelationship)
+    )
+  }
+  if (!identifierKey) {
+    identifierKey = keys[0]
+  }
+
   if (!identifierKey) {
     throw new Error(
       `No matching verificationMethodSection key found for keyId: ${kmsKeyRef} and vmSection: ${vmRelationship} for id ${identifier.did}`
