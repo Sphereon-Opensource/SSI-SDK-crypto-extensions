@@ -696,6 +696,7 @@ export const keyTypeFromCryptographicSuite = (args: KeyTypeFromCryptographicSuit
     case 'EcdsaSecp256k1Signature2019':
     case 'secp256k1':
     case 'ES256K':
+    case 'EcdsaSecp256k1RecoveryMethod2020':
       return 'Secp256k1'
   }
   if (kty) {
