@@ -14,11 +14,12 @@ import { generateKeyPair as generateSigningKeyPair } from '@stablelib/ed25519'
 import type { IAgentContext, IKey, IKeyManager, ManagedKeyInfo, MinimalImportableKey } from '@veramo/core'
 import debug from 'debug'
 
-import type  { JsonWebKey } from 'did-resolver'
+import type { JsonWebKey } from 'did-resolver'
 import elliptic from 'elliptic'
 import * as rsa from 'micro-rsa-dsa-dh/rsa.js'
 // @ts-ignore
 import * as u8a from 'uint8arrays'
+
 const { fromString, toString } = u8a
 import { digestMethodParams } from './digest-methods'
 import { validateJwk } from './jwk-jcs'
@@ -35,6 +36,7 @@ import {
 
 // @ts-ignore
 import { Crypto } from 'node'
+
 export const logger = Loggers.DEFAULT.get('sphereon:key-utils')
 
 /**
@@ -696,6 +698,7 @@ export const keyTypeFromCryptographicSuite = (args: KeyTypeFromCryptographicSuit
     case 'EcdsaSecp256k1Signature2019':
     case 'secp256k1':
     case 'ES256K':
+    case 'EcdsaSecp256k1VerificationKey2019':
     case 'EcdsaSecp256k1RecoveryMethod2020':
       return 'Secp256k1'
   }
