@@ -6,9 +6,8 @@ import { p256 } from '@noble/curves/p256'
 import { p384 } from '@noble/curves/p384'
 import { p521 } from '@noble/curves/p521'
 import { secp256k1 } from '@noble/curves/secp256k1'
-import { sha256 } from '@noble/hashes/sha256'
-import { sha384, sha512 } from '@noble/hashes/sha512'
-import { generateRSAKeyAsPEM, hexToBase64, hexToPEM, PEMToJwk, privateKeyHexFromPEM } from '@sphereon/ssi-sdk-ext.x509-utils'
+import { sha256, sha384, sha512 } from '@noble/hashes/sha2'
+import { cryptoSubtleImportRSAKey, generateRSAKeyAsPEM, hexToBase64, hexToPEM, PEMToJwk, privateKeyHexFromPEM } from '@sphereon/ssi-sdk-ext.x509-utils'
 import { JoseCurve, JoseSignatureAlgorithm, type JWK, JwkKeyType, Loggers } from '@sphereon/ssi-types'
 import { generateKeyPair as generateSigningKeyPair } from '@stablelib/ed25519'
 import type { IAgentContext, IKey, IKeyManager, ManagedKeyInfo, MinimalImportableKey } from '@veramo/core'
@@ -17,10 +16,11 @@ import debug from 'debug'
 import type { JsonWebKey } from 'did-resolver'
 import elliptic from 'elliptic'
 import * as rsa from 'micro-rsa-dsa-dh/rsa.js'
+
+// @ts-ignore
+import { Crypto } from 'node'
 // @ts-ignore
 import * as u8a from 'uint8arrays'
-
-const { fromString, toString } = u8a
 import { digestMethodParams } from './digest-methods'
 import { validateJwk } from './jwk-jcs'
 import {
@@ -31,11 +31,10 @@ import {
   SIG_KEY_ALGS,
   type SignatureAlgorithmFromKeyArgs,
   type SignatureAlgorithmFromKeyTypeArgs,
-  type TKeyType,
+  type TKeyType
 } from './types'
 
-// @ts-ignore
-import { Crypto } from 'node'
+const { fromString, toString } = u8a
 
 export const logger = Loggers.DEFAULT.get('sphereon:key-utils')
 
@@ -300,17 +299,69 @@ export const jwkToRawHexKey = async (jwk: JWK): Promise<string> => {
  * @param jwk - The RSA JWK object.
  * @returns A string representing the RSA key in raw hexadecimal format.
  */
-function rsaJwkToRawHexKey(jwk: JsonWebKey): string {
+export function rsaJwkToRawHexKey(jwk: JsonWebKey): string {
+  /**
+   * Encode an integer value (given as a Uint8Array) into DER INTEGER:
+   * 0x02 || length || value (with a leading 0x00 if the high bit is set).
+   */
+  function encodeInteger(bytes: Uint8Array): Uint8Array {
+    // if high bit set, prefix a 0x00
+    if (bytes[0] & 0x80) {
+      bytes = Uint8Array.from([0x00, ...bytes])
+    }
+    const len = encodeLength(bytes.length)
+    return Uint8Array.from([0x02, ...len, ...bytes])
+  }
+
+  /**
+   * Encode length per DER rules:
+   * - If <128, one byte
+   * - Else 0x80|numBytes followed by big-endian length
+   */
+  function encodeLength(len: any) {
+    if (len < 0x80) {
+      return Uint8Array.of(len)
+    }
+    let hex = len.toString(16)
+    if (hex.length % 2 === 1) {
+      hex = '0' + hex
+    }
+    const lenBytes = Uint8Array.from(hex.match(/.{2}/g)!.map((h: any) => parseInt(h, 16)))
+    return Uint8Array.of(0x80 | lenBytes.length, ...lenBytes)
+  }
+
+  /**
+   * Wrap one or more DER elements in a SEQUENCE:
+   * 0x30 || totalLength || concatenatedElements
+   */
+  function encodeSequence(elements: any) {
+    const content = elements.reduce((acc: any, elm: any) => Uint8Array.from([...acc, ...elm]), new Uint8Array())
+    const len = encodeLength(content.length)
+    return Uint8Array.from([0x30, ...len, ...content])
+  }
+
+  /**
+   * Convert a Base64-URL string into a Uint8Array (handles padding & “-_/”).
+   */
+  function base64UrlToBytes(b64url: string): Uint8Array {
+    return fromString(b64url, 'base64url')
+  }
+
   jwk = sanitizedJwk(jwk)
   if (!jwk.n || !jwk.e) {
     throw new Error("RSA JWK must contain 'n' and 'e' properties.")
   }
-
-  // We are converting from base64 to base64url to be sure. The spec uses base64url, but in the wild we sometimes encounter a base64 string
-  const modulus = fromString(jwk.n.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''), 'base64url') // 'n' is the modulus
-  const exponent = fromString(jwk.e.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''), 'base64url') // 'e' is the exponent
-
-  return toString(modulus, 'hex') + toString(exponent, 'hex')
+  const modulusBytes = base64UrlToBytes(jwk.n)
+  const exponentBytes = base64UrlToBytes(jwk.e)
+  const sequence = encodeSequence([encodeInteger(modulusBytes), encodeInteger(exponentBytes)])
+  const result = toString(sequence, 'hex')
+  return result
+  /*
+    // We are converting from base64 to base64url to be sure. The spec uses base64url, but in the wild we sometimes encounter a base64 string
+    const modulus = fromString(jwk.n.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''), 'base64url') // 'n' is the modulus
+    const exponent = fromString(jwk.e.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''), 'base64url') // 'e' is the exponent
+  
+    return toString(modulus, 'hex') + toString(exponent, 'hex')*/
 }
 
 /**
@@ -488,29 +539,99 @@ const toEd25519OrX25519Jwk = (
 }
 
 const toRSAJwk = (publicKeyHex: string, opts?: { use?: JwkKeyUse; key?: IKey | MinimalImportableKey }): JWK => {
+  function parseDerIntegers(pubKeyHex: string): { modulus: string; exponent: string } {
+    const bytes = Buffer.from(pubKeyHex, 'hex')
+    let offset = 0
+
+    // 1) Outer SEQUENCE
+    if (bytes[offset++] !== 0x30) throw new Error('Not a SEQUENCE')
+    let len = bytes[offset++]
+    if (len & 0x80) {
+      const nBytes = len & 0x7f
+      len = 0
+      for (let i = 0; i < nBytes; i++) {
+        len = (len << 8) + bytes[offset++]
+      }
+    }
+
+    // 2) Look at next tag: INTEGER(0x02) means raw PKCS#1,
+    //    otherwise assume X.509/SPKI wrapper.
+    if (bytes[offset] !== 0x02) {
+      // --- skip AlgorithmIdentifier SEQUENCE ---
+      if (bytes[offset++] !== 0x30) throw new Error('Expected alg-ID SEQUENCE')
+      let algLen = bytes[offset++]
+      if (algLen & 0x80) {
+        const nB = algLen & 0x7f; algLen = 0
+        for (let i = 0; i < nB; i++) algLen = (algLen << 8) + bytes[offset++]
+      }
+      offset += algLen
+
+      // --- skip BIT STRING wrapper ---
+      if (bytes[offset++] !== 0x03) throw new Error('Expected BIT STRING')
+      let bitLen = bytes[offset++]
+      if (bitLen & 0x80) {
+        const nB = bitLen & 0x7f; bitLen = 0
+        for (let i = 0; i < nB; i++) bitLen = (bitLen << 8) + bytes[offset++]
+      }
+      // skip the “unused bits” byte
+      offset += 1
+
+      // now the next byte should be 0x30 for the inner SEQUENCE
+      if (bytes[offset++] !== 0x30) throw new Error('Expected inner SEQUENCE')
+      let innerLen = bytes[offset++]
+      if (innerLen & 0x80) {
+        const nB = innerLen & 0x7f; innerLen = 0
+        for (let i = 0; i < nB; i++) innerLen = (innerLen << 8) + bytes[offset++]
+      }
+    }
+
+    // 3) Parse modulus INTEGER
+    if (bytes[offset++] !== 0x02) throw new Error('Expected INTEGER for modulus')
+    let modLen = bytes[offset++]
+    if (modLen & 0x80) {
+      const nB = modLen & 0x7f; modLen = 0
+      for (let i = 0; i < nB; i++) modLen = (modLen << 8) + bytes[offset++]
+    }
+    let modulusBytes = bytes.slice(offset, offset + modLen)
+    offset += modLen
+
+    // strip leading zero if present (unsigned integer in JWK)
+    if (modulusBytes[0] === 0x00) {
+      modulusBytes = modulusBytes.slice(1)
+    }
+
+    // 4) Parse exponent INTEGER
+    if (bytes[offset++] !== 0x02) throw new Error('Expected INTEGER for exponent')
+    let expLen = bytes[offset++]
+    if (expLen & 0x80) {
+      const nB = expLen & 0x7f; expLen = 0
+      for (let i = 0; i < nB; i++) expLen = (expLen << 8) + bytes[offset++]
+    }
+    const exponentBytes = bytes.slice(offset, offset + expLen)
+
+    return {
+      modulus: modulusBytes.toString('hex'),
+      exponent: exponentBytes.toString('hex'),
+    }
+  }
+
   const meta = opts?.key?.meta
   if (meta?.publicKeyJwk || meta?.publicKeyPEM) {
     if (meta?.publicKeyJwk) {
       return meta.publicKeyJwk as JWK
     }
     const publicKeyPEM = meta?.publicKeyPEM ?? hexToPEM(publicKeyHex, 'public')
-    return PEMToJwk(publicKeyPEM, 'public') as JWK
+    const jwk = PEMToJwk(publicKeyPEM, 'public') as JWK
+    return jwk
   }
 
-  // exponent (e) is 5 chars long, rest is modulus (n)
-  // const publicKey = publicKeyHex
-  // assertProperKeyLength(publicKey, [2048, 3072, 4096])
-  const exponent = publicKeyHex.slice(-5)
-  const modulus = publicKeyHex.slice(0, -5)
-  // const modulusBitLength  = (modulus.length / 2) * 8
-
-  // const alg = modulusBitLength === 2048 ? JoseSignatureAlgorithm.RS256 : modulusBitLength === 3072 ? JoseSignatureAlgorithm.RS384 : modulusBitLength === 4096 ? JoseSignatureAlgorithm.RS512 : undefined
-  return sanitizedJwk({
+  const { modulus, exponent } = parseDerIntegers(publicKeyHex)
+  const sanitized = sanitizedJwk({
     kty: 'RSA',
     n: hexToBase64(modulus, 'base64url'),
     e: hexToBase64(exponent, 'base64url'),
-    // ...(alg && { alg }),
   })
+  return sanitized
 }
 
 export const padLeft = (args: { data: string; size?: number; padString?: string }): string => {
@@ -657,6 +778,8 @@ export const signatureAlgorithmFromKeyType = (args: SignatureAlgorithmFromKeyTyp
       return JoseSignatureAlgorithm.ES512
     case 'Secp256k1':
       return JoseSignatureAlgorithm.ES256K
+    case 'RSA':
+      return JoseSignatureAlgorithm.PS256
     default:
       throw new Error(`Key type '${type}' not supported`)
   }
@@ -852,6 +975,14 @@ export async function verifyRawSignature({
           case JoseSignatureAlgorithm.PS256:
           case JoseSignatureAlgorithm.PS384:
           case JoseSignatureAlgorithm.PS512:
+            if (typeof crypto !== 'undefined' && typeof crypto.subtle !== 'undefined') {
+              const key = await  cryptoSubtleImportRSAKey(jwk, 'RSA-PSS')
+              const saltLength = signatureAlgorithm === JoseSignatureAlgorithm.PS256 ? 32 : signatureAlgorithm === JoseSignatureAlgorithm.PS384 ? 48: 64
+              return crypto.subtle.verify( { name: 'rsa-pss', hash: hashAlg, saltLength }, key, signature, data)
+            }
+
+            // FIXME
+            console.warn(`Using fallback for RSA-PSS verify signature, which is known to be flaky!!`)
             return rsa.PSS(hashAlg, rsa.mgf1(hashAlg)).verify(
               {
                 n: jwkPropertyToBigInt(jwk.n!),

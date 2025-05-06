@@ -130,14 +130,14 @@ export class SphereonKeyManagementSystem extends KeyManagementSystem {
       return signature*/
     } else if (
       // @ts-ignore
-      privateKey.type === 'RSA' &&
-      (typeof algorithm === 'undefined' || algorithm === 'RS256' || algorithm === 'RS512' || algorithm === 'PS256' || algorithm === 'PS512')
-    ) {
-      return await this.signRSA(privateKey, data, algorithm ?? 'PS256')
+      privateKey.type === 'RSA') {
+      if ((typeof algorithm === 'undefined' || algorithm === 'RS256' || algorithm === 'RS512' || algorithm === 'PS256' || algorithm === 'PS512')) {
+        return await this.signRSA(privateKey, data, algorithm ?? 'PS256')
+      }
+      return Promise.reject(new Error(`not_supported: Cannot sign using key of type RSA and alg: ${algorithm}. Only RS and PS algorithms are supported.`))
     } else {
       return await super.sign({ keyRef, algorithm, data })
     }
-    throw Error(`not_supported: Cannot sign using key of type ${privateKey.type}`)
   }
 
   async verify({
@@ -247,8 +247,8 @@ export class SphereonKeyManagementSystem extends KeyManagementSystem {
           publicKeyHex,
           meta: {
             ...meta,
-            // todo: could als be DSA etc
-            algorithms: ['RS256', 'RS512', 'PS256', 'PS512'],
+            // todo: could als be EcDSA etc
+            algorithms: ['PS256', 'PS512', 'RS256', 'RS512'],
             publicKeyJwk,
             publicKeyPEM,
           },

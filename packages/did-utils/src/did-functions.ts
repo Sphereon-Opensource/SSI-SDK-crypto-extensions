@@ -5,12 +5,13 @@ import {
   getKms,
   JwkKeyUse,
   keyTypeFromCryptographicSuite,
+  rsaJwkToRawHexKey,
   sanitizedJwk,
   signatureAlgorithmFromKey,
   type TKeyType,
   toJwk,
 } from '@sphereon/ssi-sdk-ext.key-utils'
-import { base64ToHex, hexKeyFromPEMBasedJwk } from '@sphereon/ssi-sdk-ext.x509-utils'
+import { base64ToHex } from '@sphereon/ssi-sdk-ext.x509-utils'
 import { base58ToBytes, base64ToBytes, bytesToHex, hexToBytes, multibaseKeyToBytes } from '@sphereon/ssi-sdk.core'
 import type { JWK } from '@sphereon/ssi-types'
 import { convertPublicKeyToX25519 } from '@stablelib/ed25519'
@@ -31,8 +32,6 @@ import type { DIDResolutionOptions, JsonWebKey, Resolvable, VerificationMethod }
 import elliptic from 'elliptic'
 // @ts-ignore
 import * as u8a from 'uint8arrays'
-
-const { fromString, toString } = u8a
 import {
   type CreateIdentifierOpts,
   type CreateOrGetIdentifierOpts,
@@ -45,6 +44,8 @@ import {
   type SignJwtArgs,
   SupportedDidMethodEnum,
 } from './types'
+
+const { fromString, toString } = u8a
 
 export const getAuthenticationKey = async (
   {
@@ -376,7 +377,8 @@ export function extractPublicKeyHexWithJwkSupport(pk: _ExtendedVerificationMetho
     } else if (jwk.crv === 'Ed25519') {
       return toString(fromString(jwk.x!, 'base64url'), 'base16')
     } else if (jwk.kty === 'RSA') {
-      return hexKeyFromPEMBasedJwk(jwk, 'public')
+      return rsaJwkToRawHexKey(jwk)
+      // return hexKeyFromPEMBasedJwk(jwk, 'public')
     }
   }
   // delegate the other types to the original Veramo function
