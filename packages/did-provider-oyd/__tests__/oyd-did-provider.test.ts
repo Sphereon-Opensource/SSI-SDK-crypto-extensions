@@ -34,17 +34,19 @@ const agent = createAgent<IKeyManager & IDIDManager>({
 
 describe('@sphereon/did-provider-oyd', () => {
   it('should create identifier', async () => {
-    const identifier: IIdentifier = await agent.didManagerCreate( { options: { keyType: 'Secp256r1', kid: 'test', cmsm: {enabled: false} } })
+    const identifier: IIdentifier = await agent.didManagerCreate( { options: { keyType: 'Secp256r1', kid: 'test', cmsm: {enabled: true} } })
 
     expect(identifier).toBeDefined()
     expect(identifier.keys.length).toBe(1)
+
+    console.log(JSON.stringify(identifier, null, 2))
   })
 
   // FIXME: Enabled when CMSM is working
   it('should create identifier with CMSM', async () => {
-    const privateKey = generatePrivateKeyHex()
-    console.log(`Private Key HEX: ${privateKey}`)
-    const key = await agent.keyManagerCreate({type: 'Secp256r1', kms: 'mem'})
+    const privateKeyHex = '82d1b2c4552923e23722b8af89c91082fcb7ef43315a22f9635d9c153fd74d3e' //generatePrivateKeyHex()
+    console.log(`Private Key HEX: ${privateKeyHex}`)
+    const key = await agent.keyManagerImport({privateKeyHex, kid: 'test', type: 'Secp256r1', kms: 'mem' })
     console.log(`KEY:\n${JSON.stringify(key, null, 2)}`)
     console.log(`Public Key HEX: ${key.publicKeyHex}`)
 
