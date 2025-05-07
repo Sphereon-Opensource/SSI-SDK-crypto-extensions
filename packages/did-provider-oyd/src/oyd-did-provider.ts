@@ -1,3 +1,4 @@
+import { importProvidedOrGeneratedKey } from '@sphereon/ssi-sdk-ext.key-utils'
 import { IAgentContext, IIdentifier, IKey, IKeyManager, IService, TKeyType } from '@veramo/core'
 import { AbstractIdentifierProvider } from '@veramo/did-manager'
 import { KeyManager } from '@veramo/key-manager'
@@ -12,7 +13,7 @@ import type {
   CMSMCallbackOpts,
   OydConstructorOptions,
   OydCreateIdentifierOptions,
-  OydDidHoldKeysArgs,
+  // OydDidHoldKeysArgs,
   OydDidSupportedKeyTypes,
 } from './types/oyd-provider-types.js'
 
@@ -47,7 +48,7 @@ export class OydDIDProvider extends AbstractIdentifierProvider {
   }
 
   async createIdentifier(
-    { kms, options }: { kms?: string; options: OydCreateIdentifierOptions },
+    { kms, alias, options }: { kms?: string; alias?: string; options: OydCreateIdentifierOptions },
     context: IContext
   ): Promise<Omit<IIdentifier, 'provider'>> {
     const resolvedKms = await this.assertedKms(kms, this.defaultKms)
@@ -62,7 +63,7 @@ export class OydDIDProvider extends AbstractIdentifierProvider {
     const body = {
       options: {
         cmsm: false,
-        key_type: options.keyType ?? 'Secp256r1',
+        key_type: options.type ?? 'Secp256r1',
       },
     }
     let didDoc: any | undefined
@@ -84,15 +85,18 @@ export class OydDIDProvider extends AbstractIdentifierProvider {
       return Promise.reject(Error('There has been a problem with the fetch operation: ' + error.toString()))
     }
 
-    const keyType: OydDidSupportedKeyTypes = options?.keyType ?? 'Secp256r1'
-    const key = await this.importOrCreateKey(
+    const keyType: OydDidSupportedKeyTypes = options?.type ?? 'Secp256r1'
+    const key = await importProvidedOrGeneratedKey(
       {
         kms: resolvedKms,
+        alias: alias ?? options.alias ?? options.kid ?? `${didDoc.did}#key-doc`,
         options: {
-          keyType,
-          kid: didDoc.did + '#key-doc',
-          publicKeyHex: didDoc.keys[0].publicKeyHex,
-          privateKeyHex: didDoc.keys[0].privateKeyHex,
+          key: {
+            kid: `${didDoc.did}#key-doc`,
+            type: keyType,
+            publicKeyHex: didDoc.keys[0].publicKeyHex,
+            privateKeyHex: didDoc.keys[0].privateKeyHex,
+          },
         },
       },
       context
@@ -119,11 +123,10 @@ export class OydDIDProvider extends AbstractIdentifierProvider {
 
     const assertedKms = await this.assertedKms(kms, this.defaultKms)
     const pubKey =
-      options.key ??
-      (await cmsmCallbackOpts.publicKeyCallback(options.kid ?? 'default', assertedKms, options.cmsm?.create !== false, options.keyType)) // "default" is probably not right, TODO!!
+      options.key ?? (await cmsmCallbackOpts.publicKeyCallback(options.kid ?? 'default', assertedKms, options.cmsm?.create !== false, options.type)) // "default" is probably not right, TODO!!
     const kid = pubKey.kid
     const keyType = pubKey.type
-    const key = base58btc({publicKeyHex: pubKey.publicKeyHex, keyType})
+    const key = base58btc({ publicKeyHex: pubKey.publicKeyHex, keyType })
 
     console.log(`Bae58 pubkey key: ${key}`)
     let signValue: any | undefined // do the request
@@ -161,8 +164,6 @@ export class OydDIDProvider extends AbstractIdentifierProvider {
 
     console.log(`Signature: ${signature}`)
 
-
-
     const body_signed = {
       key,
       options: {
@@ -194,24 +195,6 @@ export class OydDIDProvider extends AbstractIdentifierProvider {
       debug('Unexpected error from OydDID Registrar: ', error)
       return Promise.reject(Error('There has been a problem with the fetch operation: ' + error.toString()))
     }
-
-    /*    let oydKeyType: OydDidSupportedKeyTypes = "Secp256r1";
-
-        const key = await this.holdKeys(
-          {
-            kms: assertedKms,
-            options: {
-              keyType: oydKeyType,
-              kid: kid,
-              publicKeyHex: pubKey.publicKeyHex,
-            },
-          },
-          context
-        );*/
-
-
-
-
 
     const identifier: Omit<IIdentifier, 'provider'> = {
       did: didDoc.did,
@@ -252,31 +235,6 @@ export class OydDIDProvider extends AbstractIdentifierProvider {
   async removeService(args: { identifier: IIdentifier; id: string; options?: any }, context: IContext): Promise<any> {
     return { success: true }
   }
-
-  private async importOrCreateKey(args: OydDidHoldKeysArgs, context: IContext): Promise<IKey> {
-    const kms = await this.assertedKms(args.kms, this.defaultKms)
-    if (args.options.privateKeyHex) {
-      return context.agent.keyManagerImport({
-        kms,
-        type: args.options.keyType,
-        kid: args.options.kid,
-        privateKeyHex: args.options.privateKeyHex,
-        /*meta: {
-          algorithms: ['Secp256r1'],
-        },*/
-      })
-    }
-    return context.agent.keyManagerCreate({
-      type: args.options.keyType,
-      kms,
-      meta: {
-        algorithms: ['Secp256r1'],
-      },
-    })
-  }
-
-
-
 }
 
 const keyCodecs = {
@@ -289,17 +247,15 @@ const keyCodecs = {
   Bls12381G2: 'bls12_381-g2-pub',
 } as const
 
-const base58btc = ({publicKeyHex, keyType = 'Secp256r1'}:{publicKeyHex: string, keyType?: TKeyType}): string => {
+const base58btc = ({ publicKeyHex, keyType = 'Secp256r1' }: { publicKeyHex: string; keyType?: TKeyType }): string => {
   const codecName = keyCodecs[keyType]
-
 
   // methodSpecificId  = bytesToMultibase({bytes: u8a.fromString(key.publicKeyHex, 'hex'), codecName})
   return u8a
-    .toString(
-      Multibase.encode('base58btc', Multicodec.addPrefix(codecName as Multicodec.CodecName, u8a.fromString(publicKeyHex, 'hex')))
-    )
+    .toString(Multibase.encode('base58btc', Multicodec.addPrefix(codecName as Multicodec.CodecName, u8a.fromString(publicKeyHex, 'hex'))))
     .toString()
 }
+
 export function defaultOydCmsmPublicKeyCallback(
   keyManager: KeyManager
 ): (kid: string, kms?: string, create?: boolean, createKeyType?: TKeyType) => Promise<IKey> {
@@ -314,7 +270,27 @@ export function defaultOydCmsmPublicKeyCallback(
       if (!kms) {
         return Promise.reject(Error('No KMS provided, whilst creating a new key!'))
       }
-      return await keyManager.keyManagerCreate({ kms, type: createKeyType ?? 'Secp256r1' })
+      const alias = kid ?? `oyd-${new Date().toISOString()}`
+
+      const agent = keyManager
+      const key = await importProvidedOrGeneratedKey(
+        {
+          kms,
+          alias,
+          options: {
+            key: {
+              type: createKeyType ?? 'Secp256r1',
+            },
+          },
+        },
+        {
+          //@ts-ignore
+          agent
+        }
+      )
+      return key
+
+      // return await keyManager.keyManagerCreate({ kms, type: createKeyType ?? 'Secp256r1' })
     }
     return Promise.reject(Error('No existing key found, and create is false!'))
   }

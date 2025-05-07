@@ -265,6 +265,9 @@ importers:
 
   packages/did-provider-oyd:
     dependencies:
+      '@sphereon/ssi-sdk-ext.key-utils':
+        specifier: workspace:*
+        version: link:../key-utils
       '@veramo/core':
         specifier: 4.2.0
         version: 4.2.0(patch_hash=002e69343dc4b4eb8372715652188a9baf2969c8cbb6d43cf21855eb1b95027c)

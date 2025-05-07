@@ -1,14 +1,15 @@
 import { IKey, TKeyType } from '@veramo/core'
 
 export type OydConstructorOptions = {
-  defaultKms?: string;
-  clientManagedSecretMode?: CMSMCallbackOpts;
+  defaultKms?: string
+  clientManagedSecretMode?: CMSMCallbackOpts
 }
 
 export type OydCreateIdentifierOptions = {
-  keyType?: OydDidSupportedKeyTypes;
+  type?: OydDidSupportedKeyTypes;
   privateKeyHex?: string;
   kid?: string;
+  alias?: string;
   keyUse?: KeyUse;
   cmsm?: CmsmOptions;
   key?: IKey // Use the supplied key instead of looking it up in the KMS or creating a new one
