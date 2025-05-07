@@ -1,8 +1,7 @@
 import { JoseSignatureAlgorithm, JWK } from '@sphereon/ssi-types'
-import base64url from 'base64url'
 import * as u8a from 'uint8arrays'
 import { describe, expect, it } from 'vitest'
-import { generatePrivateKeyHex, jwkToRawHexKey, Key, padLeft, toJwk, verifyRawSignature } from '../src'
+import { generatePrivateKeyHex, jwkToRawHexKey, Key, padLeft, toJwk, toPkcs1FromHex, verifyRawSignature } from '../src'
 
 describe('functions: key generator', () => {
   it('Secp256k1 should generate random keys', async () => {
@@ -141,4 +140,15 @@ describe('functions: verifySignature', () => {
       })
     ).resolves.toEqual(true)
   })
+
+  it('should convert to raw PKCS1 hex keys and thus return the same values', async () => {
+    // We are using 2 "different" keys, but actually they are the same key, just one is raw PKCS#1 the other is X.509/SPKI
+    const rawPkcs1PublicKeyHex = "3082010a0282010100a424990e625e55326c12a8e266cde48101225e74111662f1f7ec2d8a67f19f6dfb8826b46394d2cd3dccc0debfb5853287185158047823c9d6d0338dbd6d1ee38854ee78af5466e326a0ab44d81cb7b8740c2842a4c9bd1ac95ce369b9191c8b95559265955c8eba06a7f7c5f231c08b15c42cd7ffc360522847914892d2c4728b38b430ea8a35cdb234ba4569c3a8dd25114417b2ddcc4673478685097ab8331d2b5236c015930785a9866aec515a1147511de0486ffbb5026b2f08cee5a656f21ab3b8d3f9c68bdceaff9fda01ea0ee2f35bc9f5550c81926ad2b224c7ce6d0166037197f285251d59a20e57273daebaa4641679bbc894e0f7ea211c38f6810203010001"
+    const x509SPKIPublicKeyHex = "30820122300d06092a864886f70d01010105000382010f003082010a0282010100a424990e625e55326c12a8e266cde48101225e74111662f1f7ec2d8a67f19f6dfb8826b46394d2cd3dccc0debfb5853287185158047823c9d6d0338dbd6d1ee38854ee78af5466e326a0ab44d81cb7b8740c2842a4c9bd1ac95ce369b9191c8b95559265955c8eba06a7f7c5f231c08b15c42cd7ffc360522847914892d2c4728b38b430ea8a35cdb234ba4569c3a8dd25114417b2ddcc4673478685097ab8331d2b5236c015930785a9866aec515a1147511de0486ffbb5026b2f08cee5a656f21ab3b8d3f9c68bdceaff9fda01ea0ee2f35bc9f5550c81926ad2b224c7ce6d0166037197f285251d59a20e57273daebaa4641679bbc894e0f7ea211c38f6810203010001"
+    const toRaw = toPkcs1FromHex(x509SPKIPublicKeyHex)
+    console.log(toRaw)
+    expect(toPkcs1FromHex(rawPkcs1PublicKeyHex)).equals(toPkcs1FromHex(x509SPKIPublicKeyHex))
+  })
+
+
 })

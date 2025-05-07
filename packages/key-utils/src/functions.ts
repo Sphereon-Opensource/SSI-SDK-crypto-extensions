@@ -1001,3 +1001,107 @@ export async function verifyRawSignature({
     throw error
   }
 }
+
+
+
+/**
+ * Minimal DER parser to unwrap X.509/SPKI‐wrapped RSA keys
+ * into raw PKCS#1 RSAPublicKey format, using only Uint8Array.
+ */
+
+/**
+ * Read a DER length at the given offset.
+ * @param bytes – full DER buffer
+ * @param offset – index of the length byte
+ * @returns the parsed length, and how many bytes were used to encode it
+ */
+function readLength(
+  bytes: Uint8Array,
+  offset: number
+): { length: number; lengthBytes: number } {
+  const first = bytes[offset];
+  if (first < 0x80) {
+    return { length: first, lengthBytes: 1 };
+  }
+  const numBytes = first & 0x7f;
+  let length = 0;
+  for (let i = 0; i < numBytes; i++) {
+    length = (length << 8) | bytes[offset + 1 + i];
+  }
+  return { length, lengthBytes: 1 + numBytes };
+}
+
+/**
+ * Ensure the given DER‐encoded RSA public key (Uint8Array)
+ * is raw PKCS#1. If it's X.509/SPKI‐wrapped, we strip the wrapper.
+ *
+ * @param derBytes – DER‐encoded public key, either PKCS#1 or X.509/SPKI
+ * @returns DER‐encoded PKCS#1 RSAPublicKey
+ */
+export function toPkcs1(derBytes: Uint8Array): Uint8Array {
+  if (derBytes[0] !== 0x30) {
+    throw new Error("Invalid DER: expected SEQUENCE");
+  }
+
+  // Parse outer SEQUENCE length
+  const { lengthBytes: outerLenBytes } = readLength(
+    derBytes,
+    1
+  );
+  const outerHeaderLen = 1 + outerLenBytes;
+  const innerTag = derBytes[outerHeaderLen];
+
+  // If next tag is INTEGER (0x02), it's already raw PKCS#1
+  if (innerTag === 0x02) {
+    return derBytes;
+  }
+
+  // Otherwise expect X.509/SPKI: SEQUENCE { algId, BIT STRING }
+  if (innerTag !== 0x30) {
+    throw new Error("Unexpected DER tag, not PKCS#1 or SPKI");
+  }
+
+  // Skip the algId SEQUENCE
+  const { length: algLen, lengthBytes: algLenBytes } = readLength(
+    derBytes,
+    outerHeaderLen + 1
+  );
+  const algHeaderLen = 1 + algLenBytes;
+  const algIdEnd = outerHeaderLen + algHeaderLen + algLen;
+
+  // Next tag should be BIT STRING (0x03)
+  if (derBytes[algIdEnd] !== 0x03) {
+    throw new Error("Expected BIT STRING after algId");
+  }
+
+  const { length: bitStrLen, lengthBytes: bitStrLenBytes } = readLength(
+    derBytes,
+    algIdEnd + 1
+  );
+  const bitStrHeaderLen = 1 + bitStrLenBytes;
+  const bitStrStart = algIdEnd + bitStrHeaderLen;
+
+  // First byte of the BIT STRING is the "unused bits" count; usually 0x00
+  const unusedBits = derBytes[bitStrStart];
+  if (unusedBits !== 0x00) {
+    throw new Error(`Unexpected unused bits: ${unusedBits}`);
+  }
+
+  // The rest is the PKCS#1 DER
+  const pkcs1Start = bitStrStart + 1;
+  const pkcs1Len = bitStrLen - 1;
+
+  return derBytes.slice(pkcs1Start, pkcs1Start + pkcs1Len);
+}
+
+/**
+ * Ensure the given DER‐encoded RSA public key in Hex
+ * is raw PKCS#1. If it's X.509/SPKI‐wrapped, we strip the wrapper.
+ *
+ * @param derBytes – DER‐encoded public key, either PKCS#1 or X.509/SPKI
+ * @returns DER‐encoded PKCS#1 RSAPublicKey in hex
+ */
+export function toPkcs1FromHex(publicKeyHex: string) {
+  const pkcs1 = toPkcs1(fromString(publicKeyHex, 'hex'))
+  return toString(pkcs1, 'hex')
+}

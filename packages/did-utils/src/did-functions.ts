@@ -9,7 +9,7 @@ import {
   sanitizedJwk,
   signatureAlgorithmFromKey,
   type TKeyType,
-  toJwk,
+  toJwk, toPkcs1FromHex
 } from '@sphereon/ssi-sdk-ext.key-utils'
 import { base64ToHex } from '@sphereon/ssi-sdk-ext.x509-utils'
 import { base58ToBytes, base64ToBytes, bytesToHex, hexToBytes, multibaseKeyToBytes } from '@sphereon/ssi-sdk.core'
@@ -552,13 +552,18 @@ export async function mapIdentifierKeysToDocWithJwkSupport(
   // finally map the didDocument keys to the identifier keys by comparing `publicKeyHex`
   const extendedKeys: _ExtendedIKey[] = documentKeys
     .map((verificationMethod) => {
-      /*if (verificationMethod.type !== 'JsonWebKey2020') {
-                                                                                                              return null
-                                                                                                            }*/
+
+      let vmKey = verificationMethod.publicKeyHex
+      if (vmKey?.startsWith('30')) {
+        // DER encoded
+        vmKey = toPkcs1FromHex(vmKey)
+      }
+
       const localKey = localKeys.find(
         (localKey) =>
-          localKey.publicKeyHex === verificationMethod.publicKeyHex ||
-          verificationMethod.publicKeyHex?.startsWith(localKey.publicKeyHex) ||
+          localKey.publicKeyHex === vmKey ||
+          (localKey.type === 'RSA' && vmKey?.startsWith('30') && toPkcs1FromHex(localKey.publicKeyHex) === vmKey) ||
+          vmKey?.startsWith(localKey.publicKeyHex) ||
           compareBlockchainAccountId(localKey, verificationMethod)
       )
       if (localKey) {
