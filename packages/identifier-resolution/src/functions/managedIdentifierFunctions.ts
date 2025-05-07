@@ -187,6 +187,8 @@ export async function getManagedDidIdentifier(opts: ManagedIdentifierDidOpts, co
   const extendedKey = await getFirstKeyWithRelation(
     {
       ...opts,
+      // Make sure we use offline mode if no pref was supplied. We are looking for managed DIDs after all. Could be it is not published yet
+      offlineWhenNoDIDRegistered: opts.offlineWhenNoDIDRegistered ?? true,
       identifier,
       vmRelationship: opts.vmRelationship ?? 'verificationMethod',
     },
