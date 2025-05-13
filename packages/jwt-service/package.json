@@ -40,7 +40,7 @@
     "debug": "^4.3.4",
     "jose": "^5.10.0",
     "jwt-decode": "^4.0.0",
-    "uint8arrays": " 3.1.1"
+    "uint8arrays": "3.1.1"
   },
   "devDependencies": {
     "@sphereon/ssi-sdk-ext.did-provider-jwk": "workspace:*",
@@ -48,7 +48,7 @@
     "@sphereon/ssi-sdk-ext.did-resolver-jwk": "workspace:*",
     "web-did-resolver": "^2.0.30",
     "@sphereon/ssi-sdk-ext.kms-local": "workspace:*",
-    "@sphereon/ssi-sdk.dev": "0.33.1-feature.jose.vcdm.65",
+    "@sphereon/ssi-sdk.dev": "0.33.0",
     "@veramo/data-store": "4.2.0",
     "@veramo/did-manager": "4.2.0",
     "@veramo/did-resolver": "4.2.0",

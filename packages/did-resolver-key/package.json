@@ -30,7 +30,7 @@
     "lodash.isplainobject": "^4.0.6",
     "multiformats": "^9.9.0",
     "nist-weierstrauss": "1.4.1",
-    "uint8arrays": " 3.1.1",
+    "uint8arrays": "3.1.1",
     "varint": "^6.0.0",
     "web-encoding": "^1.1.5"
   },

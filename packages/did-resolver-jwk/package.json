@@ -26,7 +26,7 @@
     "base64url": "^3.0.1",
     "debug": "^4.3.4",
     "did-resolver": "^4.1.0",
-    "uint8arrays": " 3.1.1"
+    "uint8arrays": "3.1.1"
   },
   "devDependencies": {
     "@or13/did-jwk": "^0.0.4",

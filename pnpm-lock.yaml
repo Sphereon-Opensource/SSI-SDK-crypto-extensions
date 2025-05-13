@@ -224,7 +224,7 @@ importers:
         specifier: ^5.10.0
         version: 5.10.0
       uint8arrays:
-        specifier: ' 3.1.1'
+        specifier: 3.1.1
         version: 3.1.1
 
   packages/did-provider-key:
@@ -237,7 +237,7 @@ importers:
         version: link:../key-utils
       '@transmute/did-key-bls12381':
         specifier: 0.3.0-unstable.10
-        version: 0.3.0-unstable.10(encoding@0.1.13)(web-streams-polyfill@3.3.3)
+        version: 0.3.0-unstable.10(encoding@0.1.13)
       '@veramo/core':
         specifier: 4.2.0
         version: 4.2.0(patch_hash=002e69343dc4b4eb8372715652188a9baf2969c8cbb6d43cf21855eb1b95027c)
@@ -260,7 +260,7 @@ importers:
         specifier: ^3.2.1
         version: 3.2.1
       uint8arrays:
-        specifier: ' 3.1.1'
+        specifier: 3.1.1
         version: 3.1.1
     devDependencies:
       '@sphereon/ssi-sdk-ext.key-manager':
@@ -393,7 +393,7 @@ importers:
         specifier: ^4.1.0
         version: 4.1.0
       uint8arrays:
-        specifier: ' 3.1.1'
+        specifier: 3.1.1
         version: 3.1.1
     devDependencies:
       '@or13/did-jwk':
@@ -436,7 +436,7 @@ importers:
         specifier: 1.4.1
         version: 1.4.1
       uint8arrays:
-        specifier: ' 3.1.1'
+        specifier: 3.1.1
         version: 3.1.1
       varint:
         specifier: ^6.0.0
@@ -497,7 +497,7 @@ importers:
         specifier: ^6.5.4
         version: 6.6.1
       uint8arrays:
-        specifier: ' 3.1.1'
+        specifier: 3.1.1
         version: 3.1.1
 
   packages/identifier-resolution:
@@ -533,7 +533,7 @@ importers:
         specifier: ^3.2.4
         version: 3.2.5
       uint8arrays:
-        specifier: ' 3.1.1'
+        specifier: 3.1.1
         version: 3.1.1
     devDependencies:
       '@sphereon/ssi-sdk-ext.did-provider-jwk':
@@ -624,7 +624,7 @@ importers:
         specifier: ^4.0.0
         version: 4.0.0
       uint8arrays:
-        specifier: ' 3.1.1'
+        specifier: 3.1.1
         version: 3.1.1
     devDependencies:
       '@sphereon/ssi-sdk-ext.did-provider-jwk':
@@ -752,7 +752,7 @@ importers:
         specifier: ^9.9.0
         version: 9.9.0
       uint8arrays:
-        specifier: ' 3.1.1'
+        specifier: 3.1.1
         version: 3.1.1
       varint:
         specifier: ^6.0.0
@@ -811,7 +811,7 @@ importers:
         specifier: 4.2.0
         version: 4.2.0
       uint8arrays:
-        specifier: ' 3.1.1'
+        specifier: 3.1.1
         version: 3.1.1
     devDependencies:
       '@types/text-encoding':
@@ -891,7 +891,7 @@ importers:
         specifier: ^0.7.0
         version: 0.7.0
       uint8arrays:
-        specifier: ' 3.1.1'
+        specifier: 3.1.1
         version: 3.1.1
     devDependencies:
       '@types/text-encoding':
@@ -1037,7 +1037,7 @@ importers:
         specifier: ^4.8.0
         version: 4.10.0
       uint8arrays:
-        specifier: ' 3.1.1'
+        specifier: 3.1.1
         version: 3.1.1
     devDependencies:
       '@types/node':
@@ -3032,6 +3032,7 @@ packages:
 
   '@sphereon/kmp-mdoc-core@0.2.0-SNAPSHOT.26':
     resolution: {integrity: sha512-QXJ6R8ENiZV2rPMbn06cw5JKwqUYN1kzVRbYfONqE1PEXx1noQ4md7uxr2zSczi0ubKkNcbyYDNtIMTZIhGzmQ==}
+    bundledDependencies: []
 
   '@sphereon/musap-native@0.2.1-next.170':
     resolution: {integrity: sha512-WQnwVNdpD0Xbg9if/ThJy5XDUfnrkHJ52rXq3nTfbPsz3gGxXGVUoPcGOJhk/r4Un4FBzrPSghUye3HFpKc5hA==}
@@ -13963,7 +13964,7 @@ snapshots:
 
   '@transmute/did-context@0.6.1-unstable.37': {}
 
-  '@transmute/did-key-bls12381@0.3.0-unstable.10(encoding@0.1.13)(web-streams-polyfill@3.3.3)':
+  '@transmute/did-key-bls12381@0.3.0-unstable.10(encoding@0.1.13)':
     dependencies:
       '@transmute/bls12381-key-pair': 0.7.0-unstable.81(encoding@0.1.13)
       '@transmute/did-key-common': 0.3.0-unstable.10(encoding@0.1.13)(expo@52.0.46(@babel/core@7.26.10)(@babel/preset-env@7.26.9(@babel/core@7.26.10))(encoding@0.1.13)(react-native@0.79.1(@babel/core@7.26.10)(react@19.1.0))(react@19.1.0))(react-native@0.79.1(@babel/core@7.26.10)(react@19.1.0))(web-streams-polyfill@3.3.3)
