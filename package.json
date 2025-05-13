@@ -119,7 +119,8 @@
     "jsonld": "npm:@digitalcredentials/jsonld@^6.0.0"
   },
   "engines": {
-    "node": ">= 20.6.0"
+    "node": ">= 20.6.0",
+    "pnpm": ">= 10"
   },
   "prettier": {
     "endOfLine": "auto",
