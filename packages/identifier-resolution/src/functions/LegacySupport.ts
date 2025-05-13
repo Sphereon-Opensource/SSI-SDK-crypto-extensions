@@ -1,4 +1,4 @@
-import type  { IIdentifier } from '@veramo/core'
+import type { IIdentifier } from '@veramo/core'
 import type { ManagedIdentifierDidOpts, ManagedIdentifierOptsOrResult } from '../types'
 
 /**

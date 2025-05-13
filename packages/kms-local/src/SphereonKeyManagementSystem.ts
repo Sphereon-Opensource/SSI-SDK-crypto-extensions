@@ -130,11 +130,14 @@ export class SphereonKeyManagementSystem extends KeyManagementSystem {
       return signature*/
     } else if (
       // @ts-ignore
-      privateKey.type === 'RSA') {
-      if ((typeof algorithm === 'undefined' || algorithm === 'RS256' || algorithm === 'RS512' || algorithm === 'PS256' || algorithm === 'PS512')) {
+      privateKey.type === 'RSA'
+    ) {
+      if (typeof algorithm === 'undefined' || algorithm === 'RS256' || algorithm === 'RS512' || algorithm === 'PS256' || algorithm === 'PS512') {
         return await this.signRSA(privateKey, data, algorithm ?? 'PS256')
       }
-      return Promise.reject(new Error(`not_supported: Cannot sign using key of type RSA and alg: ${algorithm}. Only RS and PS algorithms are supported.`))
+      return Promise.reject(
+        new Error(`not_supported: Cannot sign using key of type RSA and alg: ${algorithm}. Only RS and PS algorithms are supported.`)
+      )
     } else {
       return await super.sign({ keyRef, algorithm, data })
     }

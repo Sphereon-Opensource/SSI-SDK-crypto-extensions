@@ -24,17 +24,17 @@ const DID_METHOD = 'did:oyd'
 const oydDIDProvider = new OydDIDProvider({
   defaultKms: 'mem',
   clientManagedSecretMode: {
-    publicKeyCallback: some_function,  // callback to provide public Key
-    signCallback: some_function  // callback for signing payload
-  }
-});
+    publicKeyCallback: some_function, // callback to provide public Key
+    signCallback: some_function, // callback for signing payload
+  },
+})
 
 const agent = createAgent<IKeyManager, DIDManager>({
   plugins: [
     new SphereonKeyManager({
       store: new MemoryKeyStore(),
       kms: {
-        mem: new SphereonKeyManagementSystem(new MemoryPrivateKeyStore())
+        mem: new SphereonKeyManagementSystem(new MemoryPrivateKeyStore()),
       },
     }),
     new DIDManager({
@@ -42,14 +42,13 @@ const agent = createAgent<IKeyManager, DIDManager>({
         [DID_METHOD]: oydDIDProvider,
       },
       defaultProvider: DID_METHOD,
-      store: new MemoryDIDStore()
+      store: new MemoryDIDStore(),
     }),
   ],
-});
+})
 
-const identifier: IIdentifier = await agent.didManagerCreate();
+const identifier: IIdentifier = await agent.didManagerCreate()
 ```
-
 
 ### Resolving a DID
 
@@ -72,4 +71,5 @@ yarn build
 ```
 
 ## REST API Endpoints for `did:oyd`
+
 For managing did:oyd DIDs (create, update, delete), refer to the following page, which provides detailed information on the available REST API endpoints: https://github.com/OwnYourData/oydid/tree/main/uni-registrar-driver-did-oyd

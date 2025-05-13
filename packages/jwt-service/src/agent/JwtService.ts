@@ -1,6 +1,6 @@
 import { Loggers } from '@sphereon/ssi-types'
 import type { IAgentPlugin } from '@veramo/core'
-const logger = Loggers.DEFAULT.get("sphereon:jwt-service")
+const logger = Loggers.DEFAULT.get('sphereon:jwt-service')
 import { importJWK } from 'jose'
 
 // @ts-ignore

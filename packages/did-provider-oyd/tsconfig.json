@@ -1,10 +1,5 @@
 {
   "extends": "../../tsconfig.base.json",
-  "compilerOptions": {
-    "rootDir": "src",
-    "outDir": "dist",
-    "declarationDir": "dist"
-  },
   "references": [
     {
       "path": "../kms-local"
@@ -13,6 +8,4 @@
       "path": "../key-manager"
     }
   ]
-
-
 }

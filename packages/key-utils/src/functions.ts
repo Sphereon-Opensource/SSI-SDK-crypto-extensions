@@ -7,7 +7,14 @@ import { p384 } from '@noble/curves/p384'
 import { p521 } from '@noble/curves/p521'
 import { secp256k1 } from '@noble/curves/secp256k1'
 import { sha256, sha384, sha512 } from '@noble/hashes/sha2'
-import { cryptoSubtleImportRSAKey, generateRSAKeyAsPEM, hexToBase64, hexToPEM, PEMToJwk, privateKeyHexFromPEM } from '@sphereon/ssi-sdk-ext.x509-utils'
+import {
+  cryptoSubtleImportRSAKey,
+  generateRSAKeyAsPEM,
+  hexToBase64,
+  hexToPEM,
+  PEMToJwk,
+  privateKeyHexFromPEM,
+} from '@sphereon/ssi-sdk-ext.x509-utils'
 import { JoseCurve, JoseSignatureAlgorithm, type JWK, JwkKeyType, Loggers } from '@sphereon/ssi-types'
 import { generateKeyPair as generateSigningKeyPair } from '@stablelib/ed25519'
 import type { IAgentContext, IKey, IKeyManager, ManagedKeyInfo, MinimalImportableKey } from '@veramo/core'
@@ -31,7 +38,7 @@ import {
   SIG_KEY_ALGS,
   type SignatureAlgorithmFromKeyArgs,
   type SignatureAlgorithmFromKeyTypeArgs,
-  type TKeyType
+  type TKeyType,
 } from './types'
 
 const { fromString, toString } = u8a
@@ -561,7 +568,8 @@ const toRSAJwk = (publicKeyHex: string, opts?: { use?: JwkKeyUse; key?: IKey | M
       if (bytes[offset++] !== 0x30) throw new Error('Expected alg-ID SEQUENCE')
       let algLen = bytes[offset++]
       if (algLen & 0x80) {
-        const nB = algLen & 0x7f; algLen = 0
+        const nB = algLen & 0x7f
+        algLen = 0
         for (let i = 0; i < nB; i++) algLen = (algLen << 8) + bytes[offset++]
       }
       offset += algLen
@@ -570,7 +578,8 @@ const toRSAJwk = (publicKeyHex: string, opts?: { use?: JwkKeyUse; key?: IKey | M
       if (bytes[offset++] !== 0x03) throw new Error('Expected BIT STRING')
       let bitLen = bytes[offset++]
       if (bitLen & 0x80) {
-        const nB = bitLen & 0x7f; bitLen = 0
+        const nB = bitLen & 0x7f
+        bitLen = 0
         for (let i = 0; i < nB; i++) bitLen = (bitLen << 8) + bytes[offset++]
       }
       // skip the “unused bits” byte
@@ -580,7 +589,8 @@ const toRSAJwk = (publicKeyHex: string, opts?: { use?: JwkKeyUse; key?: IKey | M
       if (bytes[offset++] !== 0x30) throw new Error('Expected inner SEQUENCE')
       let innerLen = bytes[offset++]
       if (innerLen & 0x80) {
-        const nB = innerLen & 0x7f; innerLen = 0
+        const nB = innerLen & 0x7f
+        innerLen = 0
         for (let i = 0; i < nB; i++) innerLen = (innerLen << 8) + bytes[offset++]
       }
     }
@@ -589,7 +599,8 @@ const toRSAJwk = (publicKeyHex: string, opts?: { use?: JwkKeyUse; key?: IKey | M
     if (bytes[offset++] !== 0x02) throw new Error('Expected INTEGER for modulus')
     let modLen = bytes[offset++]
     if (modLen & 0x80) {
-      const nB = modLen & 0x7f; modLen = 0
+      const nB = modLen & 0x7f
+      modLen = 0
       for (let i = 0; i < nB; i++) modLen = (modLen << 8) + bytes[offset++]
     }
     let modulusBytes = bytes.slice(offset, offset + modLen)
@@ -604,7 +615,8 @@ const toRSAJwk = (publicKeyHex: string, opts?: { use?: JwkKeyUse; key?: IKey | M
     if (bytes[offset++] !== 0x02) throw new Error('Expected INTEGER for exponent')
     let expLen = bytes[offset++]
     if (expLen & 0x80) {
-      const nB = expLen & 0x7f; expLen = 0
+      const nB = expLen & 0x7f
+      expLen = 0
       for (let i = 0; i < nB; i++) expLen = (expLen << 8) + bytes[offset++]
     }
     const exponentBytes = bytes.slice(offset, offset + expLen)
@@ -976,9 +988,10 @@ export async function verifyRawSignature({
           case JoseSignatureAlgorithm.PS384:
           case JoseSignatureAlgorithm.PS512:
             if (typeof crypto !== 'undefined' && typeof crypto.subtle !== 'undefined') {
-              const key = await  cryptoSubtleImportRSAKey(jwk, 'RSA-PSS')
-              const saltLength = signatureAlgorithm === JoseSignatureAlgorithm.PS256 ? 32 : signatureAlgorithm === JoseSignatureAlgorithm.PS384 ? 48: 64
-              return crypto.subtle.verify( { name: 'rsa-pss', hash: hashAlg, saltLength }, key, signature, data)
+              const key = await cryptoSubtleImportRSAKey(jwk, 'RSA-PSS')
+              const saltLength =
+                signatureAlgorithm === JoseSignatureAlgorithm.PS256 ? 32 : signatureAlgorithm === JoseSignatureAlgorithm.PS384 ? 48 : 64
+              return crypto.subtle.verify({ name: 'rsa-pss', hash: hashAlg, saltLength }, key, signature, data)
             }
 
             // FIXME
@@ -1002,8 +1015,6 @@ export async function verifyRawSignature({
   }
 }
 
-
-
 /**
  * Minimal DER parser to unwrap X.509/SPKI‐wrapped RSA keys
  * into raw PKCS#1 RSAPublicKey format, using only Uint8Array.
@@ -1015,20 +1026,17 @@ export async function verifyRawSignature({
  * @param offset – index of the length byte
  * @returns the parsed length, and how many bytes were used to encode it
  */
-function readLength(
-  bytes: Uint8Array,
-  offset: number
-): { length: number; lengthBytes: number } {
-  const first = bytes[offset];
+function readLength(bytes: Uint8Array, offset: number): { length: number; lengthBytes: number } {
+  const first = bytes[offset]
   if (first < 0x80) {
-    return { length: first, lengthBytes: 1 };
+    return { length: first, lengthBytes: 1 }
   }
-  const numBytes = first & 0x7f;
-  let length = 0;
+  const numBytes = first & 0x7f
+  let length = 0
   for (let i = 0; i < numBytes; i++) {
-    length = (length << 8) | bytes[offset + 1 + i];
+    length = (length << 8) | bytes[offset + 1 + i]
   }
-  return { length, lengthBytes: 1 + numBytes };
+  return { length, lengthBytes: 1 + numBytes }
 }
 
 /**
@@ -1040,58 +1048,49 @@ function readLength(
  */
 export function toPkcs1(derBytes: Uint8Array): Uint8Array {
   if (derBytes[0] !== 0x30) {
-    throw new Error("Invalid DER: expected SEQUENCE");
+    throw new Error('Invalid DER: expected SEQUENCE')
   }
 
   // Parse outer SEQUENCE length
-  const { lengthBytes: outerLenBytes } = readLength(
-    derBytes,
-    1
-  );
-  const outerHeaderLen = 1 + outerLenBytes;
-  const innerTag = derBytes[outerHeaderLen];
+  const { lengthBytes: outerLenBytes } = readLength(derBytes, 1)
+  const outerHeaderLen = 1 + outerLenBytes
+  const innerTag = derBytes[outerHeaderLen]
 
   // If next tag is INTEGER (0x02), it's already raw PKCS#1
   if (innerTag === 0x02) {
-    return derBytes;
+    return derBytes
   }
 
   // Otherwise expect X.509/SPKI: SEQUENCE { algId, BIT STRING }
   if (innerTag !== 0x30) {
-    throw new Error("Unexpected DER tag, not PKCS#1 or SPKI");
+    throw new Error('Unexpected DER tag, not PKCS#1 or SPKI')
   }
 
   // Skip the algId SEQUENCE
-  const { length: algLen, lengthBytes: algLenBytes } = readLength(
-    derBytes,
-    outerHeaderLen + 1
-  );
-  const algHeaderLen = 1 + algLenBytes;
-  const algIdEnd = outerHeaderLen + algHeaderLen + algLen;
+  const { length: algLen, lengthBytes: algLenBytes } = readLength(derBytes, outerHeaderLen + 1)
+  const algHeaderLen = 1 + algLenBytes
+  const algIdEnd = outerHeaderLen + algHeaderLen + algLen
 
   // Next tag should be BIT STRING (0x03)
   if (derBytes[algIdEnd] !== 0x03) {
-    throw new Error("Expected BIT STRING after algId");
+    throw new Error('Expected BIT STRING after algId')
   }
 
-  const { length: bitStrLen, lengthBytes: bitStrLenBytes } = readLength(
-    derBytes,
-    algIdEnd + 1
-  );
-  const bitStrHeaderLen = 1 + bitStrLenBytes;
-  const bitStrStart = algIdEnd + bitStrHeaderLen;
+  const { length: bitStrLen, lengthBytes: bitStrLenBytes } = readLength(derBytes, algIdEnd + 1)
+  const bitStrHeaderLen = 1 + bitStrLenBytes
+  const bitStrStart = algIdEnd + bitStrHeaderLen
 
   // First byte of the BIT STRING is the "unused bits" count; usually 0x00
-  const unusedBits = derBytes[bitStrStart];
+  const unusedBits = derBytes[bitStrStart]
   if (unusedBits !== 0x00) {
-    throw new Error(`Unexpected unused bits: ${unusedBits}`);
+    throw new Error(`Unexpected unused bits: ${unusedBits}`)
   }
 
   // The rest is the PKCS#1 DER
-  const pkcs1Start = bitStrStart + 1;
-  const pkcs1Len = bitStrLen - 1;
+  const pkcs1Start = bitStrStart + 1
+  const pkcs1Len = bitStrLen - 1
 
-  return derBytes.slice(pkcs1Start, pkcs1Start + pkcs1Len);
+  return derBytes.slice(pkcs1Start, pkcs1Start + pkcs1Len)
 }
 
 /**

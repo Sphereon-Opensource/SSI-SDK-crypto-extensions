@@ -9,7 +9,8 @@ import {
   sanitizedJwk,
   signatureAlgorithmFromKey,
   type TKeyType,
-  toJwk, toPkcs1FromHex
+  toJwk,
+  toPkcs1FromHex,
 } from '@sphereon/ssi-sdk-ext.key-utils'
 import { base64ToHex } from '@sphereon/ssi-sdk-ext.x509-utils'
 import { base58ToBytes, base64ToBytes, bytesToHex, hexToBytes, multibaseKeyToBytes } from '@sphereon/ssi-sdk.core'
@@ -552,7 +553,6 @@ export async function mapIdentifierKeysToDocWithJwkSupport(
   // finally map the didDocument keys to the identifier keys by comparing `publicKeyHex`
   const extendedKeys: _ExtendedIKey[] = documentKeys
     .map((verificationMethod) => {
-
       let vmKey = verificationMethod.publicKeyHex
       if (vmKey?.startsWith('30')) {
         // DER encoded

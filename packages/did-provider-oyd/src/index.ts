@@ -6,4 +6,4 @@
  */
 export { OydDIDProvider } from './oyd-did-provider'
 export { getDidOydResolver } from './resolver'
-export * from './types/oyd-provider-types'
+export type * from './types/oyd-provider-types'

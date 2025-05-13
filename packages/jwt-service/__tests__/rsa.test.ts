@@ -256,13 +256,12 @@ describe('Local integration tests', () => {
         payload: { test: 'test' },
       })
 
-      
       const result = await agent.jwtVerifyJwsSignature({ jws: signature.jwt })
       expect(result).toMatchObject({
         critical: false,
         error: false,
         message: 'Signature validated',
-        name: 'jws'
+        name: 'jws',
         // verificationTime: expect.any(Date),
       })
     })

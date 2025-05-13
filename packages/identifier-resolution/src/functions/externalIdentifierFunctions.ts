@@ -24,7 +24,7 @@ import type {
   ExternalIdentifierResult,
   ExternalIdentifierX5cOpts,
   ExternalIdentifierX5cResult,
-  ExternalJwkInfo
+  ExternalJwkInfo,
 } from '../types'
 import {
   isExternalIdentifierCoseKeyOpts,

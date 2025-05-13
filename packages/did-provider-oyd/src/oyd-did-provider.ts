@@ -6,6 +6,7 @@ import fetch from 'cross-fetch'
 import Multibase from 'multibase'
 import Multicodec from 'multicodec'
 
+// @ts-ignore
 import * as u8a from 'uint8arrays'
 
 import Debug from 'debug'
@@ -15,7 +16,7 @@ import type {
   OydCreateIdentifierOptions,
   // OydDidHoldKeysArgs,
   OydDidSupportedKeyTypes,
-} from './types/oyd-provider-types.js'
+} from './types/oyd-provider-types'
 
 const debug = Debug('veramo:oyd-did:identifier-provider')
 const OYDID_REGISTRAR_URL = 'https://oydid-registrar.data-container.net/1.0/createIdentifier'
@@ -285,7 +286,7 @@ export function defaultOydCmsmPublicKeyCallback(
         },
         {
           //@ts-ignore
-          agent
+          agent,
         }
       )
       return key
@@ -303,11 +304,17 @@ export function defaultOydCmsmSignCallback(keyManager: KeyManager): (kid: string
 }
 
 export class DefaultOydCmsmCallbacks implements CMSMCallbackOpts {
-  constructor(private keyManager: KeyManager) {}
+  private readonly keyManager: KeyManager
 
-  publicKeyCallback: (kid: string, kms?: string, create?: boolean, createKeyType?: TKeyType) => Promise<IKey> = defaultOydCmsmPublicKeyCallback(
-    this.keyManager
-  )
+  constructor(keyManager: KeyManager) {
+    this.keyManager = keyManager
+  }
 
-  signCallback: (kid: string, value: string) => Promise<string> = defaultOydCmsmSignCallback(this.keyManager)
+  publicKeyCallback(kid: string, kms?: string, create?: boolean, createKeyType?: TKeyType): Promise<IKey> {
+    return defaultOydCmsmPublicKeyCallback(this.keyManager)(kid, kms, create, createKeyType)
+  }
+
+  signCallback(kid: string, value: string): Promise<string> {
+    return defaultOydCmsmSignCallback(this.keyManager)(kid, value)
+  }
 }

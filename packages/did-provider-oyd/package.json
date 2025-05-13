@@ -36,7 +36,7 @@
   "devDependencies": {
     "@sphereon/ssi-sdk-ext.key-manager": "workspace:*",
     "@sphereon/ssi-sdk-ext.kms-local": "workspace:*",
-    "@sphereon/ssi-sdk.dev": "0.33.1-feature.jose.vcdm.56",
+    "@sphereon/ssi-sdk.dev": "0.33.0",
     "@types/debug": "4.1.12",
     "@veramo/key-manager": "4.2.0",
     "inquirer": "^9.1.4",

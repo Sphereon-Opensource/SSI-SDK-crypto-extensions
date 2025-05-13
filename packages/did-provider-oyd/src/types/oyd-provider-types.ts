@@ -6,15 +6,14 @@ export type OydConstructorOptions = {
 }
 
 export type OydCreateIdentifierOptions = {
-  type?: OydDidSupportedKeyTypes;
-  privateKeyHex?: string;
-  kid?: string;
-  alias?: string;
-  keyUse?: KeyUse;
-  cmsm?: CmsmOptions;
+  type?: OydDidSupportedKeyTypes
+  privateKeyHex?: string
+  kid?: string
+  alias?: string
+  keyUse?: KeyUse
+  cmsm?: CmsmOptions
   key?: IKey // Use the supplied key instead of looking it up in the KMS or creating a new one
 }
-
 
 export type CmsmOptions = {
   enabled: boolean
@@ -22,29 +21,29 @@ export type CmsmOptions = {
 }
 
 export type OydDidHoldKeysArgs = {
-  kms?: string;
-  options: HoldKeysOpts;
+  kms?: string
+  options: HoldKeysOpts
 }
 
 type HoldKeysOpts = {
-  keyType: OydDidSupportedKeyTypes;
-  kid: string;
-  publicKeyHex?: string;
-  privateKeyHex?: string;
+  keyType: OydDidSupportedKeyTypes
+  kid: string
+  publicKeyHex?: string
+  privateKeyHex?: string
 }
 
 export type CMSMCallbackOpts = {
-  publicKeyCallback: (kid: string, kms?: string, create?: boolean, createKeyType?: TKeyType) => Promise<IKey>;
-  signCallback: (kid: string, value: string) => Promise<string>;
+  publicKeyCallback: (kid: string, kms?: string, create?: boolean, createKeyType?: TKeyType) => Promise<IKey>
+  signCallback: (kid: string, value: string) => Promise<string>
 }
 
-export enum SupportedKeyTypes {
+enum SupportedKeyTypes {
   Secp256r1 = 'Secp256r1',
   Secp256k1 = 'Secp256k1',
   Ed25519 = 'Ed25519',
   X25519 = 'X25519',
 }
 
-export type OydDidSupportedKeyTypes = keyof typeof SupportedKeyTypes;
+export type OydDidSupportedKeyTypes = keyof typeof SupportedKeyTypes
 
-export type KeyUse = 'sig' | 'enc';
+export type KeyUse = 'sig' | 'enc'

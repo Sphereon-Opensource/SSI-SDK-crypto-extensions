@@ -323,7 +323,7 @@ export const verifyJws = async (args: VerifyJwsArgs, context: IAgentContext<IIde
       let valid: boolean
       const data = fromString(`${sigWithId.protected}.${jws.payload}`, 'utf-8')
       const jwkInfo = sigWithId.identifier.jwks[0]
-      let signatureAlg : JoseSignatureAlgorithm | undefined = undefined
+      let signatureAlg: JoseSignatureAlgorithm | undefined = undefined
       if (sigWithId.protected.startsWith(`ey`)) {
         const header = decodeJoseBlob(sigWithId.protected)
         signatureAlg = header.alg as JoseSignatureAlgorithm | undefined
@@ -340,7 +340,7 @@ export const verifyJws = async (args: VerifyJwsArgs, context: IAgentContext<IIde
         })
       } else {
         const signature = base64ToBytes(sigWithId.signature)
-        valid = await verifyRawSignature({ data, signature, key: jwkInfo.jwk, opts: {signatureAlg: signatureAlg} })
+        valid = await verifyRawSignature({ data, signature, key: jwkInfo.jwk, opts: { signatureAlg: signatureAlg } })
         // }
       }
       if (!valid) {
