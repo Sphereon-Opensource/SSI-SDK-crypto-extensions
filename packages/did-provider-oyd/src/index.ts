@@ -4,6 +4,6 @@
  *
  * @packageDocumentation
  */
-export { OydDIDProvider } from './oyd-did-provider'
+export { OydDIDProvider, DefaultOydCmsmCallbacks, defaultOydCmsmSignCallback, defaultOydCmsmPublicKeyCallback } from './oyd-did-provider'
 export { getDidOydResolver } from './resolver'
 export type * from './types/oyd-provider-types'
