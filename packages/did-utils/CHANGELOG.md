@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.29.0](https://github.com/Sphereon-OpenSource/ssi-sdk-crypto-extensions/compare/v0.28.0...v0.29.0) (2025-05-22)
+
+### Bug Fixes
+
+- commonjs import ([0824bc3](https://github.com/Sphereon-OpenSource/ssi-sdk-crypto-extensions/commit/0824bc3742682b422936cc413ed1b2b509998b78))
+- Make sure we always compare RSA keys as raw keys, as they can be expressed as raw, or as X.509 keys ([d413275](https://github.com/Sphereon-OpenSource/ssi-sdk-crypto-extensions/commit/d41327554c8ad92fdd214e3aa6832218384f265f))
+- oidf client ([24ca549](https://github.com/Sphereon-OpenSource/ssi-sdk-crypto-extensions/commit/24ca549841533d8ae29184b42dc92a416bdb246d))
+- oidf imports ([52b2065](https://github.com/Sphereon-OpenSource/ssi-sdk-crypto-extensions/commit/52b2065fb8793c613c9971acc843decd6fc29685))
+- RSA related signature creation and validation fixes ([1aa66d6](https://github.com/Sphereon-OpenSource/ssi-sdk-crypto-extensions/commit/1aa66d64d3e4050f5bc798f6f903f7aa64246d72))
+- Skip ethereum account id VMs in a DID when converting to JWKs ([da01a63](https://github.com/Sphereon-OpenSource/ssi-sdk-crypto-extensions/commit/da01a63ada370784d62a8e97517fab349ac86469))
+
+### Features
+
+- Add support to lookup by kmsKeyRef when mapping did VMs ([bd5b8cb](https://github.com/Sphereon-OpenSource/ssi-sdk-crypto-extensions/commit/bd5b8cb036256253c3b95c9d9edc8bf1986611ff))
+- Ensure OYD now also is build as esm and cjs module and uses vitest for testing ([3b27367](https://github.com/Sphereon-OpenSource/ssi-sdk-crypto-extensions/commit/3b273671c2d2dc6b6d992ab65698c606c7f1b676))
+- move to esm-js ([bcd26c1](https://github.com/Sphereon-OpenSource/ssi-sdk-crypto-extensions/commit/bcd26c1d8e790a9f71aa5aed96509db99bf9c500))
+- move to vitest ([558ed35](https://github.com/Sphereon-OpenSource/ssi-sdk-crypto-extensions/commit/558ed35c895fa6c473da1ef7612e1cb9fe121cfe))
+
 # [0.28.0](https://github.com/Sphereon-OpenSource/ssi-sdk-crypto-extensions/compare/v0.27.0...v0.28.0) (2025-03-14)
 
 **Note:** Version bump only for package @sphereon/ssi-sdk-ext.did-utils

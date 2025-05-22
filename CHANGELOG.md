@@ -3,6 +3,37 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.29.0](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/compare/v0.28.0...v0.29.0) (2025-05-22)
+
+### Bug Fixes
+
+- Add missing key type lookup for EcdsaSecp256k1RecoveryMethod2020 ([3b45295](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/3b452950a62a171d157338cab2634c4a5371409c))
+- commonjs import ([5582cc4](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/5582cc49ffc25ef9cef9d3b42ff7aad59ca3a480))
+- commonjs import ([0824bc3](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/0824bc3742682b422936cc413ed1b2b509998b78))
+- commonjs import ([71682ea](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/71682ea0c528f5b32c421245c253b3bc9d6296a0))
+- const OYDID_REGISTRAR_URL ([0b1c529](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/0b1c529decf6154c13fa64068b6d2827e0b4a564))
+- Ensure OYD DID provider is using keys that can be used with all our supported KMS-es ([d4f5d24](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/d4f5d24390370292662bf168c8b6f9c1f6e69269))
+- Ensure we also do offline did resolution in case a managed DID is being resolved using the identifier resolution service ([7210d74](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/7210d74b296b2fdf38d4a4a3e3ad7cfc582b3358))
+- kms handling ([14ff81a](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/14ff81adda4daa572fd032b410b47c6f4a077a2a))
+- Make sure we always compare RSA keys as raw keys, as they can be expressed as raw, or as X.509 keys ([d413275](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/d41327554c8ad92fdd214e3aa6832218384f265f))
+- oidf client ([24ca549](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/24ca549841533d8ae29184b42dc92a416bdb246d))
+- oidf imports ([52b2065](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/52b2065fb8793c613c9971acc843decd6fc29685))
+- oyd test ([7c3cf5a](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/7c3cf5a3b32ef8a31744757aab14c21338880f79))
+- plugin schemas ([4c162d1](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/4c162d14577f462070adeea3e7ec5a443c324ee7))
+- plugin schemas ([5e3162c](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/5e3162cbeae5490acb70e1a7393d14c56fecc776))
+- plugin schemas ([2798b8a](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/2798b8a20a75f69f89c712d3b72f4a968185cdd9))
+- RSA related signature creation and validation fixes ([1aa66d6](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/1aa66d64d3e4050f5bc798f6f903f7aa64246d72))
+- Skip ethereum account id VMs in a DID when converting to JWKs ([da01a63](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/da01a63ada370784d62a8e97517fab349ac86469))
+- use Secp256r1 as default and formatting ([a827a47](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/a827a4713e3cec41a18ed6078f9b8cff8b8d292b))
+
+### Features
+
+- Add support to lookup by kmsKeyRef when mapping did VMs ([bd5b8cb](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/bd5b8cb036256253c3b95c9d9edc8bf1986611ff))
+- Ensure OYD now also is build as esm and cjs module and uses vitest for testing ([3b27367](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/3b273671c2d2dc6b6d992ab65698c606c7f1b676))
+- move to esm-js ([bcd26c1](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/bcd26c1d8e790a9f71aa5aed96509db99bf9c500))
+- move to vitest ([211a3f3](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/211a3f31aebf923f3ea4b18203e659394750415a))
+- move to vitest ([558ed35](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/558ed35c895fa6c473da1ef7612e1cb9fe121cfe))
+
 # [0.28.0](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/compare/v0.27.0...v0.28.0) (2025-03-14)
 
 ### Bug Fixes

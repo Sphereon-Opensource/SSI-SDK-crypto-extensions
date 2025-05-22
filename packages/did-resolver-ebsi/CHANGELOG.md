@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.29.0](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/compare/v0.28.0...v0.29.0) (2025-05-22)
+
+### Features
+
+- move to esm-js ([bcd26c1](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/bcd26c1d8e790a9f71aa5aed96509db99bf9c500))
+- move to vitest ([558ed35](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/commit/558ed35c895fa6c473da1ef7612e1cb9fe121cfe))
+
 # [0.28.0](https://github.com/Sphereon-Opensource/SSI-SDK-crypto-extensions/compare/v0.27.0...v0.28.0) (2025-03-14)
 
 **Note:** Version bump only for package @sphereon/ssi-sdk-ext.did-resolver-ebsi

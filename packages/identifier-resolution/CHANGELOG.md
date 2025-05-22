@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.29.0](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/compare/v0.28.0...v0.29.0) (2025-05-22)
+
+### Bug Fixes
+
+- commonjs import ([0824bc3](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/commit/0824bc3742682b422936cc413ed1b2b509998b78))
+- Ensure we also do offline did resolution in case a managed DID is being resolved using the identifier resolution service ([7210d74](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/commit/7210d74b296b2fdf38d4a4a3e3ad7cfc582b3358))
+- oidf client ([24ca549](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/commit/24ca549841533d8ae29184b42dc92a416bdb246d))
+- oidf imports ([52b2065](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/commit/52b2065fb8793c613c9971acc843decd6fc29685))
+- plugin schemas ([5e3162c](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/commit/5e3162cbeae5490acb70e1a7393d14c56fecc776))
+- plugin schemas ([2798b8a](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/commit/2798b8a20a75f69f89c712d3b72f4a968185cdd9))
+
+### Features
+
+- Ensure OYD now also is build as esm and cjs module and uses vitest for testing ([3b27367](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/commit/3b273671c2d2dc6b6d992ab65698c606c7f1b676))
+- move to esm-js ([bcd26c1](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/commit/bcd26c1d8e790a9f71aa5aed96509db99bf9c500))
+- move to vitest ([558ed35](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/commit/558ed35c895fa6c473da1ef7612e1cb9fe121cfe))
+
 # [0.28.0](https://github.com/Sphereon-OpenSource/SSI-SDK-crypto-extensions/compare/v0.27.0...v0.28.0) (2025-03-14)
 
 ### Bug Fixes
