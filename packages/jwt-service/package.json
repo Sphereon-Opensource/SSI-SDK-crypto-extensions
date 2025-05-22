@@ -1,6 +1,6 @@
 {
   "name": "@sphereon/ssi-sdk-ext.jwt-service",
-  "version": "0.28.0",
+  "version": "0.29.0",
   "source": "./src/index.ts",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -46,7 +46,6 @@
     "@sphereon/ssi-sdk-ext.did-provider-jwk": "workspace:*",
     "@sphereon/ssi-sdk-ext.did-provider-web": "workspace:*",
     "@sphereon/ssi-sdk-ext.did-resolver-jwk": "workspace:*",
-    "web-did-resolver": "^2.0.30",
     "@sphereon/ssi-sdk-ext.kms-local": "workspace:*",
     "@sphereon/ssi-sdk.dev": "0.33.0",
     "@veramo/data-store": "4.2.0",
@@ -57,9 +56,10 @@
     "@veramo/remote-client": "4.2.0",
     "@veramo/remote-server": "4.2.0",
     "did-resolver": "^4.1.0",
-    "js-crypto-key-utils": "^1.0.7",
     "express": "^4.21.2",
-    "typeorm": "0.3.20"
+    "js-crypto-key-utils": "^1.0.7",
+    "typeorm": "0.3.20",
+    "web-did-resolver": "^2.0.30"
   },
   "files": [
     "dist",
