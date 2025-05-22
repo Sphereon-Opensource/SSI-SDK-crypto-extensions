@@ -1,6 +1,6 @@
-import { ClientIdScheme } from '@sphereon/ssi-sdk-ext.x509-utils'
-import { ICoseKeyJson, JWK } from '@sphereon/ssi-types'
-import { DIDDocumentSection, IIdentifier, IKey, TKeyType } from '@veramo/core'
+import type { ClientIdScheme } from '@sphereon/ssi-sdk-ext.x509-utils'
+import type { ICoseKeyJson, JWK } from '@sphereon/ssi-types'
+import type { DIDDocumentSection, IIdentifier, IKey, TKeyType } from '@veramo/core'
 import {
   isCoseKeyIdentifier,
   isDidIdentifier,
@@ -9,7 +9,7 @@ import {
   isKeyIdentifier,
   isKidIdentifier,
   isX5cIdentifier,
-  JwkInfo,
+  type JwkInfo,
 } from './common'
 
 /**

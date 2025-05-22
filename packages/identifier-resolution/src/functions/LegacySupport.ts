@@ -1,5 +1,5 @@
-import { IIdentifier } from '@veramo/core'
-import { ManagedIdentifierDidOpts, ManagedIdentifierOptsOrResult } from '../types'
+import type { IIdentifier } from '@veramo/core'
+import type { ManagedIdentifierDidOpts, ManagedIdentifierOptsOrResult } from '../types'
 
 /**
  * Converts legacy id opts key refs to the new ManagedIdentifierOpts

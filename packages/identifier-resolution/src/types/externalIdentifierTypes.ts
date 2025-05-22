@@ -1,8 +1,8 @@
-import { DidDocumentJwks } from '@sphereon/ssi-sdk-ext.did-utils'
-import { ICoseKeyJson, JWK } from '@sphereon/ssi-types'
-import { X509CertificateChainValidationOpts, X509ValidationResult } from '@sphereon/ssi-sdk-ext.x509-utils'
-import { IParsedDID } from '@sphereon/ssi-types'
-import { DIDDocument, DIDDocumentSection, DIDResolutionResult } from '@veramo/core'
+import type { DidDocumentJwks } from '@sphereon/ssi-sdk-ext.did-utils'
+import type { ICoseKeyJson, JWK } from '@sphereon/ssi-types'
+import type { X509CertificateChainValidationOpts, X509ValidationResult } from '@sphereon/ssi-sdk-ext.x509-utils'
+import type { IParsedDID } from '@sphereon/ssi-types'
+import type { DIDDocument, DIDDocumentSection, DIDResolutionResult } from '@veramo/core'
 import {
   isCoseKeyIdentifier,
   isDidIdentifier,
@@ -12,9 +12,9 @@ import {
   isKidIdentifier,
   isOidcDiscoveryIdentifier,
   isX5cIdentifier,
-  JwkInfo,
+  type JwkInfo,
 } from './common'
-import {JwsPayload} from "./IJwtService";
+import type { JwsPayload } from './IJwtService'
 
 /**
  * Use whenever we need to resolve an external identifier. We can pass in kids, DIDs, and x5chains

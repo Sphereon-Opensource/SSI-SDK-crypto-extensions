@@ -1,31 +1,34 @@
-import { IAgentPlugin } from '@veramo/core'
-import debug from 'debug'
+import { Loggers } from '@sphereon/ssi-types'
+import type { IAgentPlugin } from '@veramo/core'
+const logger = Loggers.DEFAULT.get('sphereon:jwt-service')
 import { importJWK } from 'jose'
 
+// @ts-ignore
 import * as u8a from 'uint8arrays'
+const { fromString } = u8a
 import {
   createJwsCompact,
-  CreateJwsCompactArgs,
-  CreateJwsFlattenedArgs,
-  CreateJwsJsonArgs,
+  type CreateJwsCompactArgs,
+  type CreateJwsFlattenedArgs,
+  type CreateJwsJsonArgs,
   createJwsJsonFlattened,
   createJwsJsonGeneral,
-  DecryptJweCompactJwtArgs,
-  EncryptJweCompactJwtArgs,
-  IJwsValidationResult,
-  IJwtService,
-  IRequiredContext,
+  type DecryptJweCompactJwtArgs,
+  type EncryptJweCompactJwtArgs,
+  type IJwsValidationResult,
+  type IJwtService,
+  type IRequiredContext,
   jweAlg,
   jweEnc,
-  JwsJsonFlattened,
-  JwsJsonGeneral,
-  JwtCompactResult,
+  type JwsJsonFlattened,
+  type JwsJsonGeneral,
+  type JwtCompactResult,
   JwtLogger,
-  PreparedJwsObject,
+  type PreparedJwsObject,
   prepareJwsObject,
   schema,
   verifyJws,
-  VerifyJwsArgs,
+  type VerifyJwsArgs,
 } from '..'
 import { CompactJwtEncrypter } from '../functions/JWE'
 
@@ -69,7 +72,7 @@ export class JwtService implements IAgentPlugin {
     const { payload, protectedHeader = { alg: args.alg, enc: args.enc }, recipientKey, issuer, expirationTime, audience } = args
 
     try {
-      debug(`JWE Encrypt: ${JSON.stringify(args, null, 2)}`)
+      logger.debug(`JWE Encrypt: ${JSON.stringify(args, null, 2)}`)
 
       const alg = jweAlg(args.alg) ?? jweAlg(protectedHeader.alg) ?? 'ECDH-ES'
       const enc = jweEnc(args.enc) ?? jweEnc(protectedHeader.enc) ?? 'A256GCM'
@@ -88,9 +91,9 @@ export class JwtService implements IAgentPlugin {
         return Promise.reject(Error(`Currently only ECDH-ES is supported for encryption. JWK alg ${jwkInfo.jwk.kty}, header alg ${alg}`)) // TODO: Probably we support way more already
       }
       const apuVal = protectedHeader.apu ?? args.apu
-      const apu = apuVal ? u8a.fromString(apuVal, 'base64url') : undefined
+      const apu = apuVal ? fromString(apuVal, 'base64url') : undefined
       const apvVal = protectedHeader.apv ?? args.apv
-      const apv = apvVal ? u8a.fromString(apvVal, 'base64url') : undefined
+      const apv = apvVal ? fromString(apvVal, 'base64url') : undefined
 
       const pubKey = await importJWK(jwkInfo.jwk)
       const encrypter = new CompactJwtEncrypter({

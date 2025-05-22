@@ -1,10 +1,13 @@
 import { X509Certificate } from '@peculiar/x509'
 import { Certificate } from 'pkijs'
+// @ts-ignore
 import * as u8a from 'uint8arrays'
+const { fromString, toString } = u8a
 // @ts-ignore
 import keyto from '@trust/keyto'
-import { KeyVisibility } from '../types'
+import type { KeyVisibility } from '../types'
 
+import type { JsonWebKey } from '@sphereon/ssi-types'
 // Based on (MIT licensed):
 // https://github.com/hildjj/node-posh/blob/master/lib/index.js
 export function pemCertChainTox5c(cert: string, maxDepth?: number): string[] {
@@ -57,7 +60,7 @@ export const pemOrDerToX509Certificate = (cert: string | Uint8Array | X509Certif
   if (!DER) {
     throw Error('Invalid cert input value supplied. PEM, DER, Bytes and X509Certificate object are supported')
   }
-  return Certificate.fromBER(u8a.fromString(DER, 'base64pad'))
+  return Certificate.fromBER(fromString(DER, 'base64pad'))
 }
 
 export const areCertificatesEqual = (cert1: Certificate, cert2: Certificate): boolean => {
@@ -130,7 +133,7 @@ export function PEMToBinary(pem: string): Uint8Array {
     .replace(/-----END [^-]+-----[^]*$/, '')
     .replace(/\s/g, '')
 
-  return u8a.fromString(pemContents, 'base64pad')
+  return fromString(pemContents, 'base64pad')
 }
 
 /**
@@ -140,7 +143,7 @@ export function PEMToBinary(pem: string): Uint8Array {
  */
 export const base64ToHex = (input: string, inputEncoding?: 'base64' | 'base64pad' | 'base64url' | 'base64urlpad') => {
   const base64NoNewlines = input.replace(/[^0-9A-Za-z_\-~\/+=]*/g, '')
-  return u8a.toString(u8a.fromString(base64NoNewlines, inputEncoding ? inputEncoding : 'base64pad'), 'base16')
+  return toString(fromString(base64NoNewlines, inputEncoding ? inputEncoding : 'base64pad'), 'base16')
 }
 
 export const hexToBase64 = (input: number | object | string, targetEncoding?: 'base64' | 'base64pad' | 'base64url' | 'base64urlpad'): string => {
@@ -148,7 +151,7 @@ export const hexToBase64 = (input: number | object | string, targetEncoding?: 'b
   if (hex.length % 2 === 1) {
     hex = `0${hex}`
   }
-  return u8a.toString(u8a.fromString(hex, 'base16'), targetEncoding ? targetEncoding : 'base64pad')
+  return toString(fromString(hex, 'base16'), targetEncoding ? targetEncoding : 'base64pad')
 }
 
 export const hexToPEM = (hex: string, type: KeyVisibility): string => {

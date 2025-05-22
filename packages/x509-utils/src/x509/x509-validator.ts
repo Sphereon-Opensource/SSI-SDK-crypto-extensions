@@ -6,7 +6,9 @@ import { JWK } from '@sphereon/ssi-types'
 import x509 from 'js-x509-utils'
 import { AltName, AttributeTypeAndValue, Certificate, CryptoEngine, getCrypto, id_SubjectAltName, setEngine } from 'pkijs'
 import { container } from 'tsyringe'
+// @ts-ignore
 import * as u8a from 'uint8arrays'
+const { fromString, toString } = u8a
 import { globalCrypto } from './crypto'
 import { areCertificatesEqual, derToPEM, pemOrDerToX509Certificate } from './x509-utils'
 
@@ -305,6 +307,7 @@ export type ParsedCertificate = {
   publicKeyInfo: SubjectPublicKeyInfo
   publicKeyJwk?: JWK
   publicKeyRaw: Uint8Array
+  // @ts-ignore
   publicKeyAlgorithm: Algorithm
   certificateInfo: CertificateInfo
   certificate: Certificate
@@ -516,10 +519,10 @@ const getDNString = (typesAndValues: AttributeTypeAndValue[]): string => {
 export const getCertificateSubjectPublicKeyJWK = async (pemOrDerCert: string | Uint8Array | Certificate): Promise<JWK> => {
   const pemOrDerStr =
     typeof pemOrDerCert === 'string'
-      ? u8a.toString(u8a.fromString(pemOrDerCert, 'base64pad'), 'base64pad')
+      ? toString(fromString(pemOrDerCert, 'base64pad'), 'base64pad')
       : pemOrDerCert instanceof Uint8Array
-      ? u8a.toString(pemOrDerCert, 'base64pad')
-      : u8a.toString(u8a.fromString(pemOrDerCert.toString('base64'), 'base64pad'), 'base64pad')
+      ? toString(pemOrDerCert, 'base64pad')
+      : toString(fromString(pemOrDerCert.toString('base64'), 'base64pad'), 'base64pad')
   const pem = derToPEM(pemOrDerStr)
   const certificate = pemOrDerToX509Certificate(pem)
   var jwk: JWK | undefined

@@ -30,7 +30,9 @@ import {
   isRawCompressedPublicKey,
   toRawCompressedHexPublicKey,
 } from '@sphereon/ssi-sdk-ext.key-utils'
+// @ts-ignore
 import * as u8a from 'uint8arrays'
+const { fromString, toString } = u8a
 
 export const logger = Loggers.DEFAULT.get('sphereon:musap-rn-kms')
 
@@ -41,11 +43,15 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
   private readonly defaultKeyAttributes: Record<string, string> | undefined
   private readonly defaultSignAttributes: Record<string, string> | undefined
 
-  constructor(sscdType?: SscdType, sscdId?: string, opts?: {
-    externalSscdSettings?: ExternalSscdSettings,
-    defaultKeyAttributes?: Record<string, string>,
-    defaultSignAttributes?: Record<string, string>
-  }) {
+  constructor(
+    sscdType?: SscdType,
+    sscdId?: string,
+    opts?: {
+      externalSscdSettings?: ExternalSscdSettings
+      defaultKeyAttributes?: Record<string, string>
+      defaultSignAttributes?: Record<string, string>
+    }
+  ) {
     super()
     try {
       this.musapClient = MusapClient
@@ -55,7 +61,7 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
       this.defaultSignAttributes = opts?.defaultSignAttributes
 
       const enabledSscds = this.musapClient.listEnabledSscds()
-      if (!enabledSscds.some(value => value.sscdId == sscdId)) {
+      if (!enabledSscds.some((value) => value.sscdId == sscdId)) {
         this.musapClient.enableSscd(this.sscdType, this.sscdId, opts?.externalSscdSettings)
       }
     } catch (e) {
@@ -65,7 +71,7 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
   }
 
   async listKeys(): Promise<ManagedKeyInfo[]> {
-    const keysJson: MusapKey[] = (this.musapClient.listKeys()) as MusapKey[]
+    const keysJson: MusapKey[] = this.musapClient.listKeys() as MusapKey[]
     return keysJson.map((key) => this.asMusapKeyInfo(key))
   }
 
@@ -76,8 +82,8 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
     }
 
     if (this.sscdType == 'EXTERNAL') {
-      const existingKeys: MusapKey[] = (this.musapClient.listKeys()) as MusapKey[]
-      const extKey = existingKeys.find(musapKey => musapKey.sscdType as string === 'External Signature') // FIXME returning does not match SscdType enum
+      const existingKeys: MusapKey[] = this.musapClient.listKeys() as MusapKey[]
+      const extKey = existingKeys.find((musapKey) => (musapKey.sscdType as string) === 'External Signature') // FIXME returning does not match SscdType enum
       if (extKey) {
         extKey.algorithm = 'eccp256r1' // FIXME MUSAP announces key as rsa2k, but it's actually EC
         return this.asMusapKeyInfo(extKey)
@@ -138,12 +144,12 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
   }
 
   async deleteKey({ kid }: { kid: string }): Promise<boolean> {
-      try {
-        const key: MusapKey = this.musapClient.getKeyById(kid) as MusapKey
-        if (key.sscdType as string === 'External Signature') {
-          return true // FIXME we can't remove a eSim key for now because this would mean onboarding again
-        }
-        void this.musapClient.removeKey(kid)
+    try {
+      const key: MusapKey = this.musapClient.getKeyById(kid) as MusapKey
+      if ((key.sscdType as string) === 'External Signature') {
+        return true // FIXME we can't remove a eSim key for now because this would mean onboarding again
+      }
+      void this.musapClient.removeKey(kid)
       return true
     } catch (error) {
       console.warn('Failed to delete key:', error)
@@ -164,12 +170,7 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
     return signatureAlgorithmFromKeyAlgorithm(providedAlgorithm as JWSAlgorithm)
   }
 
-  async sign(args: {
-    keyRef: Pick<IKey, 'kid'>;
-    algorithm?: string;
-    data: Uint8Array;
-    [x: string]: any
-  }): Promise<string> {
+  async sign(args: { keyRef: Pick<IKey, 'kid'>; algorithm?: string; data: Uint8Array; [x: string]: any }): Promise<string> {
     if (!args.keyRef) {
       throw new Error('key_not_found: No key ref provided')
     }
@@ -177,7 +178,7 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
     const data = new TextDecoder().decode(args.data as Uint8Array)
 
     const key: MusapKey = this.musapClient.getKeyById(args.keyRef.kid) as MusapKey
-    if (key.sscdType as string === 'External Signature') {
+    if ((key.sscdType as string) === 'External Signature') {
       key.algorithm = 'eccp256r1' // FIXME MUSAP announces key as rsa2k, but it's actually EC
     }
     const signatureReq: SignatureReq = {
@@ -196,7 +197,7 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
     throw new Error('importKey is not implemented for MusapKeyManagementSystem.')
   }
 
-  private decodeMusapPublicKey = (args: { publicKey: { pem: string }, keyType: TKeyType }): string => {
+  private decodeMusapPublicKey = (args: { publicKey: { pem: string }; keyType: TKeyType }): string => {
     const { publicKey, keyType } = args
 
     // First try the normal PEM decoding path
@@ -204,21 +205,19 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
 
     // Check if we got a string that looks like base64 (might be double encoded)
     // Convert Uint8Array to string safely
-    const pemString = u8a.toString(pemBinary, 'utf8')
-    const isDoubleEncoded = pemBinary.length > 0 &&
-      typeof pemString === 'string' &&
-      pemString.startsWith('MF')
+    const pemString = toString(pemBinary, 'utf8')
+    const isDoubleEncoded = pemBinary.length > 0 && typeof pemString === 'string' && pemString.startsWith('MF')
 
     if (isDoubleEncoded) {
       // Handle double-encoded case
-      const actualDerBytes = u8a.fromString(pemString, 'base64')
+      const actualDerBytes = fromString(pemString, 'base64')
 
       // For double-encoded case, we know the key data starts after the header
       const keyDataStart = 24
       const keyData = actualDerBytes.slice(keyDataStart)
 
       // Convert to public key hex
-      let publicKeyHex = u8a.toString(keyData, 'hex')
+      let publicKeyHex = toString(keyData, 'hex')
 
       // If it's not compressed yet and doesn't start with 0x04 (uncompressed point marker), add it
       if (publicKeyHex.length <= 128 && !publicKeyHex.startsWith('04')) {
@@ -232,13 +231,13 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
 
       // Now convert to compressed format if needed
       if (publicKeyHex.startsWith('04') && publicKeyHex.length === 130) {
-        const xCoord = u8a.fromString(publicKeyHex.slice(2, 66), 'hex')
-        const yCoord = u8a.fromString(publicKeyHex.slice(66, 130), 'hex')
+        const xCoord = fromString(publicKeyHex.slice(2, 66), 'hex')
+        const yCoord = fromString(publicKeyHex.slice(66, 130), 'hex')
         const prefix = new Uint8Array([yCoord[31] % 2 === 0 ? 0x02 : 0x03])
         const compressedKey = new Uint8Array(33) // 1 byte prefix + 32 bytes x coordinate
         compressedKey.set(prefix, 0)
         compressedKey.set(xCoord, 1)
-        return u8a.toString(compressedKey, 'hex')
+        return toString(compressedKey, 'hex')
       }
 
       return publicKeyHex
@@ -250,7 +249,6 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
       ? hexStringFromUint8Array(publicKeyBinary)
       : toRawCompressedHexPublicKey(publicKeyBinary, keyType)
   }
-  
 
   private asMusapKeyInfo(args: MusapKey): ManagedKeyInfo {
     const { keyId, publicKey, ...metadata }: KeyMetadata = { ...args }
@@ -258,7 +256,7 @@ export class MusapKeyManagementSystem extends AbstractKeyManagementSystem {
 
     const publicKeyHex = this.decodeMusapPublicKey({
       publicKey: publicKey,
-      keyType: keyType
+      keyType: keyType,
     })
 
     const keyInfo: Partial<ManagedKeyInfo> = {

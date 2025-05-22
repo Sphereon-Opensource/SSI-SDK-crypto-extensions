@@ -1,5 +1,6 @@
 import { toJwkFromKey } from '@sphereon/ssi-sdk-ext.key-utils'
 import { IDIDManager, IIdentifier, IKeyManager, TAgent } from '@veramo/core'
+import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 import { IIdentifierResolution } from '../../src'
 
@@ -80,8 +81,6 @@ export default (testContext: { getAgent: () => ConfiguredAgent; setup: () => Pro
       expect(certResult).toBeDefined()
       expect(certResult.method).toEqual('x5c')
       expect(certResult.jwks.length).toEqual(2)
-
-
 
       const certResult2 = await agent.identifierExternalResolveByX5c({
         identifier: [sphereonTest, sphereonCA],
@@ -180,7 +179,7 @@ const resolvedDidMatcher = {
           kty: 'EC',
           use: 'sig',
           x: expect.anything(),
-          y: expect.anything()
+          y: expect.anything(),
         },
         type: 'JsonWebKey2020',
       },
@@ -261,11 +260,11 @@ const resolvedDidMatcher = {
         kty: 'EC',
         use: 'sig',
         x: expect.anything(),
-        y: expect.anything()
+        y: expect.anything(),
       },
       jwkThumbprint: expect.anything(),
       kid: expect.stringContaining('did:jwk:'),
-      publicKeyHex: expect.anything()
+      publicKeyHex: expect.anything(),
     },
   ],
   method: 'did',

@@ -1,9 +1,13 @@
+// @ts-ignore
 import * as u8a from 'uint8arrays'
-import { HashAlgorithm, KeyVisibility } from '../types'
+const { fromString, toString } = u8a
+import type { HashAlgorithm, KeyVisibility } from '../types'
 import { globalCrypto } from './crypto'
 import { cryptoSubtleImportRSAKey, RSAEncryptionSchemes, RSASignatureSchemes } from './rsa-key'
 import { PEMToJwk } from './x509-utils'
-
+import type { JsonWebKey } from '@sphereon/ssi-types'
+// @ts-ignore
+import { CryptoKey, RsaPssParams, AlgorithmIdentifier } from 'node'
 export class RSASigner {
   private readonly hashAlgorithm: HashAlgorithm
   private readonly jwk: JsonWebKey
@@ -46,7 +50,7 @@ export class RSASigner {
 
   private bufferToString(buf: ArrayBuffer) {
     const uint8Array = new Uint8Array(buf)
-    return u8a.toString(uint8Array, 'base64url') // Needs to be base64url for JsonWebSignature2020. Don't change!
+    return toString(uint8Array, 'base64url') // Needs to be base64url for JsonWebSignature2020. Don't change!
   }
 
   public async sign(data: Uint8Array): Promise<string> {
@@ -64,7 +68,7 @@ export class RSASigner {
   public async verify(data: string | Uint8Array, signature: string): Promise<boolean> {
     const jws = signature.includes('.') ? signature.split('.')[2] : signature
 
-    const input = typeof data == 'string' ? u8a.fromString(data, 'utf-8') : data
+    const input = typeof data == 'string' ? fromString(data, 'utf-8') : data
 
     let key = await this.getKey()
     if (!key.usages.includes('verify')) {
@@ -74,7 +78,7 @@ export class RSASigner {
       delete verifyJwk.key_ops
       key = await cryptoSubtleImportRSAKey(verifyJwk, this.scheme, this.hashAlgorithm)
     }
-    const verificationResult = await globalCrypto(false).subtle.verify(this.getImportParams(), key, u8a.fromString(jws, 'base64url'), input)
+    const verificationResult = await globalCrypto(false).subtle.verify(this.getImportParams(), key, fromString(jws, 'base64url'), input)
     return verificationResult
   }
 }

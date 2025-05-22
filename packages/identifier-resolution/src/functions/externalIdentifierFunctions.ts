@@ -5,14 +5,14 @@ import {
   pemOrDerToX509Certificate,
   PEMToDer,
   validateX509CertificateChain,
-  X509ValidationResult,
+  type X509ValidationResult,
 } from '@sphereon/ssi-sdk-ext.x509-utils'
 import { contextHasPlugin } from '@sphereon/ssi-sdk.agent-config'
-import { IParsedDID, JWK, parseDid } from '@sphereon/ssi-types'
-import { IAgentContext, IDIDManager, IResolver } from '@veramo/core'
+import { type IParsedDID, type JWK, parseDid } from '@sphereon/ssi-types'
+import type { IAgentContext, IDIDManager, IResolver } from '@veramo/core'
 import { isDefined } from '@veramo/utils'
 import { CryptoEngine, setEngine } from 'pkijs'
-import {
+import type {
   ExternalIdentifierCoseKeyOpts,
   ExternalIdentifierCoseKeyResult,
   ExternalIdentifierDidOpts,
@@ -25,6 +25,8 @@ import {
   ExternalIdentifierX5cOpts,
   ExternalIdentifierX5cResult,
   ExternalJwkInfo,
+} from '../types'
+import {
   isExternalIdentifierCoseKeyOpts,
   isExternalIdentifierDidOpts,
   isExternalIdentifierJwkOpts,
@@ -36,9 +38,10 @@ import {
 } from '../types'
 import { resolveExternalOIDFEntityIdIdentifier } from '.'
 
+import { webcrypto } from 'node:crypto'
 export async function resolveExternalIdentifier(
   opts: ExternalIdentifierOpts & {
-    crypto?: Crypto
+    crypto?: webcrypto.Crypto
   },
   context: IAgentContext<any>
 ): Promise<ExternalIdentifierResult> {
@@ -65,7 +68,7 @@ export async function resolveExternalIdentifier(
 
 export async function resolveExternalX5cIdentifier(
   opts: ExternalIdentifierX5cOpts & {
-    crypto?: Crypto
+    crypto?: webcrypto.Crypto
   },
   context: IAgentContext<IResolver & IDIDManager>
 ): Promise<ExternalIdentifierX5cResult> {
@@ -245,18 +248,24 @@ export async function resolveExternalDidIdentifier(
   const didDocument = didResolutionResult.didDocument ?? undefined
   const didJwks = didDocument ? didDocumentToJwks(didDocument) : undefined
   const jwks = didJwks
-    ? Array.from(new Set(Array.from(
-          Object.values(didJwks)
-            .filter((jwks) => isDefined(jwks) && jwks.length > 0)
-            .flatMap((jwks) => jwks)
-      ).flatMap((jwk) => {
-        return {
-          jwk,
-          jwkThumbprint: calculateJwkThumbprint({ jwk }),
-          kid: jwk.kid,
-          publicKeyHex: jwkTtoPublicKeyHex(jwk),
-        }
-      }).map(jwk => JSON.stringify(jwk)))).map((jwks) => JSON.parse(jwks))
+    ? Array.from(
+        new Set(
+          Array.from(
+            Object.values(didJwks)
+              .filter((jwks) => isDefined(jwks) && jwks.length > 0)
+              .flatMap((jwks) => jwks)
+          )
+            .flatMap((jwk) => {
+              return {
+                jwk,
+                jwkThumbprint: calculateJwkThumbprint({ jwk }),
+                kid: jwk.kid,
+                publicKeyHex: jwkTtoPublicKeyHex(jwk),
+              }
+            })
+            .map((jwk) => JSON.stringify(jwk))
+        )
+      ).map((jwks) => JSON.parse(jwks))
     : []
 
   if (didResolutionResult?.didDocument) {

@@ -1,17 +1,19 @@
 import { calculateJwkThumbprintForKey, toJwk, verifyRawSignature } from '@sphereon/ssi-sdk-ext.key-utils'
-import { IKey, KeyMetadata, ManagedKeyInfo } from '@veramo/core'
+import type { IKey, KeyMetadata, ManagedKeyInfo } from '@veramo/core'
 import { AbstractKeyManagementSystem, AbstractKeyStore, KeyManager as VeramoKeyManager } from '@veramo/key-manager'
-
+// @ts-ignore
 import * as u8a from 'uint8arrays'
 import {
   hasKeyOptions,
-  IKeyManagerGetArgs,
-  ISphereonKeyManager,
-  ISphereonKeyManagerCreateArgs,
-  ISphereonKeyManagerHandleExpirationsArgs,
-  ISphereonKeyManagerSignArgs,
-  ISphereonKeyManagerVerifyArgs,
+  type IKeyManagerGetArgs,
+  type ISphereonKeyManager,
+  type ISphereonKeyManagerCreateArgs,
+  type ISphereonKeyManagerHandleExpirationsArgs,
+  type ISphereonKeyManagerSignArgs,
+  type ISphereonKeyManagerVerifyArgs,
 } from '../types/ISphereonKeyManager'
+
+const { fromString } = u8a
 
 export const sphereonKeyManagerMethods: Array<string> = [
   'keyManagerCreate',
@@ -79,7 +81,7 @@ export class SphereonKeyManager extends VeramoKeyManager {
     const keyInfo = await this.keyManagerGet({ kid: args.keyRef })
     const kms = this.getKmsByName(keyInfo.kms)
     if (keyInfo.type === 'Bls12381G2') {
-      return await kms.sign({ keyRef: keyInfo, data: typeof args.data === 'string' ? u8a.fromString(args.data) : args.data })
+      return await kms.sign({ keyRef: keyInfo, data: typeof args.data === 'string' ? fromString(args.data) : args.data })
     }
     // @ts-ignore // we can pass in uint8arrays as well, which the super also can handle but does not expose in its types
     return await super.keyManagerSign({ ...args, keyRef: keyInfo.kid })
@@ -96,7 +98,7 @@ export class SphereonKeyManager extends VeramoKeyManager {
     return await verifyRawSignature({
       key: toJwk(args.publicKeyHex, args.type),
       data: args.data,
-      signature: u8a.fromString(args.signature, 'utf-8'),
+      signature: fromString(args.signature, 'utf-8'),
     })
   }
 
@@ -149,7 +151,6 @@ export class SphereonKeyManager extends VeramoKeyManager {
       }
     }
   }
-
 
   get defaultKms(): string {
     return this._defaultKms

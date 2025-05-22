@@ -2,21 +2,12 @@ import { getFirstKeyWithRelation } from '@sphereon/ssi-sdk-ext.did-utils'
 import { calculateJwkThumbprint, coseKeyToJwk, globalCrypto, toJwk } from '@sphereon/ssi-sdk-ext.key-utils'
 import { pemOrDerToX509Certificate } from '@sphereon/ssi-sdk-ext.x509-utils'
 import { contextHasDidManager, contextHasKeyManager } from '@sphereon/ssi-sdk.agent-config'
-import { ICoseKeyJson, JWK } from '@sphereon/ssi-types'
-import { IAgentContext, IIdentifier, IKey, IKeyManager } from '@veramo/core'
+import type { ICoseKeyJson, JWK } from '@sphereon/ssi-types'
+import type { IAgentContext, IIdentifier, IKey, IKeyManager } from '@veramo/core'
 import { CryptoEngine, setEngine } from 'pkijs'
-import {
+import { webcrypto } from 'node:crypto'
+import type {
   IIdentifierResolution,
-  isManagedIdentifierCoseKeyOpts,
-  isManagedIdentifierDidOpts,
-  isManagedIdentifierDidResult,
-  isManagedIdentifierOID4VCIssuerOpts,
-  isManagedIdentifierJwkOpts,
-  isManagedIdentifierJwkResult,
-  isManagedIdentifierKeyOpts,
-  isManagedIdentifierKeyResult,
-  isManagedIdentifierKidOpts,
-  isManagedIdentifierX5cOpts,
   ManagedIdentifierCoseKeyOpts,
   ManagedIdentifierCoseKeyResult,
   ManagedIdentifierDidOpts,
@@ -35,6 +26,19 @@ import {
   ManagedIdentifierX5cResult,
 } from '../types'
 
+import {
+  isManagedIdentifierCoseKeyOpts,
+  isManagedIdentifierDidOpts,
+  isManagedIdentifierDidResult,
+  isManagedIdentifierOID4VCIssuerOpts,
+  isManagedIdentifierJwkOpts,
+  isManagedIdentifierJwkResult,
+  isManagedIdentifierKeyOpts,
+  isManagedIdentifierKeyResult,
+  isManagedIdentifierKidOpts,
+  isManagedIdentifierX5cOpts,
+} from '../types'
+
 export async function getManagedKidIdentifier(
   opts: ManagedIdentifierKidOpts,
   context: IAgentContext<IKeyManager>
@@ -47,13 +51,13 @@ export async function getManagedKidIdentifier(
     return Promise.reject(Error(`Cannot get Key/JWK identifier if KeyManager plugin is not enabled!`))
   } else if (opts.identifier.startsWith('did:')) {
     const did = opts.identifier.split('#')[0]
-    const didIdentifier = await getManagedDidIdentifier({...opts, method: 'did', identifier: did}, context)
+    const didIdentifier = await getManagedDidIdentifier({ ...opts, method: 'did', identifier: did }, context)
     key = didIdentifier.key
     issuer = didIdentifier.issuer
     kid = opts?.kid ?? (key.meta?.verificationMethod?.id as string) ?? didIdentifier.kid
   }
   if (!key) {
-    key = await context.agent.keyManagerGet({kid: opts.kmsKeyRef ?? opts.identifier})
+    key = await context.agent.keyManagerGet({ kid: opts.kmsKeyRef ?? opts.identifier })
   }
   const jwk = toJwk(key.publicKeyHex, key.type, { key })
   const jwkThumbprint = (key.meta?.jwkThumbprint as string) ?? calculateJwkThumbprint({ jwk })
@@ -80,7 +84,7 @@ export async function getManagedKidIdentifier(
 
 export function isManagedIdentifierResult(
   identifier: ManagedIdentifierOptsOrResult & {
-    crypto?: Crypto
+    crypto?: webcrypto.Crypto
   }
 ): identifier is ManagedIdentifierResult {
   return 'key' in identifier && 'kmsKeyRef' in identifier && 'method' in identifier && 'opts' in identifier && 'jwkThumbprint' in identifier
@@ -93,7 +97,7 @@ export function isManagedIdentifierResult(
  */
 export async function ensureManagedIdentifierResult(
   identifier: ManagedIdentifierOptsOrResult & {
-    crypto?: Crypto
+    crypto?: webcrypto.Crypto
   },
   context: IAgentContext<IKeyManager>
 ): Promise<ManagedIdentifierResult> {
@@ -183,6 +187,8 @@ export async function getManagedDidIdentifier(opts: ManagedIdentifierDidOpts, co
   const extendedKey = await getFirstKeyWithRelation(
     {
       ...opts,
+      // Make sure we use offline mode if no pref was supplied. We are looking for managed DIDs after all. Could be it is not published yet
+      offlineWhenNoDIDRegistered: opts.offlineWhenNoDIDRegistered ?? true,
       identifier,
       vmRelationship: opts.vmRelationship ?? 'verificationMethod',
     },
@@ -247,7 +253,7 @@ export async function getManagedJwkIdentifier(
 
 export async function getManagedX5cIdentifier(
   opts: ManagedIdentifierX5cOpts & {
-    crypto?: Crypto
+    crypto?: webcrypto.Crypto
   },
   context: IAgentContext<IKeyManager>
 ): Promise<ManagedIdentifierX5cResult> {
@@ -331,7 +337,7 @@ export async function getManagedOID4VCIssuerIdentifier(
 
 export async function getManagedIdentifier(
   opts: ManagedIdentifierOptsOrResult & {
-    crypto?: Crypto
+    crypto?: webcrypto.Crypto
   },
   context: IAgentContext<IKeyManager>
 ): Promise<ManagedIdentifierResult> {

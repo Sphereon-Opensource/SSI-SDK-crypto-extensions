@@ -1,9 +1,10 @@
 // Brent Shambaugh <brent.shambaugh@gmail.com>. 2021.
 
-import * as varint from 'varint'
-import * as mapper from '../drivers/secp521r1'
-import * as u8a from 'uint8arrays'
 import { base58btc } from 'multiformats/bases/base58'
+import * as u8a from 'uint8arrays'
+import * as varint from 'varint'
+import { describe, expect, it, test } from 'vitest'
+import * as mapper from '../drivers/secp521r1'
 
 describe('Secp521r1 mapper', () => {
   /*  const mf = await import('multiformats/bases/base58')

@@ -1,7 +1,7 @@
-import { TKeyType } from '@sphereon/ssi-sdk-ext.key-utils'
-import { IAgentContext, IDIDManager, IIdentifier, IKeyManager, IResolver } from '@veramo/core'
-import { JWTHeader, JWTPayload, JWTVerifyOptions } from 'did-jwt'
-import { Resolvable } from 'did-resolver'
+import type { TKeyType } from '@sphereon/ssi-sdk-ext.key-utils'
+import type { IAgentContext, IDIDManager, IIdentifier, IKeyManager, IResolver } from '@veramo/core'
+import type { JWTHeader, JWTPayload, JWTVerifyOptions } from 'did-jwt'
+import type { Resolvable } from 'did-resolver'
 
 export enum SupportedDidMethodEnum {
   DID_ETHR = 'ethr',

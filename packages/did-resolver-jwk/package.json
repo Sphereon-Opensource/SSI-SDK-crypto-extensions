@@ -2,29 +2,41 @@
   "name": "@sphereon/ssi-sdk-ext.did-resolver-jwk",
   "description": "DIF resolver for resolution of did:jwk identifiers.",
   "version": "0.28.0",
-  "source": "src/index.ts",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "source": "./src/index.ts",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    "react-native": "./dist/index.js",
+    "import": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "require": {
+      "types": "./dist/index.d.cts",
+      "require": "./dist/index.cjs"
+    }
+  },
   "scripts": {
-    "build": "tsc --build",
-    "build:clean": "tsc --build --clean && tsc --build"
+    "build": "tsup --config ../../tsup.config.ts --tsconfig ../../tsconfig.tsup.json"
   },
   "dependencies": {
-    "@sphereon/ssi-types": "0.30.2-feature.SDK.41.oidf.support.286",
+    "@sphereon/ssi-types": "0.33.1-next.73",
     "base64url": "^3.0.1",
     "debug": "^4.3.4",
     "did-resolver": "^4.1.0",
-    "uint8arrays": "^3.1.1"
+    "uint8arrays": "3.1.1"
   },
   "devDependencies": {
     "@or13/did-jwk": "^0.0.4",
     "@veramo/core": "4.2.0",
     "@veramo/did-resolver": "4.2.0",
-    "jose": "^4.14.6"
+    "jose": "^5.10.0"
   },
   "files": [
-    "dist/**/*",
-    "src/**/*",
+    "dist",
+    "src",
     "README.md",
     "LICENSE"
   ],

@@ -1,9 +1,9 @@
 import { IDataStore, IKeyManager, TAgent } from '@veramo/core'
+import { beforeAll, describe, expect, it } from 'vitest'
 
 import { IMnemonicSeedManager } from '../../src'
 
 type ConfiguredAgent = TAgent<IMnemonicSeedManager>
-
 export default (testContext: {
   getAgent: () => TAgent<IKeyManager & IDataStore & IMnemonicSeedManager>
   setup: () => Promise<boolean>

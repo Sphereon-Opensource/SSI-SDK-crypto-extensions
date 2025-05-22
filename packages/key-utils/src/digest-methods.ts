@@ -1,11 +1,12 @@
 import { sha256 } from '@noble/hashes/sha256'
 import { sha384, sha512 } from '@noble/hashes/sha512'
-import { Hasher } from '@sphereon/ssi-types'
+import type { HasherSync } from '@sphereon/ssi-types'
+// @ts-ignore
 import * as u8a from 'uint8arrays'
-import { SupportedEncodings } from 'uint8arrays/to-string'
+const { fromString, toString, SupportedEncodings } = u8a
 
 export type HashAlgorithm = 'SHA-256' | 'SHA-384' | 'SHA-512'
-export type TDigestMethod = (input: string, encoding?: SupportedEncodings) => string
+export type TDigestMethod = (input: string, encoding?: typeof SupportedEncodings) => string
 
 export const digestMethodParams = (
   hashAlgorithm: HashAlgorithm
@@ -19,21 +20,21 @@ export const digestMethodParams = (
   }
 }
 
-export const shaHasher: Hasher = (input: string, alg: string): Uint8Array => {
+export const shaHasher: HasherSync = (input: string | ArrayBuffer, alg: string): Uint8Array => {
   const hashAlgorithm: HashAlgorithm = alg.includes('384') ? 'SHA-384' : alg.includes('512') ? 'SHA-512' : 'SHA-256'
-  return digestMethodParams(hashAlgorithm).hash(u8a.fromString(input, 'utf-8'))
+  return digestMethodParams(hashAlgorithm).hash(typeof input === 'string' ? fromString(input, 'utf-8') : new Uint8Array(input))
 }
 
-const sha256DigestMethod = (input: string, encoding: SupportedEncodings = 'base16'): string => {
-  return u8a.toString(sha256(u8a.fromString(input, 'utf-8')), encoding)
+const sha256DigestMethod = (input: string, encoding: typeof SupportedEncodings = 'base16'): string => {
+  return toString(sha256(fromString(input, 'utf-8')), encoding)
 }
 
-const sha384DigestMethod = (input: string, encoding: SupportedEncodings = 'base16'): string => {
-  return u8a.toString(sha384(u8a.fromString(input, 'utf-8')), encoding)
+const sha384DigestMethod = (input: string, encoding: typeof SupportedEncodings = 'base16'): string => {
+  return toString(sha384(fromString(input, 'utf-8')), encoding)
 }
 
-const sha512DigestMethod = (input: string, encoding: SupportedEncodings = 'base16'): string => {
-  return u8a.toString(sha512(u8a.fromString(input, 'utf-8')), encoding)
+const sha512DigestMethod = (input: string, encoding: typeof SupportedEncodings = 'base16'): string => {
+  return toString(sha512(fromString(input, 'utf-8')), encoding)
 }
 
 /*

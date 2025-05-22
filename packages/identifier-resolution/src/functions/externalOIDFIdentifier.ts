@@ -1,9 +1,11 @@
-import { ErrorMessage, ExternalIdentifierOIDFEntityIdOpts, ExternalIdentifierOIDFEntityIdResult, ExternalJwkInfo, TrustedAnchor } from '../types'
-import { IAgentContext } from '@veramo/core'
-import { IOIDFClient } from '@sphereon/ssi-sdk.oidf-client'
+import type { ErrorMessage, ExternalIdentifierOIDFEntityIdOpts, ExternalIdentifierOIDFEntityIdResult, ExternalJwkInfo, TrustedAnchor } from '../types'
+import type { IAgentContext } from '@veramo/core'
+import type { IOIDFClient } from '@sphereon/ssi-sdk.oidf-client'
 import { contextHasPlugin } from '@sphereon/ssi-sdk.agent-config'
-import {IJwsValidationResult, JwsPayload} from '../types/IJwtService'
+import type { IJwsValidationResult, JwsPayload } from '../types/IJwtService'
+// @ts-ignore
 import * as u8a from 'uint8arrays'
+const { fromString, toString } = u8a
 /**
  * Resolves an OIDF Entity ID against multiple trust anchors to establish trusted relationships
  *
@@ -43,10 +45,10 @@ export async function resolveExternalOIDFEntityIdIdentifier(
       trustAnchors: [trustAnchor],
     })
 
-    if (resolveResult.error || !resolveResult.trustChain) {
+    if (resolveResult.errorMessage || !resolveResult.trustChain) {
       errorList[trustAnchor] = resolveResult.errorMessage ?? 'unspecified'
     } else {
-      const trustChain: ReadonlyArray<string> = resolveResult.trustChain.asJsReadonlyArrayView()
+      const trustChain = resolveResult.trustChain
       if (trustChain.length === 0) {
         errorList[trustAnchor] = 'Trust chain is empty'
         continue
@@ -65,7 +67,7 @@ export async function resolveExternalOIDFEntityIdIdentifier(
         continue
       }
 
-      payload = JSON.parse(u8a.toString(u8a.fromString(jwtVerifyResult.jws.payload, 'base64url')))
+      payload = JSON.parse(toString(fromString(jwtVerifyResult.jws.payload, 'base64url')))
       const signature = jwtVerifyResult.jws.signatures[0]
       if (signature.identifier.jwks.length === 0) {
         errorList[trustAnchor] = 'No JWK was present in the trust anchor signature'

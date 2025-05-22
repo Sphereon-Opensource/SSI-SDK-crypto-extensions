@@ -1,6 +1,7 @@
 import { Resolver } from 'did-resolver'
-import { DID_LD_JSON, getResolver } from '../index'
 import * as fs from 'fs'
+import { describe, expect, it } from 'vitest'
+import { DID_LD_JSON, getResolver } from '../index'
 
 describe('@sphereon/ssi-sdk-ext.did-resolver-ebsi', () => {
   it('should resolve a v1 did:ebsi against the default registry', async () => {

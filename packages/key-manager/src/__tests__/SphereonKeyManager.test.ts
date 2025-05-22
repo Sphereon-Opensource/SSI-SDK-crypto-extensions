@@ -1,6 +1,7 @@
-import { SphereonKeyManager } from '../agent/SphereonKeyManager'
-import { MemoryKeyStore, MemoryPrivateKeyStore } from '@veramo/key-manager'
 import { SphereonKeyManagementSystem } from '@sphereon/ssi-sdk-ext.kms-local'
+import { MemoryKeyStore, MemoryPrivateKeyStore } from '@veramo/key-manager'
+import { describe, expect, it } from 'vitest'
+import { SphereonKeyManager } from '../agent/SphereonKeyManager'
 
 describe('@sphereon/ssi-sdk-ext.key-manager key functionalities', () => {
   const kms = new SphereonKeyManager({

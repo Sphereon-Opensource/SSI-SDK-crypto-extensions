@@ -1,17 +1,17 @@
-import { IdentifierResolution, IIdentifierResolution } from '../../identifier-resolution/src' // FIXME fix when new types have been absorbed throughout ssi-sdk
+import { IJwtService, JwtService } from '@sphereon/ssi-sdk-ext.jwt-service'
 import { SphereonKeyManager } from '@sphereon/ssi-sdk-ext.key-manager'
 import { SphereonKeyManagementSystem } from '@sphereon/ssi-sdk-ext.kms-local'
+import { OIDFClient } from '@sphereon/ssi-sdk.oidf-client'
+import { ResourceResolver } from '@sphereon/ssi-sdk.resource-resolver'
 import { createAgent, IKeyManager, TAgent } from '@veramo/core'
 import { Entities, KeyStore, migrations, PrivateKeyStore } from '@veramo/data-store'
 import { SecretBox } from '@veramo/kms-local'
 import { OrPromise } from '@veramo/utils'
 import { DataSource } from 'typeorm'
-import { IJwtService, JwtService } from '@sphereon/ssi-sdk-ext.jwt-service'
-import oidfResolutionTests from './shared/oidfResolutionTest'
-import { OIDFClient } from '@sphereon/ssi-sdk.oidf-client'
-import { ResourceResolver } from '@sphereon/ssi-sdk.resource-resolver'
 
-jest.setTimeout(30000)
+import { describe } from 'vitest'
+import { IdentifierResolution, IIdentifierResolution } from '../../identifier-resolution/src' // FIXME fix when new types have been absorbed throughout ssi-sdk
+import oidfResolutionTests from './shared/oidfResolutionTest'
 
 const KMS_SECRET_KEY = 'd17c8674f5db9396f8eecccde25e882bb0336316bc411ae38dc1f3dcd7ed100f'
 let databaseFile = ':memory:'

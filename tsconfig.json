@@ -58,5 +58,11 @@
     {
       "path": "kms-azure-rest-client"
     }
-  ]
+  ],
+  "compilerOptions": {
+    "declaration": true,
+    "composite": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true
+  }
 }

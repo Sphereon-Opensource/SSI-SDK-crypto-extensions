@@ -1,4 +1,4 @@
-import { IKey, MinimalImportableKey } from '@veramo/core'
+import type { IKey, MinimalImportableKey } from '@veramo/core'
 
 export const JWK_JCS_PUB_NAME = 'jwk_jcs-pub' as const
 export const JWK_JCS_PUB_PREFIX = 0xeb51

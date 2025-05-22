@@ -13,16 +13,14 @@ import { AgentRestClient } from '@veramo/remote-client'
 import { AgentRouter, RequestWithAgentRouter } from '@veramo/remote-server'
 import { OrPromise } from '@veramo/utils'
 import { Resolver } from 'did-resolver'
-
 // @ts-ignore
 import express from 'express'
 import { Server } from 'http'
 import { DataSource } from 'typeorm'
+import { describe } from 'vitest'
 
 import { IJwtService, JwtService } from '../src'
 import jwtServiceTests from './shared/jwtServiceTest'
-
-jest.setTimeout(30000)
 
 const databaseFile = ':memory:'
 const port = 13213

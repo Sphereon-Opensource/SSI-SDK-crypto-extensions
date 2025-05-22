@@ -1,7 +1,8 @@
 import { generatePrivateKeyHex } from '@sphereon/ssi-sdk-ext.key-utils'
-import { SphereonKeyManager } from '../agent/SphereonKeyManager'
-import { MemoryKeyStore, MemoryPrivateKeyStore } from '@veramo/key-manager'
 import { SphereonKeyManagementSystem } from '@sphereon/ssi-sdk-ext.kms-local'
+import { MemoryKeyStore, MemoryPrivateKeyStore } from '@veramo/key-manager'
+import { beforeAll, describe, expect, it } from 'vitest'
+import { SphereonKeyManager } from '../agent/SphereonKeyManager'
 
 describe('@sphereon/ssi-sdk-ext.kms-local encrypt/decrypt', () => {
   const EXAMPLE_PAYLOAD = 'EXAMPLE payload! Could be anything'

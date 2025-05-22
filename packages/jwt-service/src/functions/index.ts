@@ -1,28 +1,28 @@
+import { jwkTtoPublicKeyHex } from '@sphereon/ssi-sdk-ext.did-utils'
 import {
   ensureManagedIdentifierResult,
-  ExternalIdentifierDidOpts,
-  ExternalIdentifierX5cOpts,
-  IIdentifierResolution,
+  type ExternalIdentifierDidOpts,
+  type ExternalIdentifierX5cOpts,
+  type IIdentifierResolution,
   isManagedIdentifierDidResult,
   isManagedIdentifierX5cResult,
-  ManagedIdentifierMethod,
-  ManagedIdentifierResult,
+  type ManagedIdentifierMethod,
+  type ManagedIdentifierResult,
   resolveExternalJwkIdentifier,
 } from '@sphereon/ssi-sdk-ext.identifier-resolution'
-import { verifyRawSignature } from '@sphereon/ssi-sdk-ext.key-utils'
-import { JWK } from '@sphereon/ssi-types'
-import { IAgentContext } from '@veramo/core'
+import { keyTypeFromCryptographicSuite, signatureAlgorithmFromKeyType, verifyRawSignature } from '@sphereon/ssi-sdk-ext.key-utils'
+import { contextHasPlugin } from '@sphereon/ssi-sdk.agent-config'
+import type { JoseSignatureAlgorithm, JWK } from '@sphereon/ssi-types'
+import type { IAgentContext } from '@veramo/core'
 import { base64ToBytes, bytesToBase64url, decodeJoseBlob, encodeJoseBlob } from '@veramo/utils'
+// @ts-ignore
 import * as u8a from 'uint8arrays'
-import {
+import type {
   CreateJwsCompactArgs,
   CreateJwsFlattenedArgs,
   CreateJwsJsonArgs,
   IJwsValidationResult,
   IRequiredContext,
-  isJwsCompact,
-  isJwsJsonFlattened,
-  isJwsJsonGeneral,
   JweHeader,
   Jws,
   JwsCompact,
@@ -37,11 +37,14 @@ import {
   PreparedJwsObject,
   VerifyJwsArgs,
 } from '../types/IJwtService'
+import { isJwsCompact, isJwsJsonFlattened, isJwsJsonGeneral } from '../types/IJwtService'
+
+const { fromString } = u8a
 
 const payloadToBytes = (payload: string | JwsPayload | Uint8Array): Uint8Array => {
   const isBytes = payload instanceof Uint8Array
   const isString = typeof payload === 'string'
-  return isBytes ? payload : isString ? u8a.fromString(payload, 'base64url') : u8a.fromString(JSON.stringify(payload), 'utf-8')
+  return isBytes ? payload : isString ? fromString(payload, 'base64url') : fromString(JSON.stringify(payload), 'utf-8')
 }
 
 export const prepareJwsObject = async (args: CreateJwsJsonArgs, context: IRequiredContext): Promise<PreparedJwsObject> => {
@@ -111,11 +114,15 @@ export const createJwsJsonGeneral = async (args: CreateJwsJsonArgs, context: IRe
     },
     context
   )
+
+  const alg: string | undefined = protectedHeader.alg ?? signatureAlgorithmFromKeyType({ type: identifier.key.type })
+
   // const algorithm = await signatureAlgorithmFromKey({ key: identifier.key })
   const signature = await context.agent.keyManagerSign({
     keyRef: identifier.kmsKeyRef,
     data: `${b64.protectedHeader}.${b64.payload}`,
     encoding: undefined,
+    algorithm: alg,
   })
   const jsonSignature = {
     protected: b64.protectedHeader,
@@ -151,6 +158,8 @@ export const checkAndUpdateJwsHeader = async (
   },
   context: IRequiredContext
 ) => {
+  // Make sure we have an alg in the header (https://datatracker.ietf.org/doc/html/rfc7515#section-4.1.1)
+  header.alg = header.alg ?? signatureAlgorithmFromKeyType({ type: identifier.key.type })
   if (isIdentifierMode(mode, identifier.method, 'did')) {
     // kid is VM of the DID
     // @see https://datatracker.ietf.org/doc/html/rfc7515#section-4.1.4
@@ -312,25 +321,31 @@ export const verifyJws = async (args: VerifyJwsArgs, context: IAgentContext<IIde
       // If we have a specific KMS agent plugin that can do the verification prefer that over the generic verification
       index++
       let valid: boolean
-      const data = u8a.fromString(`${sigWithId.protected}.${jws.payload}`, 'utf-8')
+      const data = fromString(`${sigWithId.protected}.${jws.payload}`, 'utf-8')
       const jwkInfo = sigWithId.identifier.jwks[0]
-      /* if (sigWithId.header?.alg === 'RSA' && contextHasPlugin(context, 'keyManagerVerify')) {
+      let signatureAlg: JoseSignatureAlgorithm | undefined = undefined
+      if (sigWithId.protected.startsWith(`ey`)) {
+        const header = decodeJoseBlob(sigWithId.protected)
+        signatureAlg = header.alg as JoseSignatureAlgorithm | undefined
+      }
+
+      if (false && signatureAlg?.startsWith('PS') && contextHasPlugin(context, 'keyManagerVerify')) {
         const publicKeyHex = jwkTtoPublicKeyHex(jwkInfo.jwk)
         valid = await context.agent.keyManagerVerify({
           signature: sigWithId.signature,
           data,
           publicKeyHex,
-          type: keyTypeFromCryptographicSuite({ crv: jwkInfo.jwk.crv ?? 'ES256' }),
+          type: keyTypeFromCryptographicSuite({ ...(jwkInfo.jwk.crv && { crv: jwkInfo.jwk.crv }), alg: signatureAlg as string }),
           // no kms arg, as the current key manager needs a bit more work
         })
-      } else {*/
-      const signature = base64ToBytes(sigWithId.signature)
-      valid = await verifyRawSignature({ data, signature, key: jwkInfo.jwk })
-      // }
+      } else {
+        const signature = base64ToBytes(sigWithId.signature)
+        valid = await verifyRawSignature({ data, signature, key: jwkInfo.jwk, opts: { signatureAlg: signatureAlg } })
+        // }
+      }
       if (!valid) {
         errorMessages.push(`Signature ${index} was not valid`)
       }
-
       return {
         sigWithId,
         valid,

@@ -1,6 +1,7 @@
 import { JoseSignatureAlgorithm, JWK } from '@sphereon/ssi-types'
 import * as u8a from 'uint8arrays'
-import { generatePrivateKeyHex, jwkToRawHexKey, Key, padLeft, toJwk, verifyRawSignature } from '../src'
+import { describe, expect, it } from 'vitest'
+import { generatePrivateKeyHex, jwkToRawHexKey, Key, padLeft, toJwk, toPkcs1FromHex, verifyRawSignature } from '../src'
 
 describe('functions: key generator', () => {
   it('Secp256k1 should generate random keys', async () => {
@@ -126,11 +127,20 @@ describe('functions: verifySignature', () => {
   })
 
   it('should verify signature with rsa PSS', async () => {
-    const publicKeyHex =
-      'a2b451a07d0aa5f96e455671513550514a8a5b462ebef717094fa1fee82224e637f9746d3f7cafd31878d80325b6ef5a1700f65903b469429e89d6eac8845097b5ab393189db92512ed8a7711a1253facd20f79c15e8247f3d3e42e46e48c98e254a2fe9765313a03eff8f17e1a029397a1fa26a8dce26f490ed81299615d9814c22da610428e09c7d9658594266f5c021d0fceca08d945a12be82de4d1ece6b4c03145b5d3495d4ed5411eb878daf05fd7afc3e09ada0f1126422f590975a1969816f48698bcbba1b4d9cae79d460d8f9f85e7975005d9bc22c4e5ac0f7c1a45d12569a62807d3b9a02e5a530e773066f453d1f5b4c2e9cf7820283f742b9d510001'
+    const publicKeyHex = await jwkToRawHexKey({
+      e: 'AQAB',
+      kty: 'RSA',
+      n: u8a.toString(
+        u8a.fromString(
+          '00a2b451a07d0aa5f96e455671513550514a8a5b462ebef717094fa1fee82224e637f9746d3f7cafd31878d80325b6ef5a1700f65903b469429e89d6eac8845097b5ab393189db92512ed8a7711a1253facd20f79c15e8247f3d3e42e46e48c98e254a2fe9765313a03eff8f17e1a029397a1fa26a8dce26f490ed81299615d9814c22da610428e09c7d9658594266f5c021d0fceca08d945a12be82de4d1ece6b4c03145b5d3495d4ed5411eb878daf05fd7afc3e09ada0f1126422f590975a1969816f48698bcbba1b4d9cae79d460d8f9f85e7975005d9bc22c4e5ac0f7c1a45d12569a62807d3b9a02e5a530e773066f453d1f5b4c2e9cf7820283f742b9d5',
+          'hex'
+        ),
+        'base64url'
+      ),
+    })
     const message = '313233343030'
     const signatureHex =
-      '5e91b5dcbf02d6f19621d41a83dc8f15ea83c0edb83765ef029b0acac2e1ec8918b1d2afe1fadf11c48d27594cb9c01fed79d90e5d5a8085c438450111aa7d9fa39c2345b14fc3c2cb34128f86db5eb00bdf8dfe38d61f29a41fe31342e7aaefcb4b122eb5d63c2f5c263c8df8450e9428ffef974d535818d51dc03a7d60c8b2d16c999ae46d73ab40515fe601d9b89b1d09c6d60cd51639a97c1d211e097609ba5e8c319c6fbd21b34a634ec8fb8971c5aae21c70b847a4539cc10dc314ddd8a9629e8a0e51c66c0cb61fd1f7228c01c6769190abe9bac9a3897800050014358594e0fb20dbb458b12aa1346826cc9f7e9c5352b073d62853dafe77c848cb1f'
+      '68caf07e71ee654ffabf07d342fc4059deb4f7e5970746c423b1e8f668d5332275cc35eb61270aebd27855b1e80d59def47fe8882867fd33c2308c91976baa0b1df952caa78db4828ab81e79949bf145cbdfd1c4987ed036f81e8442081016f20fa4b587574884ca6f6045959ce3501ae7c02b1902ec1d241ef28dee356c0d30d28a950f1fbc683ee7d9aad26b048c13426fe3975d5638afeb5b9c1a99d162d3a5810e8b074d7a2eae2be52b577151f76e1f734b0a956ef4f22be64dc20a81ad1316e4f79dff5fc41fc08a20bc612283a88415d41595bfea66d59de7ac12e230f72244ad9905aef0ead3fa41ed70bf4218863d5f041292f2d14ce0a7271c6d36'
     await expect(
       verifyRawSignature({
         data: u8a.fromString(message, 'hex'),
@@ -139,5 +149,16 @@ describe('functions: verifySignature', () => {
         opts: { signatureAlg: JoseSignatureAlgorithm.PS256 },
       })
     ).resolves.toEqual(true)
+  })
+
+  it('should convert to raw PKCS1 hex keys and thus return the same values', async () => {
+    // We are using 2 "different" keys, but actually they are the same key, just one is raw PKCS#1 the other is X.509/SPKI
+    const rawPkcs1PublicKeyHex =
+      '3082010a0282010100a424990e625e55326c12a8e266cde48101225e74111662f1f7ec2d8a67f19f6dfb8826b46394d2cd3dccc0debfb5853287185158047823c9d6d0338dbd6d1ee38854ee78af5466e326a0ab44d81cb7b8740c2842a4c9bd1ac95ce369b9191c8b95559265955c8eba06a7f7c5f231c08b15c42cd7ffc360522847914892d2c4728b38b430ea8a35cdb234ba4569c3a8dd25114417b2ddcc4673478685097ab8331d2b5236c015930785a9866aec515a1147511de0486ffbb5026b2f08cee5a656f21ab3b8d3f9c68bdceaff9fda01ea0ee2f35bc9f5550c81926ad2b224c7ce6d0166037197f285251d59a20e57273daebaa4641679bbc894e0f7ea211c38f6810203010001'
+    const x509SPKIPublicKeyHex =
+      '30820122300d06092a864886f70d01010105000382010f003082010a0282010100a424990e625e55326c12a8e266cde48101225e74111662f1f7ec2d8a67f19f6dfb8826b46394d2cd3dccc0debfb5853287185158047823c9d6d0338dbd6d1ee38854ee78af5466e326a0ab44d81cb7b8740c2842a4c9bd1ac95ce369b9191c8b95559265955c8eba06a7f7c5f231c08b15c42cd7ffc360522847914892d2c4728b38b430ea8a35cdb234ba4569c3a8dd25114417b2ddcc4673478685097ab8331d2b5236c015930785a9866aec515a1147511de0486ffbb5026b2f08cee5a656f21ab3b8d3f9c68bdceaff9fda01ea0ee2f35bc9f5550c81926ad2b224c7ce6d0166037197f285251d59a20e57273daebaa4641679bbc894e0f7ea211c38f6810203010001'
+    const toRaw = toPkcs1FromHex(x509SPKIPublicKeyHex)
+    console.log(toRaw)
+    expect(toPkcs1FromHex(rawPkcs1PublicKeyHex)).equals(toPkcs1FromHex(x509SPKIPublicKeyHex))
   })
 })

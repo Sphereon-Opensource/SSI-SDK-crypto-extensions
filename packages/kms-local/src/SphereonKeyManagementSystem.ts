@@ -1,12 +1,14 @@
-import { calculateJwkThumbprint, generatePrivateKeyHex, toJwk, X509Opts } from '@sphereon/ssi-sdk-ext.key-utils'
+import { calculateJwkThumbprint, generatePrivateKeyHex, toJwk, type X509Opts } from '@sphereon/ssi-sdk-ext.key-utils'
 
-import { IKey, ManagedKeyInfo, MinimalImportableKey, TKeyType } from '@veramo/core'
-import { AbstractPrivateKeyStore, ManagedPrivateKey } from '@veramo/key-manager'
+import type { IKey, ManagedKeyInfo, MinimalImportableKey, TKeyType } from '@veramo/core'
+import { AbstractPrivateKeyStore, type ManagedPrivateKey } from '@veramo/key-manager'
 import { KeyManagementSystem } from '@veramo/kms-local'
 import Debug from 'debug'
 import elliptic from 'elliptic'
+// @ts-ignore
 import * as u8a from 'uint8arrays'
-import { KeyType, ManagedKeyInfoArgs } from './index'
+const { fromString } = u8a
+import { KeyType, type ManagedKeyInfoArgs } from './index'
 import {
   hexToPEM,
   jwkToPEM,
@@ -128,14 +130,17 @@ export class SphereonKeyManagementSystem extends KeyManagementSystem {
       return signature*/
     } else if (
       // @ts-ignore
-      privateKey.type === 'RSA' &&
-      (typeof algorithm === 'undefined' || algorithm === 'RS256' || algorithm === 'RS512' || algorithm === 'PS256' || algorithm === 'PS512')
+      privateKey.type === 'RSA'
     ) {
-      return await this.signRSA(privateKey, data, algorithm ?? 'PS256')
+      if (typeof algorithm === 'undefined' || algorithm === 'RS256' || algorithm === 'RS512' || algorithm === 'PS256' || algorithm === 'PS512') {
+        return await this.signRSA(privateKey, data, algorithm ?? 'PS256')
+      }
+      return Promise.reject(
+        new Error(`not_supported: Cannot sign using key of type RSA and alg: ${algorithm}. Only RS and PS algorithms are supported.`)
+      )
     } else {
       return await super.sign({ keyRef, algorithm, data })
     }
-    throw Error(`not_supported: Cannot sign using key of type ${privateKey.type}`)
   }
 
   async verify({
@@ -171,7 +176,7 @@ export class SphereonKeyManagementSystem extends KeyManagementSystem {
         }
         break
       case 'Secp256k1': {
-        const privateBytes = u8a.fromString(args.privateKeyHex.toLowerCase(), 'base16')
+        const privateBytes = fromString(args.privateKeyHex.toLowerCase(), 'base16')
         const secp256k1 = new elliptic.ec('secp256k1')
         const keyPair = secp256k1.keyFromPrivate(privateBytes, 'hex')
         const publicKeyHex = keyPair.getPublic(true, 'hex')
@@ -187,7 +192,7 @@ export class SphereonKeyManagementSystem extends KeyManagementSystem {
         break
       }
       case 'Secp256r1': {
-        const privateBytes = u8a.fromString(args.privateKeyHex.toLowerCase(), 'base16')
+        const privateBytes = fromString(args.privateKeyHex.toLowerCase(), 'base16')
         const secp256r1 = new elliptic.ec('p256')
         const keyPair = secp256r1.keyFromPrivate(privateBytes, 'hex')
         const publicKeyHex = keyPair.getPublic(true, 'hex')
@@ -245,8 +250,8 @@ export class SphereonKeyManagementSystem extends KeyManagementSystem {
           publicKeyHex,
           meta: {
             ...meta,
-            // todo: could als be DSA etc
-            algorithms: ['RS256', 'RS512', 'PS256', 'PS512'],
+            // todo: could als be EcDSA etc
+            algorithms: ['PS256', 'PS512', 'RS256', 'RS512'],
             publicKeyJwk,
             publicKeyPEM,
           },

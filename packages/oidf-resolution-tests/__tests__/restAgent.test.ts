@@ -1,6 +1,8 @@
-import { IdentifierResolution, IIdentifierResolution } from '../../identifier-resolution/src' // FIXME fix when new types have been absorbed throughout ssi-sdk
+import { IJwtService, JwtService } from '@sphereon/ssi-sdk-ext.jwt-service'
 import { SphereonKeyManager } from '@sphereon/ssi-sdk-ext.key-manager'
 import { SphereonKeyManagementSystem } from '@sphereon/ssi-sdk-ext.kms-local'
+import { OIDFClient } from '@sphereon/ssi-sdk.oidf-client'
+import { ResourceResolver } from '@sphereon/ssi-sdk.resource-resolver'
 
 import { createAgent, IAgent, IAgentOptions, IKeyManager, TAgent } from '@veramo/core'
 import { Entities, KeyStore, migrations, PrivateKeyStore } from '@veramo/data-store'
@@ -13,16 +15,13 @@ import { OrPromise } from '@veramo/utils'
 import express from 'express'
 import { Server } from 'http'
 import { DataSource } from 'typeorm'
+import { describe } from 'vitest'
+import { IdentifierResolution, IIdentifierResolution } from '../../identifier-resolution/src' // FIXME fix when new types have been absorbed throughout ssi-sdk
 
 import oidfResolutionTests from './shared/oidfResolutionTest'
-import { ResourceResolver } from '@sphereon/ssi-sdk.resource-resolver'
-import { OIDFClient } from '@sphereon/ssi-sdk.oidf-client'
-import { IJwtService, JwtService } from '@sphereon/ssi-sdk-ext.jwt-service'
-
-jest.setTimeout(30000)
 
 const databaseFile = ':memory:'
-const port = 13213
+const port = 12313
 const basePath = '/agent'
 
 let serverAgent: IAgent

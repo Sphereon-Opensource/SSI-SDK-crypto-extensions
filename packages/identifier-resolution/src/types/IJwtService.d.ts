@@ -1,5 +1,5 @@
 // Copy of jwt-service typings since we cannot include that as devDependency due to cyclic dep
-
+/*
 import {
   ExternalIdentifierDidOpts,
   ExternalIdentifierResult,
@@ -7,10 +7,10 @@ import {
   IIdentifierResolution,
   ManagedIdentifierOptsOrResult,
   ManagedIdentifierResult,
-} from '@sphereon/ssi-sdk-ext.identifier-resolution'
-import { ClientIdScheme } from '@sphereon/ssi-sdk-ext.x509-utils'
-import { BaseJWK, IValidationResult, JoseSignatureAlgorithm, JoseSignatureAlgorithmString, JWK } from '@sphereon/ssi-types'
-import { IAgentContext, IKeyManager, IPluginMethodMap } from '@veramo/core'
+} from '../types'*/
+import type { ClientIdScheme } from '@sphereon/ssi-sdk-ext.x509-utils'
+import type { BaseJWK, IValidationResult, JoseSignatureAlgorithm, JoseSignatureAlgorithmString, JWK } from '@sphereon/ssi-types'
+import type { IAgentContext, IKeyManager, IPluginMethodMap } from '@veramo/core'
 export type IRequiredContext = IAgentContext<IIdentifierResolution & IKeyManager>
 export declare const jwtServiceContextMethods: Array<string>
 export interface IJwtService extends IPluginMethodMap {
@@ -25,6 +25,7 @@ export interface IJwtService extends IPluginMethodMap {
 export type IJwsValidationResult = IValidationResult & {
   jws: JwsJsonGeneralWithIdentifiers
 }
+
 export interface PreparedJws {
   protectedHeader: JwsHeader
   payload: Uint8Array

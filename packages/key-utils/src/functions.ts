@@ -6,30 +6,42 @@ import { p256 } from '@noble/curves/p256'
 import { p384 } from '@noble/curves/p384'
 import { p521 } from '@noble/curves/p521'
 import { secp256k1 } from '@noble/curves/secp256k1'
-import { sha256 } from '@noble/hashes/sha256'
-import { sha384, sha512 } from '@noble/hashes/sha512'
-import { generateRSAKeyAsPEM, hexToBase64, hexToPEM, PEMToJwk, privateKeyHexFromPEM } from '@sphereon/ssi-sdk-ext.x509-utils'
-import { JoseCurve, JoseSignatureAlgorithm, JWK, JwkKeyType, Loggers } from '@sphereon/ssi-types'
+import { sha256, sha384, sha512 } from '@noble/hashes/sha2'
+import {
+  cryptoSubtleImportRSAKey,
+  generateRSAKeyAsPEM,
+  hexToBase64,
+  hexToPEM,
+  PEMToJwk,
+  privateKeyHexFromPEM,
+} from '@sphereon/ssi-sdk-ext.x509-utils'
+import { JoseCurve, JoseSignatureAlgorithm, type JWK, JwkKeyType, Loggers } from '@sphereon/ssi-types'
 import { generateKeyPair as generateSigningKeyPair } from '@stablelib/ed25519'
-import { IAgentContext, IKey, IKeyManager, ManagedKeyInfo, MinimalImportableKey } from '@veramo/core'
+import type { IAgentContext, IKey, IKeyManager, ManagedKeyInfo, MinimalImportableKey } from '@veramo/core'
 import debug from 'debug'
 
-import { JsonWebKey } from 'did-resolver'
+import type { JsonWebKey } from 'did-resolver'
 import elliptic from 'elliptic'
 import * as rsa from 'micro-rsa-dsa-dh/rsa.js'
+
+// @ts-ignore
+import { Crypto } from 'node'
+// @ts-ignore
 import * as u8a from 'uint8arrays'
 import { digestMethodParams } from './digest-methods'
 import { validateJwk } from './jwk-jcs'
 import {
   ENC_KEY_ALGS,
-  IImportProvidedOrGeneratedKeyArgs,
+  type IImportProvidedOrGeneratedKeyArgs,
   JwkKeyUse,
-  KeyTypeFromCryptographicSuiteArgs,
+  type KeyTypeFromCryptographicSuiteArgs,
   SIG_KEY_ALGS,
-  SignatureAlgorithmFromKeyArgs,
-  SignatureAlgorithmFromKeyTypeArgs,
-  TKeyType,
+  type SignatureAlgorithmFromKeyArgs,
+  type SignatureAlgorithmFromKeyTypeArgs,
+  type TKeyType,
 } from './types'
+
+const { fromString, toString } = u8a
 
 export const logger = Loggers.DEFAULT.get('sphereon:key-utils')
 
@@ -58,13 +70,13 @@ export const generatePrivateKeyHex = async (type: TKeyType): Promise<string> => 
   switch (type) {
     case 'Ed25519': {
       const keyPairEd25519 = generateSigningKeyPair()
-      return u8a.toString(keyPairEd25519.secretKey, 'base16')
+      return toString(keyPairEd25519.secretKey, 'base16')
     }
     // The Secp256 types use the same method to generate the key
     case 'Secp256r1':
     case 'Secp256k1': {
       const privateBytes = randomBytes(32)
-      return u8a.toString(privateBytes, 'base16')
+      return toString(privateBytes, 'base16')
     }
     case 'RSA': {
       const pem = await generateRSAKeyAsPEM('RSA-PSS', 'SHA-256', 2048)
@@ -173,7 +185,7 @@ const assertJwkClaimPresent = (value: unknown, description: string) => {
     throw new Error(`${description} missing or invalid`)
   }
 }
-export const toBase64url = (input: string): string => u8a.toString(u8a.fromString(input), 'base64url')
+export const toBase64url = (input: string): string => toString(fromString(input), 'base64url')
 
 /**
  * Calculate the JWK thumbprint
@@ -294,17 +306,69 @@ export const jwkToRawHexKey = async (jwk: JWK): Promise<string> => {
  * @param jwk - The RSA JWK object.
  * @returns A string representing the RSA key in raw hexadecimal format.
  */
-function rsaJwkToRawHexKey(jwk: JsonWebKey): string {
+export function rsaJwkToRawHexKey(jwk: JsonWebKey): string {
+  /**
+   * Encode an integer value (given as a Uint8Array) into DER INTEGER:
+   * 0x02 || length || value (with a leading 0x00 if the high bit is set).
+   */
+  function encodeInteger(bytes: Uint8Array): Uint8Array {
+    // if high bit set, prefix a 0x00
+    if (bytes[0] & 0x80) {
+      bytes = Uint8Array.from([0x00, ...bytes])
+    }
+    const len = encodeLength(bytes.length)
+    return Uint8Array.from([0x02, ...len, ...bytes])
+  }
+
+  /**
+   * Encode length per DER rules:
+   * - If <128, one byte
+   * - Else 0x80|numBytes followed by big-endian length
+   */
+  function encodeLength(len: any) {
+    if (len < 0x80) {
+      return Uint8Array.of(len)
+    }
+    let hex = len.toString(16)
+    if (hex.length % 2 === 1) {
+      hex = '0' + hex
+    }
+    const lenBytes = Uint8Array.from(hex.match(/.{2}/g)!.map((h: any) => parseInt(h, 16)))
+    return Uint8Array.of(0x80 | lenBytes.length, ...lenBytes)
+  }
+
+  /**
+   * Wrap one or more DER elements in a SEQUENCE:
+   * 0x30 || totalLength || concatenatedElements
+   */
+  function encodeSequence(elements: any) {
+    const content = elements.reduce((acc: any, elm: any) => Uint8Array.from([...acc, ...elm]), new Uint8Array())
+    const len = encodeLength(content.length)
+    return Uint8Array.from([0x30, ...len, ...content])
+  }
+
+  /**
+   * Convert a Base64-URL string into a Uint8Array (handles padding & “-_/”).
+   */
+  function base64UrlToBytes(b64url: string): Uint8Array {
+    return fromString(b64url, 'base64url')
+  }
+
   jwk = sanitizedJwk(jwk)
   if (!jwk.n || !jwk.e) {
     throw new Error("RSA JWK must contain 'n' and 'e' properties.")
   }
-
-  // We are converting from base64 to base64url to be sure. The spec uses base64url, but in the wild we sometimes encounter a base64 string
-  const modulus = u8a.fromString(jwk.n.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''), 'base64url') // 'n' is the modulus
-  const exponent = u8a.fromString(jwk.e.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''), 'base64url') // 'e' is the exponent
-
-  return u8a.toString(modulus, 'hex') + u8a.toString(exponent, 'hex')
+  const modulusBytes = base64UrlToBytes(jwk.n)
+  const exponentBytes = base64UrlToBytes(jwk.e)
+  const sequence = encodeSequence([encodeInteger(modulusBytes), encodeInteger(exponentBytes)])
+  const result = toString(sequence, 'hex')
+  return result
+  /*
+    // We are converting from base64 to base64url to be sure. The spec uses base64url, but in the wild we sometimes encounter a base64 string
+    const modulus = fromString(jwk.n.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''), 'base64url') // 'n' is the modulus
+    const exponent = fromString(jwk.e.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''), 'base64url') // 'e' is the exponent
+  
+    return toString(modulus, 'hex') + toString(exponent, 'hex')*/
 }
 
 /**
@@ -319,10 +383,10 @@ function ecJwkToRawHexKey(jwk: JsonWebKey): string {
   }
 
   // We are converting from base64 to base64url to be sure. The spec uses base64url, but in the wild we sometimes encounter a base64 string
-  const x = u8a.fromString(jwk.x.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''), 'base64url')
-  const y = u8a.fromString(jwk.y.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''), 'base64url')
+  const x = fromString(jwk.x.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''), 'base64url')
+  const y = fromString(jwk.y.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''), 'base64url')
 
-  return '04' + u8a.toString(x, 'hex') + u8a.toString(y, 'hex')
+  return '04' + toString(x, 'hex') + toString(y, 'hex')
 }
 
 /**
@@ -337,9 +401,9 @@ function okpJwkToRawHexKey(jwk: JsonWebKey): string {
   }
 
   // We are converting from base64 to base64url to be sure. The spec uses base64url, but in the wild we sometimes encounter a base64 string
-  const x = u8a.fromString(jwk.x.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''), 'base64url')
+  const x = fromString(jwk.x.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''), 'base64url')
 
-  return u8a.toString(x, 'hex')
+  return toString(x, 'hex')
 }
 
 /**
@@ -354,9 +418,9 @@ function octJwkToRawHexKey(jwk: JsonWebKey): string {
   }
 
   // We are converting from base64 to base64url to be sure. The spec uses base64url, but in the wild we sometimes encounter a base64 string
-  const key = u8a.fromString(jwk.k.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''), 'base64url')
+  const key = fromString(jwk.k.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''), 'base64url')
 
-  return u8a.toString(key, 'hex')
+  return toString(key, 'hex')
 }
 
 /**
@@ -411,7 +475,7 @@ const toSecp256k1Jwk = (keyHex: string, opts?: { use?: JwkKeyUse; isPrivateKey?:
   }
 
   const secp256k1 = new elliptic.ec('secp256k1')
-  const keyBytes = u8a.fromString(keyHex, 'base16')
+  const keyBytes = fromString(keyHex, 'base16')
   const keyPair = opts?.isPrivateKey ? secp256k1.keyFromPrivate(keyBytes) : secp256k1.keyFromPublic(keyBytes)
   const pubPoint = keyPair.getPublic()
 
@@ -442,7 +506,7 @@ const toSecp256r1Jwk = (keyHex: string, opts?: { use?: JwkKeyUse; isPrivateKey?:
   }
 
   const secp256r1 = new elliptic.ec('p256')
-  const keyBytes = u8a.fromString(keyHex, 'base16')
+  const keyBytes = fromString(keyHex, 'base16')
   logger.debug(`keyBytes length: ${keyBytes}`)
   const keyPair = opts?.isPrivateKey ? secp256r1.keyFromPrivate(keyBytes) : secp256r1.keyFromPublic(keyBytes)
   const pubPoint = keyPair.getPublic()
@@ -482,29 +546,104 @@ const toEd25519OrX25519Jwk = (
 }
 
 const toRSAJwk = (publicKeyHex: string, opts?: { use?: JwkKeyUse; key?: IKey | MinimalImportableKey }): JWK => {
+  function parseDerIntegers(pubKeyHex: string): { modulus: string; exponent: string } {
+    const bytes = Buffer.from(pubKeyHex, 'hex')
+    let offset = 0
+
+    // 1) Outer SEQUENCE
+    if (bytes[offset++] !== 0x30) throw new Error('Not a SEQUENCE')
+    let len = bytes[offset++]
+    if (len & 0x80) {
+      const nBytes = len & 0x7f
+      len = 0
+      for (let i = 0; i < nBytes; i++) {
+        len = (len << 8) + bytes[offset++]
+      }
+    }
+
+    // 2) Look at next tag: INTEGER(0x02) means raw PKCS#1,
+    //    otherwise assume X.509/SPKI wrapper.
+    if (bytes[offset] !== 0x02) {
+      // --- skip AlgorithmIdentifier SEQUENCE ---
+      if (bytes[offset++] !== 0x30) throw new Error('Expected alg-ID SEQUENCE')
+      let algLen = bytes[offset++]
+      if (algLen & 0x80) {
+        const nB = algLen & 0x7f
+        algLen = 0
+        for (let i = 0; i < nB; i++) algLen = (algLen << 8) + bytes[offset++]
+      }
+      offset += algLen
+
+      // --- skip BIT STRING wrapper ---
+      if (bytes[offset++] !== 0x03) throw new Error('Expected BIT STRING')
+      let bitLen = bytes[offset++]
+      if (bitLen & 0x80) {
+        const nB = bitLen & 0x7f
+        bitLen = 0
+        for (let i = 0; i < nB; i++) bitLen = (bitLen << 8) + bytes[offset++]
+      }
+      // skip the “unused bits” byte
+      offset += 1
+
+      // now the next byte should be 0x30 for the inner SEQUENCE
+      if (bytes[offset++] !== 0x30) throw new Error('Expected inner SEQUENCE')
+      let innerLen = bytes[offset++]
+      if (innerLen & 0x80) {
+        const nB = innerLen & 0x7f
+        innerLen = 0
+        for (let i = 0; i < nB; i++) innerLen = (innerLen << 8) + bytes[offset++]
+      }
+    }
+
+    // 3) Parse modulus INTEGER
+    if (bytes[offset++] !== 0x02) throw new Error('Expected INTEGER for modulus')
+    let modLen = bytes[offset++]
+    if (modLen & 0x80) {
+      const nB = modLen & 0x7f
+      modLen = 0
+      for (let i = 0; i < nB; i++) modLen = (modLen << 8) + bytes[offset++]
+    }
+    let modulusBytes = bytes.slice(offset, offset + modLen)
+    offset += modLen
+
+    // strip leading zero if present (unsigned integer in JWK)
+    if (modulusBytes[0] === 0x00) {
+      modulusBytes = modulusBytes.slice(1)
+    }
+
+    // 4) Parse exponent INTEGER
+    if (bytes[offset++] !== 0x02) throw new Error('Expected INTEGER for exponent')
+    let expLen = bytes[offset++]
+    if (expLen & 0x80) {
+      const nB = expLen & 0x7f
+      expLen = 0
+      for (let i = 0; i < nB; i++) expLen = (expLen << 8) + bytes[offset++]
+    }
+    const exponentBytes = bytes.slice(offset, offset + expLen)
+
+    return {
+      modulus: modulusBytes.toString('hex'),
+      exponent: exponentBytes.toString('hex'),
+    }
+  }
+
   const meta = opts?.key?.meta
   if (meta?.publicKeyJwk || meta?.publicKeyPEM) {
     if (meta?.publicKeyJwk) {
       return meta.publicKeyJwk as JWK
     }
     const publicKeyPEM = meta?.publicKeyPEM ?? hexToPEM(publicKeyHex, 'public')
-    return PEMToJwk(publicKeyPEM, 'public') as JWK
+    const jwk = PEMToJwk(publicKeyPEM, 'public') as JWK
+    return jwk
   }
 
-  // exponent (e) is 5 chars long, rest is modulus (n)
-  // const publicKey = publicKeyHex
-  // assertProperKeyLength(publicKey, [2048, 3072, 4096])
-  const exponent = publicKeyHex.slice(-5)
-  const modulus = publicKeyHex.slice(0, -5)
-  // const modulusBitLength  = (modulus.length / 2) * 8
-
-  // const alg = modulusBitLength === 2048 ? JoseSignatureAlgorithm.RS256 : modulusBitLength === 3072 ? JoseSignatureAlgorithm.RS384 : modulusBitLength === 4096 ? JoseSignatureAlgorithm.RS512 : undefined
-  return sanitizedJwk({
+  const { modulus, exponent } = parseDerIntegers(publicKeyHex)
+  const sanitized = sanitizedJwk({
     kty: 'RSA',
     n: hexToBase64(modulus, 'base64url'),
     e: hexToBase64(exponent, 'base64url'),
-    // ...(alg && { alg }),
   })
+  return sanitized
 }
 
 export const padLeft = (args: { data: string; size?: number; padString?: string }): string => {
@@ -621,16 +760,16 @@ export const toRawCompressedHexPublicKey = (rawPublicKey: Uint8Array, keyType: T
       logger.debug(`converted public key ${hexStringFromUint8Array(rawPublicKey)} to ${resultKey}`)
       return resultKey
     }
-    return u8a.toString(rawPublicKey, 'base16')
+    return toString(rawPublicKey, 'base16')
   } else if (keyType === 'Ed25519') {
     // Ed25519 keys are always in compressed form
-    return u8a.toString(rawPublicKey, 'base16')
+    return toString(rawPublicKey, 'base16')
   }
 
   throw new Error(`Unsupported key type: ${keyType}`)
 }
 
-export const hexStringFromUint8Array = (value: Uint8Array): string => u8a.toString(value, 'base16')
+export const hexStringFromUint8Array = (value: Uint8Array): string => toString(value, 'base16')
 
 export const signatureAlgorithmFromKey = async (args: SignatureAlgorithmFromKeyArgs): Promise<JoseSignatureAlgorithm> => {
   const { key } = args
@@ -651,6 +790,8 @@ export const signatureAlgorithmFromKeyType = (args: SignatureAlgorithmFromKeyTyp
       return JoseSignatureAlgorithm.ES512
     case 'Secp256k1':
       return JoseSignatureAlgorithm.ES256K
+    case 'RSA':
+      return JoseSignatureAlgorithm.PS256
     default:
       throw new Error(`Key type '${type}' not supported`)
   }
@@ -692,6 +833,8 @@ export const keyTypeFromCryptographicSuite = (args: KeyTypeFromCryptographicSuit
     case 'EcdsaSecp256k1Signature2019':
     case 'secp256k1':
     case 'ES256K':
+    case 'EcdsaSecp256k1VerificationKey2019':
+    case 'EcdsaSecp256k1RecoveryMethod2020':
       return 'Secp256k1'
   }
   if (kty) {
@@ -717,10 +860,14 @@ export const globalCrypto = (setGlobal: boolean, suppliedCrypto?: Crypto): Crypt
     webcrypto = crypto
   } else if (typeof global.crypto !== 'undefined') {
     webcrypto = global.crypto
-  } else if (typeof global.window?.crypto?.subtle !== 'undefined') {
-    webcrypto = global.window.crypto
   } else {
-    webcrypto = require('crypto') as Crypto
+    // @ts-ignore
+    if (typeof global.window?.crypto?.subtle !== 'undefined') {
+      // @ts-ignore
+      webcrypto = global.window.crypto
+    } else {
+      webcrypto = import('crypto') as Crypto
+    }
   }
   if (setGlobal) {
     global.crypto = webcrypto
@@ -730,7 +877,7 @@ export const globalCrypto = (setGlobal: boolean, suppliedCrypto?: Crypto): Crypt
 }
 
 export const sanitizedJwk = (input: JWK | JsonWebKey): JWK => {
-  const inputJwk = typeof input['toJsonDTO'] === 'function' ? input['toJsonDTO']() : {...input} as JWK // KMP code can expose this. It converts a KMP JWK with mangled names into a clean JWK
+  const inputJwk = typeof input['toJsonDTO'] === 'function' ? input['toJsonDTO']() : ({ ...input } as JWK) // KMP code can expose this. It converts a KMP JWK with mangled names into a clean JWK
 
   const jwk = {
     ...inputJwk,
@@ -772,10 +919,10 @@ export async function verifyRawSignature({
    */
   function jwkPropertyToBigInt(jwkProp: string): bigint {
     // Decode Base64URL to Uint8Array
-    const byteArray = u8a.fromString(jwkProp, 'base64url')
+    const byteArray = fromString(jwkProp, 'base64url')
 
     // Convert Uint8Array to hexadecimal string and then to BigInt
-    const hex = u8a.toString(byteArray, 'hex')
+    const hex = toString(byteArray, 'hex')
     return BigInt(`0x${hex}`)
   }
 
@@ -797,12 +944,12 @@ export async function verifyRawSignature({
       case 'Secp521r1':
         return p521.verify(signature, data, publicKeyHex, { format: 'compact', prehash: true })
       case 'Ed25519':
-        return ed25519.verify(signature, data, u8a.fromString(publicKeyHex, 'hex'))
+        return ed25519.verify(signature, data, fromString(publicKeyHex, 'hex'))
       case 'Bls12381G1':
       case 'Bls12381G2':
-        return bls12_381.verify(signature, data, u8a.fromString(publicKeyHex, 'hex'))
+        return bls12_381.verify(signature, data, fromString(publicKeyHex, 'hex'))
       case 'RSA': {
-        const signatureAlgorithm = opts?.signatureAlg ?? jwk.alg as JoseSignatureAlgorithm | undefined ?? JoseSignatureAlgorithm.PS256
+        const signatureAlgorithm = opts?.signatureAlg ?? (jwk.alg as JoseSignatureAlgorithm | undefined) ?? JoseSignatureAlgorithm.PS256
         const hashAlg =
           signatureAlgorithm === (JoseSignatureAlgorithm.RS512 || JoseSignatureAlgorithm.PS512)
             ? sha512
@@ -840,6 +987,15 @@ export async function verifyRawSignature({
           case JoseSignatureAlgorithm.PS256:
           case JoseSignatureAlgorithm.PS384:
           case JoseSignatureAlgorithm.PS512:
+            if (typeof crypto !== 'undefined' && typeof crypto.subtle !== 'undefined') {
+              const key = await cryptoSubtleImportRSAKey(jwk, 'RSA-PSS')
+              const saltLength =
+                signatureAlgorithm === JoseSignatureAlgorithm.PS256 ? 32 : signatureAlgorithm === JoseSignatureAlgorithm.PS384 ? 48 : 64
+              return crypto.subtle.verify({ name: 'rsa-pss', hash: hashAlg, saltLength }, key, signature, data)
+            }
+
+            // FIXME
+            console.warn(`Using fallback for RSA-PSS verify signature, which is known to be flaky!!`)
             return rsa.PSS(hashAlg, rsa.mgf1(hashAlg)).verify(
               {
                 n: jwkPropertyToBigInt(jwk.n!),
@@ -857,4 +1013,94 @@ export async function verifyRawSignature({
     logger.error(`Error: ${error}`)
     throw error
   }
+}
+
+/**
+ * Minimal DER parser to unwrap X.509/SPKI‐wrapped RSA keys
+ * into raw PKCS#1 RSAPublicKey format, using only Uint8Array.
+ */
+
+/**
+ * Read a DER length at the given offset.
+ * @param bytes – full DER buffer
+ * @param offset – index of the length byte
+ * @returns the parsed length, and how many bytes were used to encode it
+ */
+function readLength(bytes: Uint8Array, offset: number): { length: number; lengthBytes: number } {
+  const first = bytes[offset]
+  if (first < 0x80) {
+    return { length: first, lengthBytes: 1 }
+  }
+  const numBytes = first & 0x7f
+  let length = 0
+  for (let i = 0; i < numBytes; i++) {
+    length = (length << 8) | bytes[offset + 1 + i]
+  }
+  return { length, lengthBytes: 1 + numBytes }
+}
+
+/**
+ * Ensure the given DER‐encoded RSA public key (Uint8Array)
+ * is raw PKCS#1. If it's X.509/SPKI‐wrapped, we strip the wrapper.
+ *
+ * @param derBytes – DER‐encoded public key, either PKCS#1 or X.509/SPKI
+ * @returns DER‐encoded PKCS#1 RSAPublicKey
+ */
+export function toPkcs1(derBytes: Uint8Array): Uint8Array {
+  if (derBytes[0] !== 0x30) {
+    throw new Error('Invalid DER: expected SEQUENCE')
+  }
+
+  // Parse outer SEQUENCE length
+  const { lengthBytes: outerLenBytes } = readLength(derBytes, 1)
+  const outerHeaderLen = 1 + outerLenBytes
+  const innerTag = derBytes[outerHeaderLen]
+
+  // If next tag is INTEGER (0x02), it's already raw PKCS#1
+  if (innerTag === 0x02) {
+    return derBytes
+  }
+
+  // Otherwise expect X.509/SPKI: SEQUENCE { algId, BIT STRING }
+  if (innerTag !== 0x30) {
+    throw new Error('Unexpected DER tag, not PKCS#1 or SPKI')
+  }
+
+  // Skip the algId SEQUENCE
+  const { length: algLen, lengthBytes: algLenBytes } = readLength(derBytes, outerHeaderLen + 1)
+  const algHeaderLen = 1 + algLenBytes
+  const algIdEnd = outerHeaderLen + algHeaderLen + algLen
+
+  // Next tag should be BIT STRING (0x03)
+  if (derBytes[algIdEnd] !== 0x03) {
+    throw new Error('Expected BIT STRING after algId')
+  }
+
+  const { length: bitStrLen, lengthBytes: bitStrLenBytes } = readLength(derBytes, algIdEnd + 1)
+  const bitStrHeaderLen = 1 + bitStrLenBytes
+  const bitStrStart = algIdEnd + bitStrHeaderLen
+
+  // First byte of the BIT STRING is the "unused bits" count; usually 0x00
+  const unusedBits = derBytes[bitStrStart]
+  if (unusedBits !== 0x00) {
+    throw new Error(`Unexpected unused bits: ${unusedBits}`)
+  }
+
+  // The rest is the PKCS#1 DER
+  const pkcs1Start = bitStrStart + 1
+  const pkcs1Len = bitStrLen - 1
+
+  return derBytes.slice(pkcs1Start, pkcs1Start + pkcs1Len)
+}
+
+/**
+ * Ensure the given DER‐encoded RSA public key in Hex
+ * is raw PKCS#1. If it's X.509/SPKI‐wrapped, we strip the wrapper.
+ *
+ * @param derBytes – DER‐encoded public key, either PKCS#1 or X.509/SPKI
+ * @returns DER‐encoded PKCS#1 RSAPublicKey in hex
+ */
+export function toPkcs1FromHex(publicKeyHex: string) {
+  const pkcs1 = toPkcs1(fromString(publicKeyHex, 'hex'))
+  return toString(pkcs1, 'hex')
 }

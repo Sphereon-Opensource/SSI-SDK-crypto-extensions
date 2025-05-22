@@ -1,6 +1,7 @@
 import { Resolver } from 'did-resolver'
-import { DID_JSON, DID_LD_JSON, getResolver } from '../index'
 import * as fs from 'fs'
+import { describe, expect, it } from 'vitest'
+import { DID_JSON, DID_LD_JSON, getResolver } from '../index'
 
 const ed25519Fixtures = JSON.parse(fs.readFileSync(`${__dirname}/fixtures/ed25519-x25519.json`, { encoding: 'utf-8' }))
 

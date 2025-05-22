@@ -1,8 +1,14 @@
+// @ts-ignore
+import { KeyUsage, CryptoKey, RsaHashedImportParams, RsaHashedKeyGenParams } from 'node'
+
+// @ts-ignore
 import * as u8a from 'uint8arrays'
-import { HashAlgorithm } from '../types'
+const { toString } = u8a
+import type { HashAlgorithm } from '../types'
 import { globalCrypto } from './crypto'
 
 import { derToPEM } from './x509-utils'
+import type { JsonWebKey } from '@sphereon/ssi-types'
 
 export type RSASignatureSchemes = 'RSASSA-PKCS1-V1_5' | 'RSA-PSS'
 
@@ -78,5 +84,5 @@ export const generateRSAKeyAsPEM = async (
   const pkcs8 = await globalCrypto(false).subtle.exportKey('pkcs8', keypair.privateKey)
 
   const uint8Array = new Uint8Array(pkcs8)
-  return derToPEM(u8a.toString(uint8Array, 'base64pad'), 'RSA PRIVATE KEY')
+  return derToPEM(toString(uint8Array, 'base64pad'), 'RSA PRIVATE KEY')
 }

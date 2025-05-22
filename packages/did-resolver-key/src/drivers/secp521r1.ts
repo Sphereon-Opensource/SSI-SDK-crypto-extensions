@@ -1,6 +1,8 @@
 // Brent Shambaugh <brent.shambaugh@gmail.com>. 2021.
 
+// @ts-ignore
 import * as u8a from 'uint8arrays'
+const { fromString } = u8a
 
 import * as nist_weierstrauss from 'nist-weierstrauss'
 import { base64urlPoint } from 'nist-weierstrauss'
@@ -56,7 +58,7 @@ export function pubKeyBytesToXY(pubKeyBytes: Uint8Array): base64urlPoint {
   // publicKeyHex.length / 2.0 = 67.0 bytes
   if (132 <= publicKeyHex.length && publicKeyHex.length <= 134) {
     if (publicKeyHex.slice(0, 2) == '03' || publicKeyHex.slice(0, 2) == '02') {
-      const publicKey = u8a.fromString(publicKeyHex, 'base16')
+      const publicKey = fromString(publicKeyHex, 'base16')
       const point = nist_weierstrauss.secp521r1.ECPointDecompress(publicKey)
       return nist_weierstrauss.nist_weierstrauss_common.publicKeyIntToXY(point)
     }

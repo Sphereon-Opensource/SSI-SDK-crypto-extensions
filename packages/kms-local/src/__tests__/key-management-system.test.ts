@@ -1,6 +1,7 @@
-import { SphereonKeyManagementSystem } from '../SphereonKeyManagementSystem'
-import { MemoryPrivateKeyStore } from '@veramo/key-manager'
 import { ManagedKeyInfo } from '@veramo/core'
+import { MemoryPrivateKeyStore } from '@veramo/key-manager'
+import { describe, expect, it } from 'vitest'
+import { SphereonKeyManagementSystem } from '../SphereonKeyManagementSystem'
 
 describe('Key creation', () => {
   it('should create a RSA key', async () => {
