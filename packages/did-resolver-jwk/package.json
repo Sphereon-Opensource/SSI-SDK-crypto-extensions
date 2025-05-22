@@ -22,7 +22,7 @@
     "build": "tsup --config ../../tsup.config.ts --tsconfig ../../tsconfig.tsup.json"
   },
   "dependencies": {
-    "@sphereon/ssi-types": "0.33.1-feature.jose.vcdm.67",
+    "@sphereon/ssi-types": "0.33.1-next.73",
     "base64url": "^3.0.1",
     "debug": "^4.3.4",
     "did-resolver": "^4.1.0",
