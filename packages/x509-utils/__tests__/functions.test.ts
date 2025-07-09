@@ -212,6 +212,7 @@ describe('functions: validateX5cCertificateChain', () => {
     const result = await validateX509CertificateChain({
       chain: [funkeTestIssuer, funkeTestCA],
       trustAnchors: [funkeTestCA],
+      verificationTime: new Date('2025-01-01'),
     })
     expect(result).toMatchObject({
       critical: false,
